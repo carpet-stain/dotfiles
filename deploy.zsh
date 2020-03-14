@@ -14,9 +14,9 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/vim/vimrc" | source $MYVIMRC'
 
 # Create required directories
 print "Creating required directory tree..."
-mkdir -p "${XDG_CONFIG_HOME}"/{git/local,mc,htop,ranger,gem}
+mkdir -p "${XDG_CONFIG_HOME}"/git/local
 mkdir -p "${XDG_CACHE_HOME}"/{vim/{backup,swap,undo},zsh}
-mkdir -p "${XDG_DATA_HOME}"/{{goenv,jenv,luaenv,nodenv,phpenv,plenv,pyenv,rbenv}/plugins,zsh,man/man1}
+mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1}
 mkdir -p "${HOME}"/.local/{bin,etc}
 print "  ...done"
 
@@ -34,17 +34,13 @@ print "Linking config files..."
 ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
 ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
 ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
-ln -sf "${SCRIPT_DIR}/configs/mc.ini" "${XDG_CONFIG_HOME}/mc/ini"
-ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
-ln -sf "${SCRIPT_DIR}/configs/ranger" "${XDG_CONFIG_HOME}/ranger/rc.conf"
-ln -sf "${SCRIPT_DIR}/configs/gemrc" "${XDG_CONFIG_HOME}/gem/gemrc"
 print "  ...done"
 
 # Make sure submodules are installed
 print "Syncing submodules..."
 git submodule sync > /dev/null
 git submodule update --init --recursive > /dev/null
-git clean -ffd
+# git clean -ffd
 print "  ...done"
 
 # Install hook to call deploy script after successful pull
@@ -55,13 +51,6 @@ ln -sf ../../deploy.zsh .git/hooks/post-checkout
 print "  ...done"
 
 if (( ${+commands[make]} )); then
-    # Make mongo-hacker
-    print "Making mongo-hacker config..."
-    pushd tools/mongo-hacker
-    make mongo_hacker.js > /dev/null
-    popd
-    print "  ...done"
-
     # Make install git-extras
     print "Installing git-extras..."
     pushd tools/git-extras
@@ -103,22 +92,6 @@ if (( ${+commands[vim]} )); then
     print "  ...done"
 fi
 
-# Link goenv plugins to $GOENV_ROOT
-print "Linking goenv plugins..."
-ln -snf "${SCRIPT_DIR}/env-wrappers/goenv/goenv/plugins/go-build" "${XDG_DATA_HOME}/goenv/plugins/go-build"
-print "  ...done"
-
-# Link jenv plugins to $JENV_ROOT
-print "Linking jenv plugins..."
-ln -snf "${SCRIPT_DIR}/env-wrappers/jenv/jenv/available-plugins/export" "${XDG_DATA_HOME}/jenv/plugins/export"
-print "  ...done"
-
-# Link luaenv plugins to $LUAENV_ROOT
-print "Linking luaenv plugins..."
-ln -snf "${SCRIPT_DIR}/env-wrappers/luaenv/lua-build" "${XDG_DATA_HOME}/luaenv/plugins/lua-build"
-ln -snf "${SCRIPT_DIR}/env-wrappers/luaenv/luaenv-luarocks" "${XDG_DATA_HOME}/luaenv/plugins/luaenv-luarocks"
-print "  ...done"
-
 # Link nodenv plugins to $NODENV_ROOT
 print "Linking nodenv plugins..."
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/node-build" "${XDG_DATA_HOME}/nodenv/plugins/node-build"
@@ -128,38 +101,6 @@ ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-man" "${XDG_DATA_HOME}/nodenv/
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-package-rehash" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-package-rehash"
 print "  ...done"
 
-# Link phpenv plugins to $PHPENV_ROOT
-print "Linking phpenv plugins..."
-ln -snf "${SCRIPT_DIR}/env-wrappers/phpenv/php-build" "${XDG_DATA_HOME}/phpenv/plugins/php-build"
-ln -snf "${SCRIPT_DIR}/env-wrappers/phpenv/phpenv-aliases" "${XDG_DATA_HOME}/phpenv/plugins/phpenv-aliases"
-ln -snf "${SCRIPT_DIR}/env-wrappers/phpenv/phpenv-composer" "${XDG_DATA_HOME}/phpenv/plugins/phpenv-composer"
-print "  ...done"
-
-# Link plenv plugins to $PLENV_ROOT
-print "Linking plenv plugins..."
-ln -snf "${SCRIPT_DIR}/env-wrappers/plenv/perl-build" "${XDG_DATA_HOME}/plenv/plugins/perl-build"
-ln -snf "${SCRIPT_DIR}/env-wrappers/plenv/plenv-contrib" "${XDG_DATA_HOME}/plenv/plugins/plenv-contrib"
-ln -snf "${SCRIPT_DIR}/env-wrappers/plenv/plenv-download" "${XDG_DATA_HOME}/plenv/plugins/plenv-download"
-print "  ...done"
-
-# Link pyenv plugins to $PYENV_ROOT
-print "Linking pyenv plugins..."
-ln -snf "${SCRIPT_DIR}/env-wrappers/pyenv/pyenv/plugins/python-build" "${XDG_DATA_HOME}/pyenv/plugins/python-build"
-ln -snf "${SCRIPT_DIR}/env-wrappers/pyenv/pyenv-virtualenv" "${XDG_DATA_HOME}/pyenv/plugins/pyenv-virtualenv"
-ln -snf "${SCRIPT_DIR}/env-wrappers/pyenv/pyenv-default-packages" "${XDG_DATA_HOME}/pyenv/plugins/pyenv-default-packages"
-ln -sf "${SCRIPT_DIR}/env-wrappers/pyenv/default-packages" "${XDG_DATA_HOME}/pyenv/default-packages"
-print "  ...done"
-
-# Link rbenv plugins to $RBENV_ROOT
-print "Linking rbenv plugins..."
-local -a rbenv_plugins
-rbenv_plugins=("ruby-build" "rbenv-aliases" "rbenv-binstubs" "rbenv-chefdk" "rbenv-ctags" "rbenv-default-gems" "rbenv-env" "rbenv-man")
-local plugin
-for plugin in "${rbenv_plugins[@]}"; do
-    ln -snf "${SCRIPT_DIR}/env-wrappers/rbenv/${plugin}" "${XDG_DATA_HOME}/rbenv/plugins/${plugin}"
-done
-ln -sf "${SCRIPT_DIR}/env-wrappers/rbenv/default-gems" "${XDG_DATA_HOME}/rbenv/default-gems"
-print "  ...done"
 
 # Install crontab task to pull updates every midnight
 print "Installing cron job for periodic updates..."
