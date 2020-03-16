@@ -302,3 +302,12 @@
 [submodule "zsh/plugins/z"]
 	path = zsh/plugins/z
 	url = https://github.com/agkozak/zsh-z.git
+[submodule "vim/pack/03_plugins/vim"]
+	path = vim/pack/03_plugins/vim
+	url = https://github.com/dracula/vim.git
+[submodule "vim/pack/03_plugins/start/vim"]
+	path = vim/pack/03_plugins/start/vim
+	url = https://github.com/dracula/vim.git
+[submodule "vim/pack/03_plugins/start/dracula"]
+	path = vim/pack/03_plugins/start/dracula
+	url = https://github.com/dracula/vim.git
