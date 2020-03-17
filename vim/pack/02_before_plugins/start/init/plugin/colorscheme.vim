@@ -8,5 +8,5 @@ if has('termguicolors')
   endif
 endif
 
-set background=dark
-colorscheme solarized8_flat
+:set background=dark
+colorscheme dracula

@@ -57,3 +57,6 @@
 	autocorrect = 5
 [status]
 	submoduleSummary = true
+[user]
+	email = brian.leppez@ey.com
+	name = Brian Leppez
