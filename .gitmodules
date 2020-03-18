@@ -311,3 +311,6 @@
 [submodule "vim/pack/03_plugins/start/dracula"]
 	path = vim/pack/03_plugins/start/dracula
 	url = https://github.com/dracula/vim.git
+[submodule "tmux/plugins/dracula"]
+	path = tmux/plugins/dracula
+	url = https://github.com/sei40kr/tmux-airline-dracula.git
