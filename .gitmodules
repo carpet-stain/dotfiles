@@ -323,3 +323,6 @@
 [submodule "vim/pack/03_plugins/start/go"]
 	path = vim/pack/03_plugins/start/go
 	url = https://github.com/fatih/vim-go.git
+[submodule "env-wrappers/goenv/goenv"]
+	path = env-wrappers/goenv/goenv
+	url = https://github.com/syndbg/goenv
