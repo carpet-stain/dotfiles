@@ -16,7 +16,7 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/vim/vimrc" | source $MYVIMRC'
 print "Creating required directory tree..."
 mkdir -p "${XDG_CONFIG_HOME}"/git/local
 mkdir -p "${XDG_CACHE_HOME}"/{vim/{backup,swap,undo},zsh}
-mkdir -p "${XDG_DATA_HOME}"/{nodenv/plugins,zsh,man/man1}
+mkdir -p "${XDG_DATA_HOME}"/{{goenv,nodenv}/plugins,zsh,man/man1}
 mkdir -p "${HOME}"/.local/{bin,etc}
 print "  ...done"
 
@@ -92,6 +92,11 @@ if (( ${+commands[vim]} )); then
     print "  ...done"
 fi
 
+# Link goenv plugins to $GOENV_ROOT
+print "Linking goenv plugins..."
+ln -snf "${SCRIPT_DIR}/env-wrappers/goenv/goenv/plugins/go-build" "${XDG_DATA_HOME}/goenv/plugins/go-build"
+print "  ...done"
+
 # Link nodenv plugins to $NODENV_ROOT
 print "Linking nodenv plugins..."
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/node-build" "${XDG_DATA_HOME}/nodenv/plugins/node-build"
@@ -99,6 +104,8 @@ ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-aliases" "${XDG_DATA_HOME}/nod
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-env" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-env"
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-man" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-man"
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-package-rehash" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-package-rehash"
+ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-update" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-update"
+ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/node-build-update-defs" "${XDG_DATA_HOME}/nodenv/plugins/node-build-update-defs"
 print "  ...done"
 
 

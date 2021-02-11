@@ -314,3 +314,12 @@
 [submodule "tmux/plugins/dracula"]
 	path = tmux/plugins/dracula
 	url = https://github.com/sei40kr/tmux-airline-dracula.git
+[submodule "env-wrappers/nodenv/node-build-update-defs"]
+	path = env-wrappers/nodenv/node-build-update-defs
+	url = https://github.com/nodenv/node-build-update-defs.git
+[submodule "env-wrappers/nodenv/nodenv-update"]
+	path = env-wrappers/nodenv/nodenv-update
+	url = https://github.com/nodenv/nodenv-update.git
+[submodule "vim/pack/03_plugins/start/go"]
+	path = vim/pack/03_plugins/start/go
+	url = https://github.com/fatih/vim-go.git
