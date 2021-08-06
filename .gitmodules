@@ -326,3 +326,6 @@
 [submodule "env-wrappers/goenv/goenv"]
 	path = env-wrappers/goenv/goenv
 	url = https://github.com/syndbg/goenv
+[submodule "vim/pack/03_plugins/start/fern"]
+	path = vim/pack/03_plugins/start/fern
+	url = https://github.com/lambdalisue/fern.vim
