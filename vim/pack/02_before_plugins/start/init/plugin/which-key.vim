@@ -54,15 +54,13 @@ let g:which_key_map.s={
     \'g' : ['TestVisit', 'Open test file']
     \}
 
-" netrw openers
+" fern openers
 let g:which_key_map.e={
-    \'name' : 'Explore',
-    \'e' : ['Explore', 'in current window'],
-    \'s' : ['Sexplore', 'in horizontal split'],
-    \'v' : [':Vexplore!', 'in vertical split'],
-    \'t' : ['Texplore', 'in new tab'],
-    \'l' : [':20Lexplore', 'in left sidebar'],
-    \'r' : ['Rexplore', 'return']
+    \'name' : 'Fern (explore)',
+    \'e' : [':Fern . -reveal=%', 'in current window'],
+    \'s' : [':Fern . -opener=split -reveal=%', 'in horizontal split'],
+    \'v' : [':Fern . -opener=vsplit -reveal=%', 'in vertical split'],
+    \'t' : [':Fern . -opener=tabedit -reveal=%', 'in new tab']
     \}
 
 " toggles
@@ -78,11 +76,6 @@ let g:which_key_map.t={
 
 " ag
 let g:which_key_map.a=['Ag', 'ag search']
-
-" zeal
-nmap <leader>z <Plug>Zeavim
-vmap <leader>z <Plug>ZVVisSelection
-let g:which_key_map.z='Zeal search'
 
 " fzf
 let g:which_key_map.f={
@@ -132,6 +125,9 @@ xnoremap <leader>d "_d
 xnoremap <leader>p "_dP
 let g:which_key_map.d=['"_d', 'Delete']
 let g:which_key_map.p=['"_dP"', 'Paste']
+
+" cheat sheet
+let g:which_key_map["\?"]=['Cheat40', 'Cheat sheet']
 
 " buffer navigation
 let g:which_key_map.b = {

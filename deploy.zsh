@@ -34,6 +34,11 @@ print "Linking config files..."
 ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
 ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
 ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
+ln -sf "${SCRIPT_DIR}/configs/mc.ini" "${XDG_CONFIG_HOME}/mc/ini"
+ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
+ln -sf "${SCRIPT_DIR}/configs/ranger" "${XDG_CONFIG_HOME}/ranger/rc.conf"
+ln -sf "${SCRIPT_DIR}/configs/gemrc" "${XDG_CONFIG_HOME}/gem/gemrc"
+ln -snf "${SCRIPT_DIR}/configs/ranger-plugins" "${XDG_CONFIG_HOME}/ranger/plugins"
 print "  ...done"
 
 # Make sure submodules are installed
@@ -50,41 +55,6 @@ ln -sf ../../deploy.zsh .git/hooks/post-merge
 ln -sf ../../deploy.zsh .git/hooks/post-checkout
 print "  ...done"
 
-if (( ${+commands[make]} )); then
-    # Make install git-extras
-    print "Installing git-extras..."
-    pushd tools/git-extras
-    PREFIX="${HOME}/.local" make install > /dev/null
-    popd
-    print "  ...done"
-
-    print "Installing git-quick-stats..."
-    pushd tools/git-quick-stats
-    PREFIX="${HOME}/.local" make install > /dev/null
-    popd
-    print "  ...done"
-fi
-
-print "Installing fzf..."
-pushd tools/fzf
-if ./install --bin &> /dev/null; then
-    ln -sf "${SCRIPT_DIR}/tools/fzf/bin/fzf" "${HOME}/.local/bin/fzf"
-    ln -sf "${SCRIPT_DIR}/tools/fzf/bin/fzf-tmux" "${HOME}/.local/bin/fzf-tmux"
-    ln -sf "${SCRIPT_DIR}/tools/fzf/man/man1/fzf.1" "${XDG_DATA_HOME}/man/man1/fzf.1"
-    ln -sf "${SCRIPT_DIR}/tools/fzf/man/man1/fzf-tmux.1" "${XDG_DATA_HOME}/man/man1/fzf-tmux.1"
-    print "  ...done"
-else
-    print "  ...failed. Probably unsupported architecture, please check fzf installation guide"
-fi
-popd
-
-if (( ${+commands[perl]} )); then
-    # Install diff-so-fancy
-    print "Installing diff-so-fancy..."
-    ln -sf "${SCRIPT_DIR}/tools/diff-so-fancy/diff-so-fancy" "${HOME}/.local/bin/diff-so-fancy"
-    print "  ...done"
-fi
-
 if (( ${+commands[vim]} )); then
     # Generating vim help tags
     print "Generating vim helptags..."
@@ -94,6 +64,7 @@ fi
 
 # Link goenv plugins to $GOENV_ROOT
 print "Linking goenv plugins..."
+hlsearch)65M
 ln -snf "${SCRIPT_DIR}/env-wrappers/goenv/goenv/plugins/go-build" "${XDG_DATA_HOME}/goenv/plugins/go-build"
 print "  ...done"
 
@@ -106,6 +77,11 @@ ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-man" "${XDG_DATA_HOME}/nodenv/
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-package-rehash" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-package-rehash"
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/nodenv-update" "${XDG_DATA_HOME}/nodenv/plugins/nodenv-update"
 ln -snf "${SCRIPT_DIR}/env-wrappers/nodenv/node-build-update-defs" "${XDG_DATA_HOME}/nodenv/plugins/node-build-update-defs"
+print "  ...done"
+
+# Trigger zsh run with powerlevel10k prompt to download gitstatusd
+print "Downloading gitstatusd for powerlevel10k..."
+$SHELL -is <<<'' &>/dev/null
 print "  ...done"
 
 

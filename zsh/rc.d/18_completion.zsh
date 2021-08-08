@@ -1,11 +1,5 @@
 # Completion tweaks
-zstyle ':completion:*'                  matcher-list    'm:{a-zA-Z}={A-Za-z}' 'l:|=* r:|=*'
 zstyle ':completion:*:descriptions'     format          '[%d]'
-zstyle ':completion:*:*:-subscript-:*'  tag-order       indexes parameters
-zstyle ':completion:*'                  squeeze-slashes true
-zstyle ':completion:*'                  single-ignored  show
-zstyle ':completion:*:(rm|kill|diff):*' ignore-line     other
-zstyle ':completion:*:rm:*'             file-patterns   '*:all-files'
 zstyle ':completion:*'                  list-colors     ${(s.:.)LS_COLORS}
 zstyle ':completion::complete:*'        use-cache       true
 zstyle ':completion::complete:*'        cache-path      "${XDG_CACHE_HOME}/zsh/compcache"
@@ -24,11 +18,20 @@ man_glob () {
 }
 compctl -K man_glob man
 
+# Enable cached completions if present
+if [[ -d "${XDG_CACHE_HOME}/zsh/fpath" ]]; then
+    fpath+=("${XDG_CACHE_HOME}/zsh/fpath")
+fi
+
 # Additional completion rules
-fpath+="${ZDOTDIR}/plugins/completions/src"
+fpath+=("${ZDOTDIR}/plugins/completions/src" "${ZDOTDIR}/fpath")
 
 # Enable git-extras completions
 source "${DOTFILES}/tools/git-extras/etc/git-extras-completion.zsh"
+
+
+# Make sure complist is loaded
+zmodload zsh/complist
 
 # Init completions, but regenerate compdump only once a day.
 # The globbing is a little complicated here:
@@ -38,10 +41,11 @@ source "${DOTFILES}/tools/git-extras/etc/git-extras-completion.zsh"
 # - 'mh+20' matches files (or directories or whatever) that are older than 20 hours.
 autoload -Uz compinit
 if [[ -n "${XDG_CACHE_HOME}/zsh/compdump"(#qN.mh+20) ]]; then
-    compinit -i -d "${XDG_CACHE_HOME}/zsh/compdump"
+    compinit -i -u -d "${XDG_CACHE_HOME}/zsh/compdump"
 else
-    compinit -i -C -d "${XDG_CACHE_HOME}/zsh/compdump"
+    compinit -i -u -C -d "${XDG_CACHE_HOME}/zsh/compdump"
 fi
 
-# Properly enable z completion
-compdef _zshz z=zshz
+# Enable bash completions too
+autoload -Uz bashcompinit
+bashcompinit

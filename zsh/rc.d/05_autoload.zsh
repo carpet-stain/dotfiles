@@ -1,5 +1,6 @@
 # Initialize colors
-autoload -U colors && colors
+autoload -U colors
+colors
 
 # Fullscreen command line edit
 autoload -z edit-command-line
@@ -12,6 +13,11 @@ select-word-style bash
 
 # zrecompile to compile some plugins
 autoload -U zrecompile
+
+# Enable run-help module
+(( $+aliases[run-help] )) && unalias run-help
+autoload -Uz run-help
+alias help=run-help
 
 # enable url-quote-magic
 autoload -Uz url-quote-magic

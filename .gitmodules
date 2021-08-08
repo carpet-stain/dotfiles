@@ -37,27 +37,6 @@
 [submodule "tmux/plugins/yank"]
 	path = tmux/plugins/yank
 	url = https://github.com/tmux-plugins/tmux-yank.git
-[submodule "tools/diff-so-fancy"]
-	path = tools/diff-so-fancy
-	url = https://github.com/so-fancy/diff-so-fancy.git
-[submodule "tools/fzf"]
-	path = tools/fzf
-	url = https://github.com/junegunn/fzf.git
-[submodule "tools/git-extras"]
-	path = tools/git-extras
-	url = https://github.com/tj/git-extras.git
-[submodule "tools/git-quick-stats"]
-	path = tools/git-quick-stats
-	url = https://github.com/arzzen/git-quick-stats.git
-[submodule "tools/httpstat"]
-	path = tools/httpstat
-	url = https://github.com/b4b4r07/httpstat.git
-[submodule "tools/spark"]
-	path = tools/spark
-	url = https://github.com/holman/spark.git
-[submodule "tools/tldr-bash-client"]
-	path = tools/tldr-bash-client
-	url = https://github.com/pepa65/tldr-bash-client.git
 [submodule "vim/pack/01_sensible/start/sensible"]
 	path = vim/pack/01_sensible/start/sensible
 	url = https://github.com/tpope/vim-sensible.git
@@ -205,9 +184,6 @@
 [submodule "vim/pack/03_plugins/start/rooter"]
 	path = vim/pack/03_plugins/start/rooter
 	url = https://github.com/airblade/vim-rooter.git
-[submodule "vim/pack/03_plugins/start/rspec"]
-	path = vim/pack/03_plugins/start/rspec
-	url = https://github.com/keith/rspec.vim.git
 [submodule "vim/pack/03_plugins/start/smoothie"]
 	path = vim/pack/03_plugins/start/smoothie
 	url = https://github.com/psliwka/vim-smoothie.git
@@ -235,9 +211,6 @@
 [submodule "vim/pack/03_plugins/start/terraform"]
 	path = vim/pack/03_plugins/start/terraform
 	url = https://github.com/hashivim/vim-terraform.git
-[submodule "vim/pack/03_plugins/start/test"]
-	path = vim/pack/03_plugins/start/test
-	url = https://github.com/janko-m/vim-test.git
 [submodule "vim/pack/03_plugins/start/tlib"]
 	path = vim/pack/03_plugins/start/tlib
 	url = https://github.com/tomtom/tlib_vim.git
@@ -293,9 +266,6 @@
 [submodule "zsh/plugins/syntax-highlighting"]
 	path = zsh/plugins/syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
-[submodule "zsh/plugins/tmuxrepl"]
-	path = zsh/plugins/tmuxrepl
-	url = https://github.com/csurfer/tmuxrepl.git
 [submodule "zsh/plugins/z"]
 	path = zsh/plugins/z
 	url = https://github.com/agkozak/zsh-z.git
@@ -308,9 +278,6 @@
 [submodule "vim/pack/03_plugins/start/dracula"]
 	path = vim/pack/03_plugins/start/dracula
 	url = https://github.com/dracula/vim.git
-[submodule "tmux/plugins/dracula"]
-	path = tmux/plugins/dracula
-	url = https://github.com/sei40kr/tmux-airline-dracula.git
 [submodule "env-wrappers/nodenv/node-build-update-defs"]
 	path = env-wrappers/nodenv/node-build-update-defs
 	url = https://github.com/nodenv/node-build-update-defs.git
@@ -329,3 +296,36 @@
 [submodule "vim/pack/03_plugins/start/fern-git-status"]
 	path = vim/pack/03_plugins/start/fern-git-status
 	url = https://github.com/lambdalisue/fern-git-status.vim
+[submodule "vim/pack/03_plugins/start/asyncomplete-lsp"]
+	path = vim/pack/03_plugins/start/asyncomplete-lsp
+	url = https://github.com/prabirshrestha/asyncomplete-lsp.vim
+[submodule "vim/pack/03_plugins/start/cheat40"]
+	path = vim/pack/03_plugins/start/cheat40
+	url = https://github.com/lifepillar/vim-cheat40
+[submodule "vim/pack/03_plugins/start/python-pep8-indent"]
+	path = vim/pack/03_plugins/start/python-pep8-indent
+	url = https://github.com/Vimjas/vim-python-pep8-indent
+[submodule "vim/pack/03_plugins/start/python-syntax"]
+	path = vim/pack/03_plugins/start/python-syntax
+	url = https://github.com/vim-python/python-syntax
+[submodule "vim/pack/03_plugins/start/sh"]
+	path = vim/pack/03_plugins/start/sh
+	url = https://github.com/arzg/vim-sh
+[submodule "vim/pack/03_plugins/start/sh-indent"]
+	path = vim/pack/03_plugins/start/sh-indent
+	url = https://github.com/chrisbra/vim-sh-indent
+[submodule "vim/pack/03_plugins/start/vim-lsp"]
+	path = vim/pack/03_plugins/start/vim-lsp
+	url = https://github.com/prabirshrestha/vim-lsp
+[submodule "vim/pack/03_plugins/start/vim-lsp-settings"]
+	path = vim/pack/03_plugins/start/vim-lsp-settings
+	url = https://github.com/mattn/vim-lsp-settings
+[submodule "vim/pack/03_plugins/start/visual-multi"]
+	path = vim/pack/03_plugins/start/visual-multi
+	url = https://github.com/mg979/vim-visual-multi
+[submodule "zsh/plugins/abbr"]
+	path = zsh/plugins/abbr
+	url = https://github.com/olets/zsh-abbr
+[submodule "vim/pack/03_plugins/start/test"]
+	path = vim/pack/03_plugins/start/test
+	url = https://github.com/vim-test/vim-test

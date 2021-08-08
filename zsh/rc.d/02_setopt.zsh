@@ -18,10 +18,10 @@ setopt AUTO_PARAM_SLASH # complete folders with / at end
 setopt LIST_TYPES # mark type of completion suggestions
 setopt HASH_LIST_ALL # whenever a command completion is attempted, make sure the entire command path is hashed first
 setopt COMPLETE_IN_WORD # allow completion from within a word/phrase
-setopt COMPLETE_ALIASES # keep completion for aliased commands
 setopt ALWAYS_TO_END # move cursor to the end of a completed word
 setopt LONG_LIST_JOBS # list jobs in the long format by default
 setopt AUTO_RESUME # attempt to resume existing job before creating a new process
 setopt NOTIFY # report status of background jobs immediately
 unsetopt RM_STAR_SILENT # notify when rm is running with *
 setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
+PROMPT_EOL_MARK='%K{red} %k'

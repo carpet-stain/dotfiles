@@ -1,5 +1,5 @@
 " force solarized theme
-let g:airline_theme='dracula'
+let g:airline_theme='solarized'
 " enable tabline
 let g:airline#extensions#tabline#enabled=1
 " don't show expected encoding

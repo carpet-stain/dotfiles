@@ -33,21 +33,26 @@ set number " show line numbers ...
 set relativenumber " and use relative style numbers
 set cursorline " highlight line with cursor
 set showcmd " show partial commands in bottom left corner
-if has("popupwin")
-  set completeopt+=popup " show additional into in popup window on competion
-endif
-set completeopt+=noinsert " don't automatically insert, but select first entry
-set completeopt+=menuone " show completion menu even when there is single entry
-set shortmess+=c " shut off completion messages
+set shortmess+=c "Shut off completion messages
 set whichwrap+=<,>,h,l,[,] " autowrap to next line for cursor movements
 set splitbelow " when splitting windows put new ones below ...
 set splitright " ...and to the right
 set path+=** " search subfolders recursively
+set fillchars=diff:\ , " set <space> as fill character for diffs on string removal (default is <minus> char)
+
+set wildmenu
+set wildmode=longest:full,full
 
 " Scrolling
 set scrolloff=8 " start scrolling when we're 8 lines away from margins
 set sidescroll=1 " enable sidescrolling too
 set sidescrolloff=8 " start sidescrolling 8 chars away from margins
+
+" Tabs, make them 4 spaces by default
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 
 " Source local configuration
 runtime vimrc.local
