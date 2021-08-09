@@ -27,7 +27,7 @@ fi
 fpath+=("${ZDOTDIR}/plugins/completions/src" "${ZDOTDIR}/fpath")
 
 # Enable git-extras completions
-source "${DOTFILES}/tools/git-extras/etc/git-extras-completion.zsh"
+# source "${DOTFILES}/tools/git-extras/etc/git-extras-completion.zsh"
 
 
 # Make sure complist is loaded
