@@ -1,14 +1,14 @@
-# Zero home presence dotfiles
+# Dotfiles
 
 ## License
 
 [WTFPL](COPYING)
 
-## There are many like it, but this one is mine
+## Personal dotfiles
 
-This repository contains tools and configs I use in shell. No graphical stuff,
-usable both on server and personal workstation. Battle tested on macOS and
-various Linux distributions including Debian, Ubuntu, CentOS and even WSL.
+This repository contains configs I use in shell. No graphical stuff,
+usable both on server and personal workstation -- for graphical stuff check `Brewfile`. 
+Battle tested on macOS and Arch Linux.
 
 I'm a big fan of [XDG Base Directory
 Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)
@@ -41,25 +41,8 @@ presence](#zero-home-presence).
   * [quilt](configs/quiltrc)
   * [Git](configs/gitconfig)
   * [htop](configs/htoprc)
-* Handy [utilities](tools):
-  * [fzf](https://github.com/junegunn/fzf)
-  * [MySQLTuner](https://github.com/major/MySQLTuner-perl)
-  * [MongoDB Shell Enhancements](https://github.com/TylerBrock/mongo-hacker)
-  * [spark](https://github.com/holman/spark) to draw bar charts right in the
-    console
-  * [diff-so-fancy](https://github.com/so-fancy/diff-so-fancy) for much better
-    git diff layout
-  * [git-extras](https://github.com/tj/git-extras) additional helpers for Git
-  * [slack-cli](https://github.com/rockymadden/slack-cli) for sending messages
-    to slack from shell
 * [goenv](https://github.com/syndbg/goenv),
-  [jenv](https://github.com/jenv/jenv),
-  [luaenv](https://github.com/cehoffman/luaenv),
   [nodenv](https://github.com/nodenv/nodenv),
-  [phpenv](https://github.com/phpenv/phpenv),
-  [plenv](https://github.com/tokuhirom/plenv),
-  [pyenv](https://github.com/yyuu/pyenv) and
-  [rbenv](https://github.com/rbenv/rbenv)
 
 ## Installation
 
@@ -70,8 +53,7 @@ Requirements:
 
 Recommended:
 
-* `make` (optional: required to build mongo-hacker and install git helpers)
-* `perl` (optional: used by diff-so-fancy and MySQLTuner)
+* Run `brew bundle` to install necessary utilities (macOS)
 * `python3` and `pip3` (optional: used by several vim plugins, but they won't
   be activated, if vim built without python3 support)
 * [`fd`](https://github.com/sharkdp/fd) or
@@ -82,7 +64,7 @@ Dotfiles can be installed in any dir, but probably somewhere under `$HOME`.
 Personally I use `$HOME/.local/dotfiles`. The installation is pretty simple:
 
 ```shell
-git clone https://github.com/z0rc/dotfiles.git "$HOME/.local/dotfiles"
+git clone https://github.com/brianleppez/dotfiles.git "$HOME/.local/dotfiles"
 $HOME/.local/dotfiles/deploy.zsh
 chsh -s /bin/zsh
 ```
@@ -112,20 +94,8 @@ into `/etc/zsh/zshenv`. Or you can do it with PAM env module.
 ## Vim version
 
 Vim 8.0 or higher is required as plugins are configured via native package
-interface available in mentioned version. In order you use all bundled vim
-plugins, please install vim with python3 and ruby support built-in.
-
-Debian/Ubuntu:
-
-```
-apt install vim-nox
-```
-
-CentOS/RHEL/Fedora:
-
-```
-dnf install vim-enhanced
-```
+interface available in mentioned version. In order to use all bundled vim
+plugins, please install vim with python3
 
 MacOS:
 
