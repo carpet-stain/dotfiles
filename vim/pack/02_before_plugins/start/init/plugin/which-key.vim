@@ -67,10 +67,9 @@ let g:which_key_map.e={
 let g:which_key_map.t={
     \'name' : 'Toggles',
     \'c' : ['<Plug>CapsLockToggle', 'Caps lock'],
+    \'d' : [':Fern . -drawer -toggle -reveal=%', 'File drawer'],
     \'l' : ['LToggle', 'Location list'],
     \'q' : ['QToggle', 'Quickfix window'],
-    \'t' : ['TagbarToggle', 'Tagbar'],
-    \'n' : ['NumbersToggle', 'Numbers'],
     \'u' : ['UndotreeToggle', 'Undotree']
     \}
 
@@ -85,7 +84,6 @@ let g:which_key_map.f={
     \'b' : ['Buffers', 'Open buffers'],
     \'l' : ['Lines', 'Lines in loaded buffers'],
     \'c' : ['Commits', 'Git commits'],
-    \'t' : ['Tags', 'Tags in project'],
     \'h' : ['History', 'History'],
     \'o' : ['Commands', 'Commands'],
     \'m' : ['Maps', 'Normal mode mappings'],
@@ -126,11 +124,8 @@ xnoremap <leader>p "_dP
 let g:which_key_map.d=['"_d', 'Delete']
 let g:which_key_map.p=['"_dP"', 'Paste']
 
-" cheat sheet
-let g:which_key_map["\?"]=['Cheat40', 'Cheat sheet']
-
 " buffer navigation
-let g:which_key_map.b = {
+let g:which_key_map.b={
     \'name' : 'Buffer',
     \'d' : ['bdelete', 'Delete buffer'],
     \'f' : ['bfirst', 'First buffer'],
@@ -139,6 +134,9 @@ let g:which_key_map.b = {
     \'p' : ['bprevious', 'Previous buffer'],
     \'s' : ['Startify', 'Start buffer']
     \}
+
+" cheat sheet
+let g:which_key_map["\?"]=['Cheat40', 'Cheat sheet']
 
 call which_key#register('<Space>', 'g:which_key_map')
 nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
