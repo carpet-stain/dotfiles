@@ -55,9 +55,6 @@
 [submodule "vim/pack/03_plugins/start/asyncomplete"]
 	path = vim/pack/03_plugins/start/asyncomplete
 	url = https://github.com/prabirshrestha/asyncomplete.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-necovim"]
-	path = vim/pack/03_plugins/start/asyncomplete-necovim
-	url = https://github.com/prabirshrestha/asyncomplete-necovim.vim.git
 [submodule "vim/pack/03_plugins/start/asyncomplete-neoinclude"]
 	path = vim/pack/03_plugins/start/asyncomplete-neoinclude
 	url = https://github.com/kyouryuukunn/asyncomplete-neoinclude.vim.git
@@ -124,9 +121,6 @@
 [submodule "vim/pack/03_plugins/start/gitv"]
 	path = vim/pack/03_plugins/start/gitv
 	url = https://github.com/gregsexton/gitv.git
-[submodule "vim/pack/03_plugins/start/gutentags"]
-	path = vim/pack/03_plugins/start/gutentags
-	url = https://github.com/ludovicchabant/vim-gutentags.git
 [submodule "vim/pack/03_plugins/start/indentLine"]
 	path = vim/pack/03_plugins/start/indentLine
 	url = https://github.com/Yggdroot/indentLine.git
@@ -154,18 +148,6 @@
 [submodule "vim/pack/03_plugins/start/move"]
 	path = vim/pack/03_plugins/start/move
 	url = https://github.com/matze/vim-move.git
-[submodule "vim/pack/03_plugins/start/multiple-cursors"]
-	path = vim/pack/03_plugins/start/multiple-cursors
-	url = https://github.com/terryma/vim-multiple-cursors.git
-[submodule "vim/pack/03_plugins/start/mw-utils"]
-	path = vim/pack/03_plugins/start/mw-utils
-	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
-[submodule "vim/pack/03_plugins/start/neco-vim"]
-	path = vim/pack/03_plugins/start/neco-vim
-	url = https://github.com/Shougo/neco-vim.git
-[submodule "vim/pack/03_plugins/start/neoinclude"]
-	path = vim/pack/03_plugins/start/neoinclude
-	url = https://github.com/Shougo/neoinclude.vim.git
 [submodule "vim/pack/03_plugins/start/nerdcommenter"]
 	path = vim/pack/03_plugins/start/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
@@ -199,18 +181,12 @@
 [submodule "vim/pack/03_plugins/start/tabular"]
 	path = vim/pack/03_plugins/start/tabular
 	url = https://github.com/godlygeek/tabular.git
-[submodule "vim/pack/03_plugins/start/tagbar"]
-	path = vim/pack/03_plugins/start/tagbar
-	url = https://github.com/majutsushi/tagbar.git
 [submodule "vim/pack/03_plugins/start/terminus"]
 	path = vim/pack/03_plugins/start/terminus
 	url = https://github.com/wincent/terminus.git
 [submodule "vim/pack/03_plugins/start/terraform"]
 	path = vim/pack/03_plugins/start/terraform
 	url = https://github.com/hashivim/vim-terraform.git
-[submodule "vim/pack/03_plugins/start/tlib"]
-	path = vim/pack/03_plugins/start/tlib
-	url = https://github.com/tomtom/tlib_vim.git
 [submodule "vim/pack/03_plugins/start/tmux"]
 	path = vim/pack/03_plugins/start/tmux
 	url = https://github.com/ericpruitt/tmux.vim.git
@@ -223,15 +199,9 @@
 [submodule "vim/pack/03_plugins/start/undotree"]
 	path = vim/pack/03_plugins/start/undotree
 	url = https://github.com/mbbill/undotree.git
-[submodule "vim/pack/03_plugins/start/vinegar"]
-	path = vim/pack/03_plugins/start/vinegar
-	url = https://github.com/tpope/vim-vinegar.git
 [submodule "vim/pack/03_plugins/start/which-key"]
 	path = vim/pack/03_plugins/start/which-key
 	url = https://github.com/liuchengxu/vim-which-key.git
-[submodule "vim/pack/03_plugins/start/xolox-misc"]
-	path = vim/pack/03_plugins/start/xolox-misc
-	url = https://github.com/xolox/vim-misc.git
 [submodule "zsh/plugins/autoenv"]
 	path = zsh/plugins/autoenv
 	url = https://github.com/Tarrasch/zsh-autoenv.git
@@ -271,9 +241,6 @@
 	url = https://github.com/dracula/vim.git
 [submodule "vim/pack/03_plugins/start/vim"]
 	path = vim/pack/03_plugins/start/vim
-	url = https://github.com/dracula/vim.git
-[submodule "vim/pack/03_plugins/start/dracula"]
-	path = vim/pack/03_plugins/start/dracula
 	url = https://github.com/dracula/vim.git
 [submodule "env-wrappers/nodenv/node-build-update-defs"]
 	path = env-wrappers/nodenv/node-build-update-defs
