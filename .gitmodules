@@ -290,3 +290,6 @@
 [submodule "vim/pack/03_plugins/start/test"]
 	path = vim/pack/03_plugins/start/test
 	url = https://github.com/vim-test/vim-test
+[submodule "vim/pack/03_plugins/start/fugitive"]
+	path = vim/pack/03_plugins/start/fugitive
+	url = https://github.com/tpope/vim-fugitive
