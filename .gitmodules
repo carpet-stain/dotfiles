@@ -1,21 +1,3 @@
-[submodule "env-wrappers/nodenv/node-build"]
-	path = env-wrappers/nodenv/node-build
-	url = https://github.com/nodenv/node-build.git
-[submodule "env-wrappers/nodenv/nodenv"]
-	path = env-wrappers/nodenv/nodenv
-	url = https://github.com/nodenv/nodenv.git
-[submodule "env-wrappers/nodenv/nodenv-aliases"]
-	path = env-wrappers/nodenv/nodenv-aliases
-	url = https://github.com/nodenv/nodenv-aliases.git
-[submodule "env-wrappers/nodenv/nodenv-env"]
-	path = env-wrappers/nodenv/nodenv-env
-	url = https://github.com/nodenv/nodenv-env.git
-[submodule "env-wrappers/nodenv/nodenv-man"]
-	path = env-wrappers/nodenv/nodenv-man
-	url = https://github.com/nodenv/nodenv-man.git
-[submodule "env-wrappers/nodenv/nodenv-package-rehash"]
-	path = env-wrappers/nodenv/nodenv-package-rehash
-	url = https://github.com/nodenv/nodenv-package-rehash.git
 [submodule "tmux/plugins/colors-solarized"]
 	path = tmux/plugins/colors-solarized
 	url = https://github.com/seebi/tmux-colors-solarized.git
@@ -239,18 +221,9 @@
 [submodule "vim/pack/03_plugins/start/vim"]
 	path = vim/pack/03_plugins/start/vim
 	url = https://github.com/dracula/vim.git
-[submodule "env-wrappers/nodenv/node-build-update-defs"]
-	path = env-wrappers/nodenv/node-build-update-defs
-	url = https://github.com/nodenv/node-build-update-defs.git
-[submodule "env-wrappers/nodenv/nodenv-update"]
-	path = env-wrappers/nodenv/nodenv-update
-	url = https://github.com/nodenv/nodenv-update.git
 [submodule "vim/pack/03_plugins/start/go"]
 	path = vim/pack/03_plugins/start/go
 	url = https://github.com/fatih/vim-go.git
-[submodule "env-wrappers/goenv/goenv"]
-	path = env-wrappers/goenv/goenv
-	url = https://github.com/syndbg/goenv
 [submodule "vim/pack/03_plugins/start/fern"]
 	path = vim/pack/03_plugins/start/fern
 	url = https://github.com/lambdalisue/fern.vim

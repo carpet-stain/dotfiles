@@ -5,6 +5,7 @@ if [[ -z "${ZDOTDIR}" || -L "${HOME}/.zshenv" ]]; then
 fi
 # DOTFILES dir is parent to ZDOTDIR
 export DOTFILES="${ZDOTDIR%/*}"
+export BREW_EXECUTABLE="/usr/local/bin"
 
 # Source local env files
 for envfile in "${ZDOTDIR}"/env.d/*; do

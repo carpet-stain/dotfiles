@@ -113,32 +113,6 @@ _zsh-dot () {
 zle -N _zsh-dot
 bindkey . _zsh-dot
 
-# Print apt history
-apt-history () {
-    case "${1}" in
-    install)
-        if [[ -e /var/log/dpkg.log ]]; then
-            zgrep --no-filename ' installed' "$(ls -rt /var/log/dpkg*)"
-        else
-            journalctl -n1000 -t dpkg | grep ' installed'
-        fi
-        ;;
-    upgrade|remove)
-        if [[ -e /var/log/dpkg.log ]]; then
-            zgrep --no-filename "${1}" "$(ls -rt /var/log/dpkg*)"
-        else
-            journalctl -n1000 -t dpkg | grep "${1}"
-        fi
-        ;;
-    *)
-        echo "Parameters:"
-        echo " install - Lists all packages that have been installed."
-        echo " upgrade - Lists all packages that have been upgraded."
-        echo " remove - Lists all packages that have been removed."
-        ;;
-    esac
-}
-
 # vpaste uploader
 vpaste () {
     local uri="http://vpaste.net/"
