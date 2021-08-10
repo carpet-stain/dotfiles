@@ -14,7 +14,7 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/vim/vimrc" | source $MYVIMRC'
 
 # Create required directories
 print "Creating required directory tree..."
-mkdir -p "${XDG_CONFIG_HOME}"/git/local
+mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,ranger}
 mkdir -p "${XDG_CACHE_HOME}"/{vim/{backup,swap,undo},zsh}
 mkdir -p "${XDG_DATA_HOME}"/{{goenv,nodenv}/plugins,zsh,man/man1}
 mkdir -p "${HOME}"/.local/{bin,etc}
@@ -34,10 +34,8 @@ print "Linking config files..."
 ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
 ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
 ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
-ln -sf "${SCRIPT_DIR}/configs/mc.ini" "${XDG_CONFIG_HOME}/mc/ini"
 ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
 ln -sf "${SCRIPT_DIR}/configs/ranger" "${XDG_CONFIG_HOME}/ranger/rc.conf"
-ln -sf "${SCRIPT_DIR}/configs/gemrc" "${XDG_CONFIG_HOME}/gem/gemrc"
 ln -snf "${SCRIPT_DIR}/configs/ranger-plugins" "${XDG_CONFIG_HOME}/ranger/plugins"
 print "  ...done"
 
