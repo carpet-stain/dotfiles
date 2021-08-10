@@ -293,3 +293,6 @@
 [submodule "vim/pack/03_plugins/start/fugitive"]
 	path = vim/pack/03_plugins/start/fugitive
 	url = https://github.com/tpope/vim-fugitive
+[submodule "vim/pack/03_plugins/start/fern-hijack"]
+	path = vim/pack/03_plugins/start/fern-hijack
+	url = https://github.com/lambdalisue/fern-hijack.vim
