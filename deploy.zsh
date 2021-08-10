@@ -64,7 +64,6 @@ fi
 
 # Link goenv plugins to $GOENV_ROOT
 print "Linking goenv plugins..."
-hlsearch)65M
 ln -snf "${SCRIPT_DIR}/env-wrappers/goenv/goenv/plugins/go-build" "${XDG_DATA_HOME}/goenv/plugins/go-build"
 print "  ...done"
 
