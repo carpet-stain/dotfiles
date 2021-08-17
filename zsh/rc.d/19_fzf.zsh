@@ -1,4 +1,3 @@
-  
 export FZF_DEFAULT_OPTS="--ansi"
 # Try to use fd or ag, if available as default fzf command
 if (( ${+commands[fd]} )); then
@@ -9,7 +8,5 @@ elif (( ${+commands[ag]} )); then
     export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 fi
 
-# source "${DOTFILES}/tools/fzf/shell/completion.zsh"
-# source "${DOTFILES}/tools/fzf/shell/key-bindings.zsh"
 source "/usr/local/opt/fzf/shell/completion.zsh"
 source "/usr/local/opt/fzf/shell/key-bindings.zsh"
