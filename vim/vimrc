@@ -54,5 +54,7 @@ set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 
+set rtp+=/usr/local/opt/fzf
+
 " Source local configuration
 runtime vimrc.local
