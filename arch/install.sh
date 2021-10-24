@@ -95,7 +95,7 @@ mount "${part_boot}" /mnt/boot
 echo -e "\n### Setting up fastest mirrors"
 reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel zsh efibootmgr man-db man-pages grub intel-ucode nftables iw iwd git cmake jq sddm firefox plasma-desktop plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa
+pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages grub intel-ucode nftables iw iwd git cmake jq sddm firefox plasma-desktop plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg`
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
@@ -116,6 +116,9 @@ options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw
 EOF
 
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
+ln -sf /usr/share/zoneinfo/Europe/London "/etc/localtime"
+sed 's/#en_US/en_US/' -i /etc/locale.gen
+locale-gen
 
 arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,input "$user"
 arch-chroot /mnt chsh -s /usr/bin/zsh
