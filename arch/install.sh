@@ -31,7 +31,7 @@ export SNAP_PAC_SKIP=y
 # Dialog
 BACKTITLE="Arch Linux installation"
 
-pacman -Sy --noconfirm pacman-contrib dialog git reflector terminus-font
+pacman -Sy --noconfirm --needed pacman-contrib dialog git reflector terminus-font
 
 ### Get infomation from user ###
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
