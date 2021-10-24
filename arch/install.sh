@@ -68,23 +68,10 @@ echo -e "\n### HiDPI screens"
 noyes=("Yes" "The font is too small" "No" "The font size is just fine")
 hidpi=$(get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
 clear
+
 [[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
 setfont "$font"
 
-hostname=$(get_input "Hostname" "Enter hostname") || exit 1
-clear
-: ${hostname:?"hostname cannot be empty"}
-
-user=$(get_input "User" "Enter username") || exit 1
-clear
-: ${user:?"user cannot be empty"}
-
-password=$(get_password "User" "Enter password") || exit 1
-clear
-: ${password:?"password cannot be empty"}
-
-devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
-device=$(get_choice "Installation" "Select installation disk" "${devicelist[@]}") || exit 1
 clear
 
 ### Setup the disk and partitions ###
