@@ -66,7 +66,7 @@ pacman -Sy --noconfirm --needed terminus-font dialog
 
 echo -e "\n### HiDPI screens"
 noyes=("Yes" "The font is too small" "No" "The font size is just fine")
-hidpi=$(get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
+hidpi=$(dialog --stdout --menu "Font size" "Is your screen HiDPI?" 0 0 0 "${noyes[@]}") || exit 1
 clear
 
 [[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
