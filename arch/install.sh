@@ -95,7 +95,9 @@ mount "${part_boot}" /mnt/boot
 echo -e "\n### Setting up fastest mirrors"
 reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel zsh efibootmgr man-db man-pages intel-ucode nftables iw iwd git cmake jq sddm firefox plasma-desktop plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa
+pacstrap /mnt base base-devel zsh efibootmgr man-db man-pages grub intel-ucode nftables iw iwd git cmake jq sddm firefox plasma-desktop plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg`
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
 
