@@ -31,6 +31,8 @@ export SNAP_PAC_SKIP=y
 # Dialog
 BACKTITLE="Arch Linux installation"
 
+pacman -Sy --noconfirm pacman-contrib dialog
+
 ### Get infomation from user ###
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
