@@ -40,6 +40,7 @@ set splitright " ...and to the right
 set path+=** " search subfolders recursively
 set fillchars=diff:\ , " set <space> as fill character for diffs on string removal (default is <minus> char)
 
+" command line completion
 set wildmenu
 set wildmode=longest:full,full
 

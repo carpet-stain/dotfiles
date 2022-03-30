@@ -17,7 +17,7 @@ let g:which_key_map.g={
     \'l' : ['Glog', 'Log'],
     \'f' : ['Gfetch', 'Fetch'],
     \'b' : ['Gblame', 'Blame'],
-    \'k' : ['Gitv', 'Gitk'],
+    \'v' : ['GV', 'GV (history browser)'],
     \'h' : {
         \'name' : 'Hunks',
         \'p' : ['<Plug>GitGutterPreviewHunk', 'Preview'],
@@ -115,14 +115,6 @@ let g:which_key_map["\<Space>"]={
     \'N'  : ['<Plug>(easymotion-N)', 'Jump to latest "/" or "?" backward'],
     \'s'  : ['<Plug>(easymotion-s)', 'Find char forward and backward'],
     \}
-
-" delete to back hole register
-" paste and keep it available for further paste
-nnoremap <leader>d "_d
-xnoremap <leader>d "_d
-xnoremap <leader>p "_dP
-let g:which_key_map.d=['"_d', 'Delete']
-let g:which_key_map.p=['"_dP"', 'Paste']
 
 " buffer navigation
 let g:which_key_map.b={

@@ -31,27 +31,30 @@
 [submodule "vim/pack/03_plugins/start/ansible"]
 	path = vim/pack/03_plugins/start/ansible
 	url = https://github.com/pearofducks/ansible-vim.git
-[submodule "vim/pack/03_plugins/start/anzu"]
-	path = vim/pack/03_plugins/start/anzu
-	url = https://github.com/osyo-manga/vim-anzu.git
 [submodule "vim/pack/03_plugins/start/asyncomplete"]
 	path = vim/pack/03_plugins/start/asyncomplete
 	url = https://github.com/prabirshrestha/asyncomplete.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-neoinclude"]
-	path = vim/pack/03_plugins/start/asyncomplete-neoinclude
-	url = https://github.com/kyouryuukunn/asyncomplete-neoinclude.vim.git
+[submodule "vim/pack/03_plugins/start/asyncomplete-buffer"]
+	path = vim/pack/03_plugins/start/asyncomplete-buffer
+	url = https://github.com/omgitsmoe/asyncomplete-buffer.vim.git
+[submodule "vim/pack/03_plugins/start/asyncomplete-lsp"]
+	path = vim/pack/03_plugins/start/asyncomplete-lsp
+	url = https://github.com/prabirshrestha/asyncomplete-lsp.vim.git
+[submodule "vim/pack/03_plugins/start/asyncomplete-necovim"]
+	path = vim/pack/03_plugins/start/asyncomplete-necovim
+	url = https://github.com/prabirshrestha/asyncomplete-necovim.vim.git
 [submodule "vim/pack/03_plugins/start/auto-git-diff"]
 	path = vim/pack/03_plugins/start/auto-git-diff
 	url = https://github.com/hotwatermorning/auto-git-diff.git
-[submodule "vim/pack/03_plugins/start/aws"]
-	path = vim/pack/03_plugins/start/aws
-	url = https://github.com/andrewstuart/aws-vim.git
 [submodule "vim/pack/03_plugins/start/brewfile"]
 	path = vim/pack/03_plugins/start/brewfile
 	url = https://github.com/bfontaine/Brewfile.vim.git
-[submodule "vim/pack/03_plugins/start/capslock"]
-	path = vim/pack/03_plugins/start/capslock
-	url = https://github.com/tpope/vim-capslock.git
+[submodule "vim/pack/03_plugins/start/bundler"]
+	path = vim/pack/03_plugins/start/bundler
+	url = https://github.com/tpope/vim-bundler.git
+[submodule "vim/pack/03_plugins/start/cheat40"]
+	path = vim/pack/03_plugins/start/cheat40
+	url = https://github.com/lifepillar/vim-cheat40.git
 [submodule "vim/pack/03_plugins/start/colorizer"]
 	path = vim/pack/03_plugins/start/colorizer
 	url = https://github.com/chrisbra/Colorizer
@@ -76,18 +79,21 @@
 [submodule "vim/pack/03_plugins/start/eunuch"]
 	path = vim/pack/03_plugins/start/eunuch
 	url = https://github.com/tpope/vim-eunuch.git
-[submodule "vim/pack/03_plugins/start/expand-region"]
-	path = vim/pack/03_plugins/start/expand-region
-	url = https://github.com/landock/vim-expand-region.git
+[submodule "vim/pack/03_plugins/start/fern"]
+	path = vim/pack/03_plugins/start/fern
+	url = https://github.com/lambdalisue/fern.vim.git
+[submodule "vim/pack/03_plugins/start/fern-git-status"]
+	path = vim/pack/03_plugins/start/fern-git-status
+	url = https://github.com/lambdalisue/fern-git-status.vim.git
 [submodule "vim/pack/03_plugins/start/file-line"]
 	path = vim/pack/03_plugins/start/file-line
 	url = https://github.com/lervag/file-line.git
-[submodule "vim/pack/03_plugins/start/fixkey"]
-	path = vim/pack/03_plugins/start/fixkey
-	url = https://github.com/kenwon/vim-fixkey.git
 [submodule "vim/pack/03_plugins/start/fold-cycle"]
 	path = vim/pack/03_plugins/start/fold-cycle
 	url = https://github.com/arecarn/vim-fold-cycle.git
+[submodule "vim/pack/03_plugins/start/fugitive"]
+	path = vim/pack/03_plugins/start/fugitive
+	url = https://github.com/tpope/vim-fugitive.git
 [submodule "vim/pack/03_plugins/start/fzf-vim"]
 	path = vim/pack/03_plugins/start/fzf-vim
 	url = https://github.com/junegunn/fzf.vim.git
@@ -97,9 +103,15 @@
 [submodule "vim/pack/03_plugins/start/gitgutter"]
 	path = vim/pack/03_plugins/start/gitgutter
 	url = https://github.com/airblade/vim-gitgutter.git
-[submodule "vim/pack/03_plugins/start/gitv"]
-	path = vim/pack/03_plugins/start/gitv
-	url = https://github.com/gregsexton/gitv.git
+[submodule "vim/pack/03_plugins/start/go"]
+	path = vim/pack/03_plugins/start/go
+	url = https://github.com/fatih/vim-go.git
+[submodule "vim/pack/03_plugins/start/groovy"]
+	path = vim/pack/03_plugins/start/groovy
+	url = https://github.com/endSly/groovy.vim.git
+[submodule "vim/pack/03_plugins/start/gv"]
+	path = vim/pack/03_plugins/start/gv
+	url = https://github.com/junegunn/gv.vim.git
 [submodule "vim/pack/03_plugins/start/indentLine"]
 	path = vim/pack/03_plugins/start/indentLine
 	url = https://github.com/Yggdroot/indentLine.git
@@ -109,39 +121,81 @@
 [submodule "vim/pack/03_plugins/start/javascript"]
 	path = vim/pack/03_plugins/start/javascript
 	url = https://github.com/pangloss/vim-javascript.git
+[submodule "vim/pack/03_plugins/start/jenkinsfile"]
+	path = vim/pack/03_plugins/start/jenkinsfile
+	url = https://github.com/martinda/Jenkinsfile-vim-syntax.git
 [submodule "vim/pack/03_plugins/start/json"]
 	path = vim/pack/03_plugins/start/json
 	url = https://github.com/elzr/vim-json.git
-[submodule "vim/pack/03_plugins/start/lens"]
-	path = vim/pack/03_plugins/start/lens
-	url = https://github.com/camspiers/lens.vim.git
 [submodule "vim/pack/03_plugins/start/listtoggle"]
 	path = vim/pack/03_plugins/start/listtoggle
 	url = https://github.com/Valloric/ListToggle.git
+[submodule "vim/pack/03_plugins/start/localvimrc"]
+	path = vim/pack/03_plugins/start/localvimrc
+	url = https://github.com/embear/vim-localvimrc
 [submodule "vim/pack/03_plugins/start/log-highlighting"]
 	path = vim/pack/03_plugins/start/log-highlighting
 	url = https://github.com/MTDL9/vim-log-highlighting.git
+[submodule "vim/pack/03_plugins/start/logrotate"]
+	path = vim/pack/03_plugins/start/logrotate
+	url = https://github.com/moon-musick/vim-logrotate.git
+[submodule "vim/pack/03_plugins/start/logstash"]
+	path = vim/pack/03_plugins/start/logstash
+	url = https://github.com/robbles/logstash.vim.git
+[submodule "vim/pack/03_plugins/start/lua"]
+	path = vim/pack/03_plugins/start/lua
+	url = https://github.com/tbastos/vim-lua.git
 [submodule "vim/pack/03_plugins/start/markdown"]
 	path = vim/pack/03_plugins/start/markdown
-	url = https://github.com/gabrielelana/vim-markdown.git
+	url = https://github.com/plasticboy/vim-markdown.git
+[submodule "vim/pack/03_plugins/start/monit"]
+	path = vim/pack/03_plugins/start/monit
+	url = https://github.com/tmatilai/vim-monit.git
 [submodule "vim/pack/03_plugins/start/move"]
 	path = vim/pack/03_plugins/start/move
 	url = https://github.com/matze/vim-move.git
+[submodule "vim/pack/03_plugins/start/neco-vim"]
+	path = vim/pack/03_plugins/start/neco-vim
+	url = https://github.com/Shougo/neco-vim.git
 [submodule "vim/pack/03_plugins/start/nerdcommenter"]
 	path = vim/pack/03_plugins/start/nerdcommenter
 	url = https://github.com/scrooloose/nerdcommenter.git
 [submodule "vim/pack/03_plugins/start/nginx"]
 	path = vim/pack/03_plugins/start/nginx
 	url = https://github.com/chr4/nginx.vim.git
-[submodule "vim/pack/03_plugins/start/pear-tree"]
-	path = vim/pack/03_plugins/start/pear-tree
-	url = https://github.com/tmsvg/pear-tree.git
+[submodule "vim/pack/03_plugins/start/perl"]
+	path = vim/pack/03_plugins/start/perl
+	url = https://github.com/vim-perl/vim-perl.git
+[submodule "vim/pack/03_plugins/start/php"]
+	path = vim/pack/03_plugins/start/php
+	url = https://github.com/StanAngeloff/php.vim.git
+[submodule "vim/pack/03_plugins/start/python-pep8-indent"]
+	path = vim/pack/03_plugins/start/python-pep8-indent
+	url = https://github.com/Vimjas/vim-python-pep8-indent.git
+[submodule "vim/pack/03_plugins/start/python-syntax"]
+	path = vim/pack/03_plugins/start/python-syntax
+	url = https://github.com/vim-python/python-syntax.git
+[submodule "vim/pack/03_plugins/start/rbenv"]
+	path = vim/pack/03_plugins/start/rbenv
+	url = https://github.com/tpope/vim-rbenv.git
 [submodule "vim/pack/03_plugins/start/rhubarb"]
 	path = vim/pack/03_plugins/start/rhubarb
 	url = https://github.com/tpope/vim-rhubarb.git
 [submodule "vim/pack/03_plugins/start/rooter"]
 	path = vim/pack/03_plugins/start/rooter
 	url = https://github.com/airblade/vim-rooter.git
+[submodule "vim/pack/03_plugins/start/rspec"]
+	path = vim/pack/03_plugins/start/rspec
+	url = https://github.com/keith/rspec.vim.git
+[submodule "vim/pack/03_plugins/start/ruby"]
+	path = vim/pack/03_plugins/start/ruby
+	url = https://github.com/vim-ruby/vim-ruby.git
+[submodule "vim/pack/03_plugins/start/sh"]
+	path = vim/pack/03_plugins/start/sh
+	url = https://github.com/arzg/vim-sh.git
+[submodule "vim/pack/03_plugins/start/sh-indent"]
+	path = vim/pack/03_plugins/start/sh-indent
+	url = https://github.com/chrisbra/vim-sh-indent.git
 [submodule "vim/pack/03_plugins/start/smoothie"]
 	path = vim/pack/03_plugins/start/smoothie
 	url = https://github.com/psliwka/vim-smoothie.git
@@ -166,21 +220,30 @@
 [submodule "vim/pack/03_plugins/start/terraform"]
 	path = vim/pack/03_plugins/start/terraform
 	url = https://github.com/hashivim/vim-terraform.git
+[submodule "vim/pack/03_plugins/start/test"]
+	path = vim/pack/03_plugins/start/test
+	url = https://github.com/janko-m/vim-test.git
 [submodule "vim/pack/03_plugins/start/tmux"]
 	path = vim/pack/03_plugins/start/tmux
 	url = https://github.com/ericpruitt/tmux.vim.git
-[submodule "vim/pack/03_plugins/start/tmux-focus-events"]
-	path = vim/pack/03_plugins/start/tmux-focus-events
-	url = https://github.com/tmux-plugins/vim-tmux-focus-events.git
-[submodule "vim/pack/03_plugins/start/tmux-navigator"]
-	path = vim/pack/03_plugins/start/tmux-navigator
-	url = https://github.com/christoomey/vim-tmux-navigator.git
 [submodule "vim/pack/03_plugins/start/undotree"]
 	path = vim/pack/03_plugins/start/undotree
 	url = https://github.com/mbbill/undotree.git
+[submodule "vim/pack/03_plugins/start/vim-lsp"]
+	path = vim/pack/03_plugins/start/vim-lsp
+	url = https://github.com/prabirshrestha/vim-lsp.git
+[submodule "vim/pack/03_plugins/start/vim-lsp-settings"]
+	path = vim/pack/03_plugins/start/vim-lsp-settings
+	url = https://github.com/mattn/vim-lsp-settings.git
+[submodule "vim/pack/03_plugins/start/visual-multi"]
+	path = vim/pack/03_plugins/start/visual-multi
+	url = https://github.com/mg979/vim-visual-multi.git
 [submodule "vim/pack/03_plugins/start/which-key"]
 	path = vim/pack/03_plugins/start/which-key
 	url = https://github.com/liuchengxu/vim-which-key.git
+[submodule "vim/pack/03_plugins/start/wilder"]
+	path = vim/pack/03_plugins/start/wilder
+	url = https://github.com/gelguy/wilder.nvim.git
 [submodule "zsh/plugins/abbr"]
 	path = zsh/plugins/abbr
 	url = https://github.com/olets/zsh-abbr

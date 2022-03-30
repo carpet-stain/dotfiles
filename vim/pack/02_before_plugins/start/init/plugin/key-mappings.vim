@@ -2,27 +2,22 @@
 map <Space> <leader>
 
 " if suggestions windows present, then <Enter> accepts selection
-" else use pear-tree mapping
-imap <expr> <CR> pumvisible() ? asyncomplete#close_popup() : '<Plug>(PearTreeExpand)'
-
-" display search position like (2/10) for n/N commands
-map n <Plug>(is-nohl)<Plug>(anzu-n-with-echo)
-map N <Plug>(is-nohl)<Plug>(anzu-N-with-echo)
+" else use delimitMateCR mapping
+imap <expr> <CR> pumvisible() ? asyncomplete#close_popup() : '<Plug>delimitMateCR'
 
 " git hunks navigation
 nmap [c <Plug>GitGutterPrevHunk
 nmap ]c <Plug>GitGutterNextHunk
 
-" use alt+arrows to switch between splits and tmux panes
-nnoremap <silent> <A-Left> :TmuxNavigateLeft<CR>
-nnoremap <silent> <A-Down> :TmuxNavigateDown<CR>
-nnoremap <silent> <A-Up> :TmuxNavigateUp<CR>
-nnoremap <silent> <A-Right> :TmuxNavigateRight<CR>
-nnoremap <silent> <A-\> :TmuxNavigatePrevious<CR>
-
-" crtl+left/right to switch buffers in normal mode
-nmap <C-Left> <Plug>AirlineSelectPrevTab
-nmap <C-Right> <Plug>AirlineSelectNextTab
+" split navigation
+nnoremap <silent> <C-Up> :wincmd k<CR>
+nnoremap <silent> <C-Down> :wincmd j<CR>
+nnoremap <silent> <C-Left> :wincmd h<CR>
+nnoremap <silent> <C-Right> :wincmd l<CR>
+inoremap <silent> <C-Up> <Esc>:wincmd k<CR>
+inoremap <silent> <C-Down> <Esc>:wincmd j<CR>
+inoremap <silent> <C-Left> <Esc>:wincmd h<CR>
+inoremap <silent> <C-Right> <Esc>:wincmd l<CR>
 
 " visual shifting (does not exit visual mode)
 vnoremap < <gv
