@@ -244,6 +244,9 @@
 [submodule "vim/pack/03_plugins/start/wilder"]
 	path = vim/pack/03_plugins/start/wilder
 	url = https://github.com/gelguy/wilder.nvim.git
+[submodule "vim/pack/03_plugins/start/delimitMate"]
+	path = vim/pack/03_plugins/start/delimitMate
+	url = https://github.com/Raimondi/delimitMate.git
 [submodule "zsh/plugins/abbr"]
 	path = zsh/plugins/abbr
 	url = https://github.com/olets/zsh-abbr
@@ -284,54 +287,3 @@
 [submodule "zsh/plugins/z"]
 	path = zsh/plugins/z
 	url = https://github.com/agkozak/zsh-z.git
-[submodule "vim/pack/03_plugins/vim"]
-	path = vim/pack/03_plugins/vim
-	url = https://github.com/dracula/vim.git
-[submodule "vim/pack/03_plugins/start/vim"]
-	path = vim/pack/03_plugins/start/vim
-	url = https://github.com/dracula/vim.git
-[submodule "vim/pack/03_plugins/start/go"]
-	path = vim/pack/03_plugins/start/go
-	url = https://github.com/fatih/vim-go.git
-[submodule "vim/pack/03_plugins/start/fern"]
-	path = vim/pack/03_plugins/start/fern
-	url = https://github.com/lambdalisue/fern.vim
-[submodule "vim/pack/03_plugins/start/fern-git-status"]
-	path = vim/pack/03_plugins/start/fern-git-status
-	url = https://github.com/lambdalisue/fern-git-status.vim
-[submodule "vim/pack/03_plugins/start/asyncomplete-lsp"]
-	path = vim/pack/03_plugins/start/asyncomplete-lsp
-	url = https://github.com/prabirshrestha/asyncomplete-lsp.vim
-[submodule "vim/pack/03_plugins/start/cheat40"]
-	path = vim/pack/03_plugins/start/cheat40
-	url = https://github.com/lifepillar/vim-cheat40
-[submodule "vim/pack/03_plugins/start/python-pep8-indent"]
-	path = vim/pack/03_plugins/start/python-pep8-indent
-	url = https://github.com/Vimjas/vim-python-pep8-indent
-[submodule "vim/pack/03_plugins/start/python-syntax"]
-	path = vim/pack/03_plugins/start/python-syntax
-	url = https://github.com/vim-python/python-syntax
-[submodule "vim/pack/03_plugins/start/sh"]
-	path = vim/pack/03_plugins/start/sh
-	url = https://github.com/arzg/vim-sh
-[submodule "vim/pack/03_plugins/start/sh-indent"]
-	path = vim/pack/03_plugins/start/sh-indent
-	url = https://github.com/chrisbra/vim-sh-indent
-[submodule "vim/pack/03_plugins/start/vim-lsp"]
-	path = vim/pack/03_plugins/start/vim-lsp
-	url = https://github.com/prabirshrestha/vim-lsp
-[submodule "vim/pack/03_plugins/start/vim-lsp-settings"]
-	path = vim/pack/03_plugins/start/vim-lsp-settings
-	url = https://github.com/mattn/vim-lsp-settings
-[submodule "vim/pack/03_plugins/start/visual-multi"]
-	path = vim/pack/03_plugins/start/visual-multi
-	url = https://github.com/mg979/vim-visual-multi
-[submodule "vim/pack/03_plugins/start/test"]
-	path = vim/pack/03_plugins/start/test
-	url = https://github.com/vim-test/vim-test
-[submodule "vim/pack/03_plugins/start/fugitive"]
-	path = vim/pack/03_plugins/start/fugitive
-	url = https://github.com/tpope/vim-fugitive
-[submodule "vim/pack/03_plugins/start/fern-hijack"]
-	path = vim/pack/03_plugins/start/fern-hijack
-	url = https://github.com/lambdalisue/fern-hijack.vim
