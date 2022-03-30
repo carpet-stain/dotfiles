@@ -181,6 +181,12 @@
 [submodule "vim/pack/03_plugins/start/which-key"]
 	path = vim/pack/03_plugins/start/which-key
 	url = https://github.com/liuchengxu/vim-which-key.git
+[submodule "zsh/plugins/abbr"]
+	path = zsh/plugins/abbr
+	url = https://github.com/olets/zsh-abbr
+[submodule "zsh/plugins/archive"]
+	path = zsh/plugins/archive
+	url = https://github.com/romkatv/archive.git
 [submodule "zsh/plugins/autoenv"]
 	path = zsh/plugins/autoenv
 	url = https://github.com/Tarrasch/zsh-autoenv.git
@@ -203,9 +209,9 @@
 [submodule "zsh/plugins/fzf-tab"]
 	path = zsh/plugins/fzf-tab
 	url = https://github.com/Aloxaf/fzf-tab.git
-[submodule "zsh/plugins/history-substring-search"]
-	path = zsh/plugins/history-substring-search
-	url = https://github.com/zsh-users/zsh-history-substring-search.git
+[submodule "zsh/plugins/git-completion"]
+	path = zsh/plugins/git-completion
+	url = https://github.com/felipec/git-completion.git
 [submodule "zsh/plugins/powerlevel10k"]
 	path = zsh/plugins/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
@@ -257,9 +263,6 @@
 [submodule "vim/pack/03_plugins/start/visual-multi"]
 	path = vim/pack/03_plugins/start/visual-multi
 	url = https://github.com/mg979/vim-visual-multi
-[submodule "zsh/plugins/abbr"]
-	path = zsh/plugins/abbr
-	url = https://github.com/olets/zsh-abbr
 [submodule "vim/pack/03_plugins/start/test"]
 	path = vim/pack/03_plugins/start/test
 	url = https://github.com/vim-test/vim-test

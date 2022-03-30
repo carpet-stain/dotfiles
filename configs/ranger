@@ -1,9 +1,0 @@
-set draw_borders both
-set dirname_in_tabs true
-set show_hidden true
-set tilde_in_titlebar true
-set unicode_ellipsis true
-set update_title true
-set vcs_aware true
-set xterm_alt_key true
-set colorscheme solarized

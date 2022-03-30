@@ -142,6 +142,7 @@ if [[ -o interactive ]]; then
       ITERM2_SHOULD_DECORATE_PROMPT="1"
       iterm2_before_cmd_executes
     }
+
     # If hostname -f is slow on your system set iterm2_hostname prior to
     # sourcing this script. We know it is fast on macOS so we don't cache
     # it. That lets us handle the hostname changing like when you attach

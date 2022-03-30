@@ -2,6 +2,8 @@
 
 set -e
 
+zmodload -m -F zsh/files b:zf_\*
+
 # Get the current path
 SCRIPT_DIR="${0:A:h}"
 cd "${SCRIPT_DIR}"
@@ -14,10 +16,11 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/vim/vimrc" | source $MYVIMRC'
 
 # Create required directories
 print "Creating required directory tree..."
-mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,ranger}
-mkdir -p "${XDG_CACHE_HOME}"/{vim/{backup,swap,undo},zsh}
-mkdir -p "${XDG_DATA_HOME}"/{{goenv,nodenv}/plugins,zsh,man/man1}
-mkdir -p "${HOME}"/.local/{bin,etc}
+zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg}
+zf_mkdir -p "${XDG_CACHE_HOME}"/{vim/{backup,swap,undo},zsh}
+zf_mkdir -p "${XDG_DATA_HOME}"/{{goenv,nodenv,pyenv}/plugins,zsh,man/man1}
+zf_mkdir -p "${HOME}"/.local/{bin,etc}
+zf_chmod 700 "${XDG_CONFIG_HOME}/gnupg"
 print "  ...done"
 
 # Link zshenv if needed
@@ -31,12 +34,10 @@ fi
 
 # Link config files
 print "Linking config files..."
-ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
-ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
-ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
-ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
-ln -sf "${SCRIPT_DIR}/configs/ranger" "${XDG_CONFIG_HOME}/ranger/rc.conf"
-ln -snf "${SCRIPT_DIR}/configs/ranger-plugins" "${XDG_CONFIG_HOME}/ranger/plugins"
+zf_ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
+zf_ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
+zf_ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
+zf_ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
 print "  ...done"
 
 # Make sure submodules are installed
@@ -46,11 +47,28 @@ git submodule update --init --recursive > /dev/null
 git clean -ffd
 print "  ...done"
 
+print "Compiling zsh plugins..."
+{
+    emulate -LR zsh
+    setopt local_options extended_glob
+    autoload -Uz zrecompile
+    for plugin_file in ${SCRIPT_DIR}/zsh/plugins/**/*.zsh{-theme,}(#q.); do
+        zrecompile -pq "${plugin_file}"
+    done
+}
+print "  ...done"
+
 # Install hook to call deploy script after successful pull
 print "Installing git hooks..."
-mkdir -p .git/hooks
-ln -sf ../../deploy.zsh .git/hooks/post-merge
-ln -sf ../../deploy.zsh .git/hooks/post-checkout
+zf_mkdir -p .git/hooks
+zf_ln -sf ../../deploy.zsh .git/hooks/post-merge
+zf_ln -sf ../../deploy.zsh .git/hooks/post-checkout
+print "  ...done"
+
+# Link gpg configs to $GNUPGHOME
+print "Linking gnupg configs..."
+zf_ln -sf "${SCRIPT_DIR}/gpg/gpg.conf" "${XDG_CONFIG_HOME}/gnupg/gpg.conf"
+zf_ln -sf "${SCRIPT_DIR}/gpg/gpg-agent.conf" "${XDG_CONFIG_HOME}/gnupg/gpg-agent.conf"
 print "  ...done"
 
 if (( ${+commands[vim]} )); then
@@ -63,6 +81,11 @@ fi
 # Trigger zsh run with powerlevel10k prompt to download gitstatusd
 print "Downloading gitstatusd for powerlevel10k..."
 $SHELL -is <<<'' &>/dev/null
+print "  ...done"
+
+# Download/refresh TLDR pages
+print "Downloading TLDR pages..."
+tldr -u &> /dev/null
 print "  ...done"
 
 
