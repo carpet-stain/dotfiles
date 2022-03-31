@@ -254,3 +254,6 @@
 [submodule "zsh/plugins/z"]
 	path = zsh/plugins/z
 	url = https://github.com/agkozak/zsh-z.git
+[submodule "vim/pack/03_plugins/fern_hijack"]
+	path = vim/pack/03_plugins/fern_hijack
+	url = https://github.com/lambdalisue/fern-hijack.vim.git
