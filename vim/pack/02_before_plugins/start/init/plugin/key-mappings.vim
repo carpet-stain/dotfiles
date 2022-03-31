@@ -6,8 +6,8 @@ map <Space> <leader>
 imap <expr> <CR> pumvisible() ? asyncomplete#close_popup() : '<Plug>delimitMateCR'
 
 " git hunks navigation
-nmap [c <Plug>GitGutterPrevHunk
-nmap ]c <Plug>GitGutterNextHunk
+nmap [c <Plug>(GitGutterPrevHunk)
+nmap ]c <Plug>(GitGutterNextHunk)
 
 " split navigation
 nnoremap <silent> <C-Up> :wincmd k<CR>

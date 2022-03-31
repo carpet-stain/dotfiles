@@ -266,3 +266,6 @@
 [submodule "vim/pack/03_plugins/start/fern_preview"]
 	path = vim/pack/03_plugins/start/fern_preview
 	url = https://github.com/yuki-yano/fern-preview.vim.git
+[submodule "vim/pack/03_plugins/start/vim_comment_banners"]
+	path = vim/pack/03_plugins/start/vim_comment_banners
+	url = https://github.com/LiquidFun/vim-comment-banners.git

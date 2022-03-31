@@ -8,21 +8,19 @@ let g:which_key_map={}
 " git menu
 let g:which_key_map.g={
     \'name' : 'Git',
-    \'s' : ['Gstatus', 'Status'],
-    \'p' : ['Gpull', 'Pull'],
-    \'u' : ['Gpush', 'Push'],
-    \'c' : ['Gcommit', 'Commit'],
-    \'w' : ['Gwrite', 'Write'],
+    \'s' : ['Git', 'Status'],
+    \'p' : ['Git pull', 'Pull'],
+    \'u' : ['Git push', 'Push'],
+    \'c' : ['Git commit', 'Commit'],
     \'d' : ['Gdiff', 'Diff'],
-    \'l' : ['Glog', 'Log'],
-    \'f' : ['Gfetch', 'Fetch'],
-    \'b' : ['Gblame', 'Blame'],
+    \'l' : ['Gclog', 'Log'],
+    \'f' : ['Git fetch', 'Fetch'],
     \'v' : ['GV', 'GV (history browser)'],
     \'h' : {
         \'name' : 'Hunks',
-        \'p' : ['<Plug>GitGutterPreviewHunk', 'Preview'],
-        \'u' : ['<Plug>GitGutterUndoHunk', 'Undo'],
-        \'s' : ['<Plug>GitGutterStageHunk', 'Stage']
+        \'p' : ['<Plug>(GitGutterPreviewHunk)', 'Preview'],
+        \'u' : ['<Plug>(GitGutterUndoHunk)', 'Undo'],
+        \'s' : ['<Plug>(GitGutterStageHunk)', 'Stage']
         \}
     \}
 
@@ -57,17 +55,13 @@ let g:which_key_map.s={
 " fern openers
 let g:which_key_map.e={
     \'name' : 'Fern (explore)',
-    \'e' : [':Fern . -reveal=%', 'in current window'],
-    \'s' : [':Fern . -opener=split -reveal=%', 'in horizontal split'],
-    \'v' : [':Fern . -opener=vsplit -reveal=%', 'in vertical split'],
-    \'t' : [':Fern . -opener=tabedit -reveal=%', 'in new tab']
+    \'e' : [':Fern . -drawer -reveal=%', 'in current window'],
     \}
 
 " toggles
 let g:which_key_map.t={
     \'name' : 'Toggles',
     \'c' : ['<Plug>CapsLockToggle', 'Caps lock'],
-    \'d' : [':Fern . -drawer -toggle -reveal=%', 'File drawer'],
     \'l' : ['LToggle', 'Location list'],
     \'q' : ['QToggle', 'Quickfix window'],
     \'u' : ['UndotreeToggle', 'Undotree']
