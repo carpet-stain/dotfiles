@@ -257,3 +257,12 @@
 [submodule "vim/pack/03_plugins/start/fern_hijack"]
 	path = vim/pack/03_plugins/start/fern_hijack
 	url = https://github.com/lambdalisue/fern-hijack.vim.git
+[submodule "vim/pack/03_plugins/start/fern_mapping_fzf"]
+	path = vim/pack/03_plugins/start/fern_mapping_fzf
+	url = https://github.com/LumaKernel/fern-mapping-fzf.vim
+[submodule "vim/pack/03_plugins/start/fern_mapping_collapse_or_leave"]
+	path = vim/pack/03_plugins/start/fern_mapping_collapse_or_leave
+	url = https://github.com/hrsh7th/fern-mapping-collapse-or-leave.vim
+[submodule "vim/pack/03_plugins/start/fern_preview"]
+	path = vim/pack/03_plugins/start/fern_preview
+	url = https://github.com/yuki-yano/fern-preview.vim.git

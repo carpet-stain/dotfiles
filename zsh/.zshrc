@@ -169,9 +169,6 @@ source "${ZDOTDIR}/plugins/powerlevel10k/powerlevel10k.zsh-theme"
 
     # Configure left prompt
     typeset -ga POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
-        midnight_commander
-        nnn
-        ranger
         vim_shell
         context
         dir
@@ -180,10 +177,6 @@ source "${ZDOTDIR}/plugins/powerlevel10k/powerlevel10k.zsh-theme"
         pyenv
         goenv
         nodenv
-        rbenv
-        plenv
-        luenv
-        jenv
         terraform
         kubecontext
         aws
@@ -265,11 +258,6 @@ source "${ZDOTDIR}/plugins/powerlevel10k/powerlevel10k.zsh-theme"
         .node-version
         .python-version
         .go-version
-        .ruby-version
-        .lua-version
-        .java-version
-        .perl-version
-        .php-version
         .tool-version
         .shorten_folder_marker
         .svn
