@@ -9,11 +9,12 @@ let s:portable=expand('<sfile>:p:h')
 let &runtimepath=printf('%s,%s,%s/after', s:portable, &runtimepath, s:portable)
 let &packpath=&runtimepath
 
-" Use sensible XDG path
+" Use sensible XDG paths
 set viminfo='1000,n$XDG_CACHE_HOME/vim/info
 set directory=$XDG_CACHE_HOME/vim/swap//
 set undodir=$XDG_CACHE_HOME/vim/undo//
 set backupdir=$XDG_CACHE_HOME/vim/backup//
+set spellfile=$XDG_DATA_HOME/vim/spell/en.utf-8.add
 
 " Enable backups and undo
 set backup
@@ -102,6 +103,29 @@ augroup asyncomple_vimrc
     autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
 augroup END
 
+" preprocessor to remove duplicates and sort by priority
+function! s:my_asyncomplete_preprocessor(options, matches) abort
+    let l:dict = {}
+    for [l:source_name, l:matches] in items(a:matches)
+        let l:source_priority = get(asyncomplete#get_source_info(l:source_name),'priority',0)
+        for l:item in l:matches['items']
+            if stridx(l:item['word'], a:options['base']) == 0
+                let l:item['priority'] = l:source_priority
+                if has_key(l:dict,l:item['word'])
+                    let l:old_item = get(l:dict, l:item['word'])
+                    if l:old_item['priority'] <  l:source_priority
+                        let l:dict[item['word']] = l:item
+                    endif
+                else
+                    let l:dict[item['word']] = l:item
+                endif
+            endif
+        endfor
+    endfor
+    let l:items =  sort(values(l:dict),{a, b -> b['priority'] - a['priority']})
+    call asyncomplete#preprocess_complete(a:options, l:items)
+endfunction
+
 " show errors and warnings from lsp in statusline
 let g:lsp_diagnostics_echo_cursor = 1
 
@@ -111,8 +135,402 @@ let g:lsp_highlight_references_enabled = 1
 " enable symantic highlighting
 let g:lsp_semantic_enabled = 1
 
-" Comment Banners
-CommentBannerMapping g1 :CommentBanner --pattern =,1-,=  --width 60  --comment false
+" Colorscheme
+" enable support of more colors
+if has('termguicolors')
+    set termguicolors
+    let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
+endif
+
+set background=dark
+colorscheme solarized8_flat
+
+" Committia
+let g:committia_hooks = {}
+function! g:committia_hooks.edit_open(info)
+  " Additional settings
+  setlocal spell
+
+  " Disable side scrolling for commit message
+  setlocal sidescroll=0 sidescrolloff=0
+
+  " If no commit message, start with insert mode
+  if a:info.vcs ==# 'git' && getline(1) ==# ''
+    startinsert
+  end
+
+  " Scroll the diff window from insert mode
+  " Map <C-n> and <C-p>
+  imap <buffer><C-n> <Plug>(committia-scroll-diff-down-half)
+  imap <buffer><C-p> <Plug>(committia-scroll-diff-up-half)
+endfunction
+
+" EasyMotion
+" disable default easymotion mappings
+" enable them later in which-key config
+let g:EasyMotion_do_mapping=0
+
+" Disable netrw.
+let g:loaded_netrw  = 1
+let g:loaded_netrwPlugin = 1
+let g:loaded_netrwSettings = 1
+let g:loaded_netrwFileHandlers = 1
+
+" Fern
+let g:fern#default_hidden=1
+function! s:init_fern() abort
+    if !exists("b:fern_is_preview")
+    let b:fern_is_preview = 0
+    endif
+    function! FernPreviewToggle()
+    if b:fern_is_preview
+        :execute "normal \<Plug>(fern-action-preview:close)"
+        :execute "normal \<Plug>(fern-action-preview:auto:disable)"
+        nunmap <buffer> <C-d>
+        nunmap <buffer> <C-u>
+        let b:fern_is_preview = 0
+    else
+        :execute "normal \<Plug>(fern-action-preview:open)"
+        :execute "normal \<Plug>(fern-action-preview:auto:enable)<Plug>(fern-action-preview:open)"
+        nmap <silent> <buffer> <C-d> <Plug>(fern-action-preview:scroll:down:half)
+        nmap <silent> <buffer> <C-u> <Plug>(fern-action-preview:scroll:up:half)
+        let b:fern_is_preview = 1
+    endif
+    endfunction
+
+nmap <silent> <buffer> p :call FernPreviewToggle()<CR>
+endfunction
+
+function! s:fern_settings() abort
+    nmap <silent> <buffer> <expr> <Plug>(fern-quit-or-close-preview) fern_preview#smart_preview("\<Plug>(fern-action-preview:close)", ":q\<CR>")
+    nmap <silent> <buffer> q <Plug>(fern-quit-or-close-preview)
+endfunction
+
+augroup my-fern-hijack
+  autocmd!
+  autocmd BufEnter * ++nested call s:hijack_directory()
+augroup END
+
+function! s:hijack_directory() abort
+  let path = expand('%:p')
+  if !isdirectory(path)
+    return
+  endif
+  bwipeout %
+  execute printf('Fern %s', fnameescape(path))
+endfunction
+
+augroup fern-custom
+    autocmd! *
+    autocmd FileType fern call s:init_fern()
+augroup END
+
+" fzf
+let g:fzf_action = {
+    \ 'ctrl-e': 'tab split',
+    \ 'ctrl-x': 'split',
+    \ 'ctrl-v': 'vsplit' }
+  
+  let g:fzf_colors =
+  \ { 'fg':      ['fg', 'Normal'],
+    \ 'bg':      ['bg', 'Normal'],
+    \ 'hl':      ['fg', 'Comment'],
+    \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+    \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+    \ 'hl+':     ['fg', 'Statement'],
+    \ 'info':    ['fg', 'PreProc'],
+    \ 'border':  ['fg', 'Ignore'],
+    \ 'prompt':  ['fg', 'Conditional'],
+    \ 'pointer': ['fg', 'Exception'],
+    \ 'marker':  ['fg', 'Keyword'],
+    \ 'spinner': ['fg', 'Label'],
+    \ 'header':  ['fg', 'Comment'] }
+  
+  let g:fzf_history_dir = '~/.local/share/fzf-history'
+  
+  let g:fzf_files_options = '--preview="head -'.&lines.' {}"'
+  
+  let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+  
+" GitGutter
+" disable standard git gutter mappings
+let g:gitgutter_map_keys=0
+
+" show preview popup for hunks
+let g:gitgutter_preview_win_floating=1
+
+" json
+" don't conceal quotes in JSON
+let g:vim_json_syntax_conceal=0
+
+" Key Mappings
+" map spacebar as leader key
+map <Space> <leader>
+
+" if suggestions windows present, then <Enter> accepts selection
+" else use pear-tree mapping
+imap <expr> <CR> pumvisible() ? asyncomplete#close_popup() : '<Plug>(PearTreeExpand)'
+
+" git hunks navigation
+nmap [c <Plug>GitGutterPrevHunk
+nmap ]c <Plug>GitGutterNextHunk
+
+" use alt+arrows to switch between splits and tmux panes
+nnoremap <silent> <A-Left> :TmuxNavigateLeft<CR>
+nnoremap <silent> <A-Down> :TmuxNavigateDown<CR>
+nnoremap <silent> <A-Up> :TmuxNavigateUp<CR>
+nnoremap <silent> <A-Right> :TmuxNavigateRight<CR>
+nnoremap <silent> <A-\> :TmuxNavigatePrevious<CR>
+
+" crtl+left/right to switch buffers in normal mode
+nmap <C-Left> <Plug>AirlineSelectPrevTab
+nmap <C-Right> <Plug>AirlineSelectNextTab
+
+" visual shifting (does not exit visual mode)
+vnoremap < <gv
+vnoremap > >gv
+
+" use 'm' for 'move' in cutlass
+nnoremap m d
+xnoremap m d
+nnoremap mm dd
+nnoremap M D
+
+" use 's' for substitute in subsersive
+nmap s <plug>(SubversiveSubstitute)
+nmap ss <plug>(SubversiveSubstituteLine)
+nmap S <plug>(SubversiveSubstituteToEndOfLine)
+
+" yoink mappings
+nmap <c-y> <plug>(YoinkPostPasteSwapBack)
+nmap p <plug>(YoinkPaste_p)
+nmap P <plug>(YoinkPaste_P)
+nmap gp <plug>(YoinkPaste_gp)
+nmap gP <plug>(YoinkPaste_gP)
+nmap y <plug>(YoinkYankPreserveCursorPosition)
+xmap y <plug>(YoinkYankPreserveCursorPosition)
+
+" accept commands with accidential shift key pressed
+command! -bang -nargs=* -complete=file E e<bang> <args>
+command! -bang -nargs=* -complete=file W w<bang> <args>
+command! -bang -nargs=* -complete=file Wq wq<bang> <args>
+command! -bang -nargs=* -complete=file WQ wq<bang> <args>
+command! -bang Wa wa<bang>
+command! -bang WA wa<bang>
+command! -bang Q q<bang>
+command! -bang QA qa<bang>
+command! -bang Qa qa<bang>
+
+" allow the . to execute once for each line of a visual selection
+vnoremap . :normal .<CR>
+
+" I fat finger this too often. Command history window, you won't be missed
+" Ctrl+f in command line in case you really need it
+nnoremap q: :q
+
+" allow saving of files as sudo when I forgot to start vim using sudo
+cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
+
+" Localvimrc
+let g:localvimrc_persistent=1
+let g:localvimrc_persistence_file=$XDG_CACHE_HOME.'/vim/localvimrc_persistent'
+let g:localvimrc_event=['BufReadPre']
+
+" Markdown
+let g:vim_markdown_folding_disabled=1
+let g:vim_markdown_no_default_key_mappings=1
+let g:vim_markdown_toc_autofit=1
+let g:vim_markdown_conceal=0
+let g:vim_markdown_conceal_code_blocks=0
+let g:vim_markdown_fenced_languages=['bash=sh', 'ini=dosini', 'viml=vim']
+
+" NERDCommenter
+" add spaces after comment delimiters by default
+let g:NERDSpaceDelims=1
+
+" use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs=1
+
+" allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDCommentEmptyLines=1
+
+" enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace=1
+
+" Python
+let g:python_highlight_all=1
+
+" Rooter
+" don't echo root dir, don't change root automatically
+let g:rooter_silent_chdir=1
+
+" Smoothie
+let g:smoothie_break_on_reverse=1
+let g:smoothie_speed_exponentiation_factor=1.0
+
+" Startify
+let g:startify_fortune_use_unicode=1
+
+" Terraform
+let g:terraform_align=1
+let g:terraform_fmt_on_save=1
+
+" Test
+let g:test#strategy='vimterminal'
+
+" UndoTree
+let g:undotree_WindowLayout=2
+let g:undotree_ShortIndicators=1
+
+" Which-key
+" use popup window
+let g:which_key_use_floating_win=1
+let g:which_key_fallback_to_native_key=1
+
+" define prefix dictionary
+let g:which_key_map={}
+
+" git menu
+let g:which_key_map.g={
+    \'name' : 'Git',
+    \'s' : ['Gstatus', 'Status'],
+    \'p' : ['Gpull', 'Pull'],
+    \'u' : ['Gpush', 'Push'],
+    \'c' : ['Gcommit', 'Commit'],
+    \'w' : ['Gwrite', 'Write'],
+    \'d' : ['Gdiff', 'Diff'],
+    \'l' : ['Glog', 'Log'],
+    \'f' : ['Gfetch', 'Fetch'],
+    \'b' : ['Gblame', 'Blame'],
+    \'v' : ['GV', 'GV (history browser)'],
+    \'h' : {
+        \'name' : 'Hunks',
+        \'p' : ['<Plug>GitGutterPreviewHunk', 'Preview'],
+        \'u' : ['<Plug>GitGutterUndoHunk', 'Undo'],
+        \'s' : ['<Plug>GitGutterStageHunk', 'Stage']
+        \}
+    \}
+
+" nerdcommenter menu
+let g:which_key_map.c={
+    \'name' : 'Comments',
+    \' ' : ['<Plug>NERDCommenterToggle', 'Toggle'],
+    \'$' : ['<Plug>NERDCommenterToEOL', 'From cursor to EOL'],
+    \'a' : ['<Plug>NERDCommenterAltDelims', 'Switch to alternate delimiters'],
+    \'A' : ['<Plug>NERDCommenterAppend', 'Add comment at EOL'],
+    \'b' : ['<Plug>NERDCommenterAlignBoth', 'Aligned both sides'],
+    \'c' : ['<Plug>NERDCommenterComment', 'Comment'],
+    \'i' : ['<Plug>NERDCommenterInvert', 'Toggle selected line(s)'],
+    \'l' : ['<Plug>NERDCommenterAlignLeft', 'Aligned left side'],
+    \'m' : ['<Plug>NERDCommenterMinimal', 'Minimal'],
+    \'n' : ['<Plug>NERDCommenterNested', 'Nested'],
+    \'s' : ['<Plug>NERDCommenterSexy', 'Sexy'],
+    \'u' : ['<Plug>NERDCommenterUncomment', 'Uncomment'],
+    \'y' : ['<Plug>NERDCommenterYank', 'Yank & comment']
+    \}
+
+" test menu
+let g:which_key_map.s={
+    \'name' : 'Test',
+    \'t' : ['TestNearest', 'Nearest'],
+    \'T' : ['TestFile', 'This file'],
+    \'a' : ['TestSuite', 'All'],
+    \'l' : ['TestLast', 'Last'],
+    \'g' : ['TestVisit', 'Open test file']
+    \}
+
+" fern openers
+let g:which_key_map.e={
+    \'name' : 'Fern (explore)',
+    \'e' : [':Fern . -reveal=%', 'in current window'],
+    \'s' : [':Fern . -opener=split -reveal=%', 'in horizontal split'],
+    \'v' : [':Fern . -opener=vsplit -reveal=%', 'in vertical split'],
+    \'t' : [':Fern . -opener=tabedit -reveal=%', 'in new tab']
+    \}
+
+" toggles
+let g:which_key_map.t={
+    \'name' : 'Toggles',
+    \'c' : ['<Plug>CapsLockToggle', 'Caps lock'],
+    \'d' : [':Fern . -drawer -toggle -reveal=%', 'File drawer'],
+    \'l' : ['LToggle', 'Location list'],
+    \'q' : ['QToggle', 'Quickfix window'],
+    \'u' : ['UndotreeToggle', 'Undotree']
+    \}
+
+" ag
+let g:which_key_map.a=['Ag', 'ag search']
+
+" fzf
+let g:which_key_map.f={
+    \'name' : 'Fuzzy search',
+    \'f' : ['Files', 'Files'],
+    \'g' : ['GFiles', 'Git files'],
+    \'b' : ['Buffers', 'Open buffers'],
+    \'l' : ['Lines', 'Lines in loaded buffers'],
+    \'c' : ['Commits', 'Git commits'],
+    \'h' : ['History', 'History'],
+    \'o' : ['Commands', 'Commands'],
+    \'m' : ['Maps', 'Normal mode mappings'],
+    \'e' : ['Helptags', 'Help tags'],
+    \'y' : ['Filetypes', 'File types']
+    \}
+
+" easymotions
+let g:which_key_map["\<Space>"]={
+    \'name' : 'Easymotion',
+    \'f'  : ['<Plug>(easymotion-f)', 'Find char to the right'],
+    \'F'  : ['<Plug>(easymotion-F)', 'Find char to the left'],
+    \'t'  : ['<Plug>(easymotion-t)', 'Till before the char to the right'],
+    \'T'  : ['<Plug>(easymotion-T)', 'Till after the char to the left'],
+    \'w'  : ['<Plug>(easymotion-w)', 'Beginning of word forward'],
+    \'W'  : ['<Plug>(easymotion-W)', 'Beginning of WORD forward'],
+    \'b'  : ['<Plug>(easymotion-b)', 'Beginning of word backward'],
+    \'B'  : ['<Plug>(easymotion-B)', 'Beginning of WORD backward'],
+    \'e'  : ['<Plug>(easymotion-e)', 'End of word forward'],
+    \'E'  : ['<Plug>(easymotion-E)', 'End of WORD forward'],
+    \'g' : {
+        \ 'name' : 'End of word/WORD backward',
+        \'e' : ['<Plug>(easymotion-ge)', 'End of word backward'],
+        \'E' : ['<Plug>(easymotion-gE)', 'End of WORD backward'],
+        \},
+    \'j'  : ['<Plug>(easymotion-j)', 'Line downward'],
+    \'k'  : ['<Plug>(easymotion-k)', 'Line upward'],
+    \'n'  : ['<Plug>(easymotion-n)', 'Jump to latest "/" or "?" forward'],
+    \'N'  : ['<Plug>(easymotion-N)', 'Jump to latest "/" or "?" backward'],
+    \'s'  : ['<Plug>(easymotion-s)', 'Find char forward and backward'],
+    \}
+
+" buffer navigation
+let g:which_key_map.b={
+    \'name' : 'Buffer',
+    \'d' : ['bdelete', 'Delete buffer'],
+    \'f' : ['bfirst', 'First buffer'],
+    \'l' : ['blast', 'Last buffer'],
+    \'n' : ['bnext', 'Next buffer'],
+    \'p' : ['bprevious', 'Previous buffer'],
+    \'s' : ['Startify', 'Start buffer']
+    \}
+
+" cheat sheet
+let g:which_key_map["\?"]=['Cheat40', 'Cheat sheet']
+
+call which_key#register('<Space>', 'g:which_key_map')
+nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
+vnoremap <silent> <leader> :<c-u>WhichKeyVisual '<Space>'<CR></CR>
+
+" Wilder
+call wilder#enable_cmdline_enter()
+set wildcharm=<Tab>
+cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
+cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
+
+call wilder#set_option('modes', ['/', '?', ':'])
+
+" Yoink
+let g:yoinkIncludeDeleteOperations = 1
+let g:yoinkMoveCursorToEndOfPaste = 1
 
 " Source local configuration
 runtime vimrc.local
