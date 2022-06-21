@@ -278,3 +278,6 @@
 [submodule "vim/pack/03_plugins/start/yoink"]
 	path = vim/pack/03_plugins/start/yoink
 	url = https://github.com/svermeulen/vim-yoink.git
+[submodule "vim/pack/03_plugins/start/tmux-navigator"]
+	path = vim/pack/03_plugins/start/tmux-navigator
+	url = https://github.com/christoomey/vim-tmux-navigator.git

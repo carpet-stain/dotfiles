@@ -10,11 +10,9 @@ let &runtimepath=printf('%s,%s,%s/after', s:portable, &runtimepath, s:portable)
 let &packpath=&runtimepath
 
 " Use sensible XDG paths
-set viminfo='1000,n$XDG_CACHE_HOME/vim/info
 set directory=$XDG_CACHE_HOME/vim/swap//
 set undodir=$XDG_CACHE_HOME/vim/undo//
 set backupdir=$XDG_CACHE_HOME/vim/backup//
-set spellfile=$XDG_DATA_HOME/vim/spell/en.utf-8.add
 
 " Enable backups and undo
 set backup
@@ -226,6 +224,33 @@ augroup fern-custom
     autocmd FileType fern call s:init_fern()
 augroup END
 
+function! s:fern_preview_init() abort
+  nmap <buffer><expr>
+        \ <Plug>(fern-my-preview-or-nop)
+        \ fern#smart#leaf(
+        \   "\<Plug>(fern-action-open:edit)\<C-w>p",
+        \   "",
+        \ )
+  nmap <buffer><expr> j
+        \ fern#smart#drawer(
+        \   "j\<Plug>(fern-my-preview-or-nop)",
+        \   "j",
+        \ )
+  nmap <buffer><expr> k
+        \ fern#smart#drawer(
+        \   "k\<Plug>(fern-my-preview-or-nop)",
+        \   "k",
+        \ )
+endfunction
+
+augroup my-fern-preview
+  autocmd! *
+  autocmd FileType fern call s:fern_preview_init()
+augroup END
+
+" You need this otherwise you cannot switch modified buffer
+set hidden
+
 " fzf
 let g:fzf_action = {
     \ 'ctrl-e': 'tab split',
@@ -269,19 +294,17 @@ let g:vim_json_syntax_conceal=0
 map <Space> <leader>
 
 " if suggestions windows present, then <Enter> accepts selection
-" else use pear-tree mapping
-imap <expr> <CR> pumvisible() ? asyncomplete#close_popup() : '<Plug>(PearTreeExpand)'
+" else use delimitMateCR mapping
+inoremap <expr> <CR> pumvisible() ? asyncomplete#close_popup() : '<Plug>delimitMateCR'
 
-" git hunks navigation
-nmap [c <Plug>GitGutterPrevHunk
-nmap ]c <Plug>GitGutterNextHunk
+let g:tmux_navigator_no_mappings = 1
+let g:tmux_navigator_save_on_switch = 1
 
 " use alt+arrows to switch between splits and tmux panes
-nnoremap <silent> <A-Left> :TmuxNavigateLeft<CR>
-nnoremap <silent> <A-Down> :TmuxNavigateDown<CR>
-nnoremap <silent> <A-Up> :TmuxNavigateUp<CR>
-nnoremap <silent> <A-Right> :TmuxNavigateRight<CR>
-nnoremap <silent> <A-\> :TmuxNavigatePrevious<CR>
+nnoremap <silent> <M-Left> :TmuxNavigateLeft<CR>
+nnoremap <silent> <M-Down> :TmuxNavigateDown<CR>
+nnoremap <silent> <M-Up> :TmuxNavigateUp<CR>
+nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
 
 " crtl+left/right to switch buffers in normal mode
 nmap <C-Left> <Plug>AirlineSelectPrevTab
@@ -291,25 +314,8 @@ nmap <C-Right> <Plug>AirlineSelectNextTab
 vnoremap < <gv
 vnoremap > >gv
 
-" use 'm' for 'move' in cutlass
-nnoremap m d
-xnoremap m d
-nnoremap mm dd
-nnoremap M D
-
-" use 's' for substitute in subsersive
-nmap s <plug>(SubversiveSubstitute)
-nmap ss <plug>(SubversiveSubstituteLine)
-nmap S <plug>(SubversiveSubstituteToEndOfLine)
-
-" yoink mappings
-nmap <c-y> <plug>(YoinkPostPasteSwapBack)
-nmap p <plug>(YoinkPaste_p)
-nmap P <plug>(YoinkPaste_P)
-nmap gp <plug>(YoinkPaste_gp)
-nmap gP <plug>(YoinkPaste_gP)
-nmap y <plug>(YoinkYankPreserveCursorPosition)
-xmap y <plug>(YoinkYankPreserveCursorPosition)
+" visual paste without yanking
+vnoremap p "_c<C-r><C-o>+<Esc>
 
 " accept commands with accidential shift key pressed
 command! -bang -nargs=* -complete=file E e<bang> <args>
@@ -364,10 +370,6 @@ let g:python_highlight_all=1
 " Rooter
 " don't echo root dir, don't change root automatically
 let g:rooter_silent_chdir=1
-
-" Smoothie
-let g:smoothie_break_on_reverse=1
-let g:smoothie_speed_exponentiation_factor=1.0
 
 " Startify
 let g:startify_fortune_use_unicode=1
@@ -443,7 +445,8 @@ let g:which_key_map.s={
 " fern openers
 let g:which_key_map.e={
     \'name' : 'Fern (explore)',
-    \'e' : [':Fern . -reveal=%', 'in current window'],
+    \'e' : [':Fern . -drawer -reveal=%', 'File drawer'],
+    \'d' : [':Fern . -reveal=%', 'in current window'],
     \'s' : [':Fern . -opener=split -reveal=%', 'in horizontal split'],
     \'v' : [':Fern . -opener=vsplit -reveal=%', 'in vertical split'],
     \'t' : [':Fern . -opener=tabedit -reveal=%', 'in new tab']
@@ -453,7 +456,6 @@ let g:which_key_map.e={
 let g:which_key_map.t={
     \'name' : 'Toggles',
     \'c' : ['<Plug>CapsLockToggle', 'Caps lock'],
-    \'d' : [':Fern . -drawer -toggle -reveal=%', 'File drawer'],
     \'l' : ['LToggle', 'Location list'],
     \'q' : ['QToggle', 'Quickfix window'],
     \'u' : ['UndotreeToggle', 'Undotree']
@@ -521,12 +523,12 @@ nnoremap <silent> <leader> :<c-u>WhichKey '<Space>'<CR>
 vnoremap <silent> <leader> :<c-u>WhichKeyVisual '<Space>'<CR></CR>
 
 " Wilder
-call wilder#enable_cmdline_enter()
-set wildcharm=<Tab>
-cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
-cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
+call wilder#setup({'modes': [':', '/', '?']})
 
-call wilder#set_option('modes', ['/', '?', ':'])
+call wilder#set_option('renderer', wilder#wildmenu_renderer(
+  \ wilder#wildmenu_airline_theme({
+  \   'highlighter': wilder#basic_highlighter(),
+  \ })))
 
 " Yoink
 let g:yoinkIncludeDeleteOperations = 1
