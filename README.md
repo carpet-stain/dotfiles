@@ -33,16 +33,13 @@ presence](#zero-home-presence).
   * [autoenv plugin](https://github.com/Tarrasch/zsh-autoenv)
   * [autopair plugin](https://github.com/hlissner/zsh-autopair)
   * [clean zsh implementation of `z`](https://github.com/agkozak/zsh-z)
-* Vim [configuration](vim/vimrc) and [plugins](vim/pack)
+* Neovim [configuration](vim/vimrc) and [plugins](vim/pack)
 * Tmux [configuration](tmux/tmux.conf) and [plugins](tmux/plugins)
 * Other configs:
-  * [Midnight Commander](configs/mc.ini)
-  * [ranger](configs/ranger)
-  * [quilt](configs/quiltrc)
   * [Git](configs/gitconfig)
   * [htop](configs/htoprc)
 * [goenv](https://github.com/syndbg/goenv),
-  [nodenv](https://github.com/nodenv/nodenv),
+  [nodenv](https://github.com/nodenv/nodenv)
 
 ## Installation
 
@@ -54,8 +51,6 @@ Requirements:
 Recommended:
 
 * Run `brew bundle` to install necessary utilities (macOS)
-* `python3` and `pip3` (optional: used by several vim plugins, but they won't
-  be activated, if vim built without python3 support)
 * [`fd`](https://github.com/sharkdp/fd) or
   [`ag`](https://github.com/ggreer/the_silver_searcher) (optional: will be used
   in fzf by default, if present)
@@ -91,16 +86,10 @@ export ZDOTDIR="$HOME/.local/dotfiles/zsh"
 
 into `/etc/zsh/zshenv`. Or you can do it with PAM env module.
 
-## Vim version
-
-Vim 8.0 or higher is required as plugins are configured via native package
-interface available in mentioned version. In order to use all bundled vim
-plugins, please install vim with python3
-
 MacOS:
 
 ```
-brew install vim
+brew install neovim
 ```
 
 ## Configuration

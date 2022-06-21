@@ -832,30 +832,18 @@ if (( ${+commands[grc]} )); then
         done
     }
 fi
-
 # Completion tweaks
-zstyle ':completion:*:descriptions'     format          '[%d]'
-zstyle ':completion:*'                  list-colors     ${(s.:.)LS_COLORS}
-zstyle ':completion::complete:*'        use-cache       true
-zstyle ':completion::complete:*'        cache-path      "${XDG_CACHE_HOME}/zsh/compcache"
+zstyle ':completion:*:default'      list-colors         "${(s.:.)LS_COLORS}"
+zstyle ':completion:*'              list-dirs-first     true
+zstyle ':completion:*'              verbose             true
+zstyle ':completion::complete:*'    use-cache           true
+zstyle ':completion::complete:*'    cache-path          "${XDG_CACHE_HOME}/zsh/compcache"
+zstyle ':completion:*:descriptions' format              [%d]
+zstyle ':completion:*:manuals'      separate-sections   true
 
-# Manual page completion
-man_glob () {
-    local a
-    read -cA a
-    if [[ $a[2] = [0-9]* ]]; then
-        reply=( $^manpath/man$a[2]/$1*$2(N:t:r) )
-    elif [[ $a[2] = -s ]]; then
-        reply=( $^manpath/man$a[3]/$1*$2(N:t:r) )
-    else
-        reply=( $^manpath/man*/$1*$2(N:t:r) )
-    fi
-}
-compctl -K man_glob man
-
-# Enable cached completions if present
+# Enable cached completions, if present
 if [[ -d "${XDG_CACHE_HOME}/zsh/fpath" ]]; then
-    fpath+=("${XDG_CACHE_HOME}/zsh/fpath")
+    fpath+="${XDG_CACHE_HOME}/zsh/fpath"
 fi
 
 # Additional completions
@@ -903,9 +891,7 @@ source "/usr/local/opt/fzf/shell/key-bindings.zsh"
 
 # Use fzf for tab completions
 source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
-
-zstyle ':fzf-tab:complete:kill:argument-rest' fzf-preview  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-zstyle ':fzf-tab:complete:kill:argument-rest' fzf-flags    --preview-window=down:3:wrap
+zstyle ':fzf-tab:*' prefix ''
 
 # iTerm2 integration
 if [[ -v ITERM_PROFILE ]] || [[ -v ITERM_SESSION ]]; then
