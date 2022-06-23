@@ -73,9 +73,6 @@
 [submodule "vim/pack/03_plugins/start/editorconfig"]
 	path = vim/pack/03_plugins/start/editorconfig
 	url = https://github.com/editorconfig/editorconfig-vim.git
-[submodule "vim/pack/03_plugins/start/eunuch"]
-	path = vim/pack/03_plugins/start/eunuch
-	url = https://github.com/tpope/vim-eunuch.git
 [submodule "vim/pack/03_plugins/start/fern"]
 	path = vim/pack/03_plugins/start/fern
 	url = https://github.com/lambdalisue/fern.vim.git
@@ -269,15 +266,6 @@
 [submodule "vim/pack/03_plugins/start/vim_comment_banners"]
 	path = vim/pack/03_plugins/start/vim_comment_banners
 	url = https://github.com/LiquidFun/vim-comment-banners.git
-[submodule "vim/pack/03_plugins/start/cutlass"]
-	path = vim/pack/03_plugins/start/cutlass
-	url = https://github.com/svermeulen/vim-cutlass.git
-[submodule "vim/pack/03_plugins/start/subversive"]
-	path = vim/pack/03_plugins/start/subversive
-	url = https://github.com/svermeulen/vim-subversive.git
-[submodule "vim/pack/03_plugins/start/yoink"]
-	path = vim/pack/03_plugins/start/yoink
-	url = https://github.com/svermeulen/vim-yoink.git
 [submodule "vim/pack/03_plugins/start/tmux-navigator"]
 	path = vim/pack/03_plugins/start/tmux-navigator
 	url = https://github.com/christoomey/vim-tmux-navigator.git
