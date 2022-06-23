@@ -11,8 +11,8 @@ export BREW_EXECUTABLE="/usr/local/bin"
 zmodload -F -m zsh/files b:zf_\*
 
 # Prefered editor and pager
-export VISUAL=vim
-export EDITOR=vim
+export VISUAL=nvim
+export EDITOR=nvim
 export VIMINIT='let $MYVIMRC="$DOTFILES/vim/vimrc" | source $MYVIMRC'
 export PAGER=less
 export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4"
