@@ -12,13 +12,13 @@ cd "${SCRIPT_DIR}"
 XDG_CACHE_HOME="${HOME}/.cache"
 XDG_CONFIG_HOME="${HOME}/.config"
 XDG_DATA_HOME="${HOME}/.local/share"
-VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/vim/vimrc" | source $MYVIMRC'
+VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/nvim/init.vim" | source $MYVIMRC'
 
 # Create required directories
 print "Creating required directory tree..."
 zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg}
-zf_mkdir -p "${XDG_CACHE_HOME}"/{vim/{backup,swap,undo},zsh}
-zf_mkdir -p "${XDG_DATA_HOME}"/{{goenv,nodenv,pyenv}/plugins,zsh,man/man1,vim/spell}
+zf_mkdir -p "${XDG_CACHE_HOME}"/{nvim/{backup,swap,undo},zsh}
+zf_mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1,nvim/spell}
 zf_mkdir -p "${HOME}"/.local/{bin,etc}
 zf_chmod 700 "${XDG_CONFIG_HOME}/gnupg"
 print "  ...done"
@@ -71,10 +71,10 @@ zf_ln -sf "${SCRIPT_DIR}/gpg/gpg.conf" "${XDG_CONFIG_HOME}/gnupg/gpg.conf"
 zf_ln -sf "${SCRIPT_DIR}/gpg/gpg-agent.conf" "${XDG_CONFIG_HOME}/gnupg/gpg-agent.conf"
 print "  ...done"
 
-if (( ${+commands[vim]} )); then
+if (( ${+commands[nvim]} )); then
     # Generating vim help tags
-    print "Generating vim helptags..."
-    nohup vim -c 'silent! helptags ALL | q' </dev/null &>/dev/null
+    print "Generating nvim helptags..."
+    nohup nvim -c 'silent! helptags ALL | q' </dev/null &>/dev/null
     print "  ...done"
 fi
 

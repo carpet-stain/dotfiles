@@ -269,3 +269,6 @@
 [submodule "vim/pack/03_plugins/start/tmux-navigator"]
 	path = nvim/pack/plugins/start/tmux-navigator
 	url = https://github.com/christoomey/vim-tmux-navigator.git
+[submodule "nvim/pack/plugins/start/which-key"]
+	path = nvim/pack/plugins/start/which-key
+	url = https://github.com/folke/which-key.nvim
