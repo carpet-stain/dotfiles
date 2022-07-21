@@ -272,3 +272,9 @@
 [submodule "nvim/pack/plugins/start/which-key"]
 	path = nvim/pack/plugins/start/which-key
 	url = https://github.com/folke/which-key.nvim
+[submodule "nvim/pack/plugins/start/comment"]
+	path = nvim/pack/plugins/start/comment
+	url = https://github.com/numToStr/Comment.nvim.git
+[submodule "nvim/pack/plugins/start/treesitter"]
+	path = nvim/pack/plugins/start/treesitter
+	url = https://github.com/nvim-treesitter/nvim-treesitter
