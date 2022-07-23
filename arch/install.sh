@@ -95,7 +95,7 @@ mount "${part_boot}" /mnt/boot
 echo -e "\n### Setting up fastest mirrors"
 reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages intel-ucode nftables git networkmanager sddm firefox plasma-meta plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa
+pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages intel-ucode nftables git networkmanager sddm firefox plasma-meta plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa tmux vim fzf ansible ansible-lint aws-cli bat colordiff curl diff-so-fancy fd sed tar gnupg go grep htop httpie p7zip jq packer pbzip2 pyenv python shellcheck terraform the_silver_searcher tree wget yamllint bitwarden docker signal-desktop vagrant libvirt code tlp plasma-systemmonitor yubioath-desktop pcscd
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
 

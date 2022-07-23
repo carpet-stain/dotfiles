@@ -5,7 +5,6 @@ if [[ -z "${ZDOTDIR}" || -L "${HOME}/.zshenv" ]]; then
 fi
 # DOTFILES dir is parent to ZDOTDIR
 export DOTFILES="${ZDOTDIR%/*}"
-export BREW_EXECUTABLE="/usr/local/bin"
 
 # Load zsh/files module to provide some builtins for file modifications
 zmodload -F -m zsh/files b:zf_\*
@@ -58,7 +57,10 @@ export GTK2_RC_FILES="${XDG_CONFIG_HOME}/gtk-2.0/gtkrc"
 # Ensure we have local paths enabled
 path=(/usr/local/bin /usr/local/sbin ${path})
 
+executable="/usr/local/bin"
 if [[ "${OSTYPE}" = darwin* ]]; then
+    executable="/usr/bin"
+    # set the executable to the macOS 
     # Enable gnu version of utilities on macOS, if installed
     for gnuutil in coreutils gnu-sed gnu-tar grep; do
         if [[ -d /usr/local/opt/${gnuutil}/libexec/gnubin ]]; then
