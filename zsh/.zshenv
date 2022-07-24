@@ -57,9 +57,9 @@ export GTK2_RC_FILES="${XDG_CONFIG_HOME}/gtk-2.0/gtkrc"
 # Ensure we have local paths enabled
 path=(/usr/local/bin /usr/local/sbin ${path})
 
-executable="/usr/local/bin"
+executable="/usr/bin"
 if [[ "${OSTYPE}" = darwin* ]]; then
-    executable="/usr/bin"
+    executable="/usr/local/bin"
     # set the executable to the macOS 
     # Enable gnu version of utilities on macOS, if installed
     for gnuutil in coreutils gnu-sed gnu-tar grep; do

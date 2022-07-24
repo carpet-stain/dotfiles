@@ -887,7 +887,9 @@ elif (( ${+commands[ag]} )); then
     export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 fi
 
-source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+#source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+source "/usr/share/fzf/key-bindings.zsh"
+#source "/usr/share/fzf/completion.zsh"
 
 # Use fzf for tab completions
 source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
