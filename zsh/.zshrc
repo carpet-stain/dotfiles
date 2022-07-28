@@ -7,9 +7,16 @@ fi
 # Enable profiling
 zmodload zsh/zprof
 
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
 setopt HIST_IGNORE_ALL_DUPS # remove all earlier duplicate lines
 setopt APPEND_HISTORY # history appends to existing file
@@ -17,11 +24,15 @@ setopt SHARE_HISTORY # import new commands from the history file also in other z
 setopt EXTENDED_HISTORY # save each commands beginning timestamp and the duration to the history file
 setopt HIST_REDUCE_BLANKS # trim multiple insgnificant blanks in history
 setopt HIST_IGNORE_SPACE # don’t store lines starting with space
+
+# in order to use #, ~ and ^ for filename generation grep word
+# *~(*.gz|*.bz|*.bz2|*.zip|*.Z) -> searches for word not in compressed files
+# don't forget to quote '^', '~' and '#'!
 setopt EXTENDED_GLOB # treat special characters as part of patterns
 setopt CORRECT_ALL # try to correct the spelling of all arguments in a line
 setopt NO_FLOW_CONTROL # disable stupid annoying keys
 setopt MULTIOS # allows multiple input and output redirections
-setopt AUTO_CD # if the command is directory and cannot be executed, perfort cd to this directory
+setopt AUTO_CD # if the command is directory and cannot be executed, perform cd to this directory
 setopt CLOBBER # allow > redirection to truncate existing files
 setopt BRACE_CCL # allow brace character class list expansion
 setopt NO_BEEP # do not beep on errors
@@ -32,9 +43,16 @@ setopt LIST_TYPES # mark type of completion suggestions
 setopt HASH_LIST_ALL # whenever a command completion is attempted, make sure the entire command path is hashed first
 setopt COMPLETE_IN_WORD # allow completion from within a word/phrase
 setopt ALWAYS_TO_END # move cursor to the end of a completed word
-setopt LONG_LIST_JOBS # list jobs in the long format by default
+setopt LONG_LIST_JOBS # display PID when suspending processes as well
 setopt AUTO_RESUME # attempt to resume existing job before creating a new process
 setopt NOTIFY # report status of background jobs immediately
+#setopt NO_HUP # Don't send SIGHUP to backgrou processes when the shell exits
+#setopt AUTO_PUSHD # Make cd push the old directory onto the directory stack
+#setopt PUSHD_IGNORE_DUPS # don't push the same dir twice
+#setopt NO_GLOB_DOTS # * shouldn't match dotfiles. ever.
+#setopt NO_SH_WORD_SPLIT # use zsh style word splitting
+#setopt INTERACTIVE_COMMENTS # enable interactive comments
+#stty -ixon # Disable flowcontrol
 unsetopt RM_STAR_SILENT # notify when rm is running with *
 setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
 
@@ -42,8 +60,9 @@ setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
 PROMPT_EOL_MARK='%K{red} %k'
 
 HISTFILE="${XDG_DATA_HOME}/zsh/history"
-HISTSIZE=2000
-SAVEHIST=2000
+HISTSIZE=1000000
+SAVEHIST=9000000
+REPORTTIME=10
 
 # Initialize colors
 autoload -U colors
@@ -71,7 +90,7 @@ zle -N self-insert url-quote-magic
 autoload -Uz bracketed-paste-magic
 zle -N bracketed-paste bracketed-paste-magic
 
-# compatability with zsh-asug
+# compatability with zsh-autosuggestion
 pasteinit() {
     OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
     zle -N self-insert url-quote-magic
@@ -849,9 +868,6 @@ fi
 # Additional completions
 fpath+="${ZDOTDIR}/plugins/completions/src"
 
-# Enable git-extras completions
-# source "${DOTFILES}/tools/git-extras/etc/git-extras-completion.zsh"
-
 # Make sure complist is loaded
 zmodload zsh/complist
 
@@ -887,18 +903,12 @@ elif (( ${+commands[ag]} )); then
     export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 fi
 
-#source "/usr/local/opt/fzf/shell/key-bindings.zsh"
-source "/usr/share/fzf/key-bindings.zsh"
-#source "/usr/share/fzf/completion.zsh"
+# Enable fzf key bindings
+source "/usr/local/opt/fzf/shell/key-bindings.zsh"
 
 # Use fzf for tab completions
 source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
 zstyle ':fzf-tab:*' prefix ''
-
-# iTerm2 integration
-if [[ -v ITERM_PROFILE ]] || [[ -v ITERM_SESSION ]]; then
-    source "${ZDOTDIR}/plugins/iterm2_integration.zsh"
-fi
 
 # Enable autoenv plugin
 source "${ZDOTDIR}/plugins/autoenv/autoenv.zsh"
@@ -906,7 +916,6 @@ source "${ZDOTDIR}/plugins/autoenv/autoenv.zsh"
 # Autopairs plugin
 source "${ZDOTDIR}/plugins/autopair/autopair.zsh"
 
-ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR}/plugins/abbreviations-store"
 source "${ZDOTDIR}/plugins/abbr/zsh-abbr.zsh"
 export MANPATH=${ZDOTDIR}/plugins/abbr/man:$MANPATH
 
@@ -942,9 +951,6 @@ source "${ZDOTDIR}/plugins/autosuggestions/zsh-autosuggestions.zsh"
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(
     bracketed-paste
 )
-
-alias tldr="nocorrect noglob ${DOTFILES}/tools/tldr-bash-client/tldr"
-alias tldr-lint="${DOTFILES}/tools/tldr-bash-client/tldr-lint"
 
 # Force path arrays to have unique values only
 typeset -U path cdpath fpath manpath
