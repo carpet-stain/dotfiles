@@ -50,8 +50,7 @@ set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 
-"set rtp+=/usr/local/opt/fzf
-set rtp+=/usr/bin/fzf
+set rtp+=/usr/local/opt/fzf
 
 " Airline
 " force solarized theme

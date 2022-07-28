@@ -16,7 +16,7 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/nvim/init.vim" | source $MYVIMRC'
 
 # Create required directories
 print "Creating required directory tree..."
-zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg}
+zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg,alacritty}
 zf_mkdir -p "${XDG_CACHE_HOME}"/{nvim/{backup,swap,undo},zsh}
 zf_mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1,nvim/spell}
 zf_mkdir -p "${HOME}"/.local/{bin,etc}
@@ -38,13 +38,14 @@ zf_ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
 zf_ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
 zf_ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
 zf_ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
+zf_ln -sf "${SCRIPT_DIR}/configs/alacritty.yml" "${XDG_CONFIG_HOME}/alacritty/alacritty.yml"
 print "  ...done"
 
 # Make sure submodules are installed
 print "Syncing submodules..."
 git submodule sync > /dev/null
 git submodule update --init --recursive > /dev/null
-git clean -ffd
+# git clean -ffd
 print "  ...done"
 
 print "Compiling zsh plugins..."

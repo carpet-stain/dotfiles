@@ -60,9 +60,8 @@ setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
 PROMPT_EOL_MARK='%K{red} %k'
 
 HISTFILE="${XDG_DATA_HOME}/zsh/history"
-HISTSIZE=1000000
-SAVEHIST=9000000
-REPORTTIME=10
+HISTSIZE=10000
+SAVEHIST=10000
 
 # Initialize colors
 autoload -U colors
@@ -903,8 +902,9 @@ elif (( ${+commands[ag]} )); then
     export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 fi
 
-# Enable fzf key bindings
+# Enable fzf key bindings and completions
 source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+source "/usr/local/opt/fzf/shell/completion.zsh"
 
 # Use fzf for tab completions
 source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
