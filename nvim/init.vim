@@ -35,6 +35,7 @@ set splitbelow " when splitting windows put new ones below ...
 set splitright " ...and to the right
 set path+=** " search subfolders recursively
 set fillchars=diff:\ , " set <space> as fill character for diffs on string removal (default is <minus> char)
+set updatetime=100 "controls how often should focus events and how often should it write to swap
 
 " command line completion
 set wildmode=longest:full,full
@@ -68,13 +69,7 @@ let g:airline_symbols_ascii=1
 let g:airline#extensions#tabline#enabled = 1
 
 " Colorscheme
-" enable support of more colors
-if has('termguicolors')
-    set termguicolors
-    let &t_8f="\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b="\<Esc>[48;2;%lu;%lu;%lum"
-endif
-
+set termguicolors
 set background=dark
 colorscheme solarized8_flat
 
@@ -115,35 +110,7 @@ let g:loaded_netrwSettings = 1
 let g:loaded_netrwFileHandlers = 1
 
 " Fern
-let g:fern#default_hidden=1
-function! s:init_fern() abort
-    if !exists("b:fern_is_preview")
-    let b:fern_is_preview = 0
-    endif
-    function! FernPreviewToggle()
-    if b:fern_is_preview
-        :execute "normal \<Plug>(fern-action-preview:close)"
-        :execute "normal \<Plug>(fern-action-preview:auto:disable)"
-        nunmap <buffer> <C-d>
-        nunmap <buffer> <C-u>
-        let b:fern_is_preview = 0
-    else
-        :execute "normal \<Plug>(fern-action-preview:open)"
-        :execute "normal \<Plug>(fern-action-preview:auto:enable)<Plug>(fern-action-preview:open)"
-        nmap <silent> <buffer> <C-d> <Plug>(fern-action-preview:scroll:down:half)
-        nmap <silent> <buffer> <C-u> <Plug>(fern-action-preview:scroll:up:half)
-        let b:fern_is_preview = 1
-    endif
-    endfunction
-
-nmap <silent> <buffer> p :call FernPreviewToggle()<CR>
-endfunction
-
-function! s:fern_settings() abort
-    nmap <silent> <buffer> <expr> <Plug>(fern-quit-or-close-preview) fern_preview#smart_preview("\<Plug>(fern-action-preview:close)", ":q\<CR>")
-    nmap <silent> <buffer> q <Plug>(fern-quit-or-close-preview)
-endfunction
-
+let g:fern#default_hidden = 1
 augroup my-fern-hijack
   autocmd!
   autocmd BufEnter * ++nested call s:hijack_directory()
@@ -158,35 +125,6 @@ function! s:hijack_directory() abort
   execute printf('Fern %s', fnameescape(path))
 endfunction
 
-augroup fern-custom
-    autocmd! *
-    autocmd FileType fern call s:init_fern()
-augroup END
-
-function! s:fern_preview_init() abort
-  nmap <buffer><expr>
-        \ <Plug>(fern-my-preview-or-nop)
-        \ fern#smart#leaf(
-        \   "\<Plug>(fern-action-open:edit)\<C-w>p",
-        \   "",
-        \ )
-  nmap <buffer><expr> j
-        \ fern#smart#drawer(
-        \   "j\<Plug>(fern-my-preview-or-nop)",
-        \   "j",
-        \ )
-  nmap <buffer><expr> k
-        \ fern#smart#drawer(
-        \   "k\<Plug>(fern-my-preview-or-nop)",
-        \   "k",
-        \ )
-endfunction
-
-augroup my-fern-preview
-  autocmd! *
-  autocmd FileType fern call s:fern_preview_init()
-augroup END
-
 " You need this otherwise you cannot switch modified buffer
 set hidden
 
@@ -195,8 +133,8 @@ let g:fzf_action = {
     \ 'ctrl-e': 'tab split',
     \ 'ctrl-x': 'split',
     \ 'ctrl-v': 'vsplit' }
-  
-let g:fzf_colors = { 
+
+let g:fzf_colors = {
     \ 'fg':      ['fg', 'Normal'],
     \ 'bg':      ['bg', 'Normal'],
     \ 'hl':      ['fg', 'Comment'],
@@ -210,7 +148,7 @@ let g:fzf_colors = {
     \ 'marker':  ['fg', 'Keyword'],
     \ 'spinner': ['fg', 'Label'],
     \ 'header':  ['fg', 'Comment'] }
-  
+
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 let g:fzf_files_options = '--preview="head -'.&lines.' {}"'
@@ -307,7 +245,7 @@ require'nvim-treesitter.configs'.setup {
 EOF
 
 " UndoTree
-let g:undotree_WindowLayout=2
+let g:undotree_WindowLayout=4
 let g:undotree_ShortIndicators=1
 
 " WhichKey
@@ -323,7 +261,39 @@ wk.register({
       c = { ":Commands<CR>", "Commands"},
       m = { ":Maps<CR>", "Normal mode mappings"},
     },
-    g = { ":Ag<CR>", "Ag Search" },
+    h = {
+        name = "Hunks",
+        p = { "<Plug>(GitGutterPreviewHunk)", "Preview" },
+        u = { "<Plug>(GitGutterUndoHunk)", "Undo" },
+        s = { "<Plug>(GitGutterStageHunk)", "Stage" }
+    },
+
+    ["<Space>" ] = {
+        name = "Easymotion",
+        f = { "<Plug>(easymotion-f)", "Find char to the right" },
+        F = { "<Plug>(easymotion-F)", "Find char to the left" },
+        t = { "<Plug>(easymotion-t)", "Till before the char to the right" },
+        T = { "<Plug>(easymotion-T)", "Till after the char to the left" },
+        w = { "<Plug>(easymotion-w)", "Beginning of word forward" },
+        W = { "<Plug>(easymotion-W)", "Beginning of WORD forward" },
+        b = { "<Plug>(easymotion-b)", "Beginning of word backward" },
+        B = { "<Plug>(easymotion-B)", "Beginning of WORD backward" },
+        e = { "<Plug>(easymotion-e)", "End of word forward" },
+        E = { "<Plug>(easymotion-E)", "End of WORD forward" },
+        g = {
+            name = "End of word/WORD backward",
+            e = { "<Plug>(easymotion-ge)", "End of word backward" },
+            E = { "<Plug>(easymotion-gE)", "End of WORD backward" }
+        },
+        j  = { "<Plug>(easymotion-j)", "Line downward" },
+        k  = { "<Plug>(easymotion-k)", "Line upward" },
+        n  = { "<Plug>(easymotion-n)", "Jump to latest  or forward" },
+        N  = { "<Plug>(easymotion-N)", "Jump to latest  or backward" },
+        s  = { "<Plug>(easymotion-s)", "Find char forward and backward" }
+    },
+    a = { ":Ag<CR>", "Ag Search" },
+    q = { ":QToggle<CR>", "Quickfix window" },
+    u = { ":UndotreeToggle<CR>", "Undotree" }
 }, { prefix = "<leader>" })
 EOF
 

@@ -19,9 +19,6 @@
 [submodule "tmux/plugins/yank"]
 	path = tmux/plugins/yank
 	url = https://github.com/tmux-plugins/tmux-yank.git
-[submodule "vim/pack/01_sensible/start/sensible"]
-	path = vim/pack/01_sensible/start/sensible
-	url = https://github.com/tpope/vim-sensible.git
 [submodule "vim/pack/03_plugins/start/airline"]
 	path = nvim/pack/plugins/start/airline
 	url = https://github.com/bling/vim-airline

@@ -46,13 +46,12 @@ setopt ALWAYS_TO_END # move cursor to the end of a completed word
 setopt LONG_LIST_JOBS # display PID when suspending processes as well
 setopt AUTO_RESUME # attempt to resume existing job before creating a new process
 setopt NOTIFY # report status of background jobs immediately
-#setopt NO_HUP # Don't send SIGHUP to backgrou processes when the shell exits
-#setopt AUTO_PUSHD # Make cd push the old directory onto the directory stack
-#setopt PUSHD_IGNORE_DUPS # don't push the same dir twice
-#setopt NO_GLOB_DOTS # * shouldn't match dotfiles. ever.
-#setopt NO_SH_WORD_SPLIT # use zsh style word splitting
-#setopt INTERACTIVE_COMMENTS # enable interactive comments
-#stty -ixon # Disable flowcontrol
+setopt NO_HUP # Don't send SIGHUP to backgrou processes when the shell exits
+setopt AUTO_PUSHD # Make cd push the old directory onto the directory stack
+setopt PUSHD_IGNORE_DUPS # don't push the same dir twice
+setopt NO_GLOB_DOTS # * shouldn't match dotfiles. ever.
+setopt NO_SH_WORD_SPLIT # use zsh style word splitting
+setopt INTERACTIVE_COMMENTS # enable interactive comments
 unsetopt RM_STAR_SILENT # notify when rm is running with *
 setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
 
@@ -107,10 +106,6 @@ autoload -Uz up-line-or-beginning-search
 zle -N up-line-or-beginning-search
 autoload -Uz down-line-or-beginning-search
 zle -N down-line-or-beginning-search
-
-# Enable functions from archive plugin
-fpath+="${ZDOTDIR}/plugins/archive"
-autoload -Uz archive lsarchive unarchive
 
 # Custom personal functions
 # Don't use -U as we need aliases here
@@ -916,6 +911,7 @@ source "${ZDOTDIR}/plugins/autoenv/autoenv.zsh"
 # Autopairs plugin
 source "${ZDOTDIR}/plugins/autopair/autopair.zsh"
 
+ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR}/plugins/abbreviations-store"
 source "${ZDOTDIR}/plugins/abbr/zsh-abbr.zsh"
 export MANPATH=${ZDOTDIR}/plugins/abbr/man:$MANPATH
 
@@ -943,6 +939,7 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # Ignore suggestions for abbreviations
 ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(k)ABBR_REGULAR_USER_ABBREVIATIONS}}
 ZSH_AUTOSUGGEST_COMPLETION_IGNORE=${ZSH_AUTOSUGGEST_HISTORY_IGNORE}
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=10"
 
 # Autosuggestions plugin
 source "${ZDOTDIR}/plugins/autosuggestions/zsh-autosuggestions.zsh"
