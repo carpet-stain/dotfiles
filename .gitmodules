@@ -70,12 +70,6 @@
 [submodule "vim/pack/03_plugins/start/editorconfig"]
 	path = nvim/pack/plugins/start/editorconfig
 	url = https://github.com/editorconfig/editorconfig-vim.git
-[submodule "vim/pack/03_plugins/start/fern"]
-	path = nvim/pack/plugins/start/fern
-	url = https://github.com/lambdalisue/fern.vim.git
-[submodule "vim/pack/03_plugins/start/fern-git-status"]
-	path = nvim/pack/plugins/start/fern-git-status
-	url = https://github.com/lambdalisue/fern-git-status.vim.git
 [submodule "vim/pack/03_plugins/start/file-line"]
 	path = nvim/pack/plugins/start/file-line
 	url = https://github.com/lervag/file-line.git
@@ -85,9 +79,6 @@
 [submodule "vim/pack/03_plugins/start/fugitive"]
 	path = nvim/pack/plugins/start/fugitive
 	url = https://github.com/tpope/vim-fugitive.git
-[submodule "vim/pack/03_plugins/start/fzf-vim"]
-	path = nvim/pack/plugins/start/fzf-vim
-	url = https://github.com/junegunn/fzf.vim.git
 [submodule "vim/pack/03_plugins/start/git"]
 	path = nvim/pack/plugins/start/git
 	url = https://github.com/tpope/vim-git.git
@@ -248,18 +239,6 @@
 [submodule "zsh/plugins/z"]
 	path = zsh/plugins/z
 	url = https://github.com/agkozak/zsh-z.git
-[submodule "vim/pack/03_plugins/start/fern_hijack"]
-	path = nvim/pack/plugins/start/fern_hijack
-	url = https://github.com/lambdalisue/fern-hijack.vim.git
-[submodule "vim/pack/03_plugins/start/fern_mapping_fzf"]
-	path = nvim/pack/plugins/start/fern_mapping_fzf
-	url = https://github.com/LumaKernel/fern-mapping-fzf.vim
-[submodule "vim/pack/03_plugins/start/fern_mapping_collapse_or_leave"]
-	path = nvim/pack/plugins/start/fern_mapping_collapse_or_leave
-	url = https://github.com/hrsh7th/fern-mapping-collapse-or-leave.vim
-[submodule "vim/pack/03_plugins/start/fern_preview"]
-	path = nvim/pack/plugins/start/fern_preview
-	url = https://github.com/yuki-yano/fern-preview.vim.git
 [submodule "vim/pack/03_plugins/start/vim_comment_banners"]
 	path = nvim/pack/plugins/start/vim_comment_banners
 	url = https://github.com/LiquidFun/vim-comment-banners.git
@@ -272,6 +251,9 @@
 [submodule "nvim/pack/plugins/start/comment"]
 	path = nvim/pack/plugins/start/comment
 	url = https://github.com/numToStr/Comment.nvim.git
-[submodule "nvim/pack/plugins/start/treesitter"]
-	path = nvim/pack/plugins/start/treesitter
+[submodule "nvim/pack/plugins/start/fzf-lua"]
+	path = nvim/pack/plugins/start/fzf-lua
+	url = https://github.com/ibhagwan/fzf-lua
+[submodule "nvim/pack/plugins/start/nvim-treesitter"]
+	path = nvim/pack/plugins/start/nvim-treesitter
 	url = https://github.com/nvim-treesitter/nvim-treesitter

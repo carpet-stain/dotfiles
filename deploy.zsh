@@ -12,9 +12,9 @@ cd "${SCRIPT_DIR}"
 XDG_CACHE_HOME="${HOME}/.cache"
 XDG_CONFIG_HOME="${HOME}/.config"
 XDG_DATA_HOME="${HOME}/.local/share"
-VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/nvim/init.vim" | source $MYVIMRC'
+VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/configs/init.lua" | source $MYVIMRC'
 
-# Create required directories
+# Create required directories 
 print "Creating required directory tree..."
 zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg,alacritty}
 zf_mkdir -p "${XDG_CACHE_HOME}"/{nvim/{backup,swap,undo},zsh}

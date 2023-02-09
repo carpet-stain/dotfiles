@@ -12,10 +12,13 @@ zmodload -F -m zsh/files b:zf_\*
 # Prefered editor and pager
 export VISUAL=nvim
 export EDITOR=nvim
-export VIMINIT='let $MYVIMRC="$DOTFILES/nvim/init.vim" | source $MYVIMRC'
+export VIMINIT='let $MYVIMRC="$DOTFILES/configs/init.lua" | source $MYVIMRC'
 export PAGER=less
 export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4"
 export READNULLCMD=${PAGER}
+
+# make sure gpg knows about current TTY
+export GPG_TTY=${TTY}
 
 # XDG basedir spec compliance
 if [[ ! -v XDG_CONFIG_HOME ]]; then
@@ -45,13 +48,13 @@ export PACKER_CONFIG="${XDG_CONFIG_HOME}/packer"
 export PACKER_CACHE_DIR="${XDG_CACHE_HOME}/packer"
 export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/config"
 export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
+export HTTPIE_CONFIG_DIR="${XDG_CONFIG_HOME}/httpie"
 export ANSIBLE_LOCAL_TEMP="${XDG_RUNTIME_DIR}/ansible/tmp"
 export GOPATH="${XDG_DATA_HOME}/go"
 
 # Ensure we have local paths enabled
 path=(/usr/local/bin /usr/local/sbin ${path})
 
-executable="/usr/bin"
 if [[ "${OSTYPE}" = darwin* ]]; then
     executable="/usr/local/bin"
     # set the executable to the macOS 
@@ -79,6 +82,7 @@ path=(${GOPATH}/bin ${path})
 
 # Add custom functions and completions
 fpath=(${ZDOTDIR}/fpath ${fpath})
+
 
 # Keep SSH_AUTH_SOCK valid across several attachments to the remote tmux session
 if (( EUID != 0 )); then

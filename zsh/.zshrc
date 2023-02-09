@@ -76,30 +76,17 @@ autoload -U select-word-style
 select-word-style bash
 
 # Enable run-help module
-(( $+aliases[run-help] )) && unalias run-help
-autoload -Uz run-help
-alias help=run-help
+# (( $+aliases[run-help] )) && unalias run-help
+# autoload -Uz run-help
+# alias help=run-help
 
 # enable url-quote-magic
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
 
 # enable bracketed paste
-autoload -Uz bracketed-paste-magic
-zle -N bracketed-paste bracketed-paste-magic
-
-# compatability with zsh-autosuggestion
-pasteinit() {
-    OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
-    zle -N self-insert url-quote-magic
-}
-
-pastefinish() {
-    zle -N self-insert $OLD_SELF_INSERT
-}
-
-zstyle :bracketed-paste-magic paste-init pasteinit
-zstyle :bracketed-paste-magic paste-finish pastefinish
+autoload -Uz bracketed-paste-url-magic
+zle -N bracketed-paste bracketed-paste-url-magic
 
 # Use default provided history search widgets
 autoload -Uz up-line-or-beginning-search
@@ -160,6 +147,16 @@ _zsh-dot () {
 }
 zle -N _zsh-dot
 bindkey . _zsh-dot
+
+# Make sure that the terminal is in application mode when zle is active, since
+# only then values from $terminfo are valid
+if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
+    autoload -Uz add-zle-hook-widget
+    function zle_application_mode_start { echoti smkx }
+    function zle_application_mode_stop { echoti rmkx }
+    add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
+    add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
+fi
 
 # Enable powerlevel10k prompt
 source "${ZDOTDIR}/plugins/powerlevel10k/powerlevel10k.zsh-theme"
@@ -671,7 +668,7 @@ alias grep="grep --color=auto --binary-files=without-match --devices=skip"
     alias stmux="tmux new-session 'sudo -i'"
 }
 (( ${+commands[wget]} )) && alias wget="wget --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
-alias ls="ls --group-directories-first --color=auto --classify"
+alias ls="gls --group-directories-first --color=auto --hyperlink=auto --classify"
 alias ll="LC_COLLATE=C ls -l -v --almost-all --human-readable"
 
 # History suppression
@@ -796,7 +793,7 @@ fi
 
 # Enable diff with colors
 if (( ${+commands[colordiff]} )); then
-    alias diff="colordiff -Naur"
+    alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
 fi
 
 # Make less more friendly
@@ -846,11 +843,12 @@ if (( ${+commands[grc]} )); then
     }
 fi
 # Completion tweaks
-zstyle ':completion:*:default'      list-colors         "${(s.:.)LS_COLORS}"
+zstyle ':completion:*:default'      list-colors         ${(s.:.)LS_COLORS}
 zstyle ':completion:*'              list-dirs-first     true
 zstyle ':completion:*'              verbose             true
+zstyle ':completion:*'              matcher-list        'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion::complete:*'    use-cache           true
-zstyle ':completion::complete:*'    cache-path          "${XDG_CACHE_HOME}/zsh/compcache"
+zstyle ':completion::complete:*'    cache-path          ${XDG_CACHE_HOME}/zsh/compcache
 zstyle ':completion:*:descriptions' format              [%d]
 zstyle ':completion:*:manuals'      separate-sections   true
 
@@ -861,6 +859,9 @@ fi
 
 # Additional completions
 fpath+="${ZDOTDIR}/plugins/completions/src"
+
+# Enable git-extras completions
+source "${HOMEBREW_REPOSITORY}/etc/bash-completion/completions/git-extras"
 
 # Make sure complist is loaded
 zmodload zsh/complist
@@ -898,8 +899,10 @@ elif (( ${+commands[ag]} )); then
 fi
 
 # Enable fzf key bindings and completions
-source "/usr/local/opt/fzf/shell/key-bindings.zsh"
-source "/usr/local/opt/fzf/shell/completion.zsh"
+source "${HOMEBREW_REPOSITORY}/opt/fzf/shell/key-bindings.zsh"
+source "${HOMEBREW_REPOSITORY}/opt/fzf/shell/completion.zsh"
+# source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+# source "/usr/local/opt/fzf/shell/completion.zsh"
 
 # Use fzf for tab completions
 source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
@@ -914,14 +917,6 @@ source "${ZDOTDIR}/plugins/autopair/autopair.zsh"
 ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR}/plugins/abbreviations-store"
 source "${ZDOTDIR}/plugins/abbr/zsh-abbr.zsh"
 export MANPATH=${ZDOTDIR}/plugins/abbr/man:$MANPATH
-
-# monkey patch abbr for better autosuggestion compatibility
-_abbr_widget_expand_and_space() {
-  emulate -LR zsh
-  _abbr_widget_expand
-  'builtin' 'command' -v _zsh_autosuggest_fetch &>/dev/null && _zsh_autosuggest_fetch
-  zle self-insert
-}
 
 # Highlighting plugin
 source "${ZDOTDIR}/plugins/syntax-highlighting/zsh-syntax-highlighting.zsh"
