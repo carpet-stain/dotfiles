@@ -51,6 +51,8 @@ export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 export HTTPIE_CONFIG_DIR="${XDG_CONFIG_HOME}/httpie"
 export ANSIBLE_LOCAL_TEMP="${XDG_RUNTIME_DIR}/ansible/tmp"
 export GOPATH="${XDG_DATA_HOME}/go"
+export BREWPATH="/opt/homebrew"
+export GPG_TTY="$(tty)"
 
 # Ensure we have local paths enabled
 path=(/usr/local/bin /usr/local/sbin ${path})
@@ -80,21 +82,28 @@ MANPATH="${XDG_DATA_HOME}/man:${MANPATH}"
 # Add go binaries to paths
 path=(${GOPATH}/bin ${path})
 
+# Add brew binary to path
+path=(${BREWPATH}/bin ${path})
+
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+
+gpg-connect-agent updatestartuptty /bye > /dev/null
+
 # Add custom functions and completions
 fpath=(${ZDOTDIR}/fpath ${fpath})
 
 
 # Keep SSH_AUTH_SOCK valid across several attachments to the remote tmux session
-if (( EUID != 0 )); then
-    if [[ -S "${GNUPGHOME}/S.gpg-agent.ssh" ]]; then
-        zf_ln -sf "${GNUPGHOME}/S.gpg-agent.ssh" "${HOME}/.ssh/ssh_auth_sock"
-    elif [[ -S "${XDG_RUNTIME_DIR}/ssh-agent.socket" ]]; then
-        zf_ln -sf "${XDG_RUNTIME_DIR}/ssh-agent.socket" "${HOME}/.ssh/ssh_auth_sock"
-    elif [[ -S "${SSH_AUTH_SOCK}" ]] && [[ ! -h "${SSH_AUTH_SOCK}" ]] && [[ "${SSH_AUTH_SOCK}" != "${HOME}/.ssh/ssh_auth_sock" ]]; then
-        zf_ln -sf "${SSH_AUTH_SOCK}" "${HOME}/.ssh/ssh_auth_sock"
-    fi
-    export SSH_AUTH_SOCK="${HOME}/.ssh/ssh_auth_sock"
-fi
+# if (( EUID != 0 )); then
+#     if [[ -S "${GNUPGHOME}/S.gpg-agent.ssh" ]]; then
+#         zf_ln -sf "${GNUPGHOME}/S.gpg-agent.ssh" "${HOME}/.ssh/ssh_auth_sock"
+#     elif [[ -S "${XDG_RUNTIME_DIR}/ssh-agent.socket" ]]; then
+#         zf_ln -sf "${XDG_RUNTIME_DIR}/ssh-agent.socket" "${HOME}/.ssh/ssh_auth_sock"
+#     elif [[ -S "${SSH_AUTH_SOCK}" ]] && [[ ! -h "${SSH_AUTH_SOCK}" ]] && [[ "${SSH_AUTH_SOCK}" != "${HOME}/.ssh/ssh_auth_sock" ]]; then
+#         zf_ln -sf "${SSH_AUTH_SOCK}" "${HOME}/.ssh/ssh_auth_sock"
+#     fi
+#     export SSH_AUTH_SOCK="${HOME}/.ssh/ssh_auth_sock"
+# fi
 
 # Disable global zsh configuration
 # We're doing all configuration ourselves

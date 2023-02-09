@@ -18,8 +18,8 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/configs/init.lua" | source $MYVIMRC'
 print "Creating required directory tree..."
 zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg,alacritty}
 zf_mkdir -p "${XDG_CACHE_HOME}"/{nvim/{backup,swap,undo},zsh}
-zf_mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1,nvim/spell}
-zf_mkdir -p "${HOME}"/.local/{bin,etc}
+zf_mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1,nvim/spell,gnupg}
+zf_mkdir -p "${HOME}"/{.local/{bin,etc},.ssh}
 zf_chmod 700 "${XDG_CONFIG_HOME}/gnupg"
 print "  ...done"
 
@@ -39,6 +39,8 @@ zf_ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attribut
 zf_ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
 zf_ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
 zf_ln -sf "${SCRIPT_DIR}/configs/alacritty.yml" "${XDG_CONFIG_HOME}/alacritty/alacritty.yml"
+zf_ln -sf "${SCRIPT_DIR}/configs/ssh_config" "${HOME}/.ssh/config"
+
 print "  ...done"
 
 # Make sure submodules are installed
@@ -68,8 +70,8 @@ print "  ...done"
 
 # Link gpg configs to $GNUPGHOME
 print "Linking gnupg configs..."
-zf_ln -sf "${SCRIPT_DIR}/gpg/gpg.conf" "${XDG_CONFIG_HOME}/gnupg/gpg.conf"
-zf_ln -sf "${SCRIPT_DIR}/gpg/gpg-agent.conf" "${XDG_CONFIG_HOME}/gnupg/gpg-agent.conf"
+zf_ln -sf "${SCRIPT_DIR}/configs/gpg.conf" "${XDG_CONFIG_HOME}/gnupg/gpg.conf"
+zf_ln -sf "${SCRIPT_DIR}/configs/gpg-agent.conf" "${XDG_CONFIG_HOME}/gnupg/gpg-agent.conf"
 print "  ...done"
 
 if (( ${+commands[nvim]} )); then
@@ -94,7 +96,7 @@ print "  ...done"
 print "Installing cron job for periodic updates..."
 local cron_task="cd ${SCRIPT_DIR} && git -c user.name=cron.update -c user.email=cron@localhost stash && git pull && git stash pop"
 local cron_schedule="0 0 * * * ${cron_task}"
-if cat <(fgrep -i -v "${cron_task}" <(crontab -l)) <(echo "${cron_schedule}") | crontab -; then
+if cat <(grep --ignore-case --invert-match --fixed-strings "${cron_task}" <(crontab -l)) <(echo "${cron_schedule}") | crontab -; then
     print "  ...done"
 else
     print "Please add \`cd ${SCRIPT_DIR} && git pull\` to your crontab or just ignore this, you can always update dotfiles manually"

@@ -58,5 +58,6 @@
 [status]
 	submoduleSummary = true
 [user]
-	email = brian.leppez@ey.com
+	email = brian@leppez.com
 	name = Brian Leppez
+	signingkey = 0x22483EA714C8FC1B
