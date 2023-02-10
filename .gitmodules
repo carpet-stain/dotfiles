@@ -242,9 +242,42 @@
 [submodule "nvim/pack/plugins/start/fzf-lua"]
 	path = nvim/pack/plugins/start/fzf-lua
 	url = https://github.com/ibhagwan/fzf-lua
-[submodule "nvim/pack/plugins/start/nvim-treesitter"]
-	path = nvim/pack/plugins/start/nvim-treesitter
-	url = https://github.com/nvim-treesitter/nvim-treesitter
 [submodule "nvim/pack/plugins/start/cmp"]
 	path = nvim/pack/plugins/start/cmp
 	url = https://github.com/hrsh7th/nvim-cmp/
+[submodule "nvim/pack/plugins/start/cmp_luasnip"]
+	path = nvim/pack/plugins/start/cmp_luasnip
+	url = https://github.com/saadparwaiz1/cmp_luasnip
+[submodule "nvim/pack/plugins/start/cmp-buffer"]
+	path = nvim/pack/plugins/start/cmp-buffer
+	url = https://github.com/hrsh7th/cmp-buffer
+[submodule "nvim/pack/plugins/start/cmp-path"]
+	path = nvim/pack/plugins/start/cmp-path
+	url = https://github.com/hrsh7th/cmp-path
+[submodule "nvim/pack/plugins/start/cmp-cmdline"]
+	path = nvim/pack/plugins/start/cmp-cmdline
+	url = https://github.com/hrsh7th/cmp-cmdline
+[submodule "nvim/pack/plugins/start/luasnip"]
+	path = nvim/pack/plugins/start/luasnip
+	url = https://github.com/L3MON4D3/LuaSnip
+[submodule "nvim/pack/plugins/start/flattened"]
+	path = nvim/pack/plugins/start/flattened
+	url = https://github.com/romainl/flattened
+[submodule "nvim/pack/plugins/start/lualine"]
+	path = nvim/pack/plugins/start/lualine
+	url = https://github.com/nvim-lualine/lualine.nvim
+[submodule "nvim/pack/plugins/start/mason"]
+	path = nvim/pack/plugins/start/mason
+	url = https://github.com/williamboman/mason.nvim
+[submodule "nvim/pack/plugins/start/nvim-tree"]
+	path = nvim/pack/plugins/start/nvim-tree
+	url = https://github.com/nvim-tree/nvim-tree.lua
+[submodule "nvim/pack/plugins/start/nvim-web-devicons"]
+	path = nvim/pack/plugins/start/nvim-web-devicons
+	url = https://github.com/nvim-tree/nvim-web-devicons
+[submodule "nvim/pack/plugins/start/nvim-treesitter"]
+	path = nvim/pack/plugins/start/nvim-treesitter
+	url = https://github.com/nvim-treesitter/nvim-treesitter
+[submodule "nvim/pack/plugins/start/impatient"]
+	path = nvim/pack/plugins/start/impatient
+	url = https://github.com/lewis6991/impatient.nvim
