@@ -28,18 +28,6 @@
 [submodule "vim/pack/03_plugins/start/ansible"]
 	path = nvim/pack/plugins/start/ansible
 	url = https://github.com/pearofducks/ansible-vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete"]
-	path = nvim/pack/plugins/start/asyncomplete
-	url = https://github.com/prabirshrestha/asyncomplete.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-buffer"]
-	path = nvim/pack/plugins/start/asyncomplete-buffer
-	url = https://github.com/omgitsmoe/asyncomplete-buffer.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-lsp"]
-	path = nvim/pack/plugins/start/asyncomplete-lsp
-	url = https://github.com/prabirshrestha/asyncomplete-lsp.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-necovim"]
-	path = nvim/pack/plugins/start/asyncomplete-necovim
-	url = https://github.com/prabirshrestha/asyncomplete-necovim.vim.git
 [submodule "vim/pack/03_plugins/start/auto-git-diff"]
 	path = nvim/pack/plugins/start/auto-git-diff
 	url = https://github.com/hotwatermorning/auto-git-diff.git
@@ -257,3 +245,6 @@
 [submodule "nvim/pack/plugins/start/nvim-treesitter"]
 	path = nvim/pack/plugins/start/nvim-treesitter
 	url = https://github.com/nvim-treesitter/nvim-treesitter
+[submodule "nvim/pack/plugins/start/cmp"]
+	path = nvim/pack/plugins/start/cmp
+	url = https://github.com/hrsh7th/nvim-cmp/
