@@ -12,7 +12,7 @@ zmodload -F -m zsh/files b:zf_\*
 # Prefered editor and pager
 export VISUAL=nvim
 export EDITOR=nvim
-export VIMINIT='let $MYVIMRC="$DOTFILES/configs/init.lua" | source $MYVIMRC'
+export VIMINIT='let $MYVIMRC="$DOTFILES/nvim/init.lua" | source $MYVIMRC'
 export PAGER=less
 export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4"
 export READNULLCMD=${PAGER}

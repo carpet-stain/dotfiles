@@ -70,18 +70,12 @@
 [submodule "vim/pack/03_plugins/start/git"]
 	path = nvim/pack/plugins/start/git
 	url = https://github.com/tpope/vim-git.git
-[submodule "vim/pack/03_plugins/start/gitgutter"]
-	path = nvim/pack/plugins/start/gitgutter
-	url = https://github.com/airblade/vim-gitgutter.git
 [submodule "vim/pack/03_plugins/start/go"]
 	path = nvim/pack/plugins/start/go
 	url = https://github.com/fatih/vim-go.git
 [submodule "vim/pack/03_plugins/start/gv"]
 	path = nvim/pack/plugins/start/gv
 	url = https://github.com/junegunn/gv.vim.git
-[submodule "vim/pack/03_plugins/start/indentLine"]
-	path = nvim/pack/plugins/start/indentLine
-	url = https://github.com/Yggdroot/indentLine.git
 [submodule "vim/pack/03_plugins/start/is"]
 	path = nvim/pack/plugins/start/is
 	url = https://github.com/haya14busa/is.vim.git
@@ -266,9 +260,6 @@
 [submodule "nvim/pack/plugins/start/lualine"]
 	path = nvim/pack/plugins/start/lualine
 	url = https://github.com/nvim-lualine/lualine.nvim
-[submodule "nvim/pack/plugins/start/mason"]
-	path = nvim/pack/plugins/start/mason
-	url = https://github.com/williamboman/mason.nvim
 [submodule "nvim/pack/plugins/start/nvim-tree"]
 	path = nvim/pack/plugins/start/nvim-tree
 	url = https://github.com/nvim-tree/nvim-tree.lua
@@ -281,3 +272,15 @@
 [submodule "nvim/pack/plugins/start/impatient"]
 	path = nvim/pack/plugins/start/impatient
 	url = https://github.com/lewis6991/impatient.nvim
+[submodule "nvim/pack/plugins/start/indent-blankline"]
+	path = nvim/pack/plugins/start/indent-blankline
+	url = https://github.com/lukas-reineke/indent-blankline.nvim
+[submodule "nvim/pack/plugins/start/gitsigns"]
+	path = nvim/pack/plugins/start/gitsigns
+	url = https://github.com/lewis6991/gitsigns.nvim
+[submodule "nvim/pack/plugins/start/lspconfig"]
+	path = nvim/pack/plugins/start/lspconfig
+	url = https://github.com/neovim/nvim-lspconfig
+[submodule "nvim/pack/plugins/start/cmp-nvim-lsp"]
+	path = nvim/pack/plugins/start/cmp-nvim-lsp
+	url = https://github.com/hrsh7th/cmp-nvim-lsp

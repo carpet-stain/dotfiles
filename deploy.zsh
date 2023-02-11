@@ -12,7 +12,7 @@ cd "${SCRIPT_DIR}"
 XDG_CACHE_HOME="${HOME}/.cache"
 XDG_CONFIG_HOME="${HOME}/.config"
 XDG_DATA_HOME="${HOME}/.local/share"
-VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/configs/init.lua" | source $MYVIMRC'
+VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/nvim/init.lua" | source $MYVIMRC'
 
 # Create required directories 
 print "Creating required directory tree..."
@@ -37,7 +37,6 @@ print "Linking config files..."
 zf_ln -sf "${SCRIPT_DIR}/configs/gitconfig" "${XDG_CONFIG_HOME}/git/config"
 zf_ln -sf "${SCRIPT_DIR}/configs/gitattributes" "${XDG_CONFIG_HOME}/git/attributes"
 zf_ln -sf "${SCRIPT_DIR}/configs/gitignore" "${XDG_CONFIG_HOME}/git/ignore"
-zf_ln -sf "${SCRIPT_DIR}/configs/htoprc" "${XDG_CONFIG_HOME}/htop/htoprc"
 zf_ln -sf "${SCRIPT_DIR}/configs/alacritty.yml" "${XDG_CONFIG_HOME}/alacritty/alacritty.yml"
 zf_ln -sf "${SCRIPT_DIR}/configs/ssh_config" "${HOME}/.ssh/config"
 
