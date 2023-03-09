@@ -97,7 +97,7 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages intel-ucode nftables git firefox plasma-desktop plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd sed tar gnupg grep htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop code
+pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages intel-ucode nftables git firefox plasma-desktop plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd sed tar gnupg grep htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop code iwd alacritty
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
 
