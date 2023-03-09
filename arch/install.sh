@@ -130,5 +130,9 @@ arch-chroot /mnt chsh -s /usr/bin/zsh
 echo "$user:$password" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd -dl root
 
+arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/carpet-stain/dotfiles.git ~/.dotfiles'
+echo -e "\n### Running initial setup"
+arch-chroot /mnt /home/$user/.dotfiles/setup-system.sh
+
 echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"
 umount -R /mnt
