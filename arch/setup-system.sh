@@ -23,9 +23,9 @@ fi
 copy() {
     if [ -z "$reverse" ]; then
         orig_file="$dotfiles_dir/$1"
-        dest_file="/$1"
+        [ -n "$3" ] && dest_file="/$3" || dest_file="/$1"
     else
-        orig_file="/$1"
+        [ -n "$3" ] && orig_file="/$3" || orig_file="/$1"
         dest_file="$dotfiles_dir/$1"
     fi
 
@@ -47,11 +47,6 @@ is_chroot() {
     ! cmp -s /proc/1/mountinfo /proc/self/mountinfo
 }
 
-systemctl_enable() {
-    echo "systemctl enable "$1""
-    systemctl enable "$1"
-}
-
 systemctl_enable_start() {
     echo "systemctl enable --now "$1""
     systemctl enable "$1"
@@ -63,7 +58,7 @@ echo "=========================="
 echo "Setting up /etc configs..."
 echo "=========================="
 
-copy "etc/bluetooth/main.conf"
+copy "etc/iwd/main.conf"
 copy "etc/sudoers.d/override"
 
 (("$reverse")) && exit 0 
@@ -75,6 +70,26 @@ echo "================================="
 sysctl --system > /dev/null
 
 systemctl daemon-reload
-systemctl_enable_start "bluetooth.service"
-systemctl_enable_start "networkmanager.service"
-systemctl_enable_start "sddm.service"
+systemctl_enable_start "iwd.service"
+
+echo ""
+echo "===================="
+echo "Reload udev rules..."
+echo "===================="
+udevadm control --reload
+udevadm trigger
+
+echo ""
+echo "======================================="
+echo "Finishing various user configuration..."
+echo "======================================="
+
+if is_chroot; then
+    echo >&2 "=== Running in chroot, skipping /etc/resolv.conf setup..."
+else
+    echo "Configuring /etc/resolv.conf"
+    ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+fi
+
+echo "Configuring NTP"
+timedatectl set-ntp true
