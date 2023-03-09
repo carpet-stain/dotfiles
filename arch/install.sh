@@ -28,6 +28,8 @@ exec 2> >(tee "stderr.log" >&2)
 
 MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
 
+pacman -Sy --noconfirm pacman-contrib dialog
+
 echo "Updating mirror list"
 curl -s "$MIRRORLIST_URL" | \
     sed -e 's/^#Server/Server/' -e '/^#/d' | \
