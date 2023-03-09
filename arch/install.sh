@@ -18,13 +18,20 @@
 # Run installation:
 #
 # - Connect to wifi via: `# iwctl station wlan0 connect WIFI-NETWORK`
-# - Run: `# bash <(curl -sL https://git.io/Ji3de)`
+# - Run: `# bash <(curl -sL https://t.ly/o4kG)`
 
 set -uo pipefail
 trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 exec 1> >(tee "stdout.log")
 exec 2> >(tee "stderr.log" >&2)
+
+MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
+
+echo "Updating mirror list"
+curl -s "$MIRRORLIST_URL" | \
+    sed -e 's/^#Server/Server/' -e '/^#/d' | \
+    rankmirrors -n 5 - > /etc/pacman.d/mirrorlist
 
 export SNAP_PAC_SKIP=y
 
@@ -92,10 +99,7 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-echo -e "\n### Setting up fastest mirrors"
-reflector --latest 30 --sort rate --save /etc/pacman.d/mirrorlist
-
-pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages intel-ucode nftables git networkmanager sddm firefox plasma-meta plasma-wayland-session bluez bluez-utils dolphin firefox kate konsole plasma-nm plasma-pa tmux vim fzf ansible ansible-lint aws-cli bat colordiff curl diff-so-fancy fd sed tar gnupg go grep htop httpie p7zip jq packer pbzip2 pyenv python shellcheck terraform the_silver_searcher tree wget yamllint bitwarden docker signal-desktop vagrant libvirt code tlp plasma-systemmonitor yubioath-desktop pcscd
+pacstrap /mnt base linux linux-firmware base-devel zsh efibootmgr man-db man-pages intel-ucode nftables git firefox plasma-desktop plasma-wayland-session tmux vim fzf bat colordiff diff-so-fancy fd sed tar gnupg grep htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop code
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
 echo "${hostname}" > /mnt/etc/hostname
 
@@ -114,7 +118,7 @@ options  root=PARTUUID=$(blkid -s PARTUUID -o value "$part_root") rw
 EOF
 
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
-ln -sf /usr/share/zoneinfo/Europe/London "/etc/localtime"
+ln -sf /usr/share/zoneinfo/US/Central "/etc/localtime"
 sed 's/#en_US/en_US/' -i /etc/locale.gen
 locale-gen
 
