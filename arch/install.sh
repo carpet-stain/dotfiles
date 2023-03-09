@@ -120,11 +120,15 @@ ln -sf /usr/share/zoneinfo/US/Central "/etc/localtime"
 sed 's/#en_US/en_US/' -i /etc/locale.gen
 locale-gen
 
-arch-chroot /mnt useradd -mU -s /usr/bin/zsh -G wheel,uucp,video,audio,storage,input "$user"
+echo -e "\n### Creating user"
+arch-chroot /mnt useradd -m -s /usr/bin/zsh "$user"
+for group in wheel network storage video audio input; do
+    arch-chroot /mnt groupadd -rf "$group"
+    arch-chroot /mnt gpasswd -a "$user" "$group"
+done
 arch-chroot /mnt chsh -s /usr/bin/zsh
-
-echo "$user:$password" | chpasswd --root /mnt
-echo "root:$password" | chpasswd --root /mnt
+echo "$user:$password" | arch-chroot /mnt chpasswd
+arch-chroot /mnt passwd -dl root
 
 echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"
 umount -R /mnt
