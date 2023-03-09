@@ -38,8 +38,6 @@ curl -s "$MIRRORLIST_URL" | \
 # Dialog
 BACKTITLE="Arch Linux installation"
 
-pacman -Sy --noconfirm --needed  dialog git reflector terminus-font
-
 ### Get infomation from user ###
 hostname=$(dialog --stdout --inputbox "Enter hostname" 0 0) || exit 1
 clear
