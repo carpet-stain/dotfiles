@@ -97,7 +97,8 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-pacstrap /mnt base linux linux-firmware base-devel zsh man-db man-pages intel-ucode nftables git firefox plasma-desktop plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd gnupg grep htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop code iwd alacritty bluez bluez-utils
+pacstrap /mnt base linux linux-firmware base-devel zsh git man-db man-pages intel-ucode nftables git iwd ssh
+# man-db man-pages intel-ucode nftables git firefox plasma-desktop plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd gnupg grep htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop code iwd alacritty bluez bluez-utils
 
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
@@ -134,7 +135,7 @@ arch-chroot /mnt passwd -dl root
 
 arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/carpet-stain/dotfiles.git ~/.dotfiles'
 echo -e "\n### Running initial setup"
-arch-chroot /mnt /home/$user/.dotfiles/setup-system.sh
+arch-chroot /mnt /home/$user/.dotfiles/arch/setup-base-system.sh
 
 echo -e "\n### Reboot now, and after power off remember to unplug the installation USB"
 umount -R /mnt

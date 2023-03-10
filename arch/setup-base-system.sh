@@ -58,9 +58,11 @@ echo "=========================="
 echo "Setting up /etc configs..."
 echo "=========================="
 
-copy "etc/bluetooth/main.conf"
 copy "etc/iwd/main.conf"
+copy "etc/nftables.conf"
+copy "etc/pacman.conf" 644 "etc/pacman.conf"
 copy "etc/sudoers.d/override"
+copy "etc/ssh/ssh_config"
 
 (("$reverse")) && exit 0 
 
@@ -71,8 +73,10 @@ echo "================================="
 sysctl --system > /dev/null
 
 systemctl daemon-reload
-systemctl_enable_start "bluetooth.service"
 systemctl_enable_start "iwd.service"
+systemctl_enable_start "nftables.service"
+systemctl_enable_start "systemd-networkd.socket"
+systemctl_enable_start "systemd-resolved.service"
 
 echo ""
 echo "===================="
