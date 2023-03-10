@@ -38,7 +38,7 @@ copy() {
     if [ -z "$reverse" ]; then
         [ -n "$2" ] && chmod "$2" "$dest_file"
     else
-        chown -R maximbaz "$dest_file"
+        chown -R brian "$dest_file"
     fi
     echo "$dest_file <= $orig_file"
 }
