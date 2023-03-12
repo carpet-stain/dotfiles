@@ -136,8 +136,8 @@ arch-chroot /mnt passwd -dl root
 # arch-chroot /mnt sudo -u $user bash -c 'cd yay && makepkg -si'
 # arch-chroot /mnt sudo -u $user bash -c 'curl https://github.com/olets/gpg | gpg --import'
 # arch-chroot /mnt sudo -u $user bash -c 'yay -S zsh-abr --sudoloop --noconfirm'
-arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/carpet-stain/dotfiles.git ~/.dotfiles'
-arch-chroot /mnt sudo -u $user bash -c 'cd ~/.dotfiles/arch/aur/zsh-syntax-highlighting && makepkg -siCc --noconfirm'
+arch-chroot /mnt sudo -u $user bash -c 'git clone https://github.com/carpet-stain/dotfiles.git ~/.dotfiles'
+# arch-chroot /mnt sudo -u $user bash -c 'cd ~/.dotfiles/arch/aur/zsh-syntax-highlighting && makepkg -siCc --noconfirm'
 echo -e "\n### Running initial setup"
 arch-chroot /mnt chmod +700 /home/$user/.dotfiles/arch/setup-base-system.sh
 arch-chroot /mnt /home/$user/.dotfiles/arch/setup-base-system.sh
