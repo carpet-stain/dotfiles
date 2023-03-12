@@ -97,7 +97,7 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-pacstrap /mnt base linux linux-firmware base-devel zsh git man-db man-pages intel-ucode nftables git iwd openssh firefox plasma-desktop dolphin electrum monero-gui plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd gnupg htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop transmission alacritty bluez bluez-utils
+pacstrap /mnt base linux linux-firmware base-devel zsh git man-db man-pages intel-ucode nftables git iwd openssh firefox plasma-desktop dolphin electrum monero-gui plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd gnupg htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop alacritty bluez bluez-utils pipewire-audio
 
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
@@ -132,10 +132,12 @@ arch-chroot /mnt chsh -s /usr/bin/zsh
 echo "$user:$password" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd -dl root
 
-arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://aur.archlinux.org/yay.git'
-arch-chroot /mnt sudo -u $user bash -c 'cd yay && makepkg -si'
-arch-chroot /mnt sudo -u $user bash -c 'yay -S '
+# arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://aur.archlinux.org/yay.git'
+# arch-chroot /mnt sudo -u $user bash -c 'cd yay && makepkg -si'
+# arch-chroot /mnt sudo -u $user bash -c 'curl https://github.com/olets/gpg | gpg --import'
+# arch-chroot /mnt sudo -u $user bash -c 'yay -S zsh-abr --sudoloop --noconfirm'
 arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/carpet-stain/dotfiles.git ~/.dotfiles'
+arch-chroot /mnt sudo -u $user bash -c 'cd ~/.dotfiles/arch/aur/zsh-syntax-highlighting && makepkg -siCc --noconfirm'
 echo -e "\n### Running initial setup"
 arch-chroot /mnt chmod +700 /home/$user/.dotfiles/arch/setup-base-system.sh
 arch-chroot /mnt /home/$user/.dotfiles/arch/setup-base-system.sh
