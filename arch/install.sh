@@ -55,7 +55,7 @@ clear
 [[ "$password" == "$password2" ]] || ( echo "Passwords did not match"; exit 1; )
 
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
-device=$(dialog --stdout --menu "Select installtion disk" 0 0 0 ${devicelist}) || exit 1
+device=$(dialog --stdout --menu "Select installation disk" 0 0 0 ${devicelist}) || exit 1
 clear
 
 echo -e "\n### Checking UEFI boot mode"
@@ -66,7 +66,7 @@ fi
 
 echo -e "\n### Setting up clock"
 timedatectl set-ntp true
-hwclock --systohc --utc
+hwclock --systohc
 
 ### Setup the disk and partitions ###
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
@@ -97,8 +97,7 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-pacstrap /mnt base linux linux-firmware base-devel zsh git man-db man-pages intel-ucode nftables git iwd openssh
-# man-db man-pages intel-ucode nftables git firefox plasma-desktop plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd gnupg grep htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop code iwd alacritty bluez bluez-utils
+pacstrap /mnt base linux linux-firmware base-devel zsh git man-db man-pages intel-ucode nftables git iwd openssh firefox plasma-desktop dolphin electrum monero-gui plasma-wayland-session tmux neovim fzf bat colordiff diff-so-fancy fd gnupg htop httpie p7zip pbzip2 the_silver_searcher tree wget bitwarden signal-desktop transmission alacritty bluez bluez-utils
 
 
 genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
@@ -133,6 +132,9 @@ arch-chroot /mnt chsh -s /usr/bin/zsh
 echo "$user:$password" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd -dl root
 
+arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://aur.archlinux.org/yay.git'
+arch-chroot /mnt sudo -u $user bash -c 'cd yay && makepkg -si'
+arch-chroot /mnt sudo -u $user bash -c 'yay -S '
 arch-chroot /mnt sudo -u $user bash -c 'git clone --recursive https://github.com/carpet-stain/dotfiles.git ~/.dotfiles'
 echo -e "\n### Running initial setup"
 arch-chroot /mnt chmod +700 /home/$user/.dotfiles/arch/setup-base-system.sh

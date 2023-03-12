@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 exec 2> >(while read line; do echo -e "\e[01;31m$line\e[0m"; done)
 
 script_name="$(basename "$0")"
@@ -43,10 +42,6 @@ copy() {
     echo "$dest_file <= $orig_file"
 }
 
-is_chroot() {
-    ! cmp -s /proc/1/mountinfo /proc/self/mountinfo
-}
-
 systemctl_enable_start() {
     echo "systemctl enable --now "$1""
     systemctl enable "$1"
@@ -70,8 +65,6 @@ echo "================================="
 echo "Enabling and starting services..."
 echo "================================="
 
-sysctl --system > /dev/null
-
 systemctl daemon-reload
 systemctl_enable_start "iwd.service"
 systemctl_enable_start "nftables.service"
@@ -90,12 +83,7 @@ echo "======================================="
 echo "Finishing various user configuration..."
 echo "======================================="
 
-if is_chroot; then
-    echo >&2 "=== Running in chroot, skipping /etc/resolv.conf setup..."
-else
-    echo "Configuring /etc/resolv.conf"
-    ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-fi
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 echo "Configuring NTP"
 timedatectl set-ntp true
