@@ -1,15 +1,9 @@
 [submodule "tmux/plugins/colors-solarized"]
 	path = tmux/plugins/colors-solarized
 	url = https://github.com/seebi/tmux-colors-solarized.git
-[submodule "tmux/plugins/copycat"]
-	path = tmux/plugins/copycat
-	url = https://github.com/tmux-plugins/tmux-copycat.git
 [submodule "tmux/plugins/open"]
 	path = tmux/plugins/open
 	url = https://github.com/tmux-plugins/tmux-open.git
-[submodule "tmux/plugins/pain-control"]
-	path = tmux/plugins/pain-control
-	url = https://github.com/tmux-plugins/tmux-pain-control.git
 [submodule "tmux/plugins/prefix-highlight"]
 	path = tmux/plugins/prefix-highlight
 	url = https://github.com/tmux-plugins/tmux-prefix-highlight.git
