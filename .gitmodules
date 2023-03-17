@@ -28,7 +28,7 @@
 [submodule "nvim/pack/plugins/start/ansible"]
 	path = nvim/pack/plugins/start/ansible
 	url = https://github.com/pearofducks/ansible-vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete"]
+[submodule "nvim/pack/plugins/start/asyncomplete"]
 	path = nvim/pack/plugins/start/asyncomplete
 	url = https://github.com/prabirshrestha/asyncomplete.vim.git
 [submodule "vim/pack/03_plugins/start/asyncomplete-buffer"]
