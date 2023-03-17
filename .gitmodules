@@ -1,6 +1,3 @@
-[submodule "tmux/plugins/colors-solarized"]
-	path = tmux/plugins/colors-solarized
-	url = https://github.com/seebi/tmux-colors-solarized.git
 [submodule "tmux/plugins/open"]
 	path = tmux/plugins/open
 	url = https://github.com/tmux-plugins/tmux-open.git
