@@ -86,7 +86,7 @@ fpath=(${ZDOTDIR}/fpath ${fpath})
 # in order to use #, ~ and ^ for filename generation grep word
 # *~(*.gz|*.bz|*.bz2|*.zip|*.Z) -> searches for word not in compressed files
 # don't forget to quote '^', '~' and '#'!
-setopt EXTENDED_GLOB    # treat special characters as part of patterns
+setopt EXTENDED_GLOB # treat special characters as part of patterns
 
 # Initialize path.
 # If dirs are missing, they won't be added due to null globbing.

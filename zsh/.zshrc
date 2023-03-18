@@ -509,4 +509,4 @@ fi
 # +----------------+
 
 # Force path arrays to have unique values only
-typeset -gU cdpath fpath manpath
+typeset -gU path cdpath fpath manpath
