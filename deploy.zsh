@@ -89,14 +89,3 @@ print "  ...done"
 print "Downloading TLDR pages..."
 tldr -u &> /dev/null
 print "  ...done"
-
-
-# Install crontab task to pull updates every midnight
-print "Installing cron job for periodic updates..."
-local cron_task="cd ${SCRIPT_DIR} && git -c user.name=cron.update -c user.email=cron@localhost stash && git pull && git stash pop"
-local cron_schedule="0 0 * * * ${cron_task}"
-if cat <(grep --ignore-case --invert-match --fixed-strings "${cron_task}" <(crontab -l)) <(echo "${cron_schedule}") | crontab -; then
-    print "  ...done"
-else
-    print "Please add \`cd ${SCRIPT_DIR} && git pull\` to your crontab or just ignore this, you can always update dotfiles manually"
-fi

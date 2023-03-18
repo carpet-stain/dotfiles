@@ -53,6 +53,7 @@ if [[ ! -v XDG_RUNTIME_DIR ]]; then
     export XDG_RUNTIME_DIR="${TMPDIR:-/tmp}/runtime-${USER}"
 fi
 
+# Reported from XDG-NINJA
 export GNUPGHOME="${XDG_DATA_HOME}/gnupg"
 export LESSHISTFILE="${XDG_DATA_HOME}/lesshst"
 export DOCKER_CONFIG="${XDG_CONFIG_HOME}/docker"
@@ -66,7 +67,10 @@ export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/config"
 export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 export HTTPIE_CONFIG_DIR="${XDG_CONFIG_HOME}/httpie"
 export ANSIBLE_LOCAL_TEMP="${XDG_RUNTIME_DIR}/ansible/tmp"
+export ELECTRUMDIR="$XDG_DATA_HOME/electrum"
+export TERMINFO="$XDG_DATA_HOME"/terminfo
 export GOPATH="${XDG_DATA_HOME}/go"
+export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
 
 # Homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1
@@ -79,15 +83,21 @@ export HOMEBREW_VERBOSE_USING_DOTS=1
 # Add custom functions and completions
 fpath=(${ZDOTDIR}/fpath ${fpath})
 
-# Ensure we have local paths enabled
-path=(/usr/local/bin /usr/local/sbin ${path})
+# in order to use #, ~ and ^ for filename generation grep word
+# *~(*.gz|*.bz|*.bz2|*.zip|*.Z) -> searches for word not in compressed files
+# don't forget to quote '^', '~' and '#'!
+setopt EXTENDED_GLOB    # treat special characters as part of patterns
+
+# Initialize path.
+# If dirs are missing, they won't be added due to null globbing.
+path=(
+  $HOME/{,s}bin(N)
+  /opt/{homebrew,local}/{,s}bin(N)
+  /usr/local/{,s}bin(N)
+  $path
+)
 
 if [[ "${OSTYPE}" = darwin* ]]; then
-    # Check whether homebrew available under new path
-    if (( ! ${+commands[brew]} )) && [[ -x /opt/homebrew/bin/brew ]]; then
-        path=(/opt/homebrew/bin ${path})
-    fi
-
     if (( ${+commands[brew]} )); then
         autoload -z evalcache
         evalcache brew shellenv
@@ -114,19 +124,3 @@ MANPATH="${XDG_DATA_HOME}/man:${MANPATH}"
 
 # Add go binaries to paths
 path=(${GOPATH}/bin ${path})
-
-# +---------------+
-# | SSH_AUTH_SOCK |
-# +---------------+
-
-# Keep SSH_AUTH_SOCK valid across several attachments to the remote tmux session
-if (( EUID != 0 )); then
-    if [[ -S "${GNUPGHOME}/S.gpg-agent.ssh" ]]; then
-        zf_ln -sf "${GNUPGHOME}/S.gpg-agent.ssh" "${HOME}/.ssh/ssh_auth_sock"
-    elif [[ -S "${XDG_RUNTIME_DIR}/ssh-agent.socket" ]]; then
-        zf_ln -sf "${XDG_RUNTIME_DIR}/ssh-agent.socket" "${HOME}/.ssh/ssh_auth_sock"
-    elif [[ -S "${SSH_AUTH_SOCK}" ]] && [[ ! -h "${SSH_AUTH_SOCK}" ]] && [[ "${SSH_AUTH_SOCK}" != "${HOME}/.ssh/ssh_auth_sock" ]]; then
-        zf_ln -sf "${SSH_AUTH_SOCK}" "${HOME}/.ssh/ssh_auth_sock"
-    fi
-    export SSH_AUTH_SOCK="${HOME}/.ssh/ssh_auth_sock"
-fi

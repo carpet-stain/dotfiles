@@ -1,13 +1,3 @@
-# +-------------+
-# | TMUX ATTACH |
-# +-------------+
-
-# Attach to a tmux session, if there's any. Do this only for remote SSH sessions, don't mess local tmux sessions
-# Handoff to tmux early, as rest of the rc config isn't needed for this
-if (( ${+commands[tmux]} )) && [[ ! -v TMUX ]] && pgrep -u "${EUID}" tmux &>/dev/null && [[ -v SSH_TTY ]] && [[ ! -v MC_SID ]]; then
-    exec tmux attach
-fi
-
 # +---------------------+
 # | P10K INSTANT PROMPT |
 # +---------------------+
@@ -28,11 +18,6 @@ setopt AUTO_PUSHD       # Make cd push the old directory onto the directory stac
 setopt PUSHD_SILENT     # Do not print the directory stack after pushd or popd.
 setopt CORRECT_ALL      # try to correct the spelling of all arguments in a line
 setopt CDABLE_VARS      # Change directory to a path stored in a variable.
-
-# in order to use #, ~ and ^ for filename generation grep word
-# *~(*.gz|*.bz|*.bz2|*.zip|*.Z) -> searches for word not in compressed files
-# don't forget to quote '^', '~' and '#'!
-setopt EXTENDED_GLOB    # treat special characters as part of patterns
 
 # +---------+
 # | HISTORY |
@@ -224,6 +209,9 @@ alias df="df -Th"
 alias du="dua"
 alias dui="dua interactive"
 
+# Monero
+alias monerod=monerod --data-dir "$XDG_DATA_HOME"/bitmonero
+
 # Handy stuff and a bit of XDG compliance
 (( ${+commands[tmux]} )) && {
     alias tmux="tmux -f ${DOTFILES}/tmux/tmux.conf"
@@ -401,12 +389,9 @@ fi
 # Make sure complist is loaded
 zmodload zsh/complist
 
-if type brew &>/dev/null
-then
-  FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-  source $(brew --prefix)/etc/bash-completion/completions/git-extras
-fi
+FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
+FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
+source ${HOMEBREW_PREFIX}/etc/bash-completion/completions/git-extras(N)
 
 # Init completions, but regenerate compdump only once a day.
 # The globbing is a little complicated here:
@@ -445,11 +430,11 @@ fi
 
 # Auto-completion
 # ---------------
-[[ $- == *i* ]] && source $(brew --prefix)/opt/fzf/shell/completion.zsh 2> /dev/null
+source ${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh(N)
 
 # Key bindings
 # ------------
-source $(brew --prefix)/opt/fzf/shell/key-bindings.zsh
+source ${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh(N)
 
 
 # +---------+
@@ -471,12 +456,11 @@ zstyle ':fzf-tab:*' switch-group ',' '.'
 # | LOAD-PLUGINS |
 # +--------------+
 
-if type brew &>/dev/null; then
-    source $(brew --prefix)/share/zsh-autopair/autopair.zsh
-    source $(brew --prefix)/share/zsh-abbr/zsh-abbr.zsh
-    source $(brew --prefix)/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-    source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-fi
+# Homebrew Plugins
+source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
+source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
+source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
+source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 
 # +----------+
 # | ZSH-ABBR |
@@ -525,4 +509,4 @@ fi
 # +----------------+
 
 # Force path arrays to have unique values only
-typeset -U path cdpath fpath manpath
+typeset -gU cdpath fpath manpath
