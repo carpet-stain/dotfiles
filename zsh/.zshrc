@@ -172,7 +172,7 @@ key[CtrlRight]=${terminfo[kRIT5]}
 [[ -n "${key[Backspace]}" ]] && bindkey "${key[Backspace]}"  backward-delete-char
 [[ -n "${key[ShiftTab]}"  ]] && bindkey "${key[ShiftTab]}"   reverse-menu-complete
 
-# REMEMBER TO DISABLE MISSION CONTROL KEY BINDINGS IN MACOS SETTINGS FOR THIS TO WORK
+# MACOS: REMEMBER TO DISABLE MISSION CONTROL KEY BINDINGS IN MACOS SETTINGS FOR THIS TO WORK
 [[ -n "${key[CtrlLeft]}"  ]] && bindkey "${key[CtrlLeft]}"   backward-word
 [[ -n "${key[CtrlRight]}" ]] && bindkey "${key[CtrlRight]}"  forward-word
 

@@ -21,6 +21,9 @@
       },
       "olets/tap": {
         "revision": "a292e7095aeb049db26c39f27eb0a5ad0a9faca1"
+      },
+      "homebrew/cask-fonts": {
+        "revision": "0f38ac5027cdb7376715e44c84858760e7e6056f"
       }
     },
     "brew": {
@@ -3436,6 +3439,14 @@
             }
           }
         }
+      },
+      "romkatv/powerlevel10k/powerlevel10k": {
+        "version": "1.17.0",
+        "bottle": false
+      },
+      "zsh-abbr": {
+        "version": "5.0.0",
+        "bottle": false
       }
     },
     "cask": {
@@ -3605,6 +3616,12 @@
         "version": "1.76.2.23074",
         "options": {
           "full_name": "vscodium"
+        }
+      },
+      "font-hack-nerd-font": {
+        "version": "2.3.3",
+        "options": {
+          "full_name": "font-hack-nerd-font"
         }
       }
     },
