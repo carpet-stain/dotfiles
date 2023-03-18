@@ -17,13 +17,16 @@
         "revision": "2f01fd949e59133e696ed0114f265f1f1dc41563"
       },
       "homebrew/cask-versions": {
-        "revision": "2bb6c48b2b9b58e13930840e238c15dbb64decdf"
+        "revision": "641528a54322d5de353ef20c1c940a946bc08c9e"
       },
       "olets/tap": {
         "revision": "a292e7095aeb049db26c39f27eb0a5ad0a9faca1"
       },
       "homebrew/cask-fonts": {
         "revision": "0f38ac5027cdb7376715e44c84858760e7e6056f"
+      },
+      "romkatv/powerlevel10k": {
+        "revision": "e847355cc0a5f46aade45615b3a91493bf709d7e"
       }
     },
     "brew": {
@@ -3447,6 +3450,26 @@
       "zsh-abbr": {
         "version": "5.0.0",
         "bottle": false
+      },
+      "romaktv/powerlevel10k/powerlevel10k": {
+      },
+      "xdg-ninja": {
+        "version": "0.2.0.1",
+        "bottle": {
+          "rebuild": 0,
+          "root_url": "https://ghcr.io/v2/homebrew/core",
+          "files": {
+            "all": {
+              "cellar": ":any_skip_relocation",
+              "url": "https://ghcr.io/v2/homebrew/core/xdg-ninja/blobs/sha256:143b6fed536da8327d4cb7068108e6cd787eee32d9e297f8c435f781044fb755",
+              "sha256": "143b6fed536da8327d4cb7068108e6cd787eee32d9e297f8c435f781044fb755"
+            }
+          }
+        }
+      },
+      "powerlevel10k": {
+        "version": "1.17.0",
+        "bottle": false
       }
     },
     "cask": {
@@ -3607,7 +3630,7 @@
         }
       },
       "tor-browser": {
-        "version": "12.0.3",
+        "version": "12.0.4",
         "options": {
           "full_name": "tor-browser"
         }

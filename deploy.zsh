@@ -48,17 +48,6 @@ git submodule sync > /dev/null
 git submodule update --init --recursive > /dev/null
 print "  ...done"
 
-print "Compiling zsh plugins..."
-{
-    emulate -LR zsh
-    setopt local_options extended_glob
-    autoload -Uz zrecompile
-    for plugin_file in ${SCRIPT_DIR}/zsh/plugins/**/*.zsh{-theme,}(#q.); do
-        zrecompile -pq "${plugin_file}"
-    done
-}
-print "  ...done"
-
 # Install hook to call deploy script after successful pull
 print "Installing git hooks..."
 zf_mkdir -p .git/hooks
