@@ -202,9 +202,6 @@
 [submodule "zsh/plugins/fzf-tab"]
 	path = zsh/plugins/fzf-tab
 	url = https://github.com/Aloxaf/fzf-tab.git
-[submodule "zsh/plugins/powerlevel10k"]
-	path = zsh/plugins/powerlevel10k
-	url = https://github.com/romkatv/powerlevel10k.git
 [submodule "zsh/plugins/z"]
 	path = zsh/plugins/z
 	url = https://github.com/agkozak/zsh-z.git

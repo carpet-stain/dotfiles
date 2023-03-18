@@ -3,6 +3,3 @@
 if [[ -r /etc/profile ]] && [[ "${OSTYPE}" != darwin* ]]; then
     emulate sh -c 'source /etc/profile'
 fi
-
-# Set PATH, MANPATH, etc., for Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"

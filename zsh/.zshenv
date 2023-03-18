@@ -21,6 +21,10 @@ fi
 # Load zsh/files module to provide some builtins for file modifications
 zmodload -F -m zsh/files b:zf_\*
 
+# +---------+
+# | EXPORTS |
+# +---------+
+
 # Prefered editor and pager
 export VISUAL=nvim
 export EDITOR=nvim
@@ -64,6 +68,14 @@ export HTTPIE_CONFIG_DIR="${XDG_CONFIG_HOME}/httpie"
 export ANSIBLE_LOCAL_TEMP="${XDG_RUNTIME_DIR}/ansible/tmp"
 export GOPATH="${XDG_DATA_HOME}/go"
 
+# Homebrew
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_VERBOSE_USING_DOTS=1
+
+# +-------+
+# | PATHS |
+# +-------+
+
 # Add custom functions and completions
 fpath=(${ZDOTDIR}/fpath ${fpath})
 
@@ -77,6 +89,9 @@ if [[ "${OSTYPE}" = darwin* ]]; then
     fi
 
     if (( ${+commands[brew]} )); then
+        autoload -z evalcache
+        evalcache brew shellenv
+
         # Enable gnu version of utilities on macOS, if installed
         for gnuutil in coreutils gnu-sed gnu-tar grep; do
             if [[ -d ${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnubin ]]; then
@@ -100,10 +115,9 @@ MANPATH="${XDG_DATA_HOME}/man:${MANPATH}"
 # Add go binaries to paths
 path=(${GOPATH}/bin ${path})
 
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-
-gpg-connect-agent updatestartuptty /bye > /dev/null
-
+# +---------------+
+# | SSH_AUTH_SOCK |
+# +---------------+
 
 # Keep SSH_AUTH_SOCK valid across several attachments to the remote tmux session
 if (( EUID != 0 )); then
