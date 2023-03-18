@@ -370,16 +370,55 @@ source "${ZDOTDIR}/plugins/z/zsh-z.plugin.zsh"
 # | COMPLETION |
 # +------------+
 
-# Completion tweaks
-zstyle ':completion:*:default'      list-colors         ${(s.:.)LS_COLORS}
-zstyle ':completion:*'              list-dirs-first     true
-zstyle ':completion:*'              verbose             true
-zstyle ':completion:*'              matcher-list        'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion::complete:*'    use-cache           true
-zstyle ':completion::complete:*'    cache-path          ${XDG_CACHE_HOME}/zsh/compcache
-zstyle ':completion:*:descriptions' format              [%d]
-zstyle ':completion:*:manuals'      separate-sections   true
-zstyle ':completion:*:git-checkout:*' sort false # disable sort when completing `git checkout`
+# Zstyle pattern
+# :completion:<function>:<completer>:<command>:<argument>:<tag>
+
+zstyle ':completion:*:*:*:*:default'  list-colors         ${(s.:.)LS_COLORS}
+
+# Define completers
+zstyle ':completion:*' completer _extensions _complete _approximate
+
+# Use cache for commands using cache
+zstyle ':completion:*'                 use-cache           true
+zstyle ':completion:*'                 cache-path          "$XDG_CACHE_HOME/zsh/.zcompcache"
+
+zstyle ':completion:*'                 list-dirs-first     true
+zstyle ':completion:*'                 verbose             true
+zstyle ':completion:*'                 matcher-list        'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*:descriptions'    format              [%d]
+zstyle ':completion:*:manuals'         separate-sections   true
+zstyle ':completion:*:git-checkout:*'  sort                false # disable sort when completing `git checkout`
+
+# Complete the alias when _expand_alias is used as a function
+zstyle ':completion:*'                 complete            true
+zle -C alias-expension complete-word _generic
+bindkey '^Xa' alias-expension
+zstyle ':completion:alias-expension:*' completer           _expand_alias
+
+# Allow you to select in a menu
+zstyle ':completion:*'                 menu                select
+
+# Autocomplete options for cd instead of directory stack
+zstyle ':completion:*'                 complete-options    true
+
+# Only display some tags for the command cd
+zstyle ':completion:*:*:cd:*'          tag-order local-directories directory-stack path-directories
+
+# Required for completion to be in good groups (named after the tags)
+zstyle ':completion:*'                 group-name ''
+
+zstyle ':completion:*:*:-command-:*:*' group-order aliases builtins functions commands
+
+# See ZSHCOMPWID "completion matching control"
+zstyle ':completion:*'                 matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+zstyle ':completion:*'                 keep-prefix         true
+
+zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
+
+zstyle ':completion:*:*:kubectl:*'     list-grouped        false
+
+
 
 # Enable cached completions, if present
 if [[ -d "${XDG_CACHE_HOME}/zsh/fpath" ]]; then

@@ -4,7 +4,6 @@ if [[ -z "${ZDOTDIR}" || -L "${HOME}/.zshenv" ]]; then
     export ZDOTDIR="${homezshenv:A:h}"
 fi
 
-
 # DOTFILES dir is parent to ZDOTDIR
 export DOTFILES="${ZDOTDIR%/*}"
 
@@ -17,9 +16,6 @@ unsetopt GLOBAL_RCS
 if [[ -v ZSH_ZPROF_ENABLE ]]; then
     zmodload zsh/zprof
 fi
-
-# Load zsh/files module to provide some builtins for file modifications
-zmodload -F -m zsh/files b:zf_\*
 
 # +---------+
 # | EXPORTS |
