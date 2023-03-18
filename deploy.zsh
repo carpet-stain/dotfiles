@@ -46,7 +46,6 @@ print "  ...done"
 print "Syncing submodules..."
 git submodule sync > /dev/null
 git submodule update --init --recursive > /dev/null
-# git clean -ffd
 print "  ...done"
 
 print "Compiling zsh plugins..."
