@@ -4,19 +4,12 @@ if (( ${+commands[tmux]} )) && [[ ! -v TMUX ]] && pgrep -u "${EUID}" tmux &>/dev
     exec tmux attach
 fi
 
-# Enable profiling
-zmodload zsh/zprof
-
-(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-
-(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
 setopt HIST_IGNORE_ALL_DUPS # remove all earlier duplicate lines
 setopt APPEND_HISTORY # history appends to existing file
@@ -59,14 +52,22 @@ setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
 PROMPT_EOL_MARK='%K{red} %k'
 
 HISTFILE="${XDG_DATA_HOME}/zsh/history"
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=1000000
+SAVEHIST=1000000
+
+# History: Use standard ISO 8601 timestamp.
+#   %F is equivalent to %Y-%m-%d
+#   %T is equivalent to %H:%M:%S (24-hours format)
+HISTTIMEFORMAT='[%F %T] '
 
 # Initialize colors
-autoload -U colors
+autoload -Uz colors
 colors
 
-# Fullscreen command line edit
+# Use `C-x C-e` to edit current command in $EDITOR with multi-line support.
+# Saving and quitting $EDITOR returns to command prompt with the edited command
+# inserted, but does not execute it until ENTER is pressed.
+# https://unix.stackexchange.com/q/6620
 autoload -z edit-command-line
 zle -N edit-command-line
 bindkey "^X^E" edit-command-line
@@ -76,9 +77,9 @@ autoload -U select-word-style
 select-word-style bash
 
 # Enable run-help module
-# (( $+aliases[run-help] )) && unalias run-help
-# autoload -Uz run-help
-# alias help=run-help
+(( $+aliases[run-help] )) && unalias run-help
+autoload -Uz run-help
+alias help=run-help
 
 # enable url-quote-magic
 autoload -Uz url-quote-magic
@@ -87,6 +88,10 @@ zle -N self-insert url-quote-magic
 # enable bracketed paste
 autoload -Uz bracketed-paste-url-magic
 zle -N bracketed-paste bracketed-paste-url-magic
+
+# Enable functions from archive plugin
+fpath+="${ZDOTDIR}/plugins/archive"
+autoload -Uz archive lsarchive unarchive
 
 # Use default provided history search widgets
 autoload -Uz up-line-or-beginning-search
@@ -654,12 +659,25 @@ source "${ZDOTDIR}/plugins/powerlevel10k/powerlevel10k.zsh-theme"
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
 
+command -v curlie    &> /dev/null    && alias curl='curlie'
+command -v bat       &> /dev/null    && alias c='bat'                                              || alias c='cat'
+command -v fd        &> /dev/null    && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
+command -v rg        &> /dev/null    && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R'
+command -v exa       &> /dev/null    && alias ls='exa --group --git --group-directories-first'     || alias ls='ls --color=auto --group-directories-first -h'
+command -v exa       &> /dev/null    && alias la='ll -a'                                           || alias la='ll -A'
+command -v exa       &> /dev/null    && alias lk='ll -s=size'                                      || alias lk='ll -r --sort=size'
+command -v exa       &> /dev/null    && alias lm='ll -s=modified'                                  || alias lm='ll -r --sort=time'
+command -v dog       &> /dev/null    && alias d='dog'                                              || alias d='dig +nocmd +multiline +noall +answer'
+
+
 # Some handy suffix aliases
 alias -s log=less
 
 # Human file sizes
 alias df="df -Th"
-alias du="du -hc"
+alias du="dua"
+alias dui="dui"
+
 
 # Handy stuff and a bit of XDG compliance
 alias grep="grep --color=auto --binary-files=without-match --devices=skip"
@@ -668,7 +686,6 @@ alias grep="grep --color=auto --binary-files=without-match --devices=skip"
     alias stmux="tmux new-session 'sudo -i'"
 }
 (( ${+commands[wget]} )) && alias wget="wget --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
-alias ls="gls --group-directories-first --color=auto --hyperlink=auto --classify"
 alias ll="LC_COLLATE=C ls -l -v --almost-all --human-readable"
 
 # History suppression
@@ -682,10 +699,13 @@ alias rm="rm -I"
 # Suppress suggestions and globbing
 alias find="noglob find"
 alias touch="nocorrect touch"
-alias mkdir="nocorrect mkdir"
+alias mkdir="nocorrect mkdir -p"
 alias cp="nocorrect cp"
 (( ${+commands[ag]} )) && alias ag="noglob ag"
 (( ${+commands[fd]} )) && alias fd="noglob fd"
+
+alias rsync='rsync --verbose --archive --info=progress2 --human-readable --partial'
+alias tree='tree -a -I .git --dirsfirst'
 
 # sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
 do_sudo () {
@@ -786,11 +806,6 @@ man () {
     nocorrect noglob command man ${@}
 }
 
-# Enable color support of ls
-if (( ${+commands[dircolors]} )); then
-    evalcache dircolors "${ZDOTDIR}/plugins/dircolors-solarized/dircolors.256dark"
-fi
-
 # Enable diff with colors
 if (( ${+commands[colordiff]} )); then
     alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
@@ -842,6 +857,16 @@ if (( ${+commands[grc]} )); then
         done
     }
 fi
+
+# XDG compliance
+ZSHZ_DATA="${XDG_CACHE_HOME}/zsh/z"
+# match to uncommon prefix
+ZSHZ_UNCOMMON=1
+# ignore case when lowercase, match case with uppercase
+ZSHZ_CASE=smart
+
+source "${ZDOTDIR}/plugins/z/zsh-z.plugin.zsh"
+
 # Completion tweaks
 zstyle ':completion:*:default'      list-colors         ${(s.:.)LS_COLORS}
 zstyle ':completion:*'              list-dirs-first     true
@@ -857,11 +882,12 @@ if [[ -d "${XDG_CACHE_HOME}/zsh/fpath" ]]; then
     fpath+="${XDG_CACHE_HOME}/zsh/fpath"
 fi
 
-# Additional completions
-fpath+="${ZDOTDIR}/plugins/completions/src"
+if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+fi
 
 # Enable git-extras completions
-source "${HOMEBREW_REPOSITORY}/etc/bash-completion/completions/git-extras"
+source "$(brew --prefix)/etc/bash-completion/completions/git-extras"
 
 # Make sure complist is loaded
 zmodload zsh/complist
@@ -885,8 +911,7 @@ else
 fi
 
 # Enable bash completions too
-autoload -Uz bashcompinit
-bashcompinit
+autoload -Uz bashcompinit && bashcompinit
 
 export FZF_DEFAULT_OPTS="--ansi"
 # Try to use fd or ag, if available as default fzf command
@@ -898,35 +923,37 @@ elif (( ${+commands[ag]} )); then
     export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 fi
 
-# Enable fzf key bindings and completions
-source "${HOMEBREW_REPOSITORY}/opt/fzf/shell/key-bindings.zsh"
-source "${HOMEBREW_REPOSITORY}/opt/fzf/shell/completion.zsh"
-# source "/usr/local/opt/fzf/shell/key-bindings.zsh"
-# source "/usr/local/opt/fzf/shell/completion.zsh"
-
 # Use fzf for tab completions
 source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
 zstyle ':fzf-tab:*' prefix ''
 
-# Enable autoenv plugin
-source "${ZDOTDIR}/plugins/autoenv/autoenv.zsh"
+if type brew &>/dev/null; then
+    # Additional completions
+    FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
 
-# Autopairs plugin
-source "${ZDOTDIR}/plugins/autopair/autopair.zsh"
+    # Enable git-extras completions
+    source $(brew --prefix)/etc/bash-completion/completions/git-extras
+
+    # FZF completions and keybindings
+    source $(brew --prefix)/Cellar/fzf/*/shell/completion.zsh
+    source $(brew --prefix)/Cellar/fzf/*/shell/key-bindings.zsh
+
+    source $(brew --prefix)/share/zsh-autopair/autopair.zsh
+    source $(brew --prefix)/share/zsh-abbr/zsh-abbr.zsh
+    source $(brew --prefix)/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+    source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+# export MANPATH=${ZDOTDIR}/plugins/abbr/man:$MANPATH 
 
 ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR}/plugins/abbreviations-store"
-source "${ZDOTDIR}/plugins/abbr/zsh-abbr.zsh"
-export MANPATH=${ZDOTDIR}/plugins/abbr/man:$MANPATH
 
 # Highlighting plugin
-source "${ZDOTDIR}/plugins/syntax-highlighting/zsh-syntax-highlighting.zsh"
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets regexp cursor)
+
 # Highlight known abbrevations
 typeset -A ZSH_HIGHLIGHT_REGEXP
 ZSH_HIGHLIGHT_REGEXP+=('(^| )('${(j:|:)${(k)ABBR_REGULAR_USER_ABBREVIATIONS}}')($| )' 'fg=blue')
 
-# Enable experimental async autosuggestions
-ZSH_AUTOSUGGEST_USE_ASYNC=1
 # Don't rebind widgets by autosuggestion, it's already sourced pretty late
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 # Enable experimental completion suggestions, if `history` returns nothing
@@ -936,14 +963,22 @@ ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(k)ABBR_REGULAR_USER_ABBREVIATIONS}}
 ZSH_AUTOSUGGEST_COMPLETION_IGNORE=${ZSH_AUTOSUGGEST_HISTORY_IGNORE}
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=10"
 
-# Autosuggestions plugin
-source "${ZDOTDIR}/plugins/autosuggestions/zsh-autosuggestions.zsh"
-
 # Clear suggestions after paste
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(
     bracketed-paste
 )
 
+# remind gpg-agent to update current tty before running git
+if (( ${+commands[gpg-connect-agent]} )) && pgrep -u "${EUID}" gpg-agent &>/dev/null; then
+    function _preexec_gpg-agent-update-tty {
+        if [[ ${1} == git* ]]; then
+            gpg-connect-agent --quiet --no-autostart --no-history updatestartuptty /bye >/dev/null &!
+        fi
+    }
+
+    autoload -U add-zsh-hook
+    add-zsh-hook preexec _preexec_gpg-agent-update-tty
+fi
+
 # Force path arrays to have unique values only
 typeset -U path cdpath fpath manpath
-
