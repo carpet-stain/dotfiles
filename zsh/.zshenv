@@ -17,6 +17,9 @@ if [[ -v ZSH_ZPROF_ENABLE ]]; then
     zmodload zsh/zprof
 fi
 
+# Load zsh/files module to provide some builtins for file modifications
+zmodload -F -m zsh/files b:zf_\*
+
 # +---------+
 # | EXPORTS |
 # +---------+
@@ -71,6 +74,7 @@ export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
 # Homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_VERBOSE_USING_DOTS=1
+export HOMEBREW_PREFIX=/opt/homebrew
 
 # +-------+
 # | PATHS |
