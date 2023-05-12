@@ -52,29 +52,30 @@ if [[ ! -v XDG_RUNTIME_DIR ]]; then
     export XDG_RUNTIME_DIR="${TMPDIR:-/tmp}/runtime-${USER}"
 fi
 
-# Reported from XDG-NINJA
-export GNUPGHOME="${XDG_DATA_HOME}/gnupg"
-export LESSHISTFILE="${XDG_DATA_HOME}/lesshst"
-export DOCKER_CONFIG="${XDG_CONFIG_HOME}/docker"
-export MACHINE_STORAGE_PATH="${XDG_DATA_HOME}/docker/machine"
-export MINIKUBE_HOME="${XDG_DATA_HOME}/minikube"
-export VAGRANT_HOME="${XDG_DATA_HOME}/vagrant"
-export HTOPRC="${XDG_CONFIG_HOME}/htop/htoprc"
-export PACKER_CONFIG="${XDG_CONFIG_HOME}/packer"
-export PACKER_CACHE_DIR="${XDG_CACHE_HOME}/packer"
-export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/config"
-export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
-export HTTPIE_CONFIG_DIR="${XDG_CONFIG_HOME}/httpie"
-export ANSIBLE_LOCAL_TEMP="${XDG_RUNTIME_DIR}/ansible/tmp"
-export ELECTRUMDIR="$XDG_DATA_HOME/electrum"
-export TERMINFO="$XDG_DATA_HOME"/terminfo
-export GOPATH="${XDG_DATA_HOME}/go"
-export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
-
 # Homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_VERBOSE_USING_DOTS=1
 export HOMEBREW_PREFIX=/opt/homebrew
+
+# Reported from XDG-NINJA
+export GNUPGHOME=${XDG_DATA_HOME}/gnupg
+export LESSHISTFILE=${XDG_DATA_HOME}/lesshst
+export DOCKER_CONFIG=${XDG_CONFIG_HOME}/docker
+export MACHINE_STORAGE_PATH=${XDG_DATA_HOME}/docker/machine
+export MINIKUBE_HOME=${XDG_DATA_HOME}/minikube
+export VAGRANT_HOME=${XDG_DATA_HOME}/vagrant
+export HTOPRC=${XDG_CONFIG_HOME}/htop/htoprc
+export PACKER_CONFIG=${XDG_CONFIG_HOME}/packer
+export PACKER_CACHE_DIR=${XDG_CACHE_HOME}/packer
+export NPM_CONFIG_USERCONFIG=${XDG_CONFIG_HOME}/npm/config
+export NPM_CONFIG_CACHE=${XDG_CACHE_HOME}/npm
+export HTTPIE_CONFIG_DIR=${XDG_CONFIG_HOME}/httpie
+export ANSIBLE_LOCAL_TEMP=${XDG_RUNTIME_DIR}/ansible/tmp
+export ELECTRUMDIR=$XDG_DATA_HOME/electrum
+export TERMINFO="$XDG_DATA_HOME"/terminfo
+export GOBIN=${HOMEBREW_PREFIX}/bin/go
+export GOPATH=${XDG_DATA_HOME}/go
+export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
 
 # +-------+
 # | PATHS |

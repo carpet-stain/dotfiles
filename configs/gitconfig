@@ -58,6 +58,8 @@
 [status]
 	submoduleSummary = true
 [user]
-	email = brian@leppez.com
-	name = Brian Leppez
+	email = brian.leppez@bytedance.com
+	name = brian.leppez
 	signingkey = 0x22483EA714C8FC1B
+[pull]
+	rebase = true

@@ -1,0 +1,105 @@
+# Example server specific setting, remove if non applicable
+    Host 192.168.20.*
+       GSSAPIAuthentication yes
+        User brian.leppez@bytedance.com
+
+    Host *.byted.org
+        GSSAPIAuthentication yes
+        User brian.leppez@bytedance.com
+
+    # always login as root, remove if non applicable
+    Host 192.168.20.255
+        GSSAPIAuthentication yes
+        User root
+
+    # trusted server, delegate credentials
+    Host 192.168.1.1
+        GSSAPIAuthentication yes
+        GSSAPIDelegateCredentials yes
+
+#    Host *
+#        GSSAPIAuthentication no
+#        GSSAPIDelegateCredentials no
+
+    Host 10.*
+        GSSAPIAuthentication yes
+        GSSAPIDelegateCredentials no
+
+Host ttp-va
+    HostName 10.104.254.7
+    User brian.leppez
+Host !ttp-va 10.113.* 10.114.* sre.admin.oci
+    ProxyJump ttp-va
+
+Host git.byted.org
+    Hostname git.byted.org
+    Port 29418
+    User brian.leppez
+Host review.byted.org
+    Hostname git.byted.org
+    Port 29418
+    User brian.leppez
+Host *.byted.org
+    GSSAPIAuthentication yes
+    User brian.leppez
+
+
+## more host-specific declarations goes first
+## you config ......
+
+## below are configs for jump hosts
+
+Host jumpinf1-useast1a.byted.org
+    HostName 10.188.59.39
+Host jumpinf2-useast1a.byted.org
+    HostName 10.188.58.207
+Host jumpinf1-useast4.byted.org
+    HostName 10.107.128.201
+Host jumpinf2-useast4.byted.org
+    HostName 10.107.128.202
+Host jumpinf1-useast2a.byted.org
+    HostName 10.99.94.192
+Host jumpinf2-useast2a.byted.org
+    HostName 10.99.94.193
+Host jumpinf1-sg.byted.org
+    HostName 10.234.83.73
+Host jumpinf2-sg.byted.org
+    HostName 10.234.93.22
+
+# for prod hosts in USEAST, exclude devbox and BOE hosts
+Host !jumpinf* 10.107.* 10.124.160.* 10.124.161.* 10.124.162.* 10.124.163.* 10.124.164.* 10.124.165.* 10.124.166.* 10.124.167.* 10.124.180.* 10.124.181.* 10.124.182.* 10.124.183.* 10.188.* 10.189.* 10.190.* 10.104.* 10.106.* 10.191.* 10.192.* 10.193.* 10.218.* 10.219.* 10.220.* 10.221.* 10.222.* 10.223.* 10.224.* 10.244.* 10.231.* !10.231.224.*        !10.231.225.*        !10.231.226.*        !10.231.227.*        !10.231.228.*        !10.231.229.*        !10.231.23?.*        !10.231.25?.*        !10.231.10?.*        !10.231.11?.*        !10.231.120.*        !10.231.121.*        !10.231.122.*        !10.231.123.*        !10.231.124.*        !10.231.125.*        !10.231.126.*        !10.231.127.*        !10.231.??.*        !10.231.?.*
+    ProxyJump jumpinf2-useast1a.byted.org
+
+# for prod hosts in GCP/i18n, [Using VA jumpbox it supports both GCP and VA DCs]
+Host !jumpinf* 10.99.10?.* 10.99.11?.* 10.99.120.* 10.99.121.* 10.99.122.* 10.99.123.* 10.99.124.* 10.99.125.* 10.99.126.* 10.99.127.* 10.99.??.* 10.99.?.*
+    ProxyJump jumpinf2-useast1a.byted.org
+
+# for prod hosts in SG
+# due to SG jump setup, we use a different approach at the moment
+Host !jumpinf* 10.124.152.* 10.124.153.* 10.124.154.* 10.124.155.* 10.124.156.* 10.124.157.* 10.124.158.* 10.124.159.* 10.126.1?.* 10.126.20.* 10.126.21.* 10.126.22.* 10.126.23.* 10.126.?.* 10.115.* 10.116.* 10.234.* 10.235.* 10.236.* 10.237.* 10.238.* 10.239.* 10.240.* 10.241.* 10.242.* 10.243.* 10.245.* 10.246.* 10.247.* 10.251.*
+    ProxyCommand ssh 10.234.83.73 nc %h %p
+
+# below section is for jump server only, DON'T ADD target host IP
+
+Host *
+    # if you don't want to type "yes" every time a new host shows up
+    StrictHostKeyChecking No
+    GSSAPIAuthentication yes
+    # default username
+    User brian.leppez
+
+Host jump*
+    GSSAPIAuthentication yes
+    GSSAPIDelegateCredentials no
+    StrictHostKeyChecking no
+    User brian.leppez
+
+Host ttp-va
+    HostName 10.104.254.7
+    GSSAPIAuthentication yes
+    GSSAPIDelegateCredentials no
+    StrictHostKeyChecking no
+    User martin.smith
+
+Host !ttp-va 10.113.* 10.114.* sre.admin.oci
+    ProxyJump ttp-va
