@@ -1,3 +1,9 @@
+# Attach to a tmux session, if there's any. Do this only for remote SSH sessions, don't mess local tmux sessions
+# Handoff to tmux early, as rest of the rc config isn't needed for this
+if (( ${+commands[tmux]} )) && [[ ! -v TMUX ]] && pgrep -u "${EUID}" tmux &>/dev/null && [[ -v SSH_TTY ]] && [[ ! -v MC_SID ]]; then
+    exec tmux attach
+fi
+
 # +---------------------+
 # | P10K INSTANT PROMPT |
 # +---------------------+
@@ -418,8 +424,6 @@ zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f
 
 zstyle ':completion:*:*:kubectl:*'     list-grouped        false
 
-
-
 # Enable cached completions, if present
 if [[ -d "${XDG_CACHE_HOME}/zsh/fpath" ]]; then
     FPATH+="${XDG_CACHE_HOME}/zsh/fpath"
@@ -430,7 +434,8 @@ zmodload zsh/complist
 
 FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
 FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
-source ${HOMEBREW_PREFIX}/etc/bash-completion/completions/git-extras
+source ${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.zsh
+
 
 # Init completions, but regenerate compdump only once a day.
 # The globbing is a little complicated here:
@@ -500,6 +505,13 @@ source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
 source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
 source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
 source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
+
+# +------------------------------+
+# | ZSH-FAST-SYNTAX-HIGHLIGHTING |
+# +------------------------------+
+
+# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
+function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
 
 # +----------+
 # | ZSH-ABBR |
