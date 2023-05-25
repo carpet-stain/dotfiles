@@ -100,23 +100,21 @@ path=(
 )
 
 if [[ "${OSTYPE}" = darwin* ]]; then
-    if (( ${+commands[brew]} )); then
-        autoload -z evalcache
-        evalcache brew shellenv
+    autoload -z evalcache
+    evalcache brew shellenv
 
-        # Enable gnu version of utilities on macOS, if installed
-        for gnuutil in coreutils gnu-sed gnu-tar grep; do
-            if [[ -d ${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnubin ]]; then
-                path=(${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnubin ${path})
-            fi
-            if [[ -d ${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnuman ]]; then
-                MANPATH="${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnuman:${MANPATH}"
-            fi
-        done
-        # Prefer curl installed via brew
-        if [[ -d ${HOMEBREW_PREFIX}/opt/curl/bin ]]; then
-            path=(${HOMEBREW_PREFIX}/opt/curl/bin ${path})
+    # Enable gnu version of utilities on macOS, if installed
+    for gnuutil in coreutils gnu-sed gnu-tar grep; do
+        if [[ -d ${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnubin ]]; then
+            path=(${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnubin ${path})
         fi
+        if [[ -d ${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnuman ]]; then
+            MANPATH="${HOMEBREW_PREFIX}/opt/${gnuutil}/libexec/gnuman:${MANPATH}"
+        fi
+    done
+    # Prefer curl installed via brew
+    if [[ -d ${HOMEBREW_PREFIX}/opt/curl/bin ]]; then
+        path=(${HOMEBREW_PREFIX}/opt/curl/bin ${path})
     fi
 fi
 

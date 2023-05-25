@@ -40,6 +40,7 @@ setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history
 setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
 setopt HIST_IGNORE_SPACE         # don’t store lines starting with space
+
 HISTFILE="${XDG_DATA_HOME}/zsh/history"
 HISTSIZE=1000000
 SAVEHIST=1000000
@@ -49,33 +50,30 @@ SAVEHIST=1000000
 #   %T is equivalent to %H:%M:%S (24-hours format)
 HISTTIMEFORMAT='[%F %T] '
 
+setopt NO_FLOW_CONTROL           # disable stupid annoying keys
+setopt MULTIOS                   # allows multiple input and output redirections
+setopt CLOBBER                   # allow > redirection to truncate existing files
+setopt BRACE_CCL                 # allow brace character class list expansion
+setopt NO_BEEP                   # do not beep on errors
+setopt NO_NOMATCH                # try to avoid the 'zsh: no matches found...'
+setopt INTERACTIVE_COMMENTS      # allow use of comments in interactive code
+setopt AUTO_PARAM_SLASH          # complete folders with / at end
+setopt LIST_TYPES                # mark type of completion suggestions
+setopt HASH_LIST_ALL             # whenever a command completion is attempted, make sure the entire command path is hashed first
+setopt COMPLETE_IN_WORD          # allow completion from within a word/phrase
+setopt ALWAYS_TO_END             # move cursor to the end of a completed word
+setopt LONG_LIST_JOBS            # display PID when suspending processes as well
+setopt AUTO_RESUME               # attempt to resume existing job before creating a new process
+setopt NOTIFY                    # report status of background jobs immediately
+setopt NO_HUP                    # Don't send SIGHUP to background processes when the shell exits
+setopt PUSHD_IGNORE_DUPS         # don't push the same dir twice
+setopt NO_GLOB_DOTS              # * shouldn't match dotfiles. ever.
+setopt NO_SH_WORD_SPLIT          # use zsh style word splitting
+setopt INTERACTIVE_COMMENTS      # enable interactive comments
+unsetopt RM_STAR_SILENT          # notify when rm is running with *
+setopt RM_STAR_WAIT              # wait for 10 seconds confirmation when running rm with *
 
-setopt NO_FLOW_CONTROL # disable stupid annoying keys
-setopt MULTIOS # allows multiple input and output redirections
-
-setopt CLOBBER # allow > redirection to truncate existing files
-setopt BRACE_CCL # allow brace character class list expansion
-setopt NO_BEEP # do not beep on errors
-setopt NO_NOMATCH # try to avoid the 'zsh: no matches found...'
-setopt INTERACTIVE_COMMENTS # allow use of comments in interactive code
-setopt AUTO_PARAM_SLASH # complete folders with / at end
-setopt LIST_TYPES # mark type of completion suggestions
-setopt HASH_LIST_ALL # whenever a command completion is attempted, make sure the entire command path is hashed first
-setopt COMPLETE_IN_WORD # allow completion from within a word/phrase
-setopt ALWAYS_TO_END # move cursor to the end of a completed word
-setopt LONG_LIST_JOBS # display PID when suspending processes as well
-setopt AUTO_RESUME # attempt to resume existing job before creating a new process
-setopt NOTIFY # report status of background jobs immediately
-setopt NO_HUP # Don't send SIGHUP to background processes when the shell exits
-
-setopt PUSHD_IGNORE_DUPS # don't push the same dir twice
-setopt NO_GLOB_DOTS # * shouldn't match dotfiles. ever.
-setopt NO_SH_WORD_SPLIT # use zsh style word splitting
-setopt INTERACTIVE_COMMENTS # enable interactive comments
-unsetopt RM_STAR_SILENT # notify when rm is running with *
-setopt RM_STAR_WAIT # wait for 10 seconds confirmation when running rm with *
-
-# a bit fancy than default
+# a bit fancier than default
 PROMPT_EOL_MARK='%K{red} %k'
 
 # +----------+
@@ -205,7 +203,6 @@ command -v fd     &> /dev/null && alias fd='fd --hidden --follow'               
 command -v rg     &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R --binary-files=without-match --devices=skip'
 command -v exa    &> /dev/null && alias ls='exa --long --header --icons --group-directories-first --group --git --all --links' || alias ls='ls --color=auto --group-directories-first -h'
 command -v dog    &> /dev/null && alias d='dog'                                              || alias d='dig +nocmd +multiline +noall +answer'
-
 
 # Some handy suffix aliases
 alias -s log=less
@@ -436,7 +433,6 @@ FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
 FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
 source ${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.zsh
 
-
 # Init completions, but regenerate compdump only once a day.
 # The globbing is a little complicated here:
 # - '#q' is an explicit glob qualifier that makes globbing work within zsh's [[ ]] construct.
@@ -480,7 +476,6 @@ source ${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh(N)
 # ------------
 source ${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh(N)
 
-
 # +---------+
 # | FZF-TAB |
 # +---------+
@@ -495,12 +490,11 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
 # fzf-tab: switch group using `,` and `.`
 zstyle ':fzf-tab:*' switch-group ',' '.'
 
-
 # +--------------+
-# | LOAD-PLUGINS |
+# | LOAD PLUGINS |
 # +--------------+
 
-# Homebrew Plugins
+# Package Manager Plugins
 source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
 source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
 source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
