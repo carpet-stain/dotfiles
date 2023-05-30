@@ -103,3 +103,7 @@ Host ttp-va
 
 Host !ttp-va 10.113.* 10.114.* sre.admin.oci
     ProxyJump ttp-va
+
+Host github.com
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519

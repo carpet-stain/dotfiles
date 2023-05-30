@@ -1,2 +1,0 @@
-" enable spellcheck
-setlocal spell

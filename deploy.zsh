@@ -18,7 +18,7 @@ VIMINIT='let $MYVIMRC="'${SCRIPT_DIR}'/nvim/init.lua" | source $MYVIMRC'
 print "Creating required directory tree..."
 zf_mkdir -p "${XDG_CONFIG_HOME}"/{git/local,htop,gnupg,alacritty}
 zf_mkdir -p "${XDG_CACHE_HOME}"/{nvim/{backup,swap,undo},zsh}
-zf_mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1,nvim/spell,gnupg}
+zf_mkdir -p "${XDG_DATA_HOME}"/{zsh,man/man1,nvim/spell,gnupg,terminfo}
 zf_mkdir -p "${HOME}"/{.local/{bin,etc},.ssh}
 zf_chmod 700 "${XDG_CONFIG_HOME}/gnupg"
 print "  ...done"
@@ -77,3 +77,13 @@ print "  ...done"
 print "Downloading TLDR pages..."
 tldr -u &> /dev/null
 print "  ...done"
+
+# Generate tmux-256color terminfo
+print "Generating tmux-256color.info"
+if [[ "${OSTYPE}" = darwin* ]]; then
+    autoload -z evalcache
+    evalcache brew shellenv
+
+    /opt/homebrew/opt/ncurses/bin/infocmp tmux-256color > tmux-256color.info
+    tic -xe tmux-256color tmux-256color.info
+fi

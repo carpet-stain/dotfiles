@@ -8,7 +8,7 @@ fi
 export DOTFILES="${ZDOTDIR%/*}"
 
 # Disable global zsh configuration
-# We're doing all configuration ourselves
+
 unsetopt GLOBAL_RCS
 
 # Enable profiling, if requested via env var
@@ -72,7 +72,6 @@ export NPM_CONFIG_CACHE=${XDG_CACHE_HOME}/npm
 export HTTPIE_CONFIG_DIR=${XDG_CONFIG_HOME}/httpie
 export ANSIBLE_LOCAL_TEMP=${XDG_RUNTIME_DIR}/ansible/tmp
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
-export TERM=xterm-256color
 export TERMINFO="$XDG_DATA_HOME"/terminfo
 export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
 export GOBIN=${HOMEBREW_PREFIX}/bin/go
