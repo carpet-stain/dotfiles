@@ -14,11 +14,7 @@ local preview_cmd files commit repo highlighter
     fi
 }
 
-if (( ${+commands[diff-so-fancy]} )); then
-    highlighter='| diff-so-fancy'
-else
-    highlighter=''
-fi
+highlighter='| diff-so-fancy'
 
 repo="$(git rev-parse --show-toplevel)"
 preview_cmd="xargs -I% git --no-pager diff --color=always ${commit} -- '${repo}/%' <<< {} ${highlighter}"

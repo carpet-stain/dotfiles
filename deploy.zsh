@@ -81,9 +81,7 @@ print "  ...done"
 # Generate tmux-256color terminfo
 print "Generating tmux-256color.info"
 if [[ "${OSTYPE}" = darwin* ]]; then
-    autoload -z evalcache
-    evalcache brew shellenv
-
     /opt/homebrew/opt/ncurses/bin/infocmp tmux-256color > tmux-256color.info
     tic -xe tmux-256color tmux-256color.info
+    rm -f tmux-256color.info
 fi

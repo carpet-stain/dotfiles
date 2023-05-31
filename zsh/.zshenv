@@ -8,7 +8,6 @@ fi
 export DOTFILES="${ZDOTDIR%/*}"
 
 # Disable global zsh configuration
-
 unsetopt GLOBAL_RCS
 
 # Enable profiling, if requested via env var
@@ -57,7 +56,7 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_VERBOSE_USING_DOTS=1
 export HOMEBREW_PREFIX=/opt/homebrew
 
-# Reported from XDG-NINJA
+# XDG-Compliance. Reported from XDG-NINJA
 export GNUPGHOME=${XDG_DATA_HOME}/gnupg
 export LESSHISTFILE=${XDG_DATA_HOME}/lesshst
 export DOCKER_CONFIG=${XDG_CONFIG_HOME}/docker
@@ -120,6 +119,3 @@ fi
 # Enable local binaries and man pages
 path=(${HOME}/.local/bin ${path})
 MANPATH="${XDG_DATA_HOME}/man:${MANPATH}"
-
-# Add go binaries to paths
-path=(${GOPATH}/bin ${path})

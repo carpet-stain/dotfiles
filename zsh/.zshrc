@@ -198,7 +198,6 @@ source ${ZDOTDIR}/rc.d/powerlevel10k.zsh
 # +---------+
 
 command -v curlie &> /dev/null && alias curl='curlie'
-command -v bat    &> /dev/null && alias c='bat'                                              || alias c='cat'
 command -v fd     &> /dev/null && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
 command -v rg     &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R --binary-files=without-match --devices=skip'
 command -v exa    &> /dev/null && alias ls='exa --long --header --icons --group-directories-first --group --git --all --links' || alias ls='ls --color=auto --group-directories-first -h'
@@ -212,15 +211,10 @@ alias df="df -Th"
 alias du="dua"
 alias dui="dua interactive"
 
-# Monero
-alias monerod=monerod --data-dir "$XDG_DATA_HOME"/bitmonero
-
 # Handy stuff and a bit of XDG compliance
-(( ${+commands[tmux]} )) && {
-    alias tmux="tmux -f ${DOTFILES}/tmux/tmux.conf"
-    alias stmux="tmux new-session 'sudo -i'"
-}
+alias tmux="tmux -f ${DOTFILES}/tmux/tmux.conf"
 command -v wget &> /dev/null && alias wget="wget --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
+alias monerod=monerod --data-dir "$XDG_DATA_HOME"/bitmonero
 
 # History suppression
 alias clear=" clear"
@@ -235,6 +229,7 @@ alias find="noglob find"
 alias touch="nocorrect touch"
 alias mkdir="nocorrect mkdir -p"
 alias cp="nocorrect cp"
+
 command -v ag &> /dev/null && alias ag="noglob ag"
 command -v fd &> /dev/null && alias fd="noglob fd"
 
@@ -293,25 +288,21 @@ man () {
 }
 
 # Enable diff with colors
-if (( ${+commands[colordiff]} )); then
-    alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
-fi
+alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
 
 # +----------+
 # | LESSPIPE |
 # +----------+
 
 # Make less more friendly
-if (( $#commands[(i)lesspipe(|.sh)] )); then
-    export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
-    export LESS_ADVANCED_PREPROCESSOR=1
-fi
+export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
+export LESS_ADVANCED_PREPROCESSOR=1
 
 # +------------------------+
 # | ENVIRONMENT SIMULATORS |
 # +------------------------+
 
-# Don't indicate virtualenv in pyenv, indication is done in pure
+# Don't indicate virtualenv in pyenv
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
@@ -337,24 +328,22 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 # +-----------------+
 
 # Alias commands supported by grc
-if (( ${+commands[grc]} )); then
-    () {
-        local grc_commands=(blkid df dig dnf du env free gcc getfacl getsebool
-                            ifconfig ip iptables last lsattr lsblk lsmod lspci
-                            mount mtr netstat nmap ping ps pv semanage ss stat
-                            sysctl systemctl tcpdump traceroute tune2fs ulimit
-                            uptime vmstat w wdiff who)
-        local grc_command
+() {
+    local grc_commands=(blkid df dig dnf du env free gcc getfacl getsebool
+                        ifconfig ip iptables last lsattr lsblk lsmod lspci
+                        mount mtr netstat nmap ping ps pv semanage ss stat
+                        sysctl systemctl tcpdump traceroute tune2fs ulimit
+                        uptime vmstat w wdiff who)
+    local grc_command
 
-        for grc_command in ${grc_commands[@]}; do
-            if (( ${+commands[$grc_command]} )); then
-                $grc_command() {
-                    grc --colour=auto ${commands[$0]} "${@}"
-                }
-            fi
-        done
-    }
-fi
+    for grc_command in ${grc_commands[@]}; do
+        if (( ${+commands[$grc_command]} )); then
+            $grc_command() {
+                grc --colour=auto ${commands[$0]} "${@}"
+            }
+        fi
+    done
+}
 
 # +-------+
 # | ZSH-Z |
@@ -459,21 +448,13 @@ autoload -Uz bashcompinit && bashcompinit
 # +-----+
 
 export FZF_DEFAULT_OPTS="--ansi"
-# Try to use fd or ag, if available as default fzf command
-if (( ${+commands[fd]} )); then
-    export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --color=always'
-    export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
-elif (( ${+commands[ag]} )); then
-    export FZF_DEFAULT_COMMAND='ag --ignore .git -g ""'
-    export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
-fi
+export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --color=always'
+export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 
 # Auto-completion
-# ---------------
 source ${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh(N)
 
 # Key bindings
-# ------------
 source ${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh(N)
 
 # +---------+
@@ -496,7 +477,6 @@ zstyle ':fzf-tab:*' switch-group ',' '.'
 
 # Package Manager Plugins
 source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
-source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
 source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
 source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 
@@ -511,7 +491,8 @@ function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
 # | ZSH-ABBR |
 # +----------+
 
-ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR}/plugins/abbreviations-store"
+ABBR_USER_ABBREVIATIONS_FILE=${ZDOTDIR}/plugins/abbreviations-store
+source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -538,7 +519,7 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(up-line-or-beginning-search down-line-or-beginni
 # +-----------+
 
 # remind gpg-agent to update current tty before running git
-if (( ${+commands[gpg-connect-agent]} )) && pgrep -u "${EUID}" gpg-agent &>/dev/null; then
+if pgrep -u "${EUID}" gpg-agent &>/dev/null; then
     function _preexec_gpg-agent-update-tty {
         if [[ ${1} == git* ]]; then
             gpg-connect-agent --quiet --no-autostart --no-history updatestartuptty /bye >/dev/null &!
