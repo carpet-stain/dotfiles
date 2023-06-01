@@ -7,39 +7,6 @@
 [submodule "tmux/plugins/yank"]
 	path = tmux/plugins/yank
 	url = https://github.com/tmux-plugins/tmux-yank.git
-[submodule "nvim/pack/plugins/start/asyncomplete"]
-	path = nvim/pack/plugins/start/asyncomplete
-	url = https://github.com/prabirshrestha/asyncomplete.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-buffer"]
-	path = nvim/pack/plugins/start/asyncomplete-buffer
-	url = https://github.com/omgitsmoe/asyncomplete-buffer.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-lsp"]
-	path = nvim/pack/plugins/start/asyncomplete-lsp
-	url = https://github.com/prabirshrestha/asyncomplete-lsp.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-necovim"]
-	path = nvim/pack/plugins/start/asyncomplete-necovim
-	url = https://github.com/prabirshrestha/asyncomplete-necovim.vim.git
-[submodule "nvim/pack/plugins/start/asyncomplete"]
-	path = nvim/pack/plugins/start/asyncomplete
-	url = https://github.com/prabirshrestha/asyncomplete.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-buffer"]
-	path = nvim/pack/plugins/start/asyncomplete-buffer
-	url = https://github.com/omgitsmoe/asyncomplete-buffer.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-lsp"]
-	path = nvim/pack/plugins/start/asyncomplete-lsp
-	url = https://github.com/prabirshrestha/asyncomplete-lsp.vim.git
-[submodule "vim/pack/03_plugins/start/asyncomplete-necovim"]
-	path = nvim/pack/plugins/start/asyncomplete-necovim
-	url = https://github.com/prabirshrestha/asyncomplete-necovim.vim.git
-[submodule "vim/pack/03_plugins/start/ruby"]
-	path = vim/pack/03_plugins/start/ruby
-	url = https://github.com/vim-ruby/vim-ruby.git
-[submodule "vim/pack/03_plugins/start/which-key"]
-	path = nvim/pack/plugins/start/which-key
-	url = https://github.com/liuchengxu/vim-which-key.git
-[submodule "zsh/plugins/archive"]
-	path = zsh/plugins/archive
-	url = https://github.com/romkatv/archive.git
 [submodule "zsh/plugins/fzf-tab"]
 	path = zsh/plugins/fzf-tab
 	url = https://github.com/Aloxaf/fzf-tab.git
