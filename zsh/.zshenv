@@ -72,7 +72,7 @@ export HTTPIE_CONFIG_DIR=${XDG_CONFIG_HOME}/httpie
 export ANSIBLE_LOCAL_TEMP=${XDG_RUNTIME_DIR}/ansible/tmp
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export TERMINFO="$XDG_DATA_HOME"/terminfo
-export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
+export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOBIN=${HOMEBREW_PREFIX}/bin/go
 export GOPATH=${XDG_DATA_HOME}/go
 
