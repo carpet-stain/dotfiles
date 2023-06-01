@@ -1,11 +1,1 @@
-vim/spell/*.add*
-vim/.netrwhist*
-vim/autoload/getopts/*.cache
-vim/.viminfo*
-vim/vimrc.local
-
-zsh/rc.d/9[0-9]_*
-zsh/env.d/9[0-9]_*
-zsh/.zlogin
-zsh/.zlogout
 **/.DS_Store
