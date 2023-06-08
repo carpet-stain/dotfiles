@@ -11,8 +11,8 @@ fi
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if [[ -r "$XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "$XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # +------------+
@@ -84,14 +84,6 @@ PROMPT_EOL_MARK='%K{red} %k'
 autoload -Uz colors
 colors
 
-# Use `C-x C-e` to edit current command in $EDITOR with multi-line support.
-# Saving and quitting $EDITOR returns to command prompt with the edited command
-# inserted, but does not execute it until ENTER is pressed.
-# https://unix.stackexchange.com/q/6620
-autoload -z edit-command-line
-zle -N edit-command-line
-bindkey "^X^E" edit-command-line
-
 # Ctrl+W stops on path delimiters
 autoload -U select-word-style
 select-word-style bash
@@ -117,7 +109,7 @@ zle -N down-line-or-beginning-search
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z lspath bag fgb fgd fgl fz ineachdir psg evalcache compdefcache
+autoload -z evalcache compdefcache
 
 # +--------------+
 # | Key Bindings |
@@ -206,6 +198,12 @@ command -v dog    &> /dev/null && alias d='dog'                                 
 # Some handy suffix aliases
 alias -s log=less
 
+# Enable diff with colors
+alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
+
+# Make mount command output pretty and human readable format
+alias mount="mount |column -t"
+
 # Human file sizes
 alias df="df -Th"
 alias du="dua"
@@ -213,25 +211,32 @@ alias dui="dua interactive"
 
 # Handy stuff and a bit of XDG compliance
 alias tmux="tmux -f ${DOTFILES}/tmux/tmux.conf"
-command -v wget &> /dev/null && alias wget="wget --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
-alias monerod=monerod --data-dir "$XDG_DATA_HOME"/bitmonero
+command -v wget &> /dev/null && alias wget="wget --continue --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
 
 # History suppression
 alias clear=" clear"
 alias pwd=" pwd"
 alias exit=" exit"
 
-# Safety
-alias rm="rm -I"
+# Do not delete / or prompt if deleting more than 3 files at a time #
+alias rm="rm -I --preserve-root"
+
+# confirmation
+alias mv='mv -i'
+alias ln='ln -i'
 
 # Suppress suggestions and globbing
 alias find="noglob find"
 alias touch="nocorrect touch"
-alias mkdir="nocorrect mkdir -p"
-alias cp="nocorrect cp"
+alias mkdir="nocorrect mkdir -pv"
+alias cp="nocorrect cp -i"
+alias ag="noglob ag"
+alias fd="noglob fd"
 
-command -v ag &> /dev/null && alias ag="noglob ag"
-command -v fd &> /dev/null && alias fd="noglob fd"
+# Parenting changing perms on /
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
 
 alias rsync='rsync --verbose --archive --info=progress2 --human-readable --partial'
 alias tree='tree -a -I .git --dirsfirst'
@@ -287,9 +292,6 @@ man () {
     nocorrect noglob command man ${@}
 }
 
-# Enable diff with colors
-alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
-
 # +----------+
 # | LESSPIPE |
 # +----------+
@@ -297,53 +299,6 @@ alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
 # Make less more friendly
 export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
 export LESS_ADVANCED_PREPROCESSOR=1
-
-# +------------------------+
-# | ENVIRONMENT SIMULATORS |
-# +------------------------+
-
-# Don't indicate virtualenv in pyenv
-export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-
-# Lazy init wrapper on first call
-() {
-    local wrapper
-    local wrappers=(goenv nodenv pyenv)
-    for wrapper in "${wrappers[@]}"; do
-        eval "${wrapper} () {
-            unset -f ${wrapper}
-            export ${wrapper:u}_ROOT=\"\${XDG_DATA_HOME}/${wrapper}\"
-            evalcache ${wrapper} init -
-            ${wrapper} \${@}
-            if [[ $wrapper == \"pyenv\" ]]; then
-                evalcache ${wrapper} init --path
-            fi
-        }"
-    done
-}
-
-# +-----------------+
-# | GRC (COLORIZED) |
-# +-----------------+
-
-# Alias commands supported by grc
-() {
-    local grc_commands=(blkid df dig dnf du env free gcc getfacl getsebool
-                        ifconfig ip iptables last lsattr lsblk lsmod lspci
-                        mount mtr netstat nmap ping ps pv semanage ss stat
-                        sysctl systemctl tcpdump traceroute tune2fs ulimit
-                        uptime vmstat w wdiff who)
-    local grc_command
-
-    for grc_command in ${grc_commands[@]}; do
-        if (( ${+commands[$grc_command]} )); then
-            $grc_command() {
-                grc --colour=auto ${commands[$0]} "${@}"
-            }
-        fi
-    done
-}
 
 # +-------+
 # | ZSH-Z |

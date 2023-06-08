@@ -3,7 +3,7 @@
 # +---------------+
 
 # Enable powerlevel10k prompt
-source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
+source $HOMEBREW_PREFIX/opt/powerlevel10k/powerlevel10k.zsh-theme
 
 # Losely based on results from `p10k configure`
 
