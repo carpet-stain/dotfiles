@@ -18,10 +18,6 @@ case "$1" in
     search "(/$path+|$path*/|$path*\.$path+)$path*"
     ;;
 
-  prompts)
-    search "^(.* )?λ.*"
-    ;;
-
   # interesting things (URLs, emails, hashes, IPs)
   interesting)
     urls='(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&()*+-]*'

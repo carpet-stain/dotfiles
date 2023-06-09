@@ -1,6 +1,6 @@
 # Attach to a tmux session, if there's any. Do this only for remote SSH sessions, don't mess local tmux sessions
 # Handoff to tmux early, as rest of the rc config isn't needed for this
-if (( ${+commands[tmux]} )) && [[ ! -v TMUX ]] && pgrep -u "${EUID}" tmux &>/dev/null && [[ -v SSH_TTY ]] && [[ ! -v MC_SID ]]; then
+if (( ${+commands[tmux]} )) && [[ ! -v TMUX ]] && pgrep -u ${EUID} tmux &>/dev/null && [[ -v SSH_TTY ]] && [[ ! -v MC_SID ]]; then
     exec tmux attach
 fi
 
@@ -11,8 +11,8 @@ fi
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "$XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "$XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh"
+if [[ -r $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
+  source $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh
 fi
 
 # +------------+
@@ -133,29 +133,32 @@ key[Right]=${terminfo[kcuf1]}
 key[PageUp]=${terminfo[kpp]}
 key[PageDown]=${terminfo[knp]}
 key[Backspace]=${terminfo[kbs]}
-key[ShiftTab]="${terminfo[kcbt]}"
+key[ShiftTab]=${terminfo[kcbt]}
 
 # man 5 user_caps
 key[CtrlLeft]=${terminfo[kLFT5]}
 key[CtrlRight]=${terminfo[kRIT5]}
 
 # Setup keys accordingly
-[[ -n "${key[Home]}"      ]] && bindkey "${key[Home]}"       beginning-of-line
-[[ -n "${key[End]}"       ]] && bindkey "${key[End]}"        end-of-line
-[[ -n "${key[Insert]}"    ]] && bindkey "${key[Insert]}"     overwrite-mode
-[[ -n "${key[Delete]}"    ]] && bindkey "${key[Delete]}"     delete-char
-[[ -n "${key[Left]}"      ]] && bindkey "${key[Left]}"       backward-char
-[[ -n "${key[Right]}"     ]] && bindkey "${key[Right]}"      forward-char
-[[ -n "${key[Up]}"        ]] && bindkey "${key[Up]}"         up-line-or-beginning-search
-[[ -n "${key[Down]}"      ]] && bindkey "${key[Down]}"       down-line-or-beginning-search
-[[ -n "${key[PageUp]}"    ]] && bindkey "${key[PageUp]}"     beginning-of-buffer-or-history
-[[ -n "${key[PageDown]}"  ]] && bindkey "${key[PageDown]}"   end-of-buffer-or-history
-[[ -n "${key[Backspace]}" ]] && bindkey "${key[Backspace]}"  backward-delete-char
-[[ -n "${key[ShiftTab]}"  ]] && bindkey "${key[ShiftTab]}"   reverse-menu-complete
+[[ -n ${key[Home]}      ]] && bindkey ${key[Home]}       beginning-of-line
+[[ -n ${key[End]}       ]] && bindkey ${key[End]}        end-of-line
+[[ -n ${key[Insert]}    ]] && bindkey ${key[Insert]}     overwrite-mode
+[[ -n ${key[Delete]}    ]] && bindkey ${key[Delete]}     delete-char
+[[ -n ${key[Left]}      ]] && bindkey ${key[Left]}       backward-char
+[[ -n ${key[Right]}     ]] && bindkey ${key[Right]}      forward-char
+[[ -n ${key[Up]}        ]] && bindkey ${key[Up]}         up-line-or-beginning-search
+[[ -n ${key[Down]}      ]] && bindkey ${key[Down]}       down-line-or-beginning-search
+[[ -n ${key[PageUp]}    ]] && bindkey ${key[PageUp]}     beginning-of-buffer-or-history
+[[ -n ${key[PageDown]}  ]] && bindkey ${key[PageDown]}   end-of-buffer-or-history
+[[ -n ${key[Backspace]} ]] && bindkey ${key[Backspace]}  backward-delete-char
+[[ -n ${key[ShiftTab]}  ]] && bindkey ${key[ShiftTab]}   reverse-menu-complete
 
 # MACOS: REMEMBER TO DISABLE MISSION CONTROL KEY BINDINGS IN MACOS SETTINGS FOR THIS TO WORK
-[[ -n "${key[CtrlLeft]}"  ]] && bindkey "${key[CtrlLeft]}"   backward-word
-[[ -n "${key[CtrlRight]}" ]] && bindkey "${key[CtrlRight]}"  forward-word
+# they're not working under tmux256-color
+# [[ -n ${key[CtrlLeft]}  ]] && bindkey ${key[CtrlLeft]}   backward-word
+# [[ -n ${key[CtrlRight]} ]] && bindkey ${key[CtrlRight]}  forward-word
+bindkey "^[[1;5D"   backward-word
+bindkey "^[[1;5C"   forward-word
 
 # Make dot key autoexpand "..." to "../.." and so on
 _zsh-dot () {
@@ -189,57 +192,57 @@ source ${ZDOTDIR}/rc.d/powerlevel10k.zsh
 # | ALIASES |
 # +---------+
 
-command -v curlie &> /dev/null && alias curl='curlie'
+command -v curlie &> /dev/null && alias curl=curlie
 command -v fd     &> /dev/null && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
 command -v rg     &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R --binary-files=without-match --devices=skip'
 command -v exa    &> /dev/null && alias ls='exa --long --header --icons --group-directories-first --group --git --all --links' || alias ls='ls --color=auto --group-directories-first -h'
-command -v dog    &> /dev/null && alias d='dog'                                              || alias d='dig +nocmd +multiline +noall +answer'
+command -v dog    &> /dev/null && alias d=dog                                                || alias d='dig +nocmd +multiline +noall +answer'
 
 # Some handy suffix aliases
 alias -s log=less
 
 # Enable diff with colors
-alias diff="colordiff --new-file --text --recursive -u --algorithm patience"
+alias diff=colordiff --new-file --text --recursive -u --algorithm patience
 
 # Make mount command output pretty and human readable format
-alias mount="mount |column -t"
+alias mount=mount |column -t
 
 # Human file sizes
-alias df="df -Th"
-alias du="dua"
-alias dui="dua interactive"
+alias df=df -Th
+alias du=dua
+alias dui=dua interactive
 
 # Handy stuff and a bit of XDG compliance
-alias tmux="tmux -f ${DOTFILES}/tmux/tmux.conf"
-command -v wget &> /dev/null && alias wget="wget --continue --hsts-file=${XDG_CACHE_HOME}/wget-hsts"
+alias tmux=tmux -f ${DOTFILES}/tmux/tmux.conf
+command -v wget &> /dev/null && alias wget=wget --continue --hsts-file=${XDG_CACHE_HOME}/wget-hsts
 
 # History suppression
-alias clear=" clear"
-alias pwd=" pwd"
-alias exit=" exit"
+alias clear=' clear'
+alias pwd=' pwd'
+alias exit=' exit'
 
 # Do not delete / or prompt if deleting more than 3 files at a time #
-alias rm="rm -I --preserve-root"
+alias rm=rm -I --preserve-root
 
 # confirmation
-alias mv='mv -i'
-alias ln='ln -i'
+alias mv=mv -i
+alias ln=ln -i
 
 # Suppress suggestions and globbing
-alias find="noglob find"
-alias touch="nocorrect touch"
-alias mkdir="nocorrect mkdir -pv"
-alias cp="nocorrect cp -i"
-alias ag="noglob ag"
-alias fd="noglob fd"
+alias find='noglob find'
+alias touch='nocorrect touch'
+alias mkdir='nocorrect mkdir -pv'
+alias cp='nocorrect cp -i'
+alias ag='noglob ag'
+alias fd='noglob fd'
 
 # Parenting changing perms on /
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
+alias chown=chown --preserve-root
+alias chmod=chmod --preserve-root
+alias chgrp=chgrp --preserve-root
 
-alias rsync='rsync --verbose --archive --info=progress2 --human-readable --partial'
-alias tree='tree -a -I .git --dirsfirst'
+alias rsync=rsync --verbose --archive --info=progress2 --human-readable --partial
+alias tree=tree -a -I .git --dirsfirst
 
 # sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
 do_sudo () {
@@ -251,7 +254,7 @@ do_sudo () {
         shift; shift
     fi
     while (( ${#} )); do
-        case "${1}" in
+        case ${1} in
             command|exec|-) shift; break ;;
             nocorrect) shift ;;
             noglob) glob=0; shift ;;
@@ -264,7 +267,7 @@ do_sudo () {
         ${run} $==*
     fi
 }
-alias sudo="noglob do_sudo "
+alias sudo='noglob do_sudo '
 
 # +--------+
 # | COLORS |
@@ -297,7 +300,7 @@ man () {
 # +----------+
 
 # Make less more friendly
-export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
+export LESSOPEN=| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-
 export LESS_ADVANCED_PREPROCESSOR=1
 
 # +-------+
@@ -305,13 +308,13 @@ export LESS_ADVANCED_PREPROCESSOR=1
 # +-------+
 
 # XDG compliance
-ZSHZ_DATA="${XDG_CACHE_HOME}/zsh/z"
+ZSHZ_DATA=${XDG_CACHE_HOME}/zsh/z
 # match to uncommon prefix
 ZSHZ_UNCOMMON=1
 # ignore case when lowercase, match case with uppercase
 ZSHZ_CASE=smart
 
-source "${ZDOTDIR}/plugins/z/zsh-z.plugin.zsh"
+source ${ZDOTDIR}/plugins/z/zsh-z.plugin.zsh
 
 # +------------+
 # | COMPLETION |
@@ -320,54 +323,54 @@ source "${ZDOTDIR}/plugins/z/zsh-z.plugin.zsh"
 # Zstyle pattern
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
 
-zstyle ':completion:*:*:*:*:default'  list-colors         ${(s.:.)LS_COLORS}
+zstyle :completion:*:*:*:*:default  list-colors         ${(s.:.)LS_COLORS}
 
 # Define completers
-zstyle ':completion:*' completer _extensions _complete _approximate
+zstyle :completion:* completer _extensions _complete _approximate
 
 # Use cache for commands using cache
-zstyle ':completion:*'                 use-cache           true
-zstyle ':completion:*'                 cache-path          "$XDG_CACHE_HOME/zsh/.zcompcache"
+zstyle :completion:*                 use-cache           true
+zstyle :completion:*                 cache-path          $XDG_CACHE_HOME/zsh/.zcompcache
 
-zstyle ':completion:*'                 list-dirs-first     true
-zstyle ':completion:*'                 verbose             true
-zstyle ':completion:*'                 matcher-list        'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*:descriptions'    format              [%d]
-zstyle ':completion:*:manuals'         separate-sections   true
-zstyle ':completion:*:git-checkout:*'  sort                false # disable sort when completing `git checkout`
+zstyle :completion:*                 list-dirs-first     true
+zstyle :completion:*                 verbose             true
+zstyle :completion:*                 matcher-list        'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle :completion:*:descriptions    format              [%d]
+zstyle :completion:*:manuals         separate-sections   true
+zstyle :completion:*:git-checkout:*  sort                false # disable sort when completing `git checkout`
 
 # Complete the alias when _expand_alias is used as a function
-zstyle ':completion:*'                 complete            true
+zstyle :completion:*                 complete            true
 zle -C alias-expension complete-word _generic
 bindkey '^Xa' alias-expension
-zstyle ':completion:alias-expension:*' completer           _expand_alias
+zstyle :completion:alias-expension:* completer           _expand_alias
 
 # Allow you to select in a menu
-zstyle ':completion:*'                 menu                select
+zstyle :completion:*                 menu                select
 
 # Autocomplete options for cd instead of directory stack
-zstyle ':completion:*'                 complete-options    true
+zstyle :completion:*                 complete-options    true
 
 # Only display some tags for the command cd
-zstyle ':completion:*:*:cd:*'          tag-order local-directories directory-stack path-directories
+zstyle :completion:*:*:cd:*          tag-order local-directories directory-stack path-directories
 
 # Required for completion to be in good groups (named after the tags)
-zstyle ':completion:*'                 group-name ''
+zstyle :completion:*                 group-name ''
 
-zstyle ':completion:*:*:-command-:*:*' group-order aliases builtins functions commands
+zstyle :completion:*:*:-command-:*:* group-order aliases builtins functions commands
 
 # See ZSHCOMPWID "completion matching control"
-zstyle ':completion:*'                 matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle :completion:*                 matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
-zstyle ':completion:*'                 keep-prefix         true
+zstyle :completion:*                 keep-prefix         true
 
-zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
+zstyle -e :completion:*:(ssh|scp|sftp|rsh|rsync):hosts hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
 
-zstyle ':completion:*:*:kubectl:*'     list-grouped        false
+zstyle :completion:*:*:kubectl:*     list-grouped        false
 
 # Enable cached completions, if present
-if [[ -d "${XDG_CACHE_HOME}/zsh/fpath" ]]; then
-    FPATH+="${XDG_CACHE_HOME}/zsh/fpath"
+if [[ -d ${XDG_CACHE_HOME}/zsh/fpath ]]; then
+    FPATH+=${XDG_CACHE_HOME}/zsh/fpath
 fi
 
 # Make sure complist is loaded
@@ -384,15 +387,15 @@ source ${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.
 # - '.' matches "regular files"
 # - 'mh+20' matches files (or directories or whatever) that are older than 20 hours.
 autoload -Uz compinit
-if [[ -n "${XDG_CACHE_HOME}/zsh/compdump"(#qN.mh+20) ]]; then
-    compinit -i -u -d "${XDG_CACHE_HOME}/zsh/compdump"
+if [[ -n ${XDG_CACHE_HOME}/zsh/compdump(#qN.mh+20) ]]; then
+    compinit -i -u -d ${XDG_CACHE_HOME}/zsh/compdump
     # zrecompile fresh compdump in background
     {
         autoload -Uz zrecompile
-        zrecompile -pq "${XDG_CACHE_HOME}/zsh/compdump"
+        zrecompile -pq ${XDG_CACHE_HOME}/zsh/compdump
     } &!
 else
-    compinit -i -u -C -d "${XDG_CACHE_HOME}/zsh/compdump"
+    compinit -i -u -C -d ${XDG_CACHE_HOME}/zsh/compdump
 fi
 
 # Enable bash completions too
@@ -402,9 +405,9 @@ autoload -Uz bashcompinit && bashcompinit
 # | FZF |
 # +-----+
 
-export FZF_DEFAULT_OPTS="--ansi"
+export FZF_DEFAULT_OPTS=--ansi
 export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --color=always'
-export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
+export FZF_CTRL_T_COMMAND=${FZF_DEFAULT_COMMAND}
 
 # Auto-completion
 source ${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh(N)
@@ -417,14 +420,14 @@ source ${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh(N)
 # +---------+
 
 # Use fzf for tab completions
-source "${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh"
-zstyle ':fzf-tab:*' prefix ''
+source ${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh
+zstyle :fzf-tab:* prefix ''
 
 # preview directory's content with exa when completing cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
+zstyle :fzf-tab:complete:cd:* fzf-preview 'exa -1 --color=always $realpath'
 
 # fzf-tab: switch group using `,` and `.`
-zstyle ':fzf-tab:*' switch-group ',' '.'
+zstyle :fzf-tab:* switch-group ',' '.'
 
 # +--------------+
 # | LOAD PLUGINS |
@@ -440,7 +443,7 @@ source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 # +------------------------------+
 
 # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
-function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
+function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 # +----------+
 # | ZSH-ABBR |
@@ -462,7 +465,7 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # Ignore suggestions for abbreviations
 ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(k)ABBR_REGULAR_USER_ABBREVIATIONS}}
 ZSH_AUTOSUGGEST_COMPLETION_IGNORE=${ZSH_AUTOSUGGEST_HISTORY_IGNORE}
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=10"
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=fg=10
 
 # Need to clear up-line and down-line otherwise auto-auggestions will break
 # https://github.com/zsh-users/zsh-autosuggestions/issues/619
@@ -474,7 +477,7 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(up-line-or-beginning-search down-line-or-beginni
 # +-----------+
 
 # remind gpg-agent to update current tty before running git
-if pgrep -u "${EUID}" gpg-agent &>/dev/null; then
+if pgrep -u ${EUID} gpg-agent &>/dev/null; then
     function _preexec_gpg-agent-update-tty {
         if [[ ${1} == git* ]]; then
             gpg-connect-agent --quiet --no-autostart --no-history updatestartuptty /bye >/dev/null &!
