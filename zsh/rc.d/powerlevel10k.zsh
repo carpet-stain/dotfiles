@@ -391,7 +391,7 @@ source $HOMEBREW_PREFIX/opt/powerlevel10k/powerlevel10k.zsh-theme
     # Vim shell indicator color.
     typeset -g POWERLEVEL9K_VIM_SHELL_FOREGROUND=28
     # Custom icon.
-    typeset -g POWERLEVEL9K_VIM_SHELL_VISUAL_IDENTIFIER_EXPANSION='vim'
+    typeset -g POWERLEVEL9K_VIM_SHELL_VISUAL_IDENTIFIER_EXPANSION='nvim'
 
     ######[ midnight_commander: midnight commander shell (https://midnight-commander.org/) ]######
     # Midnight Commander shell color.
