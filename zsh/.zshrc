@@ -202,19 +202,19 @@ command -v dog    &> /dev/null && alias d=dog                                   
 alias -s log=less
 
 # Enable diff with colors
-alias diff=colordiff --new-file --text --recursive -u --algorithm patience
+alias diff='colordiff --new-file --text --recursive -u --algorithm patience'
 
 # Make mount command output pretty and human readable format
-alias mount=mount |column -t
+alias mount='mount |column -t'
 
 # Human file sizes
-alias df=df -Th
+alias df='df -Th'
 alias du=dua
-alias dui=dua interactive
+alias dui='dua interactive'
 
 # Handy stuff and a bit of XDG compliance
-alias tmux=tmux -f ${DOTFILES}/tmux/tmux.conf
-command -v wget &> /dev/null && alias wget=wget --continue --hsts-file=${XDG_CACHE_HOME}/wget-hsts
+alias tmux='tmux -f ${DOTFILES}/tmux/tmux.conf'
+command -v wget &> /dev/null && alias wget='wget --continue --hsts-file=${XDG_CACHE_HOME}/wget-hsts'
 
 # History suppression
 alias clear=' clear'
@@ -222,11 +222,11 @@ alias pwd=' pwd'
 alias exit=' exit'
 
 # Do not delete / or prompt if deleting more than 3 files at a time #
-alias rm=rm -I --preserve-root
+alias rm='rm -I --preserve-root'
 
 # confirmation
-alias mv=mv -i
-alias ln=ln -i
+alias mv='mv -i'
+alias ln='ln -i'
 
 # Suppress suggestions and globbing
 alias find='noglob find'
@@ -237,12 +237,12 @@ alias ag='noglob ag'
 alias fd='noglob fd'
 
 # Parenting changing perms on /
-alias chown=chown --preserve-root
-alias chmod=chmod --preserve-root
-alias chgrp=chgrp --preserve-root
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
 
-alias rsync=rsync --verbose --archive --info=progress2 --human-readable --partial
-alias tree=tree -a -I .git --dirsfirst
+alias rsync='rsync --verbose --archive --info=progress2 --human-readable --partial'
+alias tree='tree -a -I .git --dirsfirst'
 
 # sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
 do_sudo () {
