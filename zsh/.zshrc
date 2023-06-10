@@ -300,21 +300,8 @@ man () {
 # +----------+
 
 # Make less more friendly
-export LESSOPEN=| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-
+export LESSOPEN='| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-'
 export LESS_ADVANCED_PREPROCESSOR=1
-
-# +-------+
-# | ZSH-Z |
-# +-------+
-
-# XDG compliance
-ZSHZ_DATA=${XDG_CACHE_HOME}/zsh/z
-# match to uncommon prefix
-ZSHZ_UNCOMMON=1
-# ignore case when lowercase, match case with uppercase
-ZSHZ_CASE=smart
-
-source ${ZDOTDIR}/plugins/z/zsh-z.plugin.zsh
 
 # +------------+
 # | COMPLETION |
@@ -334,10 +321,13 @@ zstyle :completion:*                 cache-path          $XDG_CACHE_HOME/zsh/.zc
 
 zstyle :completion:*                 list-dirs-first     true
 zstyle :completion:*                 verbose             true
-zstyle :completion:*                 matcher-list        'm:{[:lower:]}={[:upper:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle :completion:*                 matcher-list        'm:{[:lower:]}={[:upper:]}'
 zstyle :completion:*:descriptions    format              [%d]
 zstyle :completion:*:manuals         separate-sections   true
 zstyle :completion:*:git-checkout:*  sort                false # disable sort when completing `git checkout`
+
+# disable sort when completing options of any command
+zstyle :completion:complete:*:options sort false
 
 # Complete the alias when _expand_alias is used as a function
 zstyle :completion:*                 complete            true
@@ -358,9 +348,6 @@ zstyle :completion:*:*:cd:*          tag-order local-directories directory-stack
 zstyle :completion:*                 group-name ''
 
 zstyle :completion:*:*:-command-:*:* group-order aliases builtins functions commands
-
-# See ZSHCOMPWID "completion matching control"
-zstyle :completion:*                 matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
 zstyle :completion:*                 keep-prefix         true
 
@@ -401,6 +388,16 @@ fi
 # Enable bash completions too
 autoload -Uz bashcompinit && bashcompinit
 
+# +--------+
+# | ZOXIDE |
+# +--------+
+
+# XDG compliance
+_ZO_DATA_DIR=${XDG_DATA_HOME}
+
+# Set up zoxide
+eval "$(zoxide init zsh)"
+
 # +-----+
 # | FZF |
 # +-----+
@@ -424,19 +421,45 @@ source ${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh
 zstyle :fzf-tab:* prefix ''
 
 # preview directory's content with exa when completing cd
-zstyle :fzf-tab:complete:cd:* fzf-preview 'exa -1 --color=always $realpath'
+zstyle :fzf-tab:complete:cd:* fzf-preview 'exa --git -hl --icons --color=always $realpath'
+
+# Environment variables
+zstyle :fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):* fzf-preview 'echo ${(P)word}'
+
+# Git 
+zstyle :fzf-tab:complete:git-(add|diff|restore):* fzf-preview 'git diff $word | delta'
+zstyle :fzf-tab:complete:git-log:* fzf-preview 'git log --color=always $word'
+zstyle :fzf-tab:complete:git-help:* fzf-preview \ 'git help $word | bat -plman --color=always'
+zstyle :fzf-tab:complete:git-show:* fzf-preview \
+	'case "$group" in
+	"commit tag") git show --color=always $word ;;
+	*) git show --color=always $word | delta ;;
+	esac'
+zstyle :fzf-tab:complete:git-checkout:* fzf-preview \
+	'case "$group" in
+	"modified file") git diff $word | delta ;;
+	"recent commit object name") git show --color=always $word | delta ;;
+	*) git log --color=always $word ;;
+	esac'
+
+# Homebrew
+zstyle ':fzf-tab:complete:brew-(install|uninstall|search|info):*-argument-rest' fzf-preview 'brew info $word'
+
+# TLDR
+zstyle ':fzf-tab:complete:tldr:argument-1' fzf-preview 'tldr --color always $word'
+
+# Commands
+ zstyle ':fzf-tab:complete:-command-:*' fzf-preview \
+  ¦ '(out=$(tldr --color always "$word") 2>/dev/null && echo $out) || (out=$(MANWIDTH=$FZF_PREVIEW_COLUMNS man "$word") 2>/dev/null && echo $out) || (out=$(which "$word") && echo $out) || echo "${(P)word}"'
 
 # fzf-tab: switch group using `,` and `.`
 zstyle :fzf-tab:* switch-group ',' '.'
 
 # +--------------+
-# | LOAD PLUGINS |
+# | ZSH-AUTOPAIR |
 # +--------------+
 
-# Package Manager Plugins
 source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
-source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
-source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 
 # +------------------------------+
 # | ZSH-FAST-SYNTAX-HIGHLIGHTING |
@@ -445,12 +468,16 @@ source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
+# syntax-highlighting plugin
+source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
+
 # +----------+
 # | ZSH-ABBR |
 # +----------+
 
 ABBR_USER_ABBREVIATIONS_FILE=${ZDOTDIR}/plugins/abbreviations-store
 source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
+export MANPATH=${HOMEBREW_PREFIX}/opt/zsh-abbr/share/man:$MANPATH
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -463,9 +490,11 @@ ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Ignore suggestions for abbreviations
-ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(k)ABBR_REGULAR_USER_ABBREVIATIONS}}
+ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(Qk)ABBR_REGULAR_USER_ABBREVIATIONS}}
 ZSH_AUTOSUGGEST_COMPLETION_IGNORE=${ZSH_AUTOSUGGEST_HISTORY_IGNORE}
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=fg=10
+
+# Autosuggestion plugin
+source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 
 # Need to clear up-line and down-line otherwise auto-auggestions will break
 # https://github.com/zsh-users/zsh-autosuggestions/issues/619
@@ -480,7 +509,7 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(up-line-or-beginning-search down-line-or-beginni
 if pgrep -u ${EUID} gpg-agent &>/dev/null; then
     function _preexec_gpg-agent-update-tty {
         if [[ ${1} == git* ]]; then
-            gpg-connect-agent --quiet --no-autostart --no-history updatestartuptty /bye >/dev/null &!
+            gpg-connect-agent --quiet --no-autostart updatestartuptty /bye >/dev/null &!
         fi
     }
 

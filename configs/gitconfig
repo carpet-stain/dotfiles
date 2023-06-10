@@ -23,33 +23,48 @@
 	amend = commit --amend
 [credential]
 	helper = cache --socket ~/.cache/git-credential-cache/socket
-[color "diff"]
-	meta = yellow bold
-	commit = green bold
-	frag = magenta bold
-	old = red bold
-	new = green bold
-	whitespace = red reverse
-[color "diff-highlight"]
-	oldNormal = red bold
-	oldHighlight = red bold 52
-	newNormal = green bold
-	newHighlight = green bold 22
 [filter "lfs"]
 	clean = git-lfs clean %f
 	smudge = git-lfs smudge %f
 	required = true
 [diff]
-	algorithm = histogram
-	submodule = log
+    colorMoved = default
 [core]
 	excludesfiles = ~/.config/git/ignore
 	autocrlf = input
 	whitespace = cr-at-eol
 	pager = less --tabs=4 -RFX
 [pager]
-	diff = which diff-so-fancy >/dev/null 2>&1 && diff-so-fancy | less --tabs=4 -RFX --pattern '^(added|deleted|modified): ' || less --tabs=4 -RFX
+	diff = delta
 	status = true
+[interactive]
+    diffFilter = delta --color-only --features=interactive
+[delta]
+	features = unobtrusive-line-numbers interactive decorations
+    navigate = true    # use n and N to move between diff sections
+    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+	side-by-side = true
+	hyperlinks = true
+	true-color = always
+[delta "unobtrusive-line-numbers"]
+    line-numbers = true
+    line-numbers-minus-style = "#444444"
+    line-numbers-zero-style = "#444444"
+    line-numbers-plus-style = "#444444"
+    line-numbers-left-format = "{nm:>4}┊"
+    line-numbers-right-format = "{np:>4}│"
+    line-numbers-left-style = blue
+    line-numbers-right-style = blue
+[delta "interactive"]
+    keep-plus-minus-markers = false
+[delta "decorations"]
+    commit-decoration-style = blue ol
+    commit-style = raw
+    file-style = omit
+    hunk-header-decoration-style = blue box
+    hunk-header-file-style = red
+    hunk-header-line-number-style = "#067a00"
+    hunk-header-style = file line-number syntax
 [submodule]
 	fetchJobs = 5
 	recurse = true

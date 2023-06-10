@@ -50,3 +50,7 @@ Session.vim
 # compiled zsh script
 *.zwc
 *.zwc.old
+
+### OS ###
+# MacOS
+.DS_Store
