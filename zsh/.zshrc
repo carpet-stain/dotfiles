@@ -1,6 +1,6 @@
 # Attach to a tmux session, if there's any. Do this only for remote SSH sessions, don't mess local tmux sessions
 # Handoff to tmux early, as rest of the rc config isn't needed for this
-if (( ${+commands[tmux]} )) && [[ ! -v TMUX ]] && pgrep -u ${EUID} tmux &>/dev/null && [[ -v SSH_TTY ]] && [[ ! -v MC_SID ]]; then
+if (( $+commands[tmux] )) && [[ ! -v TMUX ]] && pgrep -u $EUID tmux &>/dev/null && [[ -v SSH_TTY ]] && [[ ! -v MC_SID ]]; then
     exec tmux attach
 fi
 
@@ -41,14 +41,14 @@ setopt HIST_VERIFY               # Do not execute immediately upon history expan
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
 setopt HIST_IGNORE_SPACE         # don’t store lines starting with space
 
-HISTFILE="${XDG_DATA_HOME}/zsh/history"
+HISTFILE=${XDG_DATA_HOME}/zsh/history
 HISTSIZE=1000000
 SAVEHIST=1000000
 
 # History: Use standard ISO 8601 timestamp.
 #   %F is equivalent to %Y-%m-%d
 #   %T is equivalent to %H:%M:%S (24-hours format)
-HISTTIMEFORMAT='[%F %T] '
+HISTTIMEFORMAT='[%F %T]'
 
 setopt NO_FLOW_CONTROL           # disable stupid annoying keys
 setopt MULTIOS                   # allows multiple input and output redirections
@@ -109,7 +109,7 @@ zle -N down-line-or-beginning-search
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z evalcache compdefcache
+autoload -z bag evalcache compdefcache
 
 # +--------------+
 # | Key Bindings |
@@ -162,7 +162,7 @@ bindkey "^[[1;5C"   forward-word
 
 # Make dot key autoexpand "..." to "../.." and so on
 _zsh-dot () {
-    if [[ ${LBUFFER} = *.. ]]; then
+    if [[ $LBUFFER = *.. ]]; then
         LBUFFER+=/..
     else
         LBUFFER+=.
@@ -174,7 +174,7 @@ bindkey . _zsh-dot
 
 # Make sure that the terminal is in application mode when zle is active, since
 # only then values from $terminfo are valid
-if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
+if (( ${+terminfo[smkx]} && $+terminfo[rmkx] )); then
     autoload -Uz add-zle-hook-widget
     function zle_application_mode_start { echoti smkx }
     function zle_application_mode_stop { echoti rmkx }
@@ -186,7 +186,7 @@ fi
 # | POWERLEVEL10K |
 # +---------------+
 
-source ${ZDOTDIR}/rc.d/powerlevel10k.zsh
+source $ZDOTDIR/rc.d/powerlevel10k.zsh
 
 # +---------+
 # | ALIASES |
@@ -201,8 +201,8 @@ command -v dog    &> /dev/null && alias d=dog                                   
 # Some handy suffix aliases
 alias -s log=less
 
-# Enable diff with colors
-alias diff='colordiff --new-file --text --recursive -u --algorithm patience'
+# Enable delta
+alias diff=delta
 
 # Make mount command output pretty and human readable format
 alias mount='mount |column -t'
@@ -249,12 +249,12 @@ do_sudo () {
     integer glob=1
     local -a run
     run=(command sudo)
-    if [[ ${#} -gt 1 && ${1} = -u ]]; then
-        run+=(${1} ${2})
+    if [[ ${#} -gt 1 && $1 = -u ]]; then
+        run+=($1 $2)
         shift; shift
     fi
-    while (( ${#} )); do
-        case ${1} in
+    while (( $# )); do
+        case $1 in
             command|exec|-) shift; break ;;
             nocorrect) shift ;;
             noglob) glob=0; shift ;;
@@ -262,9 +262,9 @@ do_sudo () {
         esac
     done
     if (( glob )); then
-        ${run} $~==*
+        $run $~==*
     else
-        ${run} $==*
+        $run $==*
     fi
 }
 alias sudo='noglob do_sudo '
@@ -292,7 +292,7 @@ man () {
     LESS_TERMCAP_se=$(echoti rmso) \
     LESS_TERMCAP_us=$(echoti smul; echoti setaf 2) \
     LESS_TERMCAP_ue=$(echoti sgr0) \
-    nocorrect noglob command man ${@}
+    nocorrect noglob command man $@
 }
 
 # +----------+
@@ -303,97 +303,19 @@ man () {
 export LESSOPEN='| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-'
 export LESS_ADVANCED_PREPROCESSOR=1
 
-# +------------+
-# | COMPLETION |
-# +------------+
+# +-------------+
+# | COMPLETIONS |
+# +-------------+
 
-# Zstyle pattern
-# :completion:<function>:<completer>:<command>:<argument>:<tag>
-
-zstyle :completion:*:*:*:*:default  list-colors         ${(s.:.)LS_COLORS}
-
-# Define completers
-zstyle :completion:* completer _extensions _complete _approximate
-
-# Use cache for commands using cache
-zstyle :completion:*                 use-cache           true
-zstyle :completion:*                 cache-path          $XDG_CACHE_HOME/zsh/.zcompcache
-
-zstyle :completion:*                 list-dirs-first     true
-zstyle :completion:*                 verbose             true
-zstyle :completion:*                 matcher-list        'm:{[:lower:]}={[:upper:]}'
-zstyle :completion:*:descriptions    format              [%d]
-zstyle :completion:*:manuals         separate-sections   true
-zstyle :completion:*:git-checkout:*  sort                false # disable sort when completing `git checkout`
-
-# disable sort when completing options of any command
-zstyle :completion:complete:*:options sort false
-
-# Complete the alias when _expand_alias is used as a function
-zstyle :completion:*                 complete            true
-zle -C alias-expension complete-word _generic
-bindkey '^Xa' alias-expension
-zstyle :completion:alias-expension:* completer           _expand_alias
-
-# Allow you to select in a menu
-zstyle :completion:*                 menu                select
-
-# Autocomplete options for cd instead of directory stack
-zstyle :completion:*                 complete-options    true
-
-# Only display some tags for the command cd
-zstyle :completion:*:*:cd:*          tag-order local-directories directory-stack path-directories
-
-# Required for completion to be in good groups (named after the tags)
-zstyle :completion:*                 group-name ''
-
-zstyle :completion:*:*:-command-:*:* group-order aliases builtins functions commands
-
-zstyle :completion:*                 keep-prefix         true
-
-zstyle -e :completion:*:(ssh|scp|sftp|rsh|rsync):hosts hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
-
-zstyle :completion:*:*:kubectl:*     list-grouped        false
-
-# Enable cached completions, if present
-if [[ -d ${XDG_CACHE_HOME}/zsh/fpath ]]; then
-    FPATH+=${XDG_CACHE_HOME}/zsh/fpath
-fi
-
-# Make sure complist is loaded
-zmodload zsh/complist
-
-FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
-FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
-source ${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.zsh
-
-# Init completions, but regenerate compdump only once a day.
-# The globbing is a little complicated here:
-# - '#q' is an explicit glob qualifier that makes globbing work within zsh's [[ ]] construct.
-# - 'N' makes the glob pattern evaluate to nothing when it doesn't match (rather than throw a globbing error)
-# - '.' matches "regular files"
-# - 'mh+20' matches files (or directories or whatever) that are older than 20 hours.
-autoload -Uz compinit
-if [[ -n ${XDG_CACHE_HOME}/zsh/compdump(#qN.mh+20) ]]; then
-    compinit -i -u -d ${XDG_CACHE_HOME}/zsh/compdump
-    # zrecompile fresh compdump in background
-    {
-        autoload -Uz zrecompile
-        zrecompile -pq ${XDG_CACHE_HOME}/zsh/compdump
-    } &!
-else
-    compinit -i -u -C -d ${XDG_CACHE_HOME}/zsh/compdump
-fi
-
-# Enable bash completions too
-autoload -Uz bashcompinit && bashcompinit
+# Compinit is called here
+source $ZDOTDIR/rc.d/completions.zsh
 
 # +--------+
 # | ZOXIDE |
 # +--------+
 
 # XDG compliance
-_ZO_DATA_DIR=${XDG_DATA_HOME}
+_ZO_DATA_DIR=$XDG_DATA_HOME
 
 # Set up zoxide
 eval "$(zoxide init zsh)"
@@ -402,64 +324,49 @@ eval "$(zoxide init zsh)"
 # | FZF |
 # +-----+
 
-export FZF_DEFAULT_OPTS=--ansi
-export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --color=always'
-export FZF_CTRL_T_COMMAND=${FZF_DEFAULT_COMMAND}
+export FZF_DEFAULT_OPTS="--ansi"
+export FZF_DEFAULT_COMMAND='rg --type file --follow --hidden --exclude .git --color=always'
+export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+export FZF_TMUX=1
+
+# Preview file content using bat (https://github.com/sharkdp/bat)
+export FZF_CTRL_T_OPTS="
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'
+"
+# CTRL-/ to toggle small preview window to see the full command
+# CTRL-Y to copy the command into clipboard using pbcopy
+export FZF_CTRL_R_OPTS="
+  --preview 'echo {}' --preview-window up:3:hidden:wrap
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+  --color header:italic
+  --header 'Press CTRL-Y to copy command into clipboard'"
+
+# Print tree structure in the preview window
+export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
+
+export FZF_TMUX_OPTS='-p80%,60%'
 
 # Auto-completion
-source ${HOMEBREW_PREFIX}/opt/fzf/shell/completion.zsh(N)
+source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh(N)
 
 # Key bindings
-source ${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.zsh(N)
+source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh(N)
 
 # +---------+
 # | FZF-TAB |
 # +---------+
 
 # Use fzf for tab completions
-source ${ZDOTDIR}/plugins/fzf-tab/fzf-tab.zsh
-zstyle :fzf-tab:* prefix ''
-
-# preview directory's content with exa when completing cd
-zstyle :fzf-tab:complete:cd:* fzf-preview 'exa --git -hl --icons --color=always $realpath'
-
-# Environment variables
-zstyle :fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):* fzf-preview 'echo ${(P)word}'
-
-# Git 
-zstyle :fzf-tab:complete:git-(add|diff|restore):* fzf-preview 'git diff $word | delta'
-zstyle :fzf-tab:complete:git-log:* fzf-preview 'git log --color=always $word'
-zstyle :fzf-tab:complete:git-help:* fzf-preview \ 'git help $word | bat -plman --color=always'
-zstyle :fzf-tab:complete:git-show:* fzf-preview \
-	'case "$group" in
-	"commit tag") git show --color=always $word ;;
-	*) git show --color=always $word | delta ;;
-	esac'
-zstyle :fzf-tab:complete:git-checkout:* fzf-preview \
-	'case "$group" in
-	"modified file") git diff $word | delta ;;
-	"recent commit object name") git show --color=always $word | delta ;;
-	*) git log --color=always $word ;;
-	esac'
-
-# Homebrew
-zstyle ':fzf-tab:complete:brew-(install|uninstall|search|info):*-argument-rest' fzf-preview 'brew info $word'
-
-# TLDR
-zstyle ':fzf-tab:complete:tldr:argument-1' fzf-preview 'tldr --color always $word'
-
-# Commands
- zstyle ':fzf-tab:complete:-command-:*' fzf-preview \
-  ¦ '(out=$(tldr --color always "$word") 2>/dev/null && echo $out) || (out=$(MANWIDTH=$FZF_PREVIEW_COLUMNS man "$word") 2>/dev/null && echo $out) || (out=$(which "$word") && echo $out) || echo "${(P)word}"'
-
-# fzf-tab: switch group using `,` and `.`
-zstyle :fzf-tab:* switch-group ',' '.'
+source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
+source $ZDOTDIR/rc.d/fzf-tab.zsh
 
 # +--------------+
 # | ZSH-AUTOPAIR |
 # +--------------+
 
-source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
+source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh(N)
 
 # +------------------------------+
 # | ZSH-FAST-SYNTAX-HIGHLIGHTING |
@@ -469,15 +376,15 @@ source ${HOMEBREW_PREFIX}/share/zsh-autopair/autopair.zsh(N)
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 # syntax-highlighting plugin
-source ${HOMEBREW_PREFIX}/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
+source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
 
 # +----------+
 # | ZSH-ABBR |
 # +----------+
 
-ABBR_USER_ABBREVIATIONS_FILE=${ZDOTDIR}/plugins/abbreviations-store
-source ${HOMEBREW_PREFIX}/share/zsh-abbr/zsh-abbr.zsh(N)
-export MANPATH=${HOMEBREW_PREFIX}/opt/zsh-abbr/share/man:$MANPATH
+ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/plugins/abbreviations-store
+source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh(N)
+export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -491,10 +398,10 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Ignore suggestions for abbreviations
 ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(Qk)ABBR_REGULAR_USER_ABBREVIATIONS}}
-ZSH_AUTOSUGGEST_COMPLETION_IGNORE=${ZSH_AUTOSUGGEST_HISTORY_IGNORE}
+ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 
 # Autosuggestion plugin
-source ${HOMEBREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
 
 # Need to clear up-line and down-line otherwise auto-auggestions will break
 # https://github.com/zsh-users/zsh-autosuggestions/issues/619
@@ -506,9 +413,9 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(up-line-or-beginning-search down-line-or-beginni
 # +-----------+
 
 # remind gpg-agent to update current tty before running git
-if pgrep -u ${EUID} gpg-agent &>/dev/null; then
+if pgrep -u $EUID gpg-agent &>/dev/null; then
     function _preexec_gpg-agent-update-tty {
-        if [[ ${1} == git* ]]; then
+        if [[ ${1 == git* ]]; then
             gpg-connect-agent --quiet --no-autostart updatestartuptty /bye >/dev/null &!
         fi
     }
