@@ -62,18 +62,17 @@ zf_mkdir -p $HOME/{.local/{bin,etc},.ssh}
 zf_chmod 700 $XDG_CONFIG_HOME/gnupg
 print "  ...done"
 
-# Link zshenv if needed
-zf_ln -sf $SCRIPT_DIR/zsh/.zshenv $HOME/.zshenv
-print "  ...failed to match this script dir, symlinking .zshenv"
-
 # Link config files
 print "Linking config files..."
+zf_ln -sf $SCRIPT_DIR/zsh/.zshenv $HOME/.zshenv
 zf_ln -sf $SCRIPT_DIR/configs/gitconfig $XDG_CONFIG_HOME/git/config
 zf_ln -sf $SCRIPT_DIR/configs/gitattributes $XDG_CONFIG_HOME/git/attributes
 zf_ln -sf $SCRIPT_DIR/configs/gitignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/configs/alacritty.yml $XDG_CONFIG_HOME/alacritty/alacritty.yml
 zf_ln -sf $SCRIPT_DIR/configs/ssh_config $HOME/.ssh/config
 zf_ln -sf $SCRIPT_DIR/configs/batconfig $XDG_CONFIG_HOME/bat/config
+zf_ln -sf $SCRIPT_DIR/configs/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
+zf_ln -sf $SCRIPT_DIR/configs/gpg-agent.conf $XDG_CONFIG_HOME/gnupg/gpg-agent.conf
 print "  ...done"
 
 # Make sure submodules are installed
@@ -83,16 +82,9 @@ git submodule update --init --recursive > /dev/null
 print "  ...done"
 
 # Install hook to call deploy script after successful pull
-print "Installing git hooks..."
-zf_mkdir -p .git/hooks
+print "Installing git hooks for this repository..."
 zf_ln -sf ../../deploy.zsh .git/hooks/post-merge
 zf_ln -sf ../../deploy.zsh .git/hooks/post-checkout
-print "  ...done"
-
-# Link gpg configs to $GNUPGHOME
-print "Linking gnupg configs..."
-zf_ln -sf $SCRIPT_DIR/configs/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
-zf_ln -sf $SCRIPT_DIR/configs/gpg-agent.conf $XDG_CONFIG_HOME/gnupg/gpg-agent.conf
 print "  ...done"
 
 # Trigger zsh run with powerlevel10k prompt to download gitstatusd
