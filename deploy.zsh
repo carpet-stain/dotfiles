@@ -36,7 +36,7 @@ if [[ $OSTYPE = darwin* ]]; then
     brew analytics off
     brew bundle --quiet --no-lock
     print "Installing personal packages..."
-    brew bundle --quiet --no-lock --file=Brewfile.personal
+    # brew bundle --quiet --no-lock --file=Brewfile.personal
 fi
 
 # +----------------+
@@ -55,7 +55,7 @@ VIMINIT='let $MYVIMRC="'$SCRIPT_DIR'/nvim/init.lua" | source $MYVIMRC'
 
 # Create required directories 
 print "Creating required directory tree..."
-zf_mkdir -p $XDG_CONFIG_HOME/{git/local,htop,gnupg,alacritty}
+zf_mkdir -p $XDG_CONFIG_HOME/{git/local,htop,gnupg,alacritty,bat}
 zf_mkdir -p $XDG_CACHE_HOME/{nvim/{backup,swap,undo},zsh}
 zf_mkdir -p $XDG_DATA_HOME/{zsh,man/man1,nvim/spell,gnupg,terminfo}
 zf_mkdir -p $HOME/{.local/{bin,etc},.ssh}
