@@ -314,9 +314,6 @@ source $ZDOTDIR/rc.d/completions.zsh
 # | ZOXIDE |
 # +--------+
 
-# XDG compliance
-_ZO_DATA_DIR=$XDG_DATA_HOME
-
 # Set up zoxide
 eval "$(zoxide init zsh)"
 
@@ -337,7 +334,7 @@ export FZF_CTRL_T_OPTS="
   --select-1 --exit-0
 "
 
-# CTRL-/ to toggle small preview window to see the full command
+# ? to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy
 export FZF_CTRL_R_OPTS="
   --preview 'echo {}' --preview-window up:3:hidden:wrap

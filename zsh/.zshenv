@@ -45,6 +45,7 @@ if [[ ! -v XDG_RUNTIME_DIR ]]; then
 fi
 
 # XDG-Compliance. Reported from XDG-NINJA
+export _ZO_DATA_DIR=$XDG_DATA_HOME
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
 export LESSHISTFILE=$XDG_DATA_HOME/lesshst
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
@@ -90,6 +91,7 @@ if [[ $OSTYPE = darwin* ]]; then
 
     export HOMEBREW_NO_AUTO_UPDATE=1
     export HOMEBREW_VERBOSE_USING_DOTS=1
+    export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_PREFIX=$(brew --prefix)
 
     # Enable gnu version of utilities on macOS, if installed
