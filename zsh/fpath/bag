@@ -2,23 +2,10 @@
 
 emulate -L zsh
 
-search_cmd () { ag --nogroup --color --silent $* }
-
-local preview_cmd
-preview_cmd='bat --paging=never --terminal-width=${FZF_PREVIEW_COLUMNS} --color=always --style=plain,numbers,changes \
-                    --line-range=${from}:${till} --highlight-line=${line} ${filename}'
-
-local result=$(search_cmd $* |
-    fzf --exit-0 --ansi --layout=reverse-list --no-sort --height=50% --preview-window=right:50% \
-        --preview='match={};
-                    filename=${${(s.:.)match}[1]};
-                    line=${${(s.:.)match}[2]};
-                    from=$((line-10 > 1 ? line-10 : 1));
-                    till=$((line+10));'${preview_cmd}
-)
-unfunction search_cmd
-if [[ -n ${result} ]]; then
-    nvim ${${(s.:.)result}[1]} +${${(s.:.)result}[2]}
-else
-    return 1
-fi
+rg --color=always --line-number --no-heading --smart-case "${*:-}" |
+  fzf --ansi \
+      --color "hl:-1:underline,hl+:-1:underline:reverse" \
+      --delimiter : \
+      --preview 'bat --color=always {1} --highlight-line {2}' \
+      --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+      --bind 'enter:become(nvim {1} +{2})'

@@ -17,7 +17,7 @@ zstyle :completion:*                 cache-path          $XDG_CACHE_HOME/zsh/.zc
 zstyle :completion:*                 list-dirs-first     true
 zstyle :completion:*                 verbose             true
 zstyle :completion:*                 matcher-list        'm:{[:lower:]}={[:upper:]}'
-zstyle :completion:*:descriptions    format              [%d]''
+zstyle :completion:*:descriptions    format              '[%d]'
 zstyle :completion:*:manuals         separate-sections   true
 zstyle :completion:*:git-checkout:*  sort                false # disable sort when completing `git checkout`
 

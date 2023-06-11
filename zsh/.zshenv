@@ -3,7 +3,7 @@ local homezshenv=${HOME}/.zshenv
 export ZDOTDIR=${homezshenv:A:h}
 
 # DOTFILES dir is parent to ZDOTDIR
-export DOTFILES=${ZDOTDIR%/*}.
+export DOTFILES=${ZDOTDIR%/*}
 
 # Disable global zsh configuration
 unsetopt GLOBAL_RCS

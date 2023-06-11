@@ -55,7 +55,6 @@ brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
 cask 'alacritty'
-cask 'alfred'
 cask 'bitwarden'
 cask 'firefox'
 cask 'font-hack-nerd-font'

@@ -213,8 +213,8 @@ alias du=dua
 alias dui='dua interactive'
 
 # Handy stuff and a bit of XDG compliance
-alias tmux='tmux -f ${DOTFILES}/tmux/tmux.conf'
-command -v wget &> /dev/null && alias wget='wget --continue --hsts-file=${XDG_CACHE_HOME}/wget-hsts'
+alias tmux='tmux -f $DOTFILES/tmux/tmux.conf'
+command -v wget &> /dev/null && alias wget='wget --continue --hsts-file=$XDG_CACHE_HOME/wget-hsts'
 
 # History suppression
 alias clear=' clear'
@@ -324,29 +324,30 @@ eval "$(zoxide init zsh)"
 # | FZF |
 # +-----+
 
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden --color=always'
 export FZF_DEFAULT_OPTS="--ansi"
-export FZF_DEFAULT_COMMAND='rg --type file --follow --hidden --exclude .git --color=always'
-export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_TMUX=1
+export FZF_TMUX_OPTS='-p80%,60%'
 
 # Preview file content using bat (https://github.com/sharkdp/bat)
+export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
   --preview 'bat -n --color=always {}'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'
+  --select-1 --exit-0
 "
+
 # CTRL-/ to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy
 export FZF_CTRL_R_OPTS="
   --preview 'echo {}' --preview-window up:3:hidden:wrap
-  --bind 'ctrl-/:toggle-preview'
+  --bind '?:toggle-preview'
   --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
   --color header:italic
   --header 'Press CTRL-Y to copy command into clipboard'"
 
 # Print tree structure in the preview window
-export FZF_ALT_C_OPTS="--preview 'tree -C {}'"
-
-export FZF_TMUX_OPTS='-p80%,60%'
+export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 # Auto-completion
 source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh(N)
@@ -415,7 +416,7 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(up-line-or-beginning-search down-line-or-beginni
 # remind gpg-agent to update current tty before running git
 if pgrep -u $EUID gpg-agent &>/dev/null; then
     function _preexec_gpg-agent-update-tty {
-        if [[ ${1 == git* ]]; then
+        if [[ $1 == git* ]]; then
             gpg-connect-agent --quiet --no-autostart updatestartuptty /bye >/dev/null &!
         fi
     }
