@@ -41,7 +41,7 @@ setopt HIST_VERIFY               # Do not execute immediately upon history expan
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
 setopt HIST_IGNORE_SPACE         # don’t store lines starting with space
 
-HISTFILE=${XDG_DATA_HOME}/zsh/history
+HISTFILE="$XDG_STATE_HOME"/zsh/history
 HISTSIZE=1000000
 SAVEHIST=1000000
 
