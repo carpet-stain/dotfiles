@@ -109,7 +109,7 @@ zle -N down-line-or-beginning-search
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z bag evalcache compdefcache
+autoload -z bag evalcache compdefcache man
 
 # +--------------+
 # | Key Bindings |
@@ -122,36 +122,36 @@ zmodload zsh/terminfo
 
 # Create a zkbd compatible hash
 typeset -A key
-key[Home]=${terminfo[khome]}
-key[End]=${terminfo[kend]}
-key[Insert]=${terminfo[kich1]}
-key[Delete]=${terminfo[kdch1]}
-key[Up]=${terminfo[kcuu1]}
-key[Down]=${terminfo[kcud1]}
-key[Left]=${terminfo[kcub1]}
-key[Right]=${terminfo[kcuf1]}
-key[PageUp]=${terminfo[kpp]}
-key[PageDown]=${terminfo[knp]}
-key[Backspace]=${terminfo[kbs]}
-key[ShiftTab]=${terminfo[kcbt]}
+key[Home]=$terminfo[khome]
+key[End]=$terminfo[kend]
+key[Insert]=$terminfo[kich1]
+key[Delete]=$terminfo[kdch1]
+key[Up]=$terminfo[kcuu1]
+key[Down]=$terminfo[kcud1]
+key[Left]=$terminfo[kcub1]
+key[Right]=$terminfo[kcuf1]
+key[PageUp]=$terminfo[kpp]
+key[PageDown]=$terminfo[knp]
+key[Backspace]=$terminfo[kbs]
+key[ShiftTab]=$terminfo[kcbt]
 
 # man 5 user_caps
-key[CtrlLeft]=${terminfo[kLFT5]}
-key[CtrlRight]=${terminfo[kRIT5]}
+key[CtrlLeft]=$terminfo[kLFT5]
+key[CtrlRight]=$terminfo[kRIT5]
 
 # Setup keys accordingly
-[[ -n ${key[Home]}      ]] && bindkey ${key[Home]}       beginning-of-line
-[[ -n ${key[End]}       ]] && bindkey ${key[End]}        end-of-line
-[[ -n ${key[Insert]}    ]] && bindkey ${key[Insert]}     overwrite-mode
-[[ -n ${key[Delete]}    ]] && bindkey ${key[Delete]}     delete-char
-[[ -n ${key[Left]}      ]] && bindkey ${key[Left]}       backward-char
-[[ -n ${key[Right]}     ]] && bindkey ${key[Right]}      forward-char
-[[ -n ${key[Up]}        ]] && bindkey ${key[Up]}         up-line-or-beginning-search
-[[ -n ${key[Down]}      ]] && bindkey ${key[Down]}       down-line-or-beginning-search
-[[ -n ${key[PageUp]}    ]] && bindkey ${key[PageUp]}     beginning-of-buffer-or-history
-[[ -n ${key[PageDown]}  ]] && bindkey ${key[PageDown]}   end-of-buffer-or-history
-[[ -n ${key[Backspace]} ]] && bindkey ${key[Backspace]}  backward-delete-char
-[[ -n ${key[ShiftTab]}  ]] && bindkey ${key[ShiftTab]}   reverse-menu-complete
+[[ -n $key[Home]      ]] && bindkey $key[Home]       beginning-of-line
+[[ -n $key[End]       ]] && bindkey $key[End]        end-of-line
+[[ -n $key[Insert]    ]] && bindkey $key[Insert]     overwrite-mode
+[[ -n $key[Delete]    ]] && bindkey $key[Delete]     delete-char
+[[ -n $key[Left]      ]] && bindkey $key[Left]       backward-char
+[[ -n $key[Right]     ]] && bindkey $key[Right]      forward-char
+[[ -n $key[Up]        ]] && bindkey $key[Up]         up-line-or-beginning-search
+[[ -n $key[Down]      ]] && bindkey $key[Down]       down-line-or-beginning-search
+[[ -n $key[PageUp]    ]] && bindkey $key[PageUp]     beginning-of-buffer-or-history
+[[ -n $key[PageDown]  ]] && bindkey $key[PageDown]   end-of-buffer-or-history
+[[ -n $key[Backspace] ]] && bindkey $key[Backspace]  backward-delete-char
+[[ -n $key[ShiftTab]  ]] && bindkey $key[ShiftTab]   reverse-menu-complete
 
 # MACOS: REMEMBER TO DISABLE MISSION CONTROL KEY BINDINGS IN MACOS SETTINGS FOR THIS TO WORK
 # they're not working under tmux256-color
@@ -174,7 +174,7 @@ bindkey . _zsh-dot
 
 # Make sure that the terminal is in application mode when zle is active, since
 # only then values from $terminfo are valid
-if (( ${+terminfo[smkx]} && $+terminfo[rmkx] )); then
+if (( $+terminfo[smkx] && $+terminfo[rmkx] )); then
     autoload -Uz add-zle-hook-widget
     function zle_application_mode_start { echoti smkx }
     function zle_application_mode_stop { echoti rmkx }
@@ -192,108 +192,7 @@ source $ZDOTDIR/rc.d/powerlevel10k.zsh
 # | ALIASES |
 # +---------+
 
-command -v curlie &> /dev/null && alias curl=curlie
-command -v fd     &> /dev/null && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
-command -v rg     &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R --binary-files=without-match --devices=skip'
-command -v exa    &> /dev/null && alias ls='exa --long --header --icons --group-directories-first --group --git --all --links' || alias ls='ls --color=auto --group-directories-first -h'
-command -v dog    &> /dev/null && alias d=dog                                                || alias d='dig +nocmd +multiline +noall +answer'
-
-# Some handy suffix aliases
-alias -s log=less
-
-# Enable delta
-alias diff=delta
-
-# Make mount command output pretty and human readable format
-alias mount='mount |column -t'
-
-# Human file sizes
-alias df='df -Th'
-alias du=dua
-alias dui='dua interactive'
-
-# Handy stuff and a bit of XDG compliance
-alias tmux='tmux -f $DOTFILES/tmux/tmux.conf'
-command -v wget &> /dev/null && alias wget='wget --continue --hsts-file=$XDG_CACHE_HOME/wget-hsts'
-
-# History suppression
-alias clear=' clear'
-alias pwd=' pwd'
-alias exit=' exit'
-
-# Do not delete / or prompt if deleting more than 3 files at a time #
-alias rm='rm -I --preserve-root'
-
-# confirmation
-alias mv='mv -i'
-alias ln='ln -i'
-
-# Suppress suggestions and globbing
-alias find='noglob find'
-alias touch='nocorrect touch'
-alias mkdir='nocorrect mkdir -pv'
-alias cp='nocorrect cp -i'
-alias ag='noglob ag'
-alias fd='noglob fd'
-
-# Parenting changing perms on /
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
-
-alias rsync='rsync --verbose --archive --info=progress2 --human-readable --partial'
-alias tree='tree -a -I .git --dirsfirst'
-
-# sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
-do_sudo () {
-    integer glob=1
-    local -a run
-    run=(command sudo)
-    if [[ ${#} -gt 1 && $1 = -u ]]; then
-        run+=($1 $2)
-        shift; shift
-    fi
-    while (( $# )); do
-        case $1 in
-            command|exec|-) shift; break ;;
-            nocorrect) shift ;;
-            noglob) glob=0; shift ;;
-            *) break ;;
-        esac
-    done
-    if (( glob )); then
-        $run $~==*
-    else
-        $run $==*
-    fi
-}
-alias sudo='noglob do_sudo '
-
-# +--------+
-# | COLORS |
-# +--------+
-
-# Color man
-# Set originally "bold" as "bold and red"
-# Set originally "underline" as "underline and green"
-man () {
-    # termcap codes
-    # md    start bold
-    # mb    start blink
-    # me    turn off bold, blink and underline
-    # so    start standout (reverse video)
-    # se    stop standout
-    # us    start underline
-    # ue    stop underline
-    LESS_TERMCAP_md=$(echoti bold; echoti setaf 1) \
-    LESS_TERMCAP_mb=$(echoti blink) \
-    LESS_TERMCAP_me=$(echoti sgr0) \
-    LESS_TERMCAP_so=$(echoti smso) \
-    LESS_TERMCAP_se=$(echoti rmso) \
-    LESS_TERMCAP_us=$(echoti smul; echoti setaf 2) \
-    LESS_TERMCAP_ue=$(echoti sgr0) \
-    nocorrect noglob command man $@
-}
+source $ZDOTDIR/rc.d/aliases.zsh
 
 # +----------+
 # | LESSPIPE |
@@ -347,10 +246,10 @@ export FZF_CTRL_R_OPTS="
 export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 # Auto-completion
-source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh(N)
+source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
 
 # Key bindings
-source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh(N)
+source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 
 # +---------+
 # | FZF-TAB |
@@ -364,7 +263,8 @@ source $ZDOTDIR/rc.d/fzf-tab.zsh
 # | ZSH-AUTOPAIR |
 # +--------------+
 
-source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh(N)
+[[ -e $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh ]] && 
+    source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 
 # +------------------------------+
 # | ZSH-FAST-SYNTAX-HIGHLIGHTING |
@@ -374,15 +274,17 @@ source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh(N)
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 # syntax-highlighting plugin
-source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh(N)
+[[ -e $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]] && 
+    source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # +----------+
 # | ZSH-ABBR |
 # +----------+
 
 ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/plugins/abbreviations-store
-source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh(N)
-export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH
+[[ -e $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh ]] && 
+    source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh &&
+    export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -399,7 +301,8 @@ ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(Qk)ABBR_REGULAR_USER_ABBREVIATIONS}}
 ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 
 # Autosuggestion plugin
-source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh(N)
+[[ -e $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
+    source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Need to clear up-line and down-line otherwise auto-auggestions will break
 # https://github.com/zsh-users/zsh-autosuggestions/issues/619

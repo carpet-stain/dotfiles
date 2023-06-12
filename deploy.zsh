@@ -33,6 +33,7 @@ if [[ $OSTYPE = darwin* ]]; then
     fi
 
     # Install Brewfile packages
+    eval "$(brew shellenv)"
     brew analytics off
     brew bundle --quiet --no-lock
     print "Installing personal packages..."
@@ -100,7 +101,7 @@ print "  ...done"
 # Generate tmux-256color terminfo
 print "Generating tmux-256color.info"
 if [[ $OSTYPE = darwin* ]]; then
-    $(brew --prefix)/opt/ncurses/bin/infocmp -x tmux-256color > ~/tmux-256color.info
+    $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color > ~/tmux-256color.info
     tic -x -o $XDG_DATA_HOME/terminfo ~/tmux-256color.info
     zf_rm -f ~/tmux-256color.info
 fi

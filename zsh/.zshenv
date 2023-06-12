@@ -1,9 +1,9 @@
 # Determine own path
-local homezshenv=${HOME}/.zshenv
-export ZDOTDIR=${homezshenv:A:h}
+local homezshenv=$HOME/.zshenv
+export ZDOTDIR=$homezshenv:A:h
 
 # DOTFILES dir is parent to ZDOTDIR
-export DOTFILES=${ZDOTDIR%/*}
+export DOTFILES=$ZDOTDIR:h
 
 # Disable global zsh configuration
 unsetopt GLOBAL_RCS
@@ -29,19 +29,19 @@ export GPG_TTY=$TTY
 
 # XDG basedir spec compliance
 if [[ ! -v XDG_CONFIG_HOME ]]; then
-    export XDG_CONFIG_HOME=${HOME}/.config
+    export XDG_CONFIG_HOME=$HOME/.config
 fi
 if [[ ! -v XDG_CACHE_HOME ]]; then
-    export XDG_CACHE_HOME=${HOME}/.cache
+    export XDG_CACHE_HOME=$HOME/.cache
 fi
 if [[ ! -v XDG_DATA_HOME ]]; then
-    export XDG_DATA_HOME=${HOME}/.local/share
+    export XDG_DATA_HOME=$HOME/.local/share
 fi
 if [[ ! -v XDG_STATE_HOME ]]; then
-    export XDG_STATE_HOME=${HOME}/.local/state
+    export XDG_STATE_HOME=$HOME/.local/state
 fi
 if [[ ! -v XDG_RUNTIME_DIR ]]; then
-    export XDG_RUNTIME_DIR=${TMPDIR:-/tmp}/runtime-$USER
+    export XDG_RUNTIME_DIR=$TMPDIR:-/tmp/runtime-$USER
 fi
 
 # XDG-Compliance. Reported from XDG-NINJA
@@ -67,7 +67,6 @@ export ANSIBLE_LOCAL_TEMP=$XDG_RUNTIME_DIR/ansible/tmp
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
-export GOBIN=$HOMEBREW_PREFIX/bin/go
 export GOPATH=$XDG_DATA_HOME/go
 
 # +-------+
@@ -91,13 +90,10 @@ path=(
 
 # Homebrew settings
 if [[ $OSTYPE = darwin* ]]; then
-    autoload -z evalcache
-    evalcache brew shellenv
-
+    export HOMEBREW_PREFIX=/opt/homebrew
     export HOMEBREW_NO_AUTO_UPDATE=1
     export HOMEBREW_VERBOSE_USING_DOTS=1
     export HOMEBREW_NO_ANALYTICS=1
-    export HOMEBREW_PREFIX=$(brew --prefix)
 
     # Enable gnu version of utilities on macOS, if installed
     for gnuutil in coreutils gnu-sed gnu-tar grep; do
@@ -112,6 +108,8 @@ if [[ $OSTYPE = darwin* ]]; then
     if [[ -d $HOMEBREW_PREFIX/opt/curl/bin ]]; then
         path=($HOMEBREW_PREFIX/opt/curl/bin $path)
     fi
+
+    export GOBIN=$HOMEBREW_PREFIX/bin/go
 fi
 
 # Enable local binaries and man pages
