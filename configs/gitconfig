@@ -1,3 +1,15 @@
+[http]
+	sslverify = true
+[https]
+[user]
+	email = brian.leppez
+	name = brian.leppez
+	signingkey = 0x22483EA714C8FC1B
+[commit]
+	# template = ~.config/git/commitmessage
+	# gpgsign = true
+[help]
+	autocorrect = 1
 [include]
 	path = local/user
 	path = local/stuff
@@ -24,8 +36,9 @@
 [credential]
 	helper = cache --socket ~/.cache/git-credential-cache/socket
 [filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
 	required = true
 [diff]
     colorMoved = default
@@ -33,48 +46,34 @@
 	excludesfiles = ~/.config/git/ignore
 	autocrlf = input
 	whitespace = cr-at-eol
-	pager = less --tabs=4 -RFX
+	pager = delta
 [pager]
 	diff = delta
 	status = true
 [interactive]
-    diffFilter = delta --color-only --features=interactive
+    diffFilter = delta --color-only
 [delta]
 	features = unobtrusive-line-numbers interactive decorations
+	syntax-theme = Dracula
     navigate = true    # use n and N to move between diff sections
     light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
 	side-by-side = true
 	hyperlinks = true
 	true-color = always
 [delta "unobtrusive-line-numbers"]
-    line-numbers = true
-    line-numbers-minus-style = "#444444"
-    line-numbers-zero-style = "#444444"
-    line-numbers-plus-style = "#444444"
-    line-numbers-left-format = "{nm:>4}┊"
-    line-numbers-right-format = "{np:>4}│"
-    line-numbers-left-style = blue
-    line-numbers-right-style = blue
+	line-numbers-left-format = "{nm:>3}┊"
+	line-numbers-right-format = "{np:>3}│ "
+	line-numbers-zero-style = "#888888"
 [delta "interactive"]
     keep-plus-minus-markers = false
 [delta "decorations"]
-    commit-decoration-style = blue ol
-    commit-style = raw
-    file-style = omit
-    hunk-header-decoration-style = blue box
-    hunk-header-file-style = red
-    hunk-header-line-number-style = "#067a00"
-    hunk-header-style = file line-number syntax
+    commit-decoration-style = blue yellow box
+    file-style = bold 12 ul
+    hunk-header-decoration-style = none
 [submodule]
 	fetchJobs = 5
 	recurse = true
-[help]
-	autocorrect = 5
 [status]
 	submoduleSummary = true
-[user]
-	email = brian.leppez@bytedance.com
-	name = brian.leppez
-	signingkey = 0x22483EA714C8FC1B
 [pull]
 	rebase = true
