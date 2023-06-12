@@ -2,11 +2,10 @@
 # | ALIASES |
 # +---------+
 
-command -v curlie &> /dev/null && alias curl=curlie
-command -v fd     &> /dev/null && alias fd='fd --hidden --follow'                            || alias fd='find . -name'
-command -v rg     &> /dev/null && alias rg='rg --hidden --follow --smart-case 2>/dev/null'   || alias rg='grep --color=auto --exclude-dir=.git -R --binary-files=without-match --devices=skip'
-command -v exa    &> /dev/null && alias ls='exa --long --header --icons --group-directories-first --group --git --all --links' || alias ls='ls --color=auto --group-directories-first -h'
-command -v dog    &> /dev/null && alias d=dog                                                || alias d='dig +nocmd +multiline +noall +answer'
+alias curl=curlie
+alias fd='fd --hidden --follow'
+alias rg='rg --hidden --follow --smart-case 2>/dev/null'
+alias ls='exa --long --header --icons --group-directories-first --group --git --all --links'
 
 # Some handy suffix aliases
 alias -s log=less
@@ -15,7 +14,7 @@ alias -s log=less
 alias diff=delta
 
 # Make mount command output pretty and human readable format
-alias mount='mount |column -t'
+alias mount='mount | column -t'
 
 # Human file sizes
 alias df='df -Th'
@@ -24,7 +23,7 @@ alias dui='dua interactive'
 
 # Handy stuff and a bit of XDG compliance
 alias tmux='tmux -f $DOTFILES/tmux/tmux.conf'
-command -v wget &> /dev/null && alias wget='wget --continue --hsts-file=$XDG_CACHE_HOME/wget-hsts'
+alias wget='wget --continue --hsts-file=$XDG_CACHE_HOME/wget-hsts'
 
 # History suppression
 alias clear=' clear'
@@ -43,7 +42,6 @@ alias find='noglob find'
 alias touch='nocorrect touch'
 alias mkdir='nocorrect mkdir -pv'
 alias cp='nocorrect cp -i'
-alias ag='noglob ag'
 alias fd='noglob fd'
 
 # Parenting changing perms on /
@@ -59,7 +57,7 @@ do_sudo () {
     integer glob=1
     local -a run
     run=(command sudo)
-    if [[ ${#} -gt 1 && $1 = -u ]]; then
+    if [[ $# -gt 1 && $1 = -u ]]; then
         run+=($1 $2)
         shift; shift
     fi

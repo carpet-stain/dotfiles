@@ -12,8 +12,8 @@ evalcache () {
         # cache miss
         if (( $+commands[$1] )); then
             zf_mkdir -p $cache_dir
-            command "$@" > $cache_file
-            source "$cache_file"
+            command $@ > $cache_file
+            source $cache_file
             # zrecompile cache file in background
             {
                 autoload -Uz zrecompile

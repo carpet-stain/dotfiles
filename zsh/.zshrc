@@ -39,7 +39,6 @@ setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
 setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
 setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
-setopt HIST_IGNORE_SPACE         # don’t store lines starting with space
 
 HISTFILE=$XDG_STATE_HOME/zsh/history
 HISTSIZE=1000000
