@@ -19,7 +19,7 @@ if [[ $OSTYPE = darwin* ]]; then
         zf_touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress;
 
         PROD=$(softwareupdate -l | grep "\*.*Command Line" | tail -n 1 | sed 's/^[^C]* //')
-        softwareupdate -i "$PROD" --verbose;
+        softwareupdate -i $PROD --verbose;
     else
         print "Command Line Tools for Xcode have been installed."
     fi
@@ -36,7 +36,7 @@ if [[ $OSTYPE = darwin* ]]; then
     eval "$(brew shellenv)"
     brew analytics off
     brew bundle --quiet --no-lock
-    print "Installing personal packages..."
+    # print "Installing personal packages..."
     # brew bundle --quiet --no-lock --file=Brewfile.personal
 fi
 
