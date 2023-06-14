@@ -8,6 +8,8 @@ zmodload -m -F zsh/files b:zf_\*
 # | macOS SETUP |
 # +-------------+
 
+clt_path='/Library/Developer/CommandLineTools'
+
 if [[ $OSTYPE = darwin* ]]; then
     # Check for Command Line Tools
     print "Checking Command Line Tools for Xcode..."

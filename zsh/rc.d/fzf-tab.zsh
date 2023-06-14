@@ -54,20 +54,6 @@ zstyle ':fzf-tab:complete:(\\|*/|)df:argument-rest' fzf-preview '[[ $group != "d
 # Go
 zstyle ':fzf-tab:complete:(\\|*/|)go:argument-1' fzf-preview 'go help $word | bat --color=always -plhelp'
 
-# Make
-zstyle ':fzf-tab:complete:(\\|*/|)(g|b|d|p|freebsd-|)make:' fzf-preview \
-"case $group in
-'make target')
-  make -n $word | bat --color=always -plsh
-  ;;
-'make variable')
-  make -pq | rg -Ns "^$word = " | bat --color=always -plsh
-  ;;
-file)
-  less ${realpath#--*=}
-  ;;
-esac"
-
 # Man
 zstyle ':fzf-tab:complete:(\\|*/|)man:' fzf-preview 'man $word | bat --color=always -plman'
 
