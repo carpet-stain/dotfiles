@@ -67,7 +67,9 @@ export ANSIBLE_LOCAL_TEMP=$XDG_RUNTIME_DIR/ansible/tmp
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
-export GOPATH=$XDG_DATA_HOME/go
+export GOENV_ROOT=$XDG_DATA_HOME/goenv
+export PYENV_ROOT=$XDG_DATA_HOME/pyenv
+
 
 # +-------+
 # | PATHS |
@@ -82,13 +84,20 @@ setopt EXTENDED_GLOB
 # Initialize path.
 # If dirs are missing, they won't be added due to null globbing.
 path=(
-  $HOME/{,s}bin(N)
   /opt/{homebrew,local}/{,s}bin(N)
   /usr/local/{,s}bin(N)
+  $GOENV_ROOT
+  $PYENV_ROOT
   $path
 )
 
-# Homebrew settings
+# Enable man pages
+MANPATH=$XDG_DATA_HOME/man:$MANPATH
+
+# +-----------------------+
+# | HOMEBREW (macoS only) |
+# +-----------------------+
+
 if [[ $OSTYPE = darwin* ]]; then
     export HOMEBREW_PREFIX=/opt/homebrew
     export HOMEBREW_NO_AUTO_UPDATE=1
@@ -108,10 +117,4 @@ if [[ $OSTYPE = darwin* ]]; then
     if [[ -d $HOMEBREW_PREFIX/opt/curl/bin ]]; then
         path=($HOMEBREW_PREFIX/opt/curl/bin $path)
     fi
-
-    export GOBIN=$HOMEBREW_PREFIX/bin/go
 fi
-
-# Enable local binaries and man pages
-path=($HOME/.local/bin $path)
-MANPATH=$XDG_DATA_HOME/man:$MANPATH

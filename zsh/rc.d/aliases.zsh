@@ -31,8 +31,8 @@ alias clear=' clear'
 alias pwd=' pwd'
 alias exit=' exit'
 
-# Do not delete / or prompt if deleting more than 3 files at a time #
-alias rm='rm -I --preserve-root'
+# Prompt if deleting more than 3 files at a time #
+alias rm='rm -I'
 
 # confirmation
 alias mv='mv -i'
@@ -47,8 +47,6 @@ alias fd='noglob fd'
 
 # Parenting changing perms on /
 alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
 
 alias rsync='rsync --verbose --archive --info=progress2 --human-readable --partial'
 alias tree='tree -a -I .git --dirsfirst'
