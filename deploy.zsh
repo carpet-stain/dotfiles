@@ -37,9 +37,9 @@ if [[ $OSTYPE = darwin* ]]; then
     # Install Brewfile packages
     eval "$(brew shellenv)"
     brew analytics off
-    brew bundle --quiet --no-lock
+    brew bundle --quiet --no-lock --file=macos/Brewfile
     # print "Installing personal packages..."
-    # brew bundle --quiet --no-lock --file=Brewfile.personal
+    # brew bundle --quiet --no-lock --file=macos/Brewfile.personal
 fi
 
 # +----------------+
@@ -54,13 +54,12 @@ cd $SCRIPT_DIR
 XDG_CACHE_HOME=$HOME/.cache
 XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
-VIMINIT='let $MYVIMRC="'$SCRIPT_DIR'/nvim/init.lua" | source $MYVIMRC'
 
 # Create required directories 
 print "Creating required directory tree..."
-zf_mkdir -p $XDG_CONFIG_HOME/{git/local,htop,gnupg,alacritty,bat}
+zf_mkdir -p $XDG_CONFIG_HOME/{git/local,htop,gnupg,alacritty,bat,ssh}
 zf_mkdir -p $XDG_CACHE_HOME/{nvim/{backup,swap,undo},zsh}
-zf_mkdir -p $XDG_DATA_HOME/{zsh,man/man1,nvim/spell,gnupg,terminfo}
+zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv},zsh,man/man1,nvim/spell,gnupg,terminfo}
 zf_mkdir -p $HOME/{.local/{bin,etc},.ssh}
 zf_chmod 700 $XDG_CONFIG_HOME/gnupg
 print "  ...done"
@@ -68,26 +67,23 @@ print "  ...done"
 # Link config files
 print "Linking config files..."
 zf_ln -sf $SCRIPT_DIR/zsh/.zshenv $HOME/.zshenv
-zf_ln -sf $SCRIPT_DIR/configs/gitconfig $XDG_CONFIG_HOME/git/config
-zf_ln -sf $SCRIPT_DIR/configs/gitattributes $XDG_CONFIG_HOME/git/attributes
-zf_ln -sf $SCRIPT_DIR/configs/gitignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/configs/alacritty.yml $XDG_CONFIG_HOME/alacritty/alacritty.yml
-zf_ln -sf $SCRIPT_DIR/configs/ssh_config $HOME/.ssh/config
 zf_ln -sf $SCRIPT_DIR/configs/batconfig $XDG_CONFIG_HOME/bat/config
-zf_ln -sf $SCRIPT_DIR/configs/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
+zf_ln -sf $SCRIPT_DIR/configs/curlrc $XDG_CONFIG_HOME/curlrc
+zf_ln -sf $SCRIPT_DIR/configs/gitattributes $XDG_CONFIG_HOME/git/attributes
+zf_ln -sf $SCRIPT_DIR/configs/gitcommittemplate $XDG_CONFIG_HOME/git/committemplate
+zf_ln -sf $SCRIPT_DIR/configs/gitconfig $XDG_CONFIG_HOME/git/config
+zf_ln -sf $SCRIPT_DIR/configs/gitignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/configs/gpg-agent.conf $XDG_CONFIG_HOME/gnupg/gpg-agent.conf
+zf_ln -sf $SCRIPT_DIR/configs/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
+zf_ln -sf $SCRIPT_DIR/configs/htoprc $XDG_CONFIG_HOME/htop/htoprc
+zf_ln -sf $SCRIPT_DIR/configs/ssh_config $XDG_CONFIG_HOME/ssh/config
 print "  ...done"
 
 # Make sure submodules are installed
 print "Syncing submodules..."
 git submodule sync > /dev/null
 git submodule update --init --recursive > /dev/null
-print "  ...done"
-
-# Install hook to call deploy script after successful pull
-print "Installing git hooks for this repository..."
-zf_ln -sf ../../deploy.zsh .git/hooks/post-merge
-zf_ln -sf ../../deploy.zsh .git/hooks/post-checkout
 print "  ...done"
 
 # Trigger zsh run with powerlevel10k prompt to download gitstatusd

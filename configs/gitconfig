@@ -6,7 +6,7 @@
 	name = brian.leppez
 	signingkey = 0x22483EA714C8FC1B
 [commit]
-	# template = ~.config/git/commitmessage
+	template = ~/.config/git/committemplate
 	# gpgsign = true
 [help]
 	autocorrect = 1

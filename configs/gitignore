@@ -50,19 +50,6 @@ go.work
 # goenv
 .go-version
 
-### Vim ###
-# swap
-[._]*.s[a-w][a-z]
-[._]s[a-w][a-z]
-# session
-Session.vim
-# temporary
-.netrwhist
-*~
-# plugin doc tags
-/doc/tags
-/doc/tags-*
-
 ### Zsh ###
 # autoenv
 .autoenv.zsh

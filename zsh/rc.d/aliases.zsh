@@ -24,6 +24,7 @@ alias dui='dua interactive'
 # Handy stuff and a bit of XDG compliance
 alias tmux='tmux -f $DOTFILES/tmux/tmux.conf'
 alias wget='wget --continue --hsts-file=$XDG_CACHE_HOME/wget-hsts'
+alias ssh='ssh -F $XDG_CONFIG_HOME/ssh/config'
 
 # History suppression
 alias clear=' clear'

@@ -129,6 +129,27 @@ source $ZDOTDIR/rc.d/aliases.zsh
 export LESSOPEN='| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-'
 export LESS_ADVANCED_PREPROCESSOR=1
 
+# +----------------------+
+# | ENVIRONMENT WRAPPERS |
+# +----------------------+
+
+# Lazy init wrapper on first call
+() {
+    local wrapper
+    local wrappers=(goenv pyenv)
+    for wrapper in $wrappers[@]; do
+        eval "${wrapper} () {
+            unset -f ${wrapper}
+            export ${wrapper:u}_ROOT=\"\${XDG_DATA_HOME}/${wrapper}\"
+            evalcache ${wrapper} init -
+            ${wrapper} \${@}
+            if [[ $wrapper == \"pyenv\" ]]; then
+                evalcache ${wrapper} init --path
+            fi
+        }"
+    done
+}
+
 # +-------------+
 # | COMPLETIONS |
 # +-------------+
