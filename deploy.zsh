@@ -36,7 +36,11 @@ if [[ $OSTYPE = darwin* ]]; then
 
     # Install Brewfile packages
     eval "$(brew shellenv)"
-    brew analytics off
+    export HOMEBREW_PREFIX=/opt/homebrew
+    export HOMEBREW_VERBOSE_USING_DOTS=1
+    export HOMEBREW_NO_ANALYTICS=1
+    export HOMEBREW_NO_INSECURE_REDIRECT=1
+    export HOMEBREW_CASK_OPTS=--require-sha
     brew bundle --quiet --no-lock --file=macos/Brewfile
     # print "Installing personal packages..."
     # brew bundle --quiet --no-lock --file=macos/Brewfile.personal
@@ -54,14 +58,16 @@ cd $SCRIPT_DIR
 XDG_CACHE_HOME=$HOME/.cache
 XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
+XDG_STATE_HOME=$HOME/.local/state
 
 # Create required directories 
 print "Creating required directory tree..."
 zf_mkdir -p $XDG_CONFIG_HOME/{git/local,htop,gnupg,alacritty,bat,ssh}
+zf_chmod 700 $XDG_CONFIG_HOME/gnupg
+
 zf_mkdir -p $XDG_CACHE_HOME/{nvim/{backup,swap,undo},zsh}
 zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv},zsh,man/man1,nvim/spell,gnupg,terminfo}
-zf_mkdir -p $HOME/{.local/{bin,etc},.ssh}
-zf_chmod 700 $XDG_CONFIG_HOME/gnupg
+zf_mkdir -p $XDG_STATE_HOME/zsh
 print "  ...done"
 
 # Link config files

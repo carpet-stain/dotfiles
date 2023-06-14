@@ -70,6 +70,12 @@ export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOENV_ROOT=$XDG_DATA_HOME/goenv
 export PYENV_ROOT=$XDG_DATA_HOME/pyenv
+export HOMEBREW_PREFIX=/opt/homebrew
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_VERBOSE_USING_DOTS=1
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_INSECURE_REDIRECT=1
+export HOMEBREW_CASK_OPTS=--require-sha
 
 # +-------+
 # | PATHS |
@@ -94,16 +100,7 @@ path=(
 # Enable man pages
 MANPATH=$XDG_DATA_HOME/man:$MANPATH
 
-# +-----------------------+
-# | HOMEBREW (macoS only) |
-# +-----------------------+
-
 if [[ $OSTYPE = darwin* ]]; then
-    export HOMEBREW_PREFIX=/opt/homebrew
-    export HOMEBREW_NO_AUTO_UPDATE=1
-    export HOMEBREW_VERBOSE_USING_DOTS=1
-    export HOMEBREW_NO_ANALYTICS=1
-
     # Enable gnu version of utilities on macOS, if installed
     for gnuutil in coreutils gnu-sed gnu-tar grep; do
         if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin ]]; then
