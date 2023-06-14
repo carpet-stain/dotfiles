@@ -62,11 +62,10 @@ XDG_STATE_HOME=$HOME/.local/state
 
 # Create required directories 
 print "Creating required directory tree..."
-zf_mkdir -p $XDG_CONFIG_HOME/{git/local,htop,gnupg,alacritty,bat,ssh}
+zf_mkdir -p $XDG_CONFIG_HOME/{git,htop,gnupg,alacritty,bat,ssh}
 zf_chmod 700 $XDG_CONFIG_HOME/gnupg
-
-zf_mkdir -p $XDG_CACHE_HOME/{nvim/{backup,swap,undo},zsh}
-zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv},zsh,man/man1,nvim/spell,gnupg,terminfo}
+zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh}
+zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv},zsh,nvim,gnupg,terminfo}
 zf_mkdir -p $XDG_STATE_HOME/zsh
 print "  ...done"
 
@@ -83,7 +82,7 @@ zf_ln -sf $SCRIPT_DIR/configs/gitignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/configs/gpg-agent.conf $XDG_CONFIG_HOME/gnupg/gpg-agent.conf
 zf_ln -sf $SCRIPT_DIR/configs/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
 zf_ln -sf $SCRIPT_DIR/configs/htoprc $XDG_CONFIG_HOME/htop/htoprc
-zf_ln -sf $SCRIPT_DIR/configs/ssh_config $XDG_CONFIG_HOME/ssh/config
+zf_ln -sf $SCRIPT_DIR/configs/sshconfig $XDG_CONFIG_HOME/ssh/config
 print "  ...done"
 
 # Make sure submodules are installed
