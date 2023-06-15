@@ -77,5 +77,5 @@ esac"
 # tar
 zstyle ':fzf-tab:complete:(\\|*/|)tar:' fzf-preview 'tar tvf $word'
 
-# switch group using `,` and `.`
-zstyle :fzf-tab:* switch-group ',' '.'
+# switch group using `<` and `>`
+zstyle :fzf-tab:* switch-group '<' '>'

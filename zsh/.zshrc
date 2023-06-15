@@ -64,7 +64,7 @@ setopt AUTO_RESUME               # attempt to resume existing job before creatin
 setopt NOTIFY                    # report status of background jobs immediately
 setopt NO_HUP                    # Don't send SIGHUP to background processes when the shell exits
 setopt PUSHD_IGNORE_DUPS         # don't push the same dir twice
-setopt NO_GLOB_DOTS              # * shouldn't match dotfiles. ever.
+setopt GLOBDOTS                  # Match hidden files
 setopt NO_SH_WORD_SPLIT          # use zsh style word splitting
 setopt INTERACTIVE_COMMENTS      # enable interactive comments
 unsetopt RM_STAR_SILENT          # notify when rm is running with *
@@ -174,31 +174,6 @@ eval "$(zoxide init zsh)"
 # +-----+
 # | FZF |
 # +-----+
-
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore-vcs --hidden --color=always'
-export FZF_DEFAULT_OPTS="--ansi"
-export FZF_TMUX=1
-export FZF_TMUX_OPTS='-p80%,60%'
-
-# Preview file content using bat (https://github.com/sharkdp/bat)
-export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
-export FZF_CTRL_T_OPTS="
-  --preview 'bat -n --color=always {}'
-  --bind 'ctrl-/:change-preview-window(down|hidden|)'
-  --select-1 --exit-0
-"
-
-# ? to toggle small preview window to see the full command
-# CTRL-Y to copy the command into clipboard using pbcopy
-export FZF_CTRL_R_OPTS="
-  --preview 'echo {}' --preview-window up:3:hidden:wrap
-  --bind '?:toggle-preview'
-  --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
-  --color header:italic
-  --header 'Press CTRL-Y to copy command into clipboard'"
-
-# Print tree structure in the preview window
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 # Auto-completion
 source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
