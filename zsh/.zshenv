@@ -76,6 +76,7 @@ export HOMEBREW_VERBOSE_USING_DOTS=1
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_CASK_OPTS=--require-sha
+export LESSOPEN='lessopen.sh %s'
 
 # fzf
 export FZF_DEFAULT_COMMAND="rg --hidden --files --no-ignore-vcs --color=always"
@@ -88,8 +89,9 @@ export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
   --preview 'bat -n --color=always {}'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'
-  --select-1 --exit-0
-"
+  --color header:italic
+  --header 'Press CTRL-/ to toggle preview window'
+  --select-1 --exit-0"
 
 # ? to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy

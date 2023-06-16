@@ -1,1 +1,20 @@
-abbr k=kubectl 
+# Parenting changing perms on /
+abbr chown="chown --preserve-root"
+
+# Human file sizes
+abbr df="df -h"
+abbr dui="dua interactive"
+
+# confirmation
+abbr ln="ln -i"
+abbr mv="mv -i"
+abbr rm="rm -I"
+
+# Make mount command output pretty and human readable format
+abbr mount="mount | column -t"
+
+abbr rg="rg --hidden --follow --smart-case 2>/dev/null"
+abbr rsync="rsync --verbose --archive --human-readable --partial"
+abbr tmux="tmux -f $DOTFILES/tmux/tmux.conf"
+abbr tree="tree -a -I .git --dirsfirst"
+abbr wget="wget --continue --hsts-file=\$XDG_CACHE_HOME/wget-hsts"

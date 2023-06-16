@@ -45,9 +45,8 @@ SAVEHIST=1000000
 #   %T is equivalent to %H:%M:%S (24-hours format)
 HISTTIMEFORMAT='[%F %T]'
 
-setopt NO_FLOW_CONTROL           # disable stupid annoying keys
-setopt MULTIOS                   # allows multiple input and output redirections
 setopt CLOBBER                   # allow > redirection to truncate existing files
+setopt MULTIOS                   # allows multiple input and output redirections 
 setopt BRACE_CCL                 # allow brace character class list expansion
 setopt NO_BEEP                   # do not beep on errors
 setopt NO_NOMATCH                # try to avoid the 'zsh: no matches found...'
@@ -62,9 +61,7 @@ setopt AUTO_RESUME               # attempt to resume existing job before creatin
 setopt NOTIFY                    # report status of background jobs immediately
 setopt NO_HUP                    # Don't send SIGHUP to background processes when the shell exits
 setopt PUSHD_IGNORE_DUPS         # don't push the same dir twice
-setopt GLOBDOTS                  # Match hidden files
 setopt NO_SH_WORD_SPLIT          # use zsh style word splitting
-setopt INTERACTIVE_COMMENTS      # enable interactive comments
 unsetopt RM_STAR_SILENT          # notify when rm is running with *
 setopt RM_STAR_WAIT              # wait for 10 seconds confirmation when running rm with *
 
@@ -105,7 +102,21 @@ autoload -z bag evalcache compdefcache man tat
 # | Key Bindings |
 # +--------------+
 
-source $ZDOTDIR/rc.d/keybindings.zsh
+# Use emacs keybindings even if our EDITOR is set to vi
+bindkey -e
+
+# Make dot key autoexpand "..." to "../.." and so on
+_zsh-dot () {
+    if [[ $LBUFFER = *.. ]]; then
+        LBUFFER+=/..
+    else
+        LBUFFER+=.
+    fi
+}
+
+zle -N _zsh-dot
+bindkey . _zsh-dot
+
 
 # +---------------+
 # | POWERLEVEL10K |
@@ -117,15 +128,46 @@ source $ZDOTDIR/rc.d/powerlevel10k.zsh
 # | ALIASES |
 # +---------+
 
-source $ZDOTDIR/rc.d/aliases.zsh
+alias ls='exa --long --header --icons --group-directories-first --group --git --all --links'
+alias diff=delta
 
-# +----------+
-# | LESSPIPE |
-# +----------+
+# History suppression
+alias clear=' clear'
+alias pwd=' pwd'
+alias exit=' exit'
 
-# Make less more friendly
-export LESSOPEN='| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-'
-export LESS_ADVANCED_PREPROCESSOR=1
+# Suppress suggestions and globbing
+alias find='noglob find'
+alias touch='nocorrect touch'
+alias mkdir='nocorrect mkdir -pv'
+alias cp='nocorrect cp -i'
+alias fd='noglob fd'
+
+# sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
+do_sudo () {
+    integer glob=1
+    local -a run
+    run=(command sudo)
+    if [[ $# -gt 1 && $1 = -u ]]; then
+        run+=($1 $2)
+        shift; shift
+    fi
+    while (( $# )); do
+        case $1 in
+            command|exec|-) shift; break ;;
+            nocorrect) shift ;;
+            noglob) glob=0; shift ;;
+            *) break ;;
+        esac
+    done
+    if (( glob )); then
+        $run $~==*
+    else
+        $run $==*
+    fi
+}
+
+alias sudo='noglob do_sudo '
 
 # +----------------------+
 # | ENVIRONMENT WRAPPERS |
@@ -207,8 +249,41 @@ function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/plugins/abbreviations-store
 [[ -e $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh ]] && 
-    source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh &&
-    export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH
+    source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
+
+# Highlight zsh-abbr definitions
+chroma_single_word() {
+  (( next_word = 2 | 8192 ))
+
+  local __first_call=$1 __wrd=$2 __start_pos=$3 __end_pos=$4
+  local __style
+
+  (( __first_call )) && { __style=${FAST_THEME_NAME}alias }
+  [[ -n $__style ]] && (( __start=__start_pos-${#PREBUFFER}, __end=__end_pos-${#PREBUFFER}, __start >= 0 )) && reply+=($__start $__end $FAST_HIGHLIGHT_STYLES[$__style])
+
+  (( this_word = next_word ))
+  _start_pos=$_end_pos
+
+  return 0
+}
+
+register_single_word_chroma() {
+  local word=$1
+  if [[ -x $(command -v $word) ]] || [[ -n $FAST_HIGHLIGHT[chroma-$word] ]]; then
+    return 1
+  fi
+
+  FAST_HIGHLIGHT+=(chroma-$word chroma_single_word)
+  return 0
+}
+
+if [[ -n $FAST_HIGHLIGHT ]]; then
+  for abbr in ${(f)$(abbr list-abbreviations)}; do
+    if [[ $abbr != *' '* ]]; then
+      register_single_word_chroma $(Q)abbr
+    fi
+  done
+fi
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -227,22 +302,6 @@ ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 # Autosuggestion plugin
 [[ -e $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
     source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# +-----------+
-# | GPG-AGENT |
-# +-----------+
-
-# remind gpg-agent to update current tty before running git
-if pgrep -u $EUID gpg-agent &>/dev/null; then
-    function _preexec_gpg-agent-update-tty {
-        if [[ $1 == git* ]]; then
-            gpg-connect-agent --quiet --no-autostart updatestartuptty /bye >/dev/null &!
-        fi
-    }
-
-    autoload -U add-zsh-hook
-    add-zsh-hook preexec _preexec_gpg-agent-update-tty
-fi
 
 # +----------------+
 # | SANITIZE PATHS |

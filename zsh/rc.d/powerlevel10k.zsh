@@ -19,9 +19,6 @@ source $HOMEBREW_PREFIX/opt/powerlevel10k/powerlevel10k.zsh-theme
   # restarting zsh. Edit ~/.p10k.zsh and type `source ~/.p10k.zsh`.
   unset -m '(POWERLEVEL9K_*|DEFAULT_USER)~POWERLEVEL9K_GITSTATUS_DIR'
 
-  # Zsh >= 5.1 is required.
-  [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
-
   # The list of segments shown on the left. Fill it with the most important segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================

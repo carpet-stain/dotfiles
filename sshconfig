@@ -81,7 +81,7 @@ Host !jumpinf* 10.124.152.* 10.124.153.* 10.124.154.* 10.124.155.* 10.124.156.* 
 
 # below section is for jump server only, DON'T ADD target host IP
 
-Host *
+Host * 
     # if you don't want to type "yes" every time a new host shows up
     StrictHostKeyChecking No
     GSSAPIAuthentication yes
@@ -107,3 +107,8 @@ Host !ttp-va 10.113.* 10.114.* sre.admin.oci
 Host github.com
     AddKeysToAgent yes
     IdentityFile ~/.ssh/id_ed25519
+
+# Give gpg-connect-agent the name of the TTY    
+Match host * exec "gpg-connect-agent UPDATESTARTUPTTY /bye"
+
+
