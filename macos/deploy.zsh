@@ -58,10 +58,10 @@ zf_ln -sf $SCRIPT_DIR/zsh/.zshenv $HOME/.zshenv
 zf_ln -sf $SCRIPT_DIR/alacritty.yml $XDG_CONFIG_HOME/alacritty/alacritty.yml
 zf_ln -sf $SCRIPT_DIR/batconfig $XDG_CONFIG_HOME/bat/config
 zf_ln -sf $SCRIPT_DIR/curlrc $XDG_CONFIG_HOME/curlrc
-zf_ln -sf $SCRIPT_DIR/gitattributes $XDG_CONFIG_HOME/git/attributes
-zf_ln -sf $SCRIPT_DIR/gitcommittemplate $XDG_CONFIG_HOME/git/committemplate
-zf_ln -sf $SCRIPT_DIR/gitconfig $XDG_CONFIG_HOME/git/config
-zf_ln -sf $SCRIPT_DIR/gitignore $XDG_CONFIG_HOME/git/ignore
+zf_ln -sf $SCRIPT_DIR/git/attributes $XDG_CONFIG_HOME/git/attributes
+zf_ln -sf $SCRIPT_DIR/git/committemplate $XDG_CONFIG_HOME/git/committemplate
+zf_ln -sf $SCRIPT_DIR/git/config $XDG_CONFIG_HOME/git/config
+zf_ln -sf $SCRIPT_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/gpg-agent.conf $XDG_CONFIG_HOME/gnupg/gpg-agent.conf
 zf_ln -sf $SCRIPT_DIR/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
 zf_ln -sf $SCRIPT_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc

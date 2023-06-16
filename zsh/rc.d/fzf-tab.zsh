@@ -29,7 +29,7 @@ parameter)
 esac'
 
 # Parameter
-zstyle ':fzf-tab:complete:((-parameter-|unset):|(export|typeset|declare|local):argument-rest)' fzf-preview \
+zstyle ':fzf-tab:complete:((-parameter-|unset):|(export):argument-rest)' fzf-preview \
 'echo ${(P)word}'
 
 # preview directory's content with exa when completing cd
@@ -42,10 +42,6 @@ zstyle ':fzf-tab:complete:docker-inspect:' fzf-preview 'docker inspect $word | b
 zstyle ':fzf-tab:complete:docker-(run|images):argument-1' fzf-preview 'docker images $word'
 zstyle ':fzf-tab:complete:((\\|*/|)docker|docker-help):argument-1' fzf-preview 'docker help $word | bat --color=always -plhelp'
 
-# Homebrew
-zstyle ':fzf-tab:complete:brew-((|un)install|info|cleanup):*-argument-rest' fzf-preview 'brew info $word | bat --color=always -plyaml'
-zstyle ':fzf-tab:complete:brew-(list|ls):*-argument-rest' fzf-preview 'brew list $word'
-
 # df
 zstyle ':fzf-tab:complete:(\\|*/|)df:argument-rest' fzf-preview '[[ $group != "device label" ]] && grc --colour=on df -Th $word'
 
@@ -54,9 +50,6 @@ zstyle ':fzf-tab:complete:(\\|*/|)go:argument-1' fzf-preview 'go help $word | ba
 
 # Man
 zstyle ':fzf-tab:complete:(\\|*/|)man:' fzf-preview 'man $word | bat --color=always -plman'
-
-# nmap
-zstyle ':fzf-tab:complete:(\\|*/|)nmap:argument-rest' fzf-preview 'nmap -Pn $word'
 
 # scp
 zstyle ':fzf-tab:complete:(\\|*/|)(scp|rsync):argument-rest' fzf-preview \
@@ -71,9 +64,6 @@ user)
   grc --colour=on ping -c1 $word
   ;;
 esac"
-
-# tar
-zstyle ':fzf-tab:complete:(\\|*/|)tar:' fzf-preview 'tar tvf $word'
 
 # switch group using `<` and `>`
 zstyle :fzf-tab:* switch-group '<' '>'
