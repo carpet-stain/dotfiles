@@ -4,11 +4,9 @@
 
 zstyle :fzf-tab:* prefix ''
 
-# Uses tmux popup
-zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-
-# zstyle ':fzf-tab:*' popup-min-size 100 100
-zstyle ':fzf-tab:complete:*' popup-pad 200 50
+zstyle :fzf-tab:* continuous-trigger space
+zstyle :fzf-tab:* fzf-bindings tab:accept
+zstyle :fzf-tab:* accept-line enter
 
 # User expand
 zstyle ':fzf-tab:user-expand:' fzf-preview 'less $word'

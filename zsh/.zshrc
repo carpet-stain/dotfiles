@@ -83,10 +83,6 @@ colors
 autoload -U select-word-style
 select-word-style bash
 
-# Enable run-help module
-
-autoload -Uz run-help
-
 # enable url-quote-magic
 autoload -Uz url-quote-magic
 zle -N self-insert url-quote-magic
@@ -221,7 +217,7 @@ ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/plugins/abbreviations-store
 # Don't rebind widgets by autosuggestion, it's already sourced pretty late
 ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
-# Enable experimental completion suggestions, if `history` returns nothing
+# Enable completion suggestions, if `history` returns nothing
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Ignore suggestions for abbreviations
@@ -231,11 +227,6 @@ ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 # Autosuggestion plugin
 [[ -e $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
     source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# Need to clear up-line and down-line otherwise auto-auggestions will break
-# https://github.com/zsh-users/zsh-autosuggestions/issues/619
-# Clear suggestions after paste
-ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(up-line-or-beginning-search down-line-or-beginning-search bracketed-paste)
 
 # +-----------+
 # | GPG-AGENT |
