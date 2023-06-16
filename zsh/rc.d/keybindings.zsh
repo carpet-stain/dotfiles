@@ -22,10 +22,6 @@ key[PageDown]=$terminfo[knp]
 key[Backspace]=$terminfo[kbs]
 key[ShiftTab]=$terminfo[kcbt]
 
-# man 5 user_caps
-key[CtrlLeft]=$terminfo[kLFT5]
-key[CtrlRight]=$terminfo[kRIT5]
-
 # Setup keys accordingly
 [[ -n $key[Home]      ]] && bindkey $key[Home]       beginning-of-line
 [[ -n $key[End]       ]] && bindkey $key[End]        end-of-line
@@ -39,13 +35,6 @@ key[CtrlRight]=$terminfo[kRIT5]
 [[ -n $key[PageDown]  ]] && bindkey $key[PageDown]   end-of-buffer-or-history
 [[ -n $key[Backspace] ]] && bindkey $key[Backspace]  backward-delete-char
 [[ -n $key[ShiftTab]  ]] && bindkey $key[ShiftTab]   reverse-menu-complete
-
-# MACOS: REMEMBER TO DISABLE MISSION CONTROL KEY BINDINGS IN MACOS SETTINGS FOR THIS TO WORK
-# they're not working under tmux256-color
-# [[ -n ${key[CtrlLeft]}  ]] && bindkey ${key[CtrlLeft]}   backward-word
-# [[ -n ${key[CtrlRight]} ]] && bindkey ${key[CtrlRight]}  forward-word
-bindkey "^[[1;5D"   backward-word
-bindkey "^[[1;5C"   forward-word
 
 # Make dot key autoexpand "..." to "../.." and so on
 _zsh-dot () {

@@ -28,9 +28,7 @@ setopt CDABLE_VARS      # Change directory to a path stored in a variable.
 # | HISTORY |
 # +---------+
 
-setopt APPEND_HISTORY            # history appends to existing file
-setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
-setopt SHARE_HISTORY             # Share history between all sessions.
+setopt INC_APPEND_HISTORY_TIME   # history appends to existing file as soon as it's written
 setopt HIST_IGNORE_DUPS          # Do not record an event that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event is a duplicate.
 setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
