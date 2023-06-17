@@ -26,18 +26,13 @@ presence](#zero-home-presence).
   * [additional completions](https://github.com/zsh-users/zsh-completions)
   * [async autosuggestions
     plugin](https://github.com/zsh-users/zsh-autosuggestions)
-  * [history substring search
-    plugin](https://github.com/zsh-users/zsh-history-substring-search)
   * [syntax highlighting
     plugin](https://github.com/zsh-users/zsh-syntax-highlighting)
-  * [autoenv plugin](https://github.com/Tarrasch/zsh-autoenv)
   * [autopair plugin](https://github.com/hlissner/zsh-autopair)
-  * [clean zsh implementation of `z`](https://github.com/agkozak/zsh-z)
-* Neovim [configuration](vim/vimrc) and [plugins](vim/pack)
+* Neovim [configuration](nvim/init.lua)
 * Tmux [configuration](tmux/tmux.conf) and [plugins](tmux/plugins)
 * Other configs:
-  * [Git](configs/gitconfig)
-  * [htop](configs/htoprc)
+  * [Git](git/)
 * [goenv](https://github.com/syndbg/goenv),
   [nodenv](https://github.com/nodenv/nodenv)
 
@@ -46,14 +41,7 @@ presence](#zero-home-presence).
 Requirements:
 
 * `zsh` 5.1 or newer (async stuff requires recent enough version of zsh)
-* `git` (all external components are added as git submodules)
-
-Recommended:
-
-* Run `brew bundle` to install necessary utilities (macOS)
-* [`fd`](https://github.com/sharkdp/fd) or
-  [`ag`](https://github.com/ggreer/the_silver_searcher) (optional: will be used
-  in fzf by default, if present)
+* `git`
 
 Dotfiles can be installed in any dir, but probably somewhere under `$HOME`.
 Personally I use `$HOME/.local/dotfiles`. The installation is pretty simple:
@@ -64,7 +52,7 @@ $HOME/.local/dotfiles/deploy.zsh
 chsh -s /bin/zsh
 ```
 
-[Deployment script](deploy.zsh) helps to set up all required symlinks after the
+[Deployment script](macos/deploy.zsh) helps to set up all required symlinks after the
 initial clone. Also it adds cron job to pull updates every midnight and serves
 as a post-merge git hook, so you don't have to care about updating submodules
 after successful pull.
@@ -72,67 +60,23 @@ after successful pull.
 In case of missing python or ruby, they can be installed via pyenv and rbenv
 after the deployment.
 
-## Zero home presence
-
-It's possible to install dotfiles without creating `~/.zshenv` symlink. In
-order to do so, there should be an environment variable `ZDOTDIR` set to
-`<installation dir>/zsh`, e.g. `$HOME/.local/dotfiles/zsh`. This variable
-should be set super early in login process, before zsh starts sourcing user's
-`.zshenv`. One possible option is to add
-
-```sh
-export ZDOTDIR="$HOME/.local/dotfiles/zsh"
-```
-
-into `/etc/zsh/zshenv`. Or you can do it with PAM env module.
-
-MacOS:
-
-```
-brew install neovim
-```
-
 ## Configuration
-
-### Git configuration
-
-Update `~/.config/git/local/user` with your email and name. Something like
-this:
-
-```ini
-[user]
-    email = jdoe@example.com
-    name = John Doe
-```
-
-Also you can put additional configuration in `~/.config/git/local/stuff`.
 
 ### Zsh configuration
 
 Keep in mind that Zsh configuration skips every global configuration file
 except `/etc/zsh/zshenv`.
 
-You can add your local configuration into `$ZDOTDIR/env.d/9[0-9]_*` and
-`$ZDOTDIR/rc.d/9[0-9]_*`. The difference is that `env.d` is sourced always while
-`rc.d` is sourced in interactive session only.
+The difference is that `env.d` is sourced always while `rc.d` is sourced in interactive session only.
 
 Also `$ZDOTDIR/.zlogin` and `$ZDOTDIR/.zlogout` are available for
 modifications, albeit missing by default.
-
-### Vim configuration
-
-Add your local configuration to `$DOTFILES/vim/vimrc.local`.
-
-### Local paths
-
-Local binaries can be put into `$HOME/.local/bin`, it's added to `PATH` by
-default. Also man pages can be put into `$XDG_DATA_HOME/man`.
 
 ### Lazy *env
 
 Pyenv and similar wrappers are lazy-loaded, it means that they won't be
 initialized on shell start. Activation is done on the first execution. Check
 out output of `type -f pyenv` in shell and
-[implementation](zsh/rc.d/14_many_env.zsh). Also this means, that files like
+[implementation](zsh/.zshrc). Also this means, that files like
 `.python-version` won't work as expected, it's recommended to use autoenv.zsh
 to explicitly activate needed environment.

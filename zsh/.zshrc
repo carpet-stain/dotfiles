@@ -143,6 +143,8 @@ alias mkdir='nocorrect mkdir -pv'
 alias cp='nocorrect cp -i'
 alias fd='noglob fd'
 
+alias tmux="tmux -f $DOTFILES/tmux/tmux.conf"
+
 # sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
 do_sudo () {
     integer glob=1

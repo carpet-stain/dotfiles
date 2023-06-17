@@ -15,6 +15,5 @@ abbr mount="mount | column -t"
 
 abbr rg="rg --hidden --follow --smart-case 2>/dev/null"
 abbr rsync="rsync --verbose --archive --human-readable --partial"
-abbr tmux="tmux -f $DOTFILES/tmux/tmux.conf"
 abbr tree="tree -a -I .git --dirsfirst"
 abbr wget="wget --continue --hsts-file=\$XDG_CACHE_HOME/wget-hsts"
