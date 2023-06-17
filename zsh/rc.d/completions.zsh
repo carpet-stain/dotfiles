@@ -60,7 +60,6 @@ zmodload zsh/complist
 
 FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
 FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
-source ${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.zsh
 
 # Init completions, but regenerate compdump only once a day.
 # The globbing is a little complicated here:
