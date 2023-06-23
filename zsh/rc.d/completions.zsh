@@ -58,8 +58,10 @@ fi
 # Make sure complist is loaded
 zmodload zsh/complist
 
-FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
-FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
+if type brew &>/dev/null; then
+    FPATH=${HOMEBREW_PREFIX}/share/zsh-completions:$FPATH
+    FPATH=${HOMEBREW_PREFIX}/share/zsh/site-functions:$FPATH
+fi
 
 # Init completions, but regenerate compdump only once a day.
 # The globbing is a little complicated here:

@@ -21,6 +21,7 @@ export VISUAL=nvim
 export EDITOR=nvim
 export VIMINIT='let $MYVIMRC="$DOTFILES/nvim/init.lua" | source $MYVIMRC'
 export PAGER=less
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4"
 export READNULLCMD=$PAGER
 
@@ -45,7 +46,6 @@ if [[ ! -v XDG_RUNTIME_DIR ]]; then
 fi
 
 # XDG-Compliance. Reported from XDG-NINJA
-export _ZO_DATA_DIR=$XDG_DATA_HOME
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
 export LESSHISTFILE=$XDG_DATA_HOME/lesshst
 export HISTFILE=$XDG_STATE_HOME/zsh/history
@@ -131,7 +131,7 @@ MANPATH=$XDG_DATA_HOME/man:$MANPATH
 
 if [[ $OSTYPE = darwin* ]]; then
     # Enable gnu version of utilities on macOS, if installed
-    for gnuutil in coreutils gnu-sed gnu-tar grep; do
+    for gnuutil in coreutils gnu-sed grep; do
         if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin ]]; then
             path=($HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin $path)
         fi

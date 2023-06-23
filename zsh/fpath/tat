@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 #
 # Attach or create tmux session named the same as current directory.
 #
@@ -12,6 +12,7 @@
 # When called to a specific directory ta will first ask which project to open
 # then attach or create anew session split with neovim on top.
 
+set -x
 
  not_in_tmux() {
    [ -z "$TMUX" ]

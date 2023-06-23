@@ -1,2 +1,5 @@
 --theme="Monokai Extended Bright"
---style="numbers,header,grid"
+--style="plain,numbers,header,grid,changes"
+--italic-text=always
+--tabs 4
+--wrap never
