@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # +---------------------+
 # | P10K INSTANT PROMPT |
 # +---------------------+
@@ -603,4 +602,3 @@ ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 
 # Force path arrays to have unique values only
 typeset -gU path cdpath fpath manpath
->>>>>>> 4b543a15 (moved stuff)

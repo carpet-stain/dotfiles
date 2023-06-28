@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Determine own path
 local homezshenv=$HOME/.zshenv
 export ZDOTDIR=$homezshenv:A:h
@@ -145,8 +144,7 @@ if [[ $OSTYPE = darwin* ]]; then
         path=($HOMEBREW_PREFIX/opt/curl/bin $path)
     fi
 fi
-||||||| (empty tree)
-=======
+
 # Determine own path
 local homezshenv=$HOME/.zshenv
 export ZDOTDIR=$homezshenv:A:h
@@ -296,4 +294,3 @@ if [[ $OSTYPE = darwin* ]]; then
         path=($HOMEBREW_PREFIX/opt/curl/bin $path)
     fi
 fi
->>>>>>> 4b543a15 (moved stuff)
