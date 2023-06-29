@@ -12,9 +12,9 @@ unsetopt GLOBAL_RCS
 # This is used in fpath custom functions
 zmodload -F -m zsh/files b:zf_\*
 
-# +---------+
-# | EXPORTS |
-# +---------+
+#  ╭──────────────────────────────────────────────────────────╮
+#  │                          EXPORT                          │
+#  ╰──────────────────────────────────────────────────────────╯
 
 # Prefered editor and pager
 export VISUAL=nvim
@@ -166,8 +166,7 @@ zmodload -F -m zsh/files b:zf_\*
 # Prefered editor and pager
 export VISUAL=nvim
 export EDITOR=nvim
-# export VIMINIT='let $MYVIMRC="$DOTFILES/nvim/init.lua" | source $MYVIMRC'
-export NVIM_APPNAME="dotfiles/nvim"
+export NVIM_APPNAME="dotfiles/nvim" # This searches nvim config in ~/.config/dotfiles/nvim
 export PAGER=less
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export LESSOPEN="|$HOMEBREW_PREFIX/bin/batpipe %s" # need the pipe
