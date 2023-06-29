@@ -57,14 +57,6 @@ vim.api.nvim_create_autocmd({ "FileType", "BufRead" }, {
   end,
 })
 
--- Tree-Sitter highlighting for filetypes not autodetected
-vim.filetype.add({
-  extension = {
-    qmljs = "qmljs",
-    pp = "puppet",
-  },
-})
-
 -- close dap-float with <q>
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {
@@ -86,16 +78,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "q", "<cmd>bdelete!<cr>", { buffer = event.buf, silent = true, desc = "Close Dap Terminal" })
   end,
 })
-
--- vim.api.nvim_create_autocmd("FileType", {
---   callback = function()
---     local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
---     if lang and pcall(vim.treesitter.language.add, lang) then
---       -- vim.treesitter.start()  -- sync
---       vim.treesitter.start(nil, nil, { timeout = 1 }) -- async
---     end
---   end,
--- })
 
 -- Disable diagnostics in a .env file
 vim.api.nvim_create_autocmd("BufRead", {

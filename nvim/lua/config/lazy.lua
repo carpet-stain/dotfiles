@@ -34,7 +34,7 @@ return function(opts)
       version = true, -- always use the latest git commit
     },
     dev = { patterns = jit.os:find("Windows") and {} or { "amaanq" } },
-    install = { colorscheme = { "tokyonight", "habamax" } },
+    install = { colorscheme = { "tokyonight" } },
     checker = { enabled = true },
     diff = {
       cmd = "terminal_git",
@@ -42,7 +42,6 @@ return function(opts)
     performance = {
       cache = {
         enabled = true,
-        -- disable_events = {},
       },
       rtp = {
         disabled_plugins = {

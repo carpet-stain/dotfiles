@@ -15,18 +15,18 @@ return {
     "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
-        -- "deno",
-        -- "dprint",
-        -- "eslint_d",
+        "deno",
+        "dprint",
+        "eslint_d",
         "isort",
-        -- "luacheck",
-        -- "prettierd",
-        -- "prosemd-lsp",
-        -- "ruff",
-        -- "selene",
+        "luacheck",
+        "prettierd",
+        "prosemd-lsp",
+        "ruff",
+        "selene",
         "shellcheck",
         "shfmt",
-        -- "stylua",
+        "stylua",
       },
     },
   },
@@ -147,7 +147,6 @@ return {
       diagnostics = { virtual_text = { prefix = "icons" } },
       servers = {
         ansiblels = {},
-        -- asm_lsp = {},
         bashls = {},
         cmake = {},
         cssls = {},
@@ -204,11 +203,7 @@ return {
           },
         },
         marksman = {},
-        omnisharp = {},
-        -- prosemd_lsp = {},
         pyright = {},
-        -- teal_ls = {},
-        texlab = {},
         tsserver = {
           root_dir = function(...)
             return require("lspconfig.util").root_pattern(".git")(...)
@@ -238,18 +233,7 @@ return {
             },
           },
         },
-        -- vala_ls = {},
-        -- vimls = {},
-        yamlls = {
-          settings = {
-            yaml = {
-              customTags = {
-                "!reference sequence", -- necessary for gitlab-ci.yaml files
-              },
-            },
-          },
-        },
-        -- zls = {},
+        yamlls = {},
       },
       setup = {},
     },
@@ -278,19 +262,19 @@ return {
             return util.executable("cbfmt", true)
           end,
         }),
-        -- fmt.eslint_d.with({
-        --   condition = function()
-        --     return util.executable("eslint_d", true)
-        --       and not vim.tbl_isempty(vim.fs.find({
-        --         ".eslintrc",
-        --         ".eslintrc.js",
-        --         ".eslintrc.cjs",
-        --         ".eslintrc.json",
-        --         ".eslintrc.yaml",
-        --         ".eslintrc.yml",
-        --       }, { path = vim.fn.expand("%:p"), upward = true }))
-        --   end,
-        -- }),
+        fmt.eslint_d.with({
+          condition = function()
+            return util.executable("eslint_d", true)
+              and not vim.tbl_isempty(vim.fs.find({
+                ".eslintrc",
+                ".eslintrc.js",
+                ".eslintrc.cjs",
+                ".eslintrc.json",
+                ".eslintrc.yaml",
+                ".eslintrc.yml",
+              }, { path = vim.fn.expand("%:p"), upward = true }))
+          end,
+        }),
         fmt.gofmt.with({
           condition = function()
             return util.executable("gofmt", true)
@@ -305,11 +289,11 @@ return {
               }))
           end,
         }),
-        -- fmt.isort.with({
-        --   condition = function()
-        --     return util.executable("isort", true)
-        --   end,
-        -- }),
+        fmt.isort.with({
+          condition = function()
+            return util.executable("isort", true)
+          end,
+        }),
         -- fmt.nginx_beautifier.with({
         --   condition = function()
         --     return util.executable("nginxbeautifier", true)
@@ -320,40 +304,40 @@ return {
         --     return util.executable("pg_format", true)
         --   end,
         -- }),
-        -- fmt.prettierd.with({
-        --   filetypes = { "graphql", "html", "json", "markdown", "yaml" },
-        --   condition = function()
-        --     return util.executable("prettierd", true)
-        --   end,
-        -- }),
-        -- fmt.ruff.with({
-        --   condition = function()
-        --     return util.executable("ruff", true)
-        --   end,
-        -- }),
-        -- fmt.rustfmt.with({
-        --   condition = function()
-        --     return util.executable("rustfmt", true)
-        --   end,
-        -- }),
-        -- fmt.shfmt.with({
-        --   condition = function()
-        --     return util.executable("shfmt", true)
-        --   end,
-        -- }),
-        -- fmt.sqlfluff.with({
-        --   condition = function()
-        --     return util.executable("sqlfluff", true)
-        --   end,
-        -- }),
-        -- fmt.stylua.with({
-        --   condition = function()
-        --     return util.executable("stylua", true)
-        --       and not vim.tbl_isempty(
-        --         vim.fs.find({ ".stylua.toml", "stylua.toml" }, { path = vim.fn.expand("%:p"), upward = true })
-        --       )
-        --   end,
-        -- }),
+        fmt.prettierd.with({
+          filetypes = { "graphql", "html", "json", "markdown", "yaml" },
+          condition = function()
+            return util.executable("prettierd", true)
+          end,
+        }),
+        fmt.ruff.with({
+          condition = function()
+            return util.executable("ruff", true)
+          end,
+        }),
+        fmt.rustfmt.with({
+          condition = function()
+            return util.executable("rustfmt", true)
+          end,
+        }),
+        fmt.shfmt.with({
+          condition = function()
+            return util.executable("shfmt", true)
+          end,
+        }),
+        fmt.sqlfluff.with({
+          condition = function()
+            return util.executable("sqlfluff", true)
+          end,
+        }),
+        fmt.stylua.with({
+          condition = function()
+            return util.executable("stylua", true)
+              and not vim.tbl_isempty(
+                vim.fs.find({ ".stylua.toml", "stylua.toml" }, { path = vim.fn.expand("%:p"), upward = true })
+              )
+          end,
+        }),
         -- fmt.uncrustify.with({
         --   condition = function()
         --     return util.executable("uncrustify", true)
@@ -373,34 +357,34 @@ return {
         --     return util.executable("ansible-lint", true)
         --   end,
         -- }),
-        -- dgn.buf.with({
-        --   condition = function()
-        --     return util.executable("buf", true)
-        --   end,
-        -- }),
-        -- dgn.deno_lint.with({
-        --   condition = function()
-        --     return util.executable("deno", true)
-        --   end,
-        -- }),
-        -- dgn.eslint_d.with({
-        --   condition = function()
-        --     return util.executable("eslint_d", true)
-        --       and not vim.tbl_isempty(vim.fs.find({
-        --         ".eslintrc",
-        --         ".eslintrc.js",
-        --         ".eslintrc.cjs",
-        --         ".eslintrc.json",
-        --         ".eslintrc.yaml",
-        --         ".eslintrc.yml",
-        --       }, { path = vim.fn.expand("%:p"), upward = true }))
-        --   end,
-        -- }),
-        -- dgn.gitlint.with({
-        --   condition = function()
-        --     return util.executable("gitlint", true)
-        --   end,
-        -- }),
+        dgn.buf.with({
+          condition = function()
+            return util.executable("buf", true)
+          end,
+        }),
+        dgn.deno_lint.with({
+          condition = function()
+            return util.executable("deno", true)
+          end,
+        }),
+        dgn.eslint_d.with({
+          condition = function()
+            return util.executable("eslint_d", true)
+              and not vim.tbl_isempty(vim.fs.find({
+                ".eslintrc",
+                ".eslintrc.js",
+                ".eslintrc.cjs",
+                ".eslintrc.json",
+                ".eslintrc.yaml",
+                ".eslintrc.yml",
+              }, { path = vim.fn.expand("%:p"), upward = true }))
+          end,
+        }),
+        dgn.gitlint.with({
+          condition = function()
+            return util.executable("gitlint", true)
+          end,
+        }),
         -- dgn.golangci_lint.with({
         --   condition = function()
         --     return util.executable("golangci-lint", true)
@@ -410,70 +394,65 @@ return {
         --       }))
         --   end,
         -- }),
-        -- dgn.markdownlint.with({
-        --   condition = function()
-        --     return util.executable("markdownlint", true)
-        --   end,
-        -- }),
-        -- dgn.protolint.with({
-        --   condition = function()
-        --     return util.executable("protolint", true)
-        --   end,
-        -- }),
-        -- dgn.ruff.with({
-        --   condition = function()
-        --     return util.executable("ruff", true)
-        --   end,
-        -- }),
-        -- dgn.shellcheck.with({
-        --   condition = function()
-        --     return util.executable("shellcheck", true)
-        --   end,
-        -- }),
-        -- dgn.selene.with({
-        --   condition = function(utils)
-        --     return utils.root_has_file({ "selene.toml" }) and util.executable("selene", true)
-        --   end,
-        -- }),
-        -- dgn.sqlfluff.with({
-        --   condition = function()
-        --     return util.executable("sqlfluff", true)
-        --   end,
-        -- }),
-        -- dgn.tsc.with({
-        --   condition = function()
-        --     return util.executable("tsc", true)
-        --   end,
-        -- }),
-        -- dgn.write_good.with({
-        --   condition = function()
-        --     return util.executable("write-good", true)
-        --   end,
-        -- }),
+        dgn.markdownlint.with({
+          condition = function()
+            return util.executable("markdownlint", true)
+          end,
+        }),
+        dgn.protolint.with({
+          condition = function()
+            return util.executable("protolint", true)
+          end,
+        }),
+        dgn.ruff.with({
+          condition = function()
+            return util.executable("ruff", true)
+          end,
+        }),
+        dgn.shellcheck.with({
+          condition = function()
+            return util.executable("shellcheck", true)
+          end,
+        }),
+        dgn.selene.with({
+          condition = function(utils)
+            return utils.root_has_file({ "selene.toml" }) and util.executable("selene", true)
+          end,
+        }),
+        dgn.sqlfluff.with({
+          condition = function()
+            return util.executable("sqlfluff", true)
+          end,
+        }),
+        dgn.write_good.with({
+          condition = function()
+            return util.executable("write-good", true)
+          end,
+        }),
         dgn.zsh,
 
         --  ╭──────────────╮
         --  │ Code Actions │
         --  ╰──────────────╯
-        -- cda.eslint_d.with({
-        --   condition = function()
-        --     return util.executable("eslint_d", true)
-        --       and not vim.tbl_isempty(vim.fs.find({
-        --         ".eslintrc",
-        --         ".eslintrc.js",
-        --         ".eslintrc.cjs",
-        --         ".eslintrc.json",
-        --         ".eslintrc.yaml",
-        --         ".eslintrc.yml",
-        --       }, { path = vim.fn.expand("%:p"), upward = true }))
-        --   end,
-        -- }),
-        -- cda.gitrebase,
-        -- cda.shellcheck.with({
-        --   condition = function()
-        --     return util.executable("shellcheck", true)
-        --   end,
-        -- }),
+        cda.eslint_d.with({
+          condition = function()
+            return util.executable("eslint_d", true)
+              and not vim.tbl_isempty(vim.fs.find({
+                ".eslintrc",
+                ".eslintrc.js",
+                ".eslintrc.cjs",
+                ".eslintrc.json",
+                ".eslintrc.yaml",
+                ".eslintrc.yml",
+              }, { path = vim.fn.expand("%:p"), upward = true }))
+          end,
+        }),
+        cda.gitrebase,
+        cda.shellcheck.with({
+          condition = function()
+            return util.executable("shellcheck", true)
+          end,
+        }),
       })
     end,
   },
@@ -493,19 +472,10 @@ return {
             return
           end
 
-          -- Ignore grammar.js files
-          if args.file:match("grammar.js$") then
-            return
-          end
-
           local client = vim.lsp.get_client_by_id(args.data.client_id)
 
           -- Ignore these, they provide inlay hins already
-          local ignore_lsps = {
-            "clangd",
-            "gopls",
-            "rust_analyzer",
-          }
+          local ignore_lsps = { "gopls", }
 
           if vim.tbl_contains(ignore_lsps, client.name) then
             return

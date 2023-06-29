@@ -47,7 +47,7 @@ print "Creating required directory tree..."
 zf_mkdir -p $XDG_CONFIG_HOME/{git,htop,gnupg,alacritty,bat}
 zf_chmod 700 $XDG_CONFIG_HOME/gnupg
 zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh}
-zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv},zsh,nvim,gnupg,terminfo}
+zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv,nodenv},zsh,nvim,gnupg,terminfo}
 zf_mkdir -p $XDG_STATE_HOME/zsh
 zf_mkdir -p $HOME/.ssh
 print "  ...done"

@@ -6,7 +6,6 @@ require("config.lazy")({
   debug = false,
   defaults = {
     lazy = true,
-    -- cond = false,
   },
   performance = {
     cache = {

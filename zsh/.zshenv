@@ -70,6 +70,7 @@ export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOENV_ROOT=$XDG_DATA_HOME/goenv
 export PYENV_ROOT=$XDG_DATA_HOME/pyenv
+export NODENV_ROOT=$XDG_DATA_HOME/nodenv
 export HOMEBREW_PREFIX=/opt/homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_VERBOSE_USING_DOTS=1

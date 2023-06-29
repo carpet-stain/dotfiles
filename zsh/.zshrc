@@ -178,7 +178,7 @@ alias sudo='noglob do_sudo '
 # Lazy loading to speed up prompt
 () {
     local wrapper
-    local wrappers=(goenv pyenv)
+    local wrappers=(goenv pyenv nodenv)
     for wrapper in $wrappers[@]; do
         eval "${wrapper} () {
             unset -f ${wrapper}

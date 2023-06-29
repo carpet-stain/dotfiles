@@ -6,8 +6,6 @@
 
 local util = require("util")
 
--- util.cowboy()
-
 local function map(mode, lhs, rhs, opts)
   local keys = require("lazy.core.handler").handlers.keys
   ---@cast keys LazyKeysHandler
@@ -37,12 +35,10 @@ require("which-key").register({
   ["<leader>t"] = { name = "+test" },
 })
 
--- run lua
-vim.keymap.set("n", "<leader>cR", util.runlua, { desc = "Run Lua" })
-
 --  ╭──────────╮
 --  │ Commands │
 --  ╰──────────╯
+
 util.command("ToggleBackground", function()
   vim.o.background = vim.o.background == "dark" and "light" or "dark"
 end)
