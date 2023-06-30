@@ -175,21 +175,10 @@ alias sudo='noglob do_sudo '
 # | ENVIRONMENT WRAPPERS |
 # +----------------------+
 
-# Lazy loading to speed up prompt
-() {
-    local wrapper
-    local wrappers=(goenv pyenv nodenv)
-    for wrapper in $wrappers[@]; do
-        eval "${wrapper} () {
-            unset -f ${wrapper}
-            evalcache ${wrapper} init -
-            if [[ $wrapper == \"pyenv\" ]]; then
-                evalcache ${wrapper} init --path
-            fi
-            ${wrapper} \${@}
-        }"
-    done
-}
+eval "$(nodenv init -)"
+eval "$(goenv init -)"
+eval "$(pyenv init --path)"
+
 
 # Allows goenv to manage GOROOT AND GOPATH
 export PATH=$GOROOT/bin:$PATH

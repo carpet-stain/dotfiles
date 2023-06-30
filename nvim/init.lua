@@ -1,15 +1,2 @@
-if vim.loader then
-  vim.loader.enable()
-end
-
-require("config.lazy")({
-  debug = false,
-  defaults = {
-    lazy = true,
-  },
-  performance = {
-    cache = {
-      enabled = true,
-    },
-  },
-})
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")
