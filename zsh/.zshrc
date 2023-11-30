@@ -96,7 +96,7 @@ zle -N down-line-or-beginning-search
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z evalcache compdefcache tat
+autoload -z evalcache compdefcache tat rgf
 
 # +--------------+
 # | Key Bindings |
