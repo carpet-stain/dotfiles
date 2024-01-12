@@ -1,0 +1,63 @@
+# Basic system tools
+base
+base-devel
+
+# Kernel related
+linux
+linux-firmware
+intel-ucode
+
+# Hardware acceleration
+mesa
+intel-media-driver # iGPU video acceleration
+
+# Networking
+iwd
+iptables-nft # includes nftables as a dependency, will automatically uninstall iptables
+wget
+
+# Virtualization
+docker
+
+# Monitoring
+htop
+lsof
+
+# Desktop Environment
+plasma-desktop
+plasma-wayland-session
+
+# Basic services
+pipewire
+pipewire-audio
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+openssh
+
+# Fonts
+
+
+# Developer
+neovim
+git
+man-db
+man-pages
+alacritty
+tmux
+fd
+gnupg
+httpie
+
+
+# File viewers/editors
+dolphin
+
+# CLI
+zsh
+ripgrep
+bat
+
+# Other
+bitwarden
+

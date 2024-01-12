@@ -23,9 +23,9 @@ export HOMEBREW_VERBOSE_USING_DOTS=1
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export HOMEBREW_CASK_OPTS=--require-sha
-brew bundle --quiet --no-lock --file=macos/Brewfile
+brew bundle --quiet --no-lock --file=Brewfile
 # print "Installing personal packages..."
-# brew bundle --quiet --no-lock --file=macos/Brewfile.personal
+# brew bundle --quiet --no-lock --file=Brewfile.personal
 
 # +----------------+
 # | XDG COMPLIANCE |
