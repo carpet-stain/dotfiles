@@ -87,7 +87,7 @@ hwclock --systohc --utc
 pacman -Sy --noconfirm --needed archlinux-keyring
 
 # Make sure some basic tools that will be used in this script are installed
-pacman -Sy --noconfirm --needed git terminus-font dialog wget
+pacman -Sy --noconfirm --needed git terminus-font dialog wget rankmirrors
 
 # Adjust the font size in case the screen is hard to read
 noyes=("Yes" "The font is too small" "No" "The font size is just fine")
