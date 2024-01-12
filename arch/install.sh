@@ -124,8 +124,8 @@ curl -s "$MIRRORLIST_URL" |
 	sed -e 's/^#Server/Server/' -e '/^#/d' |
 	rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
-echo "Writing random bytes to $device, go grab some coffee it might take a while"
-dd bs=1M if=/dev/urandom of="$device" status=progress || true
+# echo "Writing random bytes to $device, go grab some coffee it might take a while"
+# dd bs=1M if=/dev/urandom of="$device" status=progress || true
 
 ### Setup the disk and partitions ###
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
@@ -156,7 +156,8 @@ mount "${part_root}" /mnt
 mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
-# Install all packages listed in packages/regular
+# Install all packages listed in packages
+curl -s https://raw.githubusercontent.com/carpet-stain/dotfiles/master/arch/packages > packages
 grep -o '^[^ *#]*' packages | pacstrap -K /mnt -
 
 # Patch pacman config
