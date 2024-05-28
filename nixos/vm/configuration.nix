@@ -17,6 +17,7 @@ i18n.defaultLocale = "en_US.UTF-8"
 users.users.brian = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
+    passwordHash = ""
     packages = with pkgs; [
         firefox
         tree
