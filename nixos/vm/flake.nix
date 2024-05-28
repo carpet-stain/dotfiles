@@ -31,7 +31,7 @@
             users.users.brian = {
                 isNormalUser = true;
                 extraGroups = [ "wheel" ];
-                passwordHash = ""
+                passwordHash = "";
                 packages = with pkgs; [
                     firefox
                     tree
