@@ -66,7 +66,7 @@ get_choice() {
 	dialog --clear --stdout --backtitle "$BACKTITLE" --title "$title" --menu "$description" 0 0 0 "${options[@]}"
 }
 
-nix-shell -p dialog
+nix-env -iA nixos.dialog
 
 # Ask which device to install ArchLinux on
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | tr '\n' ' ')
