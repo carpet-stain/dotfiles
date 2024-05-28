@@ -21,7 +21,7 @@
 # - Run: `# bash <(curl -sL https://t.ly/o4kG)`
 
 set -uo pipefail
-trap on_error ERR
+# trap on_error ERR
 
 # Redirect output to files for easier debugging
 exec 1> >(tee "stdout.log")
