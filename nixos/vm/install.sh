@@ -83,5 +83,3 @@ sudo nix \
     --flake "$FLAKE" \
     --write-efi-boot-entries \
     --disk main "$DEVICE"
-
-reboot
