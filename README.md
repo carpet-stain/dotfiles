@@ -6,8 +6,7 @@
 
 ## Personal dotfiles
 
-This repository contains configs I use in shell. No graphical stuff,
-usable both on server and personal workstation -- for graphical stuff check `Brewfile`. 
+usable both on server and personal workstation -- for graphical stuff check `Brewfile`.
 Battle tested on macOS and Arch Linux.
 
 I'm a big fan of [XDG Base Directory
@@ -20,28 +19,28 @@ presence](#zero-home-presence).
 
 ## Features
 
-* Extensive Zsh [configuration](zsh/rc.d) and [plugins](zsh/plugins):
-  * [powerline10k](https://github.com/romkatv/powerlevel10k) prompt stylized
+- Extensive Zsh [configuration](zsh/rc.d) and [plugins](zsh/plugins):
+  - [powerline10k](https://github.com/romkatv/powerlevel10k) prompt stylized
     like [pure](https://github.com/sindresorhus/pure)
-  * [additional completions](https://github.com/zsh-users/zsh-completions)
-  * [async autosuggestions
+  - [additional completions](https://github.com/zsh-users/zsh-completions)
+  - [async autosuggestions
     plugin](https://github.com/zsh-users/zsh-autosuggestions)
-  * [syntax highlighting
+  - [syntax highlighting
     plugin](https://github.com/zsh-users/zsh-syntax-highlighting)
-  * [autopair plugin](https://github.com/hlissner/zsh-autopair)
-* Neovim [configuration](nvim/init.lua)
-* Tmux [configuration](tmux/tmux.conf) and [plugins](tmux/plugins)
-* Other configs:
-  * [Git](git/)
-* [goenv](https://github.com/syndbg/goenv),
+  - [autopair plugin](https://github.com/hlissner/zsh-autopair)
+- Neovim [configuration](nvim/init.lua)
+- Tmux [configuration](tmux/tmux.conf) and [plugins](tmux/plugins)
+- Other configs:
+  - [Git](git/)
+- [goenv](https://github.com/syndbg/goenv),
   [nodenv](https://github.com/nodenv/nodenv)
 
 ## Installation
 
 Requirements:
 
-* `zsh` 5.1 or newer (async stuff requires recent enough version of zsh)
-* `git`
+- `zsh` 5.1 or newer (async stuff requires recent enough version of zsh)
+- `git`
 
 Dotfiles can be installed in any dir, but probably somewhere under `$HOME`.
 Personally I use `$HOME/.local/dotfiles`. The installation is pretty simple:
@@ -72,11 +71,12 @@ The difference is that `env.d` is sourced always while `rc.d` is sourced in inte
 Also `$ZDOTDIR/.zlogin` and `$ZDOTDIR/.zlogout` are available for
 modifications, albeit missing by default.
 
-### Lazy *env
+### Lazy \*env
 
 Pyenv and similar wrappers are lazy-loaded, it means that they won't be
 initialized on shell start. Activation is done on the first execution. Check
 out output of `type -f pyenv` in shell and
 [implementation](zsh/.zshrc). Also this means, that files like
-`.python-version` won't work as expected, it's recommended to use autoenv.zsh
+`.python-versear
+on` won't work as expected, it's recommended to use autoenv.zsh
 to explicitly activate needed environment.
