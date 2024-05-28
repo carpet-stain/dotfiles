@@ -29,6 +29,8 @@ exec 2> >(tee "stderr.log" >&2)
 
 FLAKE="github:carpet-stain/dotfiles?dir=nixos/vm#nixos"
 
+BACKTITLE="NixOS installation"
+
 on_error() {
 	ret=$?
 	echo "[$0] Error on line $LINENO: $BASH_COMMAND"
