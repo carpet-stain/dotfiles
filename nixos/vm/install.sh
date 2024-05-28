@@ -31,11 +31,11 @@ FLAKE="github:carpet-stain/dotfiles?dir=nixos/vm#nixos"
 
 BACKTITLE="NixOS installation"
 
-on_error() {
-	ret=$?
-	echo "[$0] Error on line $LINENO: $BASH_COMMAND"
-	exit $ret
-}
+# on_error() {
+# 	ret=$?
+# 	echo "[$0] Error on line $LINENO: $BASH_COMMAND"
+# 	exit $ret
+# }
 
 get_input() {
 	title="$1"
@@ -74,6 +74,7 @@ nix-env -iA nixos.dialog
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | tr '\n' ' ')
 read -r -a devicelist <<<"$devicelist"
 DEVICE=$(get_choice "Installation" "Select installation disk" "${devicelist[@]}") || exit 1
+echo $DEVICE
 clear
 
 sudo nix \
@@ -82,3 +83,5 @@ sudo nix \
     --flake "$FLAKE" \
     --write-efi-boot-entries \
     --disk main "$DEVICE"
+
+reboot
