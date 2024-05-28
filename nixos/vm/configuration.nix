@@ -10,7 +10,7 @@ boot.loader.systemd-boot.enable = true;
 networking.hostName = "nixos";
 networking.wireless.enable = true;
 
-time.timeZone = "America/New_York"
+time.timeZone = "America/New_York";
 
 i18n.defaultLocale = "en_US.UTF-8";
 
