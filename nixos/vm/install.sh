@@ -73,3 +73,10 @@ devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | 
 read -r -a devicelist <<<"$devicelist"
 DEVICE=$(get_choice "Installation" "Select installation disk" "${devicelist[@]}") || exit 1
 clear
+
+sudo nix \
+    --extra-experimental-features 'flakes nix-command' \
+    run github:nix-community/disko#disko-install -- \
+    --flake "$FLAKE" \
+    --write-efi-boot-entries \
+    --disk main "$DEVICE"
