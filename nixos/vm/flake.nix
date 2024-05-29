@@ -6,7 +6,6 @@
   };
   outputs = { self, nixpkgs, disko, ... }:
     let
-      # TODO: Adjust these values to your needs
       system = "aarch64-linux";
       hostName = "nixos";
     in
@@ -31,7 +30,7 @@
             users.users.brian = {
                 isNormalUser = true;
                 extraGroups = [ "wheel" ];
-                hashedPassword = "";
+                password = "brian";
                 packages = with pkgs; [
                     firefox
                     tree
