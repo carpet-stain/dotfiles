@@ -1,5 +1,26 @@
+# ██████╗  █████╗ ████████╗
+# ██╔══██╗██╔══██╗╚══██╔══╝
+# ██████╔╝███████║   ██║
+# ██╔══██╗██╔══██║   ██║
+# ██████╔╝██║  ██║   ██║
+# ╚═════╝ ╚═╝  ╚═╝   ╚═╝
+# A cat(1) clone with wings.
+# https://github.com/sharkdp/bat
+
+# This is `bat`s configuration file. Each line either contains a comment or
+# a command-line option that you want to pass to `bat` by default. You can
+# run `bat --help` to get a list of all possible configuration options.
+
+# Specify desired highlighting theme (e.g. "TwoDark"). Run `bat --list-themes`
+# for a list of all available themes
 --theme="Monokai Extended Bright"
---style="plain,numbers,header,grid,changes"
+
+# Enable this to use italic text on the terminal. This is not supported on all
+# terminal emulators (like tmux, by default):
 --italic-text=always
---tabs 4
---wrap never
+
+# Configure which elements (line numbers, file headers, grid borders, Git modifications, ..)
+# to display in addition to the file contents. The argument is a comma-separated list of
+# components to display (e.g. 'numbers,changes,grid') or a pre-defined style ('full'). 
+# Uncomment the following line to disable automatic paging:
+--style="full"

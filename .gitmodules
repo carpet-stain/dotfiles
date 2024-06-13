@@ -13,3 +13,6 @@
 [submodule "arch/aur/zsh-fast-syntax-highlighting"]
 	path = arch/aur/zsh-fast-syntax-highlighting
 	url = https://aur.archlinux.org/zsh-fast-syntax-highlighting.git
+[submodule "tmux/plugins/nerd-font-window-name"]
+	path = tmux/plugins/nerd-font-window-name
+	url = https://github.com/joshmedeski/tmux-nerd-font-window-name.git

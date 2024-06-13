@@ -45,11 +45,13 @@ SAVEHIST=1000000
 #   %T is equivalent to %H:%M:%S (24-hours format)
 HISTTIMEFORMAT='[%F %T]'
 
+unsetopt FLOW_CONTROL            # disable annoying keys 
 setopt CLOBBER                   # allow > redirection to truncate existing files
 setopt MULTIOS                   # allows multiple input and output redirections 
 setopt BRACE_CCL                 # allow brace character class list expansion
-setopt NO_BEEP                   # do not beep on errors
-setopt NO_NOMATCH                # try to avoid the 'zsh: no matches found...'
+unsetopt BEEP                    # do not beep on errors
+unsetopt NOMATCH                 # try to avoid the 'zsh: no matches found...'
+unsetopt SHORT_LOOPS             # Disable short loop forms
 setopt INTERACTIVE_COMMENTS      # allow use of comments in interactive code
 setopt AUTO_PARAM_SLASH          # complete folders with / at end
 setopt LIST_TYPES                # mark type of completion suggestions
@@ -77,7 +79,7 @@ autoload -Uz colors
 colors
 
 # Ctrl+W stops on path delimiters
-autoload -U select-word-style
+autoload -Uz select-word-style
 select-word-style bash
 
 # enable url-quote-magic
@@ -94,6 +96,9 @@ zle -N up-line-or-beginning-search
 autoload -Uz down-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
+# Ensure add-zsh-hook is loaded
+autoload -Uz add-zsh-hook
+
 # Custom personal functions
 # Don't use -U as we need aliases here
 autoload -z evalcache compdefcache tat rgf
@@ -104,6 +109,42 @@ autoload -z evalcache compdefcache tat rgf
 
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
+
+zmodload zsh/terminfo
+
+typeset -A key
+key[Home]=${terminfo[khome]}
+key[End]=${terminfo[kend]}
+key[Insert]=${terminfo[kich1]}
+key[Delete]=${terminfo[kdch1]}
+key[Up]=${terminfo[kcuu1]}
+key[Down]=${terminfo[kcud1]}
+key[Left]=${terminfo[kcub1]}
+key[Right]=${terminfo[kcuf1]}
+key[PageUp]=${terminfo[kpp]}
+key[PageDown]=${terminfo[knp]}
+key[Backspace]=${terminfo[kbs]}
+key[ShiftTab]=${terminfo[kcbt]}
+# man 5 user_caps
+key[CtrlLeft]=${terminfo[kLFT5]}
+key[CtrlRight]=${terminfo[kRIT5]}
+
+# Setup keys accordingly
+[[ -n ${key[Home]}      ]] && bindkey ${key[Home]}      beginning-of-line
+[[ -n ${key[End]}       ]] && bindkey ${key[End]}       end-of-line
+[[ -n ${key[Insert]}    ]] && bindkey ${key[Insert]}    overwrite-mode
+[[ -n ${key[Delete]}    ]] && bindkey ${key[Delete]}    delete-char
+[[ -n ${key[Left]}      ]] && bindkey ${key[Left]}      backward-char
+[[ -n ${key[Right]}     ]] && bindkey ${key[Right]}     forward-char
+[[ -n ${key[Up]}        ]] && bindkey ${key[Up]}        up-line-or-beginning-search
+[[ -n ${key[Down]}      ]] && bindkey ${key[Down]}      down-line-or-beginning-search
+[[ -n ${key[PageUp]}    ]] && bindkey ${key[PageUp]}    beginning-of-buffer-or-history
+[[ -n ${key[PageDown]}  ]] && bindkey ${key[PageDown]}  end-of-buffer-or-history
+[[ -n ${key[Backspace]} ]] && bindkey ${key[Backspace]} backward-delete-char
+[[ -n ${key[ShiftTab]}  ]] && bindkey ${key[ShiftTab]}  reverse-menu-complete
+[[ -n ${key[CtrlLeft]}  ]] && bindkey ${key[CtrlLeft]}  backward-word
+[[ -n ${key[CtrlRight]} ]] && bindkey ${key[CtrlRight]} forward-word
+unset key
 
 # Make dot key autoexpand "..." to "../.." and so on
 _zsh-dot () {
@@ -117,7 +158,6 @@ _zsh-dot () {
 zle -N _zsh-dot
 bindkey . _zsh-dot
 
-
 # +---------------+
 # | POWERLEVEL10K |
 # +---------------+
@@ -128,7 +168,7 @@ source $ZDOTDIR/rc.d/powerlevel10k.zsh
 # | ALIASES |
 # +---------+
 
-alias ls='exa --long --header --icons --group-directories-first --group --git --all --links'
+alias ls='eza --long --header --icons --group-directories-first --group --git --all --links'
 alias diff=delta
 
 # History suppression
@@ -140,7 +180,7 @@ alias exit=' exit'
 alias find='noglob find'
 alias touch='nocorrect touch'
 alias mkdir='nocorrect mkdir -pv'
-alias cp='nocorrect cp -i'
+alias cp='nocorrect cp -i --verbose'
 alias fd='noglob fd'
 
 alias tmux="tmux -f $DOTFILES/tmux/tmux.conf"
@@ -175,10 +215,7 @@ alias sudo='noglob do_sudo '
 # | ENVIRONMENT WRAPPERS |
 # +----------------------+
 
-eval "$(nodenv init -)"
 eval "$(goenv init -)"
-eval "$(pyenv init --path)"
-
 
 # Allows goenv to manage GOROOT AND GOPATH
 export PATH=$GOROOT/bin:$PATH
@@ -216,6 +253,41 @@ source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
 source $ZDOTDIR/rc.d/fzf-tab.zsh
 
+
+# +-----------+
+# | GPG-AGENT |
+# +-----------+
+
+# remind gpg-agent to update current tty before running git
+if pgrep -u "${EUID}" gpg-agent &>/dev/null; then
+    function _preexec_gpg-agent-update-tty {
+        if [[ ${1} == git* ]]; then
+            gpg-connect-agent --quiet --no-autostart updatestartuptty /bye >/dev/null &!
+        fi
+    }
+
+    add-zsh-hook preexec _preexec_gpg-agent-update-tty
+fi
+
+# +--------+
+# | CURSOR |
+# +--------+
+
+# Set cursor shape as I-beam before prompt, switch to block before executing commands
+# https://invisible-island.net/ncurses/terminfo.ti.html#toc-_X_T_E_R_M__Features
+# Ss - set cursor shape, usually 6 as argument means I-beam
+# Se - reset cursor shape, which is usually block
+_zsh_cursor_shape_reset() {
+    echoti Se
+}
+
+_zsh_cursor_shape_ibeam() {
+    echoti Ss 6
+}
+
+add-zsh-hook preexec _zsh_cursor_shape_reset
+add-zsh-hook precmd _zsh_cursor_shape_ibeam
+
 # +--------------+
 # | ZSH-AUTOPAIR |
 # +--------------+
@@ -238,43 +310,11 @@ function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 # | ZSH-ABBR |
 # +----------+
 
-ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/plugins/abbreviations-store
+ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/rc.d/abbreviations-store
 [[ -e $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh ]] && 
     source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
 
-# Highlight zsh-abbr definitions
-chroma_single_word() {
-  (( next_word = 2 | 8192 ))
-
-  local __first_call=$1 __wrd=$2 __start_pos=$3 __end_pos=$4
-  local __style
-
-  (( __first_call )) && { __style=${FAST_THEME_NAME}alias }
-  [[ -n $__style ]] && (( __start=__start_pos-${#PREBUFFER}, __end=__end_pos-${#PREBUFFER}, __start >= 0 )) && reply+=($__start $__end $FAST_HIGHLIGHT_STYLES[$__style])
-
-  (( this_word = next_word ))
-  _start_pos=$_end_pos
-
-  return 0
-}
-
-register_single_word_chroma() {
-  local word=$1
-  if [[ -x $(command -v $word) ]] || [[ -n $FAST_HIGHLIGHT[chroma-$word] ]]; then
-    return 1
-  fi
-
-  FAST_HIGHLIGHT+=(chroma-$word chroma_single_word)
-  return 0
-}
-
-if [[ -n $FAST_HIGHLIGHT ]]; then
-  for abbr in ${(f)$(abbr list-abbreviations)}; do
-    if [[ $abbr != *' '* ]]; then
-      register_single_word_chroma $(Q)abbr
-    fi
-  done
-fi
+export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -294,9 +334,12 @@ ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 [[ -e $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
     source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
+# Clear suggestions after paste
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
+
 # +----------------+
 # | SANITIZE PATHS |
 # +----------------+
 
 # Force path arrays to have unique values only
-typeset -gU path cdpath fpath manpath
+typeset -U path cdpath fpath manpath

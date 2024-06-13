@@ -8,7 +8,7 @@ abbr dui="dua interactive"
 # confirmation
 abbr ln="ln -i"
 abbr mv="mv -i"
-abbr rm="rm -I"
+abbr rm="rm -I --preserve-root=all"
 
 # Make mount command output pretty and human readable format
 abbr mount="mount | column -t"

@@ -5,7 +5,7 @@
 # Zstyle pattern
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
 
-zstyle :completion:*:*:*:*:default  list-colors         ${(s.:.)LS_COLORS}
+zstyle :completion:*:*:*:*:default  list-colors         ${(s.:.)EZA_COLORS}
 
 # Define completers
 zstyle :completion:* completer _extensions _complete _approximate

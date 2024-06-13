@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 set -e
 
@@ -10,10 +10,10 @@ zmodload -m -F zsh/files b:zf_\*
 
 # Check for Homebrew
 if [[ $(command -v brew) == "" ]]; then
-    echo "Installing Hombrew"
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	echo "Installing Hombrew"
+	NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
-    print "Homebrew already installed... Skipping"
+	print "Homebrew already installed... Skipping"
 fi
 
 # Install Brewfile packages
@@ -42,7 +42,7 @@ XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
 
-# Create required directories 
+# Create required directories
 print "Creating required directory tree..."
 zf_mkdir -p $XDG_CONFIG_HOME/{git,htop,gnupg,alacritty,bat}
 zf_chmod 700 $XDG_CONFIG_HOME/gnupg
@@ -65,13 +65,13 @@ zf_ln -sf $SCRIPT_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/gpg-agent.conf $XDG_CONFIG_HOME/gnupg/gpg-agent.conf
 zf_ln -sf $SCRIPT_DIR/gpg.conf $XDG_CONFIG_HOME/gnupg/gpg.conf
 zf_ln -sf $SCRIPT_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc
-cp  $SCRIPT_DIR/sshconfig $HOME/.ssh/config
+cp $SCRIPT_DIR/sshconfig $HOME/.ssh/config
 print "  ...done"
 
 # Make sure submodules are installed
 print "Syncing submodules..."
-git submodule sync > /dev/null
-git submodule update --init --recursive > /dev/null
+git submodule sync >/dev/null
+git submodule update --init --recursive >/dev/null
 print "  ...done"
 
 # Trigger zsh run with powerlevel10k prompt to download gitstatusd
@@ -81,14 +81,14 @@ print "  ...done"
 
 # Download/refresh TLDR pages
 print "Downloading TLDR pages..."
-tldr -u &> /dev/null
+tldr -u &>/dev/null
 print "  ...done"
 
 # Generate tmux-256color terminfo
 print "Generating tmux-256color.info"
 if [[ $OSTYPE = darwin* ]]; then
-    $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color > ~/tmux-256color.info
-    tic -x -o $XDG_DATA_HOME/terminfo ~/tmux-256color.info
-    zf_rm -f ~/tmux-256color.info
+	$HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color >~/tmux-256color.info
+	tic -x -o $XDG_DATA_HOME/terminfo ~/tmux-256color.info
+	zf_rm -f ~/tmux-256color.info
 fi
 print "  ...done"
