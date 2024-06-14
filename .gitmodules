@@ -16,3 +16,6 @@
 [submodule "tmux/plugins/nerd-font-window-name"]
 	path = tmux/plugins/nerd-font-window-name
 	url = https://github.com/joshmedeski/tmux-nerd-font-window-name.git
+[submodule "tmux/plugins/tmux-fzf-url"]
+	path = tmux/plugins/tmux-fzf-url
+	url = https://github.com/wfxr/tmux-fzf-url.git
