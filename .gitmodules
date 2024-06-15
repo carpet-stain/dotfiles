@@ -19,3 +19,30 @@
 [submodule "tmux/plugins/tmux-fzf-url"]
 	path = tmux/plugins/tmux-fzf-url
 	url = https://github.com/wfxr/tmux-fzf-url.git
+[submodule "tmux/plugins/fzf"]
+	path = tmux/plugins/fzf
+	url = https://github.com/sainnhe/tmux-fzf
+[submodule "tmux/plugins/menus"]
+	path = tmux/plugins/menus
+	url = https://github.com/jaclu/tmux-menus.git
+[submodule "tmux/plugins/power-zoom"]
+	path = tmux/plugins/power-zoom
+	url = https://github.com/jaclu/tmux-power-zoom.git
+[submodule "tmux/plugins/fastcopy"]
+	path = tmux/plugins/fastcopy
+	url = https://github.com/abhinav/tmux-fastcopy.git
+[submodule "tmux/plugins/sessionx"]
+	path = tmux/plugins/tmux-sessionx
+	url = https://github.com/omerxx/tmux-sessionx.git
+[submodule "tmux/plugins/continuum"]
+	path = tmux/plugins/continuum
+	url = https://github.com/tmux-plugins/tmux-continuum
+[submodule "tmux/plugins/fzf-url"]
+	path = tmux/plugins/fzf-url
+	url = https://github.com/wfxr/tmux-fzf-url.git
+[submodule "tmux/plugins/resurrect"]
+	path = tmux/plugins/resurrect
+	url = https://github.com/tmux-plugins/tmux-resurrect
+[submodule "tmux/plugins/session-wizard"]
+	path = tmux/plugins/session-wizard
+	url = https://github.com/27medkamal/tmux-session-wizard
