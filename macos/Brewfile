@@ -1,5 +1,6 @@
 tap 'olets/tap'
 tap 'romkatv/powerlevel10k'
+tap 'abhinav/tap'
 
 brew 'bat'
 brew 'bat-extras' # batgrep, batpipe
@@ -29,6 +30,7 @@ brew 'pyenv'
 brew 'ripgrep'
 brew 'tealdeer'
 brew 'tmux'
+brew 'tmux-fastcopy'
 brew 'tree'
 brew 'viddy'
 brew 'wget'

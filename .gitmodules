@@ -46,3 +46,6 @@
 [submodule "tmux/plugins/session-wizard"]
 	path = tmux/plugins/session-wizard
 	url = https://github.com/27medkamal/tmux-session-wizard
+[submodule "tmux/plugins/copycat"]
+	path = tmux/plugins/copycat
+	url = https://github.com/tmux-plugins/tmux-copycat.git
