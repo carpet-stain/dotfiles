@@ -1,12 +1,5 @@
 #!/usr/bin/env zsh
 
-case $1 in
-  -l|--last)
-    (tmux last-window || tmux next-window || tmux last-pane) &>/dev/null
-    exit 0
-    ;;
-esac
-
 # Forward to vim
 command=$( tmux display -p '#{pane_current_command}' )
 title=$( tmux display -p '#{pane_title}' )

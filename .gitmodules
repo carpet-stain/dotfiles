@@ -49,3 +49,6 @@
 [submodule "tmux/plugins/copycat"]
 	path = tmux/plugins/copycat
 	url = https://github.com/tmux-plugins/tmux-copycat.git
+[submodule "tmux/plugins/catppucin"]
+	path = tmux/plugins/catppucin
+	url = https://github.com/catppuccin/tmux.git
