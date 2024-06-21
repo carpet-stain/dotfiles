@@ -1,4 +1,7 @@
-# Determine own path
+# .zshenv is sourced on all invocations of the shell, unless the -f option is set.
+# It should contain commands to set the command search path, plus other important environment variables.
+# .zshenv' should not contain commands that produce output or assume the shell is attached to a tty.# Determine own path
+
 local homezshenv=$HOME/.zshenv
 export ZDOTDIR=$homezshenv:A:h
 
@@ -51,13 +54,16 @@ export LESSHISTFILE=$XDG_DATA_HOME/lesshst
 export HISTFILE=$XDG_STATE_HOME/zsh/history
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker/machine
+export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
 export MINIKUBE_HOME=$XDG_DATA_HOME/minikube
 export HTOPRC=$XDG_CONFIG_HOME/htop/htoprc
 export HTTPIE_CONFIG_DIR=$XDG_CONFIG_HOME/httpie
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
+export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOENV_ROOT=$XDG_DATA_HOME/goenv
+
 export HOMEBREW_PREFIX=/opt/homebrew
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_VERBOSE_USING_DOTS=1
@@ -65,6 +71,8 @@ export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_INSECURE_REDIRECT=1
 export LESSOPEN='lessopen.sh %s'
 export LESS_ADVANCED_PREPROCESSOR=1
+
+export BAT_THEME="Catppuccin  Mocha"
 
 # fzf
 export FZF_DEFAULT_COMMAND="rg --hidden --files --no-ignore-vcs --color=always"

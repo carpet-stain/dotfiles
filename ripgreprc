@@ -1,0 +1,8 @@
+# Search hidden files and directories
+--hidden
+
+# Force ripgrep to follow symlinks
+--follow
+
+# Case insensitively if in all lower case
+--smart-case

@@ -19,3 +19,12 @@
 [submodule "tmux/plugins/catppucin"]
 	path = tmux/plugins/catppucin
 	url = https://github.com/catppuccin/tmux.git
+[submodule "theme/alacritty"]
+	path = theme/alacritty
+	url = git@github.com:catppuccin/alacritty.git
+[submodule "theme/bat"]
+	path = theme/bat
+	url = git@github.com:catppuccin/bat.git
+[submodule "theme/delta"]
+	path = theme/delta
+	url = git@github.com:catppuccin/delta.git

@@ -36,9 +36,10 @@ setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
 setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
 setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
+setopt SHARE_HISTORY             # Share history among all sessions
 
 HISTSIZE=1000000
-SAVEHIST=1000000
+SAVEHIST=$HISTSIZE
 
 # History: Use standard ISO 8601 timestamp.
 #   %F is equivalent to %Y-%m-%d
@@ -268,25 +269,6 @@ if pgrep -u "${EUID}" gpg-agent &>/dev/null; then
 
     add-zsh-hook preexec _preexec_gpg-agent-update-tty
 fi
-
-# +--------+
-# | CURSOR |
-# +--------+
-
-# Set cursor shape as I-beam before prompt, switch to block before executing commands
-# https://invisible-island.net/ncurses/terminfo.ti.html#toc-_X_T_E_R_M__Features
-# Ss - set cursor shape, usually 6 as argument means I-beam
-# Se - reset cursor shape, which is usually block
-_zsh_cursor_shape_reset() {
-    echoti Se
-}
-
-_zsh_cursor_shape_ibeam() {
-    echoti Ss 6
-}
-
-add-zsh-hook preexec _zsh_cursor_shape_reset
-add-zsh-hook precmd _zsh_cursor_shape_ibeam
 
 # +--------------+
 # | ZSH-AUTOPAIR |

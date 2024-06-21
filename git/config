@@ -1,23 +1,26 @@
 [http]
 	sslverify = true
-[https]
 [user]
-	email = brian.leppez
-	name = brian.leppez
+	email = brian@leppez
+	name = Brian Leppez
 	signingkey = 0x22483EA714C8FC1B
 [commit]
 	template = ~/.config/git/committemplate
+  verbose = true
 	# gpgsign = true
 [help]
 	autocorrect = 1
 [include]
 	path = local/user
 	path = local/stuff
+  path = ~/.config/git/catppuccin.gitconfig
 [push]
 	default = current
 	followTags = true
 [branch]
 	autosetuprebase = always
+[init]
+defaultBranch = main
 [merge]
 	ff = only
 	conflictstyle = diff3
@@ -53,13 +56,11 @@
 [interactive]
     diffFilter = delta --color-only
 [delta]
-	features = unobtrusive-line-numbers interactive decorations
-	syntax-theme = Dracula
+	features = unobtrusive-line-numbers interactive decorations catppuccin-mocha
     navigate = true    # use n and N to move between diff sections
     light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
 	side-by-side = true
 	hyperlinks = true
-	true-color = always
 [delta "unobtrusive-line-numbers"]
 	line-numbers-left-format = "{nm:>3}┊"
 	line-numbers-right-format = "{np:>3}│ "
