@@ -1,0 +1,29 @@
+#!/usr/bin/env zsh
+
+tmux copy-mode
+
+function search {
+  tmux send-keys -X search-backward "$1"
+}
+
+case "$1" in
+  # freeform search
+  "") tmux send-keys "?";;
+
+  paths)
+    path='[-_.[:alnum:]]';
+    search "~?(/$path+|$path+/|$path*\.$path+)+$path*(:[0-9]+)*"
+    ;;
+
+  # interesting things (URLs, emails, hashes, IPs)
+  interesting)
+    urls='(https?://|git@|git://|ssh://|ftp://|file:///)[[:alnum:]?=%/_.:,;~@!#$&()*+-]*'
+    emails='[-_\.[:alnum:]]+@[-_\.[:alnum:]]+'
+    hashes='\b(([0-9a-f]{7,40}|[[:alnum:]]{52}|[0-9a-f]{64})(\.{2,3})?)+\b'
+    ips='[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}\.[[:digit:]]{1,3}'
+
+    search "($urls|$emails|$hashes|$ips)"
+    ;;
+esac
+
+exit 0

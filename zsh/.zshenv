@@ -1,7 +1,8 @@
 # .zshenv is sourced on all invocations of the shell, unless the -f option is set.
 # It should contain commands to set the command search path, plus other important environment variables.
-# .zshenv' should not contain commands that produce output or assume the shell is attached to a tty.# Determine own path
+# .zshenv' should not contain commands that produce output or assume the shell is attached to a tty.
 
+# Determine own path
 local homezshenv=$HOME/.zshenv
 export ZDOTDIR=$homezshenv:A:h
 
@@ -11,13 +12,16 @@ export DOTFILES=$ZDOTDIR:h
 # Disable global zsh configuration
 unsetopt GLOBAL_RCS
 
+# Needed to do null globbing (N) for paths
+setopt EXTENDED_GLOB
+
 # Load zsh/files module to provide some builtins for file modifications
 # This is used in fpath custom functions
 zmodload -F -m zsh/files b:zf_\*
 
-#  ╭──────────────────────────────────────────────────────────╮
-#  │                          EXPORT                          │
-#  ╰──────────────────────────────────────────────────────────╯
+#  ╭──────────╮
+#  │  EXPORT  │
+#  ╰──────────╯
 
 # Prefered editor and pager
 export VISUAL=nvim
@@ -27,9 +31,6 @@ export PAGER=less
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4"
 export READNULLCMD=$PAGER
-
-# make sure gpg knows about current TTY
-export GPG_TTY=$TTY
 
 # XDG basedir spec compliance
 if [[ ! -v XDG_CONFIG_HOME ]]; then
@@ -48,52 +49,48 @@ if [[ ! -v XDG_RUNTIME_DIR ]]; then
     export XDG_RUNTIME_DIR=$TMPDIR:-/tmp/runtime-$USER
 fi
 
-# XDG-Compliance. Reported from XDG-NINJA
-export GNUPGHOME=$XDG_DATA_HOME/gnupg
+# XDG-Compliance
 export LESSHISTFILE=$XDG_DATA_HOME/lesshst
 export HISTFILE=$XDG_STATE_HOME/zsh/history
-export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
-export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker/machine
 export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
-export MINIKUBE_HOME=$XDG_DATA_HOME/minikube
-export HTOPRC=$XDG_CONFIG_HOME/htop/htoprc
 export HTTPIE_CONFIG_DIR=$XDG_CONFIG_HOME/httpie
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOENV_ROOT=$XDG_DATA_HOME/goenv
+export GOPATH=$XDG_DATA_HOME/go
 
 export HOMEBREW_PREFIX=/opt/homebrew
-export HOMEBREW_NO_AUTO_UPDATE=1
-export HOMEBREW_VERBOSE_USING_DOTS=1
-export HOMEBREW_NO_ANALYTICS=1
-export HOMEBREW_NO_INSECURE_REDIRECT=1
+
 export LESSOPEN='lessopen.sh %s'
 export LESS_ADVANCED_PREPROCESSOR=1
 
-export BAT_THEME="Catppuccin  Mocha"
+export BAT_THEME="Catppuccin Mocha"
 
 # fzf
-export FZF_DEFAULT_COMMAND="rg --hidden --files --no-ignore-vcs --color=always"
-export FZF_DEFAULT_OPTS="--ansi"
-export FZF_TMUX=1
-export FZF_TMUX_OPTS='-p80%,60%'
+export FZF_DEFAULT_COMMAND="rg --files"
 
-# Preview file content using bat (https://github.com/sharkdp/bat)
+# Catppuccin-mocha theme
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--ansi \
+--height 70% \
+--tmux 70%"
+
+# Preview file content using bat
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
-  --preview 'bat -n --color=always {}'
-  --bind 'ctrl-/:change-preview-window(down|hidden|)'
+  --preview 'bat {}'
   --color header:italic
-  --header 'Press CTRL-/ to toggle preview window'
   --select-1 --exit-0"
 
 # ? to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy
 export FZF_CTRL_R_OPTS="
   --preview 'echo {}' --preview-window up:3:hidden:wrap
-  --bind '?:toggle-preview'
   --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
   --color header:italic
   --header 'Press CTRL-Y to copy command into clipboard'"
@@ -108,16 +105,11 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 # Add custom functions and completions
 fpath=($ZDOTDIR/fpath $fpath)
 
-# Needed to do null globbing (N) as follows
-setopt EXTENDED_GLOB
-
 # Initialize path.
 # If dirs are missing, they won't be added due to null globbing.
 path=(
   /opt/{homebrew,local}/{,s}bin(N)
   /usr/local/{,s}bin(N)
-  $GOENV_ROOT
-  $PYENV_ROOT
   $path
 )
 
@@ -125,7 +117,7 @@ path=(
 MANPATH=$XDG_DATA_HOME/man:$MANPATH
 
 if [[ $OSTYPE = darwin* ]]; then
-    # Enable gnu version of utilities on macOS, if installed
+    # Enable gnu version of utilities on macOS
     for gnuutil in coreutils gnu-sed gnu-tar grep; do
         if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin ]]; then
             path=($HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin $path)
@@ -134,8 +126,4 @@ if [[ $OSTYPE = darwin* ]]; then
             MANPATH=$HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman:$MANPATH
         fi
     done
-    # Prefer curl installed via brew
-    if [[ -d $HOMEBREW_PREFIX/opt/curl/bin ]]; then
-        path=($HOMEBREW_PREFIX/opt/curl/bin $path)
-    fi
 fi

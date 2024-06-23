@@ -20,3 +20,6 @@
 # components to display (e.g. 'numbers,changes,grid') or a pre-defined style ('full'). 
 # Uncomment the following line to disable automatic paging:
 --style="full"
+
+# Always use colors
+--color=always

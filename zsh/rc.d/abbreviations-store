@@ -15,4 +15,4 @@ abbr mount="mount | column -t"
 
 abbr rsync="rsync --verbose --archive --human-readable --partial"
 abbr tree="tree -a -I .git --dirsfirst"
-abbr wget="wget --continue --hsts-file=\$XDG_CACHE_HOME/wget-hsts"
+abbr curl="curlie"

@@ -28,3 +28,12 @@
 [submodule "theme/delta"]
 	path = theme/delta
 	url = git@github.com:catppuccin/delta.git
+[submodule "theme/btop"]
+	path = theme/btop
+	url = git@github.com:catppuccin/btop.git
+[submodule "theme/zsh-fsh"]
+	path = theme/zsh-fsh
+	url = git@github.com:catppuccin/zsh-fsh.git
+[submodule "zsh/plugins/fzf-git"]
+	path = zsh/plugins/fzf-git
+	url = git@github.com:junegunn/fzf-git.sh.git

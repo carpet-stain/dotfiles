@@ -1,7 +1,3 @@
-# +-------------+
-# | COMPLETIONS |
-# +-------------+
-
 # Zstyle pattern
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
 
@@ -18,17 +14,12 @@ zstyle :completion:*                 list-dirs-first     true
 zstyle :completion:*                 verbose             true
 zstyle :completion:*                 matcher-list        '' 'm:{[:lower:]}={[:upper:]}'
 zstyle :completion:*:descriptions    format              '[%d]'
+zstyle :completion:*:corrections     format              '[%d]'
 zstyle :completion:*:manuals         separate-sections   true
 zstyle :completion:*:git-checkout:*  sort                false # disable sort when completing `git checkout`
 
 # disable sort when completing options of any command
 zstyle :completion:complete:*:options sort false
-
-# Complete the alias when _expand_alias is used as a function
-zstyle :completion:*                 complete            true
-zle -C alias-expension complete-word _generic
-bindkey '^Xa' alias-expension
-zstyle :completion:alias-expension:* completer           _expand_alias
 
 # Allow you to select in a menu
 zstyle :completion:*                 menu                select
@@ -39,7 +30,7 @@ zstyle :completion:*                 complete-options    true
 # Only display some tags for the command cd
 zstyle :completion:*:*:cd:*          tag-order local-directories directory-stack path-directories
 
-# Required for completion to be in good groups (named after the tags)
+# To group the different type of matches under their descriptions
 zstyle :completion:*                 group-name ''
 
 zstyle :completion:*:*:-command-:*:* group-order aliases builtins functions commands

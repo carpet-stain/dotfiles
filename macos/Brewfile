@@ -1,51 +1,39 @@
-tap 'olets/tap'
-tap 'romkatv/powerlevel10k'
-tap 'abhinav/tap'
+tap 'superatomic/bundle-extensions'
 
-brew 'bat'
-brew 'bat-extras' # batgrep, batpipe
+brew 'bat' # Better cat
+brew 'btop'
 brew 'coreutils'
 brew 'curl'
 brew 'curlie'
-brew 'direnv'
-brew 'dog'
-brew 'dua-cli'
-brew 'eza'
-brew 'fd'
-brew 'fzf'
-brew 'git'
-brew 'git-delta'
+brew 'direnv' # Loading .envrc files
+brew 'doggo' # Better dig
+brew 'dua-cli' # Better du
+brew 'eza' # Better ls
+brew 'fastfetch' # Get system info
+brew 'fd' # better find
+brew 'fzf' # Fuzzy finder
+brew 'git' # More recent version of git
+brew 'git-delta' # Better diff
 brew 'gnu-sed'
 brew 'gnu-tar'
-brew 'gnupg'
-brew 'goenv'
-brew 'grc'
 brew 'grep'
-brew 'htop'
 brew 'httpstat'
-brew 'neofetch'
 brew 'neovim'
 brew 'openssh'
-brew 'powerlevel10k'
-brew 'pyenv'
-brew 'ripgrep'
-brew 'tealdeer'
-brew 'tmux'
-brew 'tmux-fastcopy'
-brew 'tree'
-brew 'viddy'
-brew 'wget'
-brew 'zoxide'
+brew 'powerlevel10k' # zsh command prompt
+brew 'ripgrep' # Faster ag written in Rust
+brew 'tealdeer' # tldr utility
+brew 'tmux' # terminal multiplexer
+brew 'tree' # Show directory trees
+brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-fast-syntax-highlighting'
-brew 'zsh-abbr'
+brew 'olets/tap/zsh-abbr'
 brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
-cask 'alacritty'
+cask 'alacritty' # Fast, minimal terminal
 cask 'bitwarden'
 cask 'firefox'
-cask 'google-chrome'
 cask 'font-hack-nerd-font'
 cask 'rectangle'
-cask 'vscodium'

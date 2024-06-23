@@ -1,80 +1,74 @@
 [http]
-	sslverify = true
+  sslverify = true
+
 [user]
-	email = brian@leppez
-	name = Brian Leppez
-	signingkey = 0x22483EA714C8FC1B
+  email = brian@leppez
+  name = Brian Leppez
+  signingkey = 0x22483EA714C8FC1B
+
 [commit]
-	template = ~/.config/git/committemplate
+  template = ~/.config/git/committemplate
   verbose = true
-	# gpgsign = true
+  # gpgsign = true
+
 [help]
-	autocorrect = 1
+  autocorrect = 1
+
 [include]
-	path = local/user
-	path = local/stuff
   path = ~/.config/git/catppuccin.gitconfig
+
 [push]
-	default = current
-	followTags = true
+  default = current
+  followTags = true
+
 [branch]
-	autosetuprebase = always
+  autosetuprebase = always
+
 [init]
-defaultBranch = main
+  defaultBranch = main
+
 [merge]
-	ff = only
-	conflictstyle = diff3
+  ff = only
+  conflictstyle = diff3
+
 [rebase]
-	autoStash = true
+  autoStash = true
+
 [color]
-	ui = auto
-[alias]
-	bclean = "!f() { git branch --merge ${1-master} | grep -v " ${1-master}$" | xargs -r git branch -d; }; f"
-	bdone = "!f() { git checkout ${1-master} && git up && git bclean ${1-master}; }; f"
-	fuck = "!f() { git reset HEAD --hard && git clean -dfx && git up && git bclean; }; f"
-	lg = log --graph --pretty=fuller --decorate --color --show-signature
-	ls = log --oneline --abbrev-commit --color
-	up = pull --rebase --prune
-	amend = commit --amend
+  ui = auto
+
 [credential]
-	helper = cache --socket ~/.cache/git-credential-cache/socket
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+  helper = cache --socket ~/.cache/git-credential-cache/socket
+
 [diff]
-    colorMoved = default
+  colorMoved = default
+
 [core]
-	excludesfiles = ~/.config/git/ignore
-	autocrlf = input
-	whitespace = cr-at-eol
-	pager = delta
+  excludesfiles = ~/.config/git/ignore
+  autocrlf = input
+  whitespace = cr-at-eol
+  pager = delta
+
 [pager]
-	diff = delta
-	status = true
+  diff = delta
+  status = true
+
 [interactive]
-    diffFilter = delta --color-only
+  diffFilter = delta --color-only
+
 [delta]
-	features = unobtrusive-line-numbers interactive decorations catppuccin-mocha
-    navigate = true    # use n and N to move between diff sections
-    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
-	side-by-side = true
-	hyperlinks = true
-[delta "unobtrusive-line-numbers"]
-	line-numbers-left-format = "{nm:>3}┊"
-	line-numbers-right-format = "{np:>3}│ "
-	line-numbers-zero-style = "#888888"
-[delta "interactive"]
-    keep-plus-minus-markers = false
-[delta "decorations"]
-    commit-decoration-style = blue yellow box
-    file-style = bold 12 ul
-    hunk-header-decoration-style = none
+  features = interactive catppuccin-mocha
+  navigate = true    # use n and N to move between diff sections
+  side-by-side = true
+  hyperlinks = true
+  keep-plus-minus-markers = false
+
 [submodule]
-	fetchJobs = 5
-	recurse = true
+  fetchJobs = 5
+  recurse = true
+
 [status]
-	submoduleSummary = true
+  submoduleSummary = true
+
 [pull]
-	rebase = true
+  rebase = true

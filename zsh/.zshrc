@@ -102,7 +102,7 @@ autoload -Uz add-zsh-hook
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z evalcache compdefcache tat rgf
+autoload -z evalcache compdefcache rgf
 
 # +--------------+
 # | Key Bindings |
@@ -111,38 +111,30 @@ autoload -z evalcache compdefcache tat rgf
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
 
+# Unbind <C-g> so it can be used by fzf-git
+bindkey -r "^G"
+
 zmodload zsh/terminfo
 
 typeset -A key
-key[Home]=${terminfo[khome]}
-key[End]=${terminfo[kend]}
-key[Insert]=${terminfo[kich1]}
 key[Delete]=${terminfo[kdch1]}
 key[Up]=${terminfo[kcuu1]}
 key[Down]=${terminfo[kcud1]}
 key[Left]=${terminfo[kcub1]}
 key[Right]=${terminfo[kcuf1]}
-key[PageUp]=${terminfo[kpp]}
-key[PageDown]=${terminfo[knp]}
 key[Backspace]=${terminfo[kbs]}
-key[ShiftTab]=${terminfo[kcbt]}
+
 # man 5 user_caps
 key[CtrlLeft]=${terminfo[kLFT5]}
 key[CtrlRight]=${terminfo[kRIT5]}
 
 # Setup keys accordingly
-[[ -n ${key[Home]}      ]] && bindkey ${key[Home]}      beginning-of-line
-[[ -n ${key[End]}       ]] && bindkey ${key[End]}       end-of-line
-[[ -n ${key[Insert]}    ]] && bindkey ${key[Insert]}    overwrite-mode
 [[ -n ${key[Delete]}    ]] && bindkey ${key[Delete]}    delete-char
 [[ -n ${key[Left]}      ]] && bindkey ${key[Left]}      backward-char
 [[ -n ${key[Right]}     ]] && bindkey ${key[Right]}     forward-char
 [[ -n ${key[Up]}        ]] && bindkey ${key[Up]}        up-line-or-beginning-search
 [[ -n ${key[Down]}      ]] && bindkey ${key[Down]}      down-line-or-beginning-search
-[[ -n ${key[PageUp]}    ]] && bindkey ${key[PageUp]}    beginning-of-buffer-or-history
-[[ -n ${key[PageDown]}  ]] && bindkey ${key[PageDown]}  end-of-buffer-or-history
 [[ -n ${key[Backspace]} ]] && bindkey ${key[Backspace]} backward-delete-char
-[[ -n ${key[ShiftTab]}  ]] && bindkey ${key[ShiftTab]}  reverse-menu-complete
 [[ -n ${key[CtrlLeft]}  ]] && bindkey ${key[CtrlLeft]}  backward-word
 [[ -n ${key[CtrlRight]} ]] && bindkey ${key[CtrlRight]} forward-word
 unset key
@@ -178,7 +170,6 @@ alias pwd=' pwd'
 alias exit=' exit'
 
 # Suppress suggestions and globbing
-alias find='noglob find'
 alias touch='nocorrect touch'
 alias mkdir='nocorrect mkdir -pv'
 alias cp='nocorrect cp -i --verbose'
@@ -212,16 +203,6 @@ do_sudo () {
 
 alias sudo='noglob do_sudo '
 
-# +----------------------+
-# | ENVIRONMENT WRAPPERS |
-# +----------------------+
-
-eval "$(goenv init -)"
-
-# Allows goenv to manage GOROOT AND GOPATH
-export PATH=$GOROOT/bin:$PATH
-export PATH=$PATH:$GOPATH/bin
-
 # +-------------+
 # | COMPLETIONS |
 # +-------------+
@@ -240,11 +221,14 @@ eval "$(zoxide init zsh)"
 # | FZF |
 # +-----+
 
-# Auto-completion
+# Completions
 source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
 
 # Key bindings
 source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
+
+# Git FZF
+source $ZDOTDIR/plugins/fzf-git/fzf-git.sh
 
 # +---------+
 # | FZF-TAB |
@@ -253,22 +237,6 @@ source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 # Use fzf for tab completions
 source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
 source $ZDOTDIR/rc.d/fzf-tab.zsh
-
-
-# +-----------+
-# | GPG-AGENT |
-# +-----------+
-
-# remind gpg-agent to update current tty before running git
-if pgrep -u "${EUID}" gpg-agent &>/dev/null; then
-    function _preexec_gpg-agent-update-tty {
-        if [[ ${1} == git* ]]; then
-            gpg-connect-agent --quiet --no-autostart updatestartuptty /bye >/dev/null &!
-        fi
-    }
-
-    add-zsh-hook preexec _preexec_gpg-agent-update-tty
-fi
 
 # +--------------+
 # | ZSH-AUTOPAIR |

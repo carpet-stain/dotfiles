@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/zsh
 
 # Forward to vim
 command=$( tmux display -p '#{pane_current_command}' )
