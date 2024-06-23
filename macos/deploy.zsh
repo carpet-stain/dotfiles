@@ -22,21 +22,18 @@ XDG_STATE_HOME=$HOME/.local/state
 # Create required directories
 print "Creating required directory tree..."
 zf_mkdir -p $XDG_CONFIG_HOME/{git,{btop,bat}/themes,gnupg,alacritty,ripgrep,tealdeer,fsh,homebrew}
-zf_chmod 700 $XDG_CONFIG_HOME/gnupg
-zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/fpath}
-zf_mkdir -p $XDG_DATA_HOME/{{goenv,pyenv,nodenv},zsh,nvim,gnupg,terminfo}
+zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh}
+zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man}
 zf_mkdir -p $XDG_STATE_HOME/zsh
 zf_mkdir -p $HOME/.ssh
 print "  ...done"
 
 # Link config files
 print "Linking config files..."
-zf_ln -sf $SCRIPT_DIR/macos/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
-
 zf_ln -sf $SCRIPT_DIR/zsh/.zshenv $HOME/.zshenv
 zf_ln -sf $SCRIPT_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
 
-zf_ln -sf $SCRIPT_DIR/alacritty/alacritty.toml $XDG_CONFIG_HOME/alacritty/alacritty.toml
+zf_ln -sf $SCRIPT_DIR/alacritty.toml $XDG_CONFIG_HOME/alacritty/alacritty.toml
 zf_ln -sf $SCRIPT_DIR/theme/alacritty/catppuccin-mocha.toml $XDG_CONFIG_HOME/alacritty/catppuccin-mocha.toml
 
 zf_ln -sf $SCRIPT_DIR/btop.conf $XDG_CONFIG_HOME/btop/btop.conf
@@ -45,15 +42,16 @@ zf_ln -sf $SCRIPT_DIR/theme/btop/themes/catppuccin_mocha.theme $XDG_CONFIG_HOME/
 zf_ln -sf $SCRIPT_DIR/batconfig $XDG_CONFIG_HOME/bat/config
 zf_ln -sf $SCRIPT_DIR/theme/bat/themes/Catppuccin\ Mocha.tmTheme $XDG_CONFIG_HOME/bat/themes/Catppuccin\ Mocha.tmTheme
 
-zf_ln -sf $SCRIPT_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
-zf_ln -sf $SCRIPT_DIR/curlrc $XDG_CONFIG_HOME/curlrc
-zf_ln -sf $SCRIPT_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml
-
 zf_ln -sf $SCRIPT_DIR/git/attributes $XDG_CONFIG_HOME/git/attributes
 zf_ln -sf $SCRIPT_DIR/git/committemplate $XDG_CONFIG_HOME/git/committemplate
 zf_ln -sf $SCRIPT_DIR/git/config $XDG_CONFIG_HOME/git/config
 zf_ln -sf $SCRIPT_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
 zf_ln -sf $SCRIPT_DIR/theme/delta/catppuccin.gitconfig $XDG_CONFIG_HOME/git/catppuccin.gitconfig
+
+zf_ln -sf $SCRIPT_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
+zf_ln -sf $SCRIPT_DIR/curlrc $XDG_CONFIG_HOME/curlrc
+zf_ln -sf $SCRIPT_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml
+zf_ln -sf $SCRIPT_DIR/macos/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
 
 cp $SCRIPT_DIR/sshconfig $HOME/.ssh/config
 print "  ...done"

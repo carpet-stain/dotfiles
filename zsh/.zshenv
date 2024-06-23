@@ -12,9 +12,6 @@ export DOTFILES=$ZDOTDIR:h
 # Disable global zsh configuration
 unsetopt GLOBAL_RCS
 
-# Needed to do null globbing (N) for paths
-setopt EXTENDED_GLOB
-
 # Load zsh/files module to provide some builtins for file modifications
 # This is used in fpath custom functions
 zmodload -F -m zsh/files b:zf_\*
@@ -58,10 +55,11 @@ export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
-export GOENV_ROOT=$XDG_DATA_HOME/goenv
 export GOPATH=$XDG_DATA_HOME/go
 
 export HOMEBREW_PREFIX=/opt/homebrew
+export HOMEBREW_UPGRADE_GREEDY=1
+export HOMEBREW_NO_AUTO_UPDATE=1
 
 export LESSOPEN='lessopen.sh %s'
 export LESS_ADVANCED_PREPROCESSOR=1
@@ -105,25 +103,18 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 # Add custom functions and completions
 fpath=($ZDOTDIR/fpath $fpath)
 
-# Initialize path.
-# If dirs are missing, they won't be added due to null globbing.
-path=(
-  /opt/{homebrew,local}/{,s}bin(N)
-  /usr/local/{,s}bin(N)
-  $path
-)
+# Initialize path
+path=($HOMEBREW_PREFIX/{,s}bin $path)
 
 # Enable man pages
 MANPATH=$XDG_DATA_HOME/man:$MANPATH
 
-if [[ $OSTYPE = darwin* ]]; then
-    # Enable gnu version of utilities on macOS
-    for gnuutil in coreutils gnu-sed gnu-tar grep; do
-        if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin ]]; then
-            path=($HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin $path)
-        fi
-        if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman ]]; then
-            MANPATH=$HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman:$MANPATH
-        fi
-    done
-fi
+# Enable gnu version of utilities on macOS
+for gnuutil in coreutils gnu-sed gnu-tar; do
+    if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin ]]; then
+        path=($HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin $path)
+    fi
+    if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman ]]; then
+        MANPATH=$HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman:$MANPATH
+    fi
+done

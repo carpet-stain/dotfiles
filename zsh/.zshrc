@@ -46,6 +46,7 @@ SAVEHIST=$HISTSIZE
 #   %T is equivalent to %H:%M:%S (24-hours format)
 HISTTIMEFORMAT='[%F %T]'
 
+setopt EXTENDED_GLOB
 unsetopt FLOW_CONTROL            # disable annoying keys 
 setopt CLOBBER                   # allow > redirection to truncate existing files
 setopt MULTIOS                   # allows multiple input and output redirections 
@@ -102,7 +103,7 @@ autoload -Uz add-zsh-hook
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z evalcache compdefcache rgf
+autoload -z evalcache compdefcache rgf do_sudo
 
 # +--------------+
 # | Key Bindings |
@@ -110,9 +111,6 @@ autoload -z evalcache compdefcache rgf
 
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
-
-# Unbind <C-g> so it can be used by fzf-git
-bindkey -r "^G"
 
 zmodload zsh/terminfo
 
@@ -123,20 +121,18 @@ key[Down]=${terminfo[kcud1]}
 key[Left]=${terminfo[kcub1]}
 key[Right]=${terminfo[kcuf1]}
 key[Backspace]=${terminfo[kbs]}
-
-# man 5 user_caps
 key[CtrlLeft]=${terminfo[kLFT5]}
 key[CtrlRight]=${terminfo[kRIT5]}
 
 # Setup keys accordingly
-[[ -n ${key[Delete]}    ]] && bindkey ${key[Delete]}    delete-char
-[[ -n ${key[Left]}      ]] && bindkey ${key[Left]}      backward-char
-[[ -n ${key[Right]}     ]] && bindkey ${key[Right]}     forward-char
-[[ -n ${key[Up]}        ]] && bindkey ${key[Up]}        up-line-or-beginning-search
-[[ -n ${key[Down]}      ]] && bindkey ${key[Down]}      down-line-or-beginning-search
-[[ -n ${key[Backspace]} ]] && bindkey ${key[Backspace]} backward-delete-char
-[[ -n ${key[CtrlLeft]}  ]] && bindkey ${key[CtrlLeft]}  backward-word
-[[ -n ${key[CtrlRight]} ]] && bindkey ${key[CtrlRight]} forward-word
+bindkey ${key[Delete]}    delete-char
+bindkey ${key[Left]}      backward-char
+bindkey ${key[Right]}     forward-char
+bindkey ${key[Up]}        up-line-or-beginning-search
+bindkey ${key[Down]}      down-line-or-beginning-search
+bindkey ${key[Backspace]} backward-delete-char
+bindkey ${key[CtrlLeft]}  backward-word
+bindkey ${key[CtrlRight]} forward-word
 unset key
 
 # Make dot key autoexpand "..." to "../.." and so on
@@ -177,30 +173,6 @@ alias fd='noglob fd'
 
 alias tmux="tmux -f $DOTFILES/tmux/tmux.conf"
 
-# sudo wrapper which is able to expand aliases and handle noglob/nocorrect builtins
-do_sudo () {
-    integer glob=1
-    local -a run
-    run=(command sudo)
-    if [[ $# -gt 1 && $1 = -u ]]; then
-        run+=($1 $2)
-        shift; shift
-    fi
-    while (( $# )); do
-        case $1 in
-            command|exec|-) shift; break ;;
-            nocorrect) shift ;;
-            noglob) glob=0; shift ;;
-            *) break ;;
-        esac
-    done
-    if (( glob )); then
-        $run $~==*
-    else
-        $run $==*
-    fi
-}
-
 alias sudo='noglob do_sudo '
 
 # +-------------+
@@ -227,23 +199,17 @@ source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
 # Key bindings
 source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 
-# Git FZF
-source $ZDOTDIR/plugins/fzf-git/fzf-git.sh
-
 # +---------+
 # | FZF-TAB |
 # +---------+
 
-# Use fzf for tab completions
-source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
 source $ZDOTDIR/rc.d/fzf-tab.zsh
 
 # +--------------+
 # | ZSH-AUTOPAIR |
 # +--------------+
 
-[[ -e $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh ]] && 
-    source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
+source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 
 # +------------------------------+
 # | ZSH-FAST-SYNTAX-HIGHLIGHTING |
@@ -253,16 +219,14 @@ source $ZDOTDIR/rc.d/fzf-tab.zsh
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 # syntax-highlighting plugin
-[[ -e $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ]] && 
-    source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # +----------+
 # | ZSH-ABBR |
 # +----------+
 
 ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/rc.d/abbreviations-store
-[[ -e $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh ]] && 
-    source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
+source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
 
 export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH
 
@@ -281,8 +245,7 @@ ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(Qk)ABBR_REGULAR_USER_ABBREVIATIONS}}
 ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
 
 # Autosuggestion plugin
-[[ -e $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
-    source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Clear suggestions after paste
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
