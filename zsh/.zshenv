@@ -14,7 +14,7 @@ unsetopt GLOBAL_RCS
 
 # Load zsh/files module to provide some builtins for file modifications
 # This is used in fpath custom functions
-zmodload -F -m zsh/files b:zf_\*
+zmodload -F zsh/files b:zf_mkdir b:zf_rm
 
 #  ╭──────────╮
 #  │  EXPORT  │
@@ -30,21 +30,11 @@ export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --w
 export READNULLCMD=$PAGER
 
 # XDG basedir spec compliance
-if [[ ! -v XDG_CONFIG_HOME ]]; then
-    export XDG_CONFIG_HOME=$HOME/.config
-fi
-if [[ ! -v XDG_CACHE_HOME ]]; then
-    export XDG_CACHE_HOME=$HOME/.cache
-fi
-if [[ ! -v XDG_DATA_HOME ]]; then
-    export XDG_DATA_HOME=$HOME/.local/share
-fi
-if [[ ! -v XDG_STATE_HOME ]]; then
-    export XDG_STATE_HOME=$HOME/.local/state
-fi
-if [[ ! -v XDG_RUNTIME_DIR ]]; then
-    export XDG_RUNTIME_DIR=$TMPDIR:-/tmp/runtime-$USER
-fi
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+export XDG_STATE_HOME=$HOME/.local/state
+export XDG_RUNTIME_DIR=$TMPDIR:-/tmp/runtime-$USER
 
 # XDG-Compliance
 export LESSHISTFILE=$XDG_DATA_HOME/lesshst

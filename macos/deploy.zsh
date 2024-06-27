@@ -2,7 +2,7 @@
 
 set -e
 
-zmodload -m -F zsh/files b:zf_\*
+zmodload -m -F zsh/files b:zf_rm b:zf_ln b:zf_mkdir
 
 # +----------------+
 # | XDG COMPLIANCE |

@@ -1,8 +1,3 @@
-tt.*
-.tests
-doc/tags
-debug
-.repro
-foo.*
-*.log
-data
+spell/en.utf-8.add
+spell/en.utf-8.add.spl
+mini-deps-snap
