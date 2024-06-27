@@ -23,3 +23,6 @@
 
 # Always use colors
 --color=always
+
+## Theme
+--theme="Catppuccin Mocha"

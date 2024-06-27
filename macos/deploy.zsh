@@ -97,11 +97,9 @@ print "  ...done"
 
 # Generate tmux-256color terminfo
 print "Generating tmux-256color.info"
-if [[ $OSTYPE = darwin* ]]; then
-	$HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color >~/tmux-256color.info
-	tic -x -o $XDG_DATA_HOME/terminfo ~/tmux-256color.info
-	zf_rm -f ~/tmux-256color.info
-fi
+$HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color >~/tmux-256color.info
+tic -x -o $XDG_DATA_HOME/terminfo ~/tmux-256color.info
+zf_rm -f ~/tmux-256color.info
 print "  ...done"
 
 # Setting ZSH FSH theme
