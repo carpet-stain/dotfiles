@@ -125,7 +125,7 @@ curl -s "$MIRRORLIST_URL" |
 	rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
 # echo "Writing random bytes to $device, go grab some coffee it might take a while"
-# dd bs=1M if=/dev/urandom of="$device" status=progress || true
+dd bs=1M if=/dev/urandom of="$device" status=progress || true
 
 ### Setup the disk and partitions ###
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
