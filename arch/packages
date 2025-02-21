@@ -27,7 +27,6 @@ sddm
 
 # Desktop Environment
 plasma-desktop
-plasma-wayland-session
 
 # Basic services
 pipewire
