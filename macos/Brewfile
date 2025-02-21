@@ -23,6 +23,7 @@ brew 'ripgrep' # Faster ag written in Rust
 brew 'tealdeer' # tldr utility
 brew 'tmux' # terminal multiplexer
 brew 'tree' # Show directory trees
+brew 'wget'
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-fast-syntax-highlighting'
@@ -32,8 +33,14 @@ brew 'zsh-autosuggestions'
 
 cask 'alacritty' # Fast, minimal terminal
 cask 'bitwarden'
+cask 'electrum'
 cask 'eloston-chromium'
 cask 'firefox'
 cask 'font-hack-nerd-font'
+cask 'little-snitch'
+cask 'monero-wallet'
 cask 'protonvpn'
 cask 'rectangle'
+cask 'signal'
+cask 'slack'
+cask 'steam'
