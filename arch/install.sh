@@ -119,13 +119,13 @@ user_password=$(get_password "User" "Enter password") || exit 1
 clear
 test -z "$user_password" && echo >&2 "user password cannot be empty" && exit 1
 
-echo "Updating fastests mirrors list"
+echo "Updating fastest mirrors list"
 curl -s "$MIRRORLIST_URL" |
 	sed -e 's/^#Server/Server/' -e '/^#/d' |
 	rankmirrors -n 5 - >/etc/pacman.d/mirrorlist
 
-# echo "Writing random bytes to $device, go grab some coffee it might take a while"
-dd bs=1M if=/dev/urandom of="$device" status=progress || true
+echo "Writing random bytes to $device, go grab some coffee it might take a while"
+dd bs=1M if=/dev/urandom of="$device" iflag=fullblock oflag=direct status=progress || true
 
 ### Setup the disk and partitions ###
 swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
