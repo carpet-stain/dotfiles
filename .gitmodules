@@ -21,19 +21,19 @@
 	url = https://github.com/catppuccin/tmux.git
 [submodule "theme/alacritty"]
 	path = theme/alacritty
-	url = git@github.com:catppuccin/alacritty.git
+	url = https://github.com/catppuccin/alacritty.git
 [submodule "theme/bat"]
 	path = theme/bat
-	url = git@github.com:catppuccin/bat.git
+	url = https://github.com/catppuccin/bat.git
 [submodule "theme/delta"]
 	path = theme/delta
-	url = git@github.com:catppuccin/delta.git
+	url = https://github.com/catppuccin/delta.git
 [submodule "theme/btop"]
 	path = theme/btop
-	url = git@github.com:catppuccin/btop.git
+	url = https://github.com/catppuccin/btop.git
 [submodule "theme/zsh-fsh"]
 	path = theme/zsh-fsh
-	url = git@github.com:catppuccin/zsh-fsh.git
+	url = https://github.com/catppuccin/zsh-fsh.git
 [submodule "zsh/plugins/fzf-git"]
 	path = zsh/plugins/fzf-git
-	url = git@github.com:junegunn/fzf-git.sh.git
+	url = https://github.com/junegunn/fzf-git.sh.git
