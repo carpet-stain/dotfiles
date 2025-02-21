@@ -103,7 +103,7 @@ autoload -Uz add-zsh-hook
 
 # Custom personal functions
 # Don't use -U as we need aliases here
-autoload -z evalcache compdefcache rgf do_sudo
+autoload -z evalcache compdefcache rgf
 
 # +--------------+
 # | Key Bindings |
@@ -157,23 +157,8 @@ source $ZDOTDIR/rc.d/powerlevel10k.zsh
 # | ALIASES |
 # +---------+
 
-alias ls='eza --long --header --icons --group-directories-first --group --git --all --links'
-alias diff=delta
-
-# History suppression
-alias clear=' clear'
-alias pwd=' pwd'
-alias exit=' exit'
-
-# Suppress suggestions and globbing
-alias touch='nocorrect touch'
-alias mkdir='nocorrect mkdir -pv'
-alias cp='nocorrect cp -i --verbose'
-alias fd='noglob fd'
-
-alias tmux="tmux -f $DOTFILES/tmux/tmux.conf"
-
-alias sudo='noglob do_sudo '
+# Prefer abbreviations over alias
+alias ls='eza --icons --group-directories-first --all'
 
 # +-------------+
 # | COMPLETIONS |
@@ -226,6 +211,9 @@ source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-h
 # +----------+
 
 ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/rc.d/abbreviations-store
+ABBR_EXPAND_PUSH_ABBREVIATION_TO_HISTORY=1
+ABBR_GET_AVAILABLE_ABBREVIATION=1
+ABBR_LOG_AVAILABLE_ABBREVIATION_AFTER=1
 source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
 
 export MANPATH=$HOMEBREW_PREFIX/opt/zsh-abbr/share/man:$MANPATH

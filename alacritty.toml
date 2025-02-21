@@ -5,6 +5,7 @@
 # The format's specification can be found at https://toml.io/en/v1.0.0.
 
 # GENERAL
+[general]
 
 # import = ["<string>",]
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+# Load zsh/files module to provide some builtins for file modifications
+zmodload -F zsh/files b:zf_mkdir b:zf_rm
+
 compdefcache () {
     local cache_dir=$XDG_CACHE_HOME/zsh/fpath
     local cache_file=$cache_dir/_${1##/*}

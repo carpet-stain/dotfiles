@@ -12,10 +12,6 @@ export DOTFILES=$ZDOTDIR:h
 # Disable global zsh configuration
 unsetopt GLOBAL_RCS
 
-# Load zsh/files module to provide some builtins for file modifications
-# This is used in fpath custom functions
-zmodload -F zsh/files b:zf_mkdir b:zf_rm
-
 #  ╭──────────╮
 #  │  EXPORT  │
 #  ╰──────────╯
@@ -48,25 +44,13 @@ export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOPATH=$XDG_DATA_HOME/go
 
 export HOMEBREW_PREFIX=/opt/homebrew
-export HOMEBREW_UPGRADE_GREEDY=1
-export HOMEBREW_NO_AUTO_UPDATE=1
 
 export LESSOPEN='lessopen.sh %s'
 export LESS_ADVANCED_PREPROCESSOR=1
 
-export BAT_THEME="Catppuccin Mocha"
-
 # fzf
 export FZF_DEFAULT_COMMAND="rg --files"
-
-# Catppuccin-mocha theme
-export FZF_DEFAULT_OPTS=" \
---color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
---color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
---ansi \
---height 70% \
---tmux 70%"
+export FZF_DEFAULT_OPTS_FILE=$XDG_CONFIG_HOME/fzfrc
 
 # Preview file content using bat
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
@@ -100,11 +84,7 @@ path=($HOMEBREW_PREFIX/{,s}bin $path)
 MANPATH=$XDG_DATA_HOME/man:$MANPATH
 
 # Enable gnu version of utilities on macOS
-for gnuutil in coreutils gnu-sed gnu-tar; do
-    if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin ]]; then
-        path=($HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnubin $path)
-    fi
-    if [[ -d $HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman ]]; then
-        MANPATH=$HOMEBREW_PREFIX/opt/$gnuutil/libexec/gnuman:$MANPATH
-    fi
-done
+for bindir in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin; do export PATH=$bindir:$PATH; done
+for bindir in ${HOMEBREW_PREFIX}/opt/*/bin; do export PATH=$bindir:$PATH; done
+for mandir in ${HOMEBREW_PREFIX}/opt/*/libexec/gnuman; do export MANPATH=$mandir:$MANPATH; done
+for mandir in ${HOMEBREW_PREFIX}/opt/*/share/man/man1; do export MANPATH=$mandir:$MANPATH; done

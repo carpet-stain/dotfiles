@@ -1,5 +1,3 @@
-tap 'superatomic/bundle-extensions'
-
 brew 'bat' # Better cat
 brew 'btop'
 brew 'coreutils'
@@ -34,6 +32,8 @@ brew 'zsh-autosuggestions'
 
 cask 'alacritty' # Fast, minimal terminal
 cask 'bitwarden'
+cask 'eloston-chromium'
 cask 'firefox'
 cask 'font-hack-nerd-font'
+cask 'protonvpn'
 cask 'rectangle'

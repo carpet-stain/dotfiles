@@ -21,7 +21,7 @@ XDG_STATE_HOME=$HOME/.local/state
 
 # Create required directories
 print "Creating required directory tree..."
-zf_mkdir -p $XDG_CONFIG_HOME/{git,{btop,bat}/themes,gnupg,alacritty,ripgrep,tealdeer,fsh,homebrew}
+zf_mkdir -p $XDG_CONFIG_HOME/{git,{btop,bat}/themes,gnupg,alacritty,ripgrep,tealdeer,fsh,homebrew,fzf}
 zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh}
 zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man}
 zf_mkdir -p $XDG_STATE_HOME/zsh
@@ -52,6 +52,8 @@ zf_ln -sf $SCRIPT_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
 zf_ln -sf $SCRIPT_DIR/curlrc $XDG_CONFIG_HOME/curlrc
 zf_ln -sf $SCRIPT_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml
 zf_ln -sf $SCRIPT_DIR/macos/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
+zf_ln -sf $SCRIPT_DIR/fzfrc $XDG_CONFIG_HOME/fzfrc
+
 
 cp $SCRIPT_DIR/sshconfig $HOME/.ssh/config
 print "  ...done"

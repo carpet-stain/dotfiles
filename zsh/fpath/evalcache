@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
 
+# Load zsh/files module to provide some builtins for file modifications
+zmodload -F zsh/files b:zf_mkdir b:zf_rm
+
 evalcache () {
     local cache_dir=$XDG_CACHE_HOME/zsh/eval
     local cache_file=$cache_dir/${(j:_:)@:gs/\//_}.zsh
