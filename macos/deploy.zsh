@@ -73,8 +73,6 @@ fi
 # Install Brewfile packages
 eval "$(brew shellenv)"
 brew bundle --quiet --no-lock --file=macos/Brewfile
-# print "Installing personal packages..."
-# brew bundle --quiet --no-lock --file=Brewfile.personal
 
 # Make sure submodules are installed
 print "Syncing submodules..."
