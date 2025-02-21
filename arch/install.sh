@@ -157,7 +157,7 @@ mkdir /mnt/boot
 mount "${part_boot}" /mnt/boot
 
 # Install all packages listed in packages
-curl -s https://raw.githubusercontent.com/carpet-stain/dotfiles/master/arch/packages > packages
+curl -s https://raw.githubusercontent.com/carpet-stain/dotfiles/refs/heads/main/arch/packages > packages
 grep -o '^[^ *#]*' packages | pacstrap -K /mnt -
 
 # Patch pacman config
