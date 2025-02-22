@@ -11,8 +11,8 @@ amd-ucode
 mesa
 
 # Networking
-iwd
 iptables-nft # includes nftables as a dependency, will automatically uninstall iptables
+networkmanager
 
 # Display Manager
 sddm
@@ -69,3 +69,4 @@ plasma-pa
 plasma-nm
 plasma-systemmonitor
 powerdevil
+iwgtk

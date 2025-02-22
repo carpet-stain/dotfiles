@@ -191,6 +191,7 @@ for group in wheel network storage video audio input render lp power dbus disk; 
 	arch-chroot /mnt groupadd -rf "$group"
 	arch-chroot /mnt gpasswd -a "$user" "$group"
 done
+sed -i '/^#.*%wheel.*ALL=(ALL) ALL/s/^#//' /mnt/etc/sudoers
 
 # Hardening
 arch-chroot /mnt chmod 700 /boot
@@ -205,11 +206,6 @@ arch-chroot /mnt systemctl enable systemd-resolved
 arch-chroot /mnt systemctl enable systemd-timesyncd
 arch-chroot /mnt systemctl enable iwd
 arch-chroot /mnt systemctl enable nftables
-
-cat <<EOL > /mnt/etc/systemd/network/wlan0
-[Network]
-DHCP=ipv4
-EOL
 
 ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
