@@ -13,14 +13,6 @@ mesa
 # Networking
 iwd
 iptables-nft # includes nftables as a dependency, will automatically uninstall iptables
-wget
-
-# Virtualization
-docker
-
-# Monitoring
-htop
-lsof
 
 # Display Manager
 sddm
@@ -34,10 +26,9 @@ pipewire-audio
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
-openssh
+wireplumber
 
 # Fonts
-
 
 # Developer
 neovim
@@ -47,18 +38,34 @@ man-pages
 alacritty
 tmux
 fd
-gnupg
-httpie
-
 
 # File viewers/editors
 dolphin
 
 # CLI
 zsh
-ripgrep
-bat
 
 # Other
 bitwarden
-
+firefox
+ark # File compressor
+ffmpegthumbs
+gwenview
+kcalc
+kdegraphics-thumbnailers
+kdesk-thumbnailers
+kwrite
+okular
+spectacle
+ktorrent
+kscreen
+kinfocenter
+kde-gtk-config
+bluez
+bluez-utils
+bluedevil
+kwallet-pam
+plasma-pa
+plasma-nm
+plasma-systemmonitor
+powerdevil

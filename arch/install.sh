@@ -80,8 +80,7 @@ swapoff -a || true
 umount -R /mnt 2>/dev/null || true
 
 # Basic settings
-timedatectl set-ntp true
-hwclock --systohc --utc
+timedatectl
 
 # Keyring from ISO might be outdated, upgrading it just in case
 pacman -Sy --noconfirm --needed archlinux-keyring
@@ -132,9 +131,9 @@ swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
 swap_end=$(($swap_size + 129 + 1))MiB
 
 parted --script "${device}" -- mklabel gpt \
-	mkpart ESP fat32 1Mib 129MiB \
+	mkpart ESP fat32 1Mib 1GiB \
 	set 1 boot on \
-	mkpart primary linux-swap 129MiB ${swap_end} \
+	mkpart primary linux-swap 1GiB ${swap_end} \
 	mkpart primary ext4 ${swap_end} 100%
 
 # Simple globbing was not enough as on one device I needed to match /dev/mmcblk0p1
@@ -171,10 +170,11 @@ sed -i "s/#Color/Color/g" /mnt/etc/pacman.conf
 } >/mnt/etc/kernel/cmdline
 
 echo "${hostname}" >/mnt/etc/hostname
-echo "en_US.UTF-8 UTF-8" >/mnt/etc/locale.gen
-ln -sf /usr/share/zoneinfo/US/Central "/etc/localtime"
-sed 's/#en_US/en_US/' -i /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" > /mnt/etc/locale.conf
+ln -sf /usr/share/zoneinfo/US/New_York /mnt/etc/localtime
+sed 's/#en_US/en_US/' -i /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
+arch-chroot /mnt hwclock --systohc
 
 genfstab -U /mnt >>/mnt/etc/fstab
 
@@ -202,7 +202,7 @@ done
 # Hardening
 arch-chroot /mnt chmod 700 /boot
 arch-chroot /mnt chsh -s /usr/bin/zsh
-echo "$user:$password" | arch-chroot /mnt chpasswd
+echo "$user:$user_password" | arch-chroot /mnt chpasswd
 arch-chroot /mnt passwd -dl root
 
 # Configure systemd services
@@ -212,6 +212,13 @@ arch-chroot /mnt systemctl enable systemd-resolved
 arch-chroot /mnt systemctl enable systemd-timesyncd
 arch-chroot /mnt systemctl enable iwd
 arch-chroot /mnt systemctl enable nftables
+
+cat <<EOL > /mnt/etc/systemd/network/wlan0
+[Network]
+DHCP=ipv4
+EOL
+
+ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
 # Configure systemd user services
 arch-chroot /mnt systemctl --global enable pipewire
