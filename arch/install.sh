@@ -201,13 +201,9 @@ arch-chroot /mnt passwd -dl root
 
 # Configure systemd services
 arch-chroot /mnt systemctl enable sddm
-arch-chroot /mnt systemctl enable systemd-networkd
-arch-chroot /mnt systemctl enable systemd-resolved
 arch-chroot /mnt systemctl enable systemd-timesyncd
 arch-chroot /mnt systemctl enable iwd
 arch-chroot /mnt systemctl enable nftables
-
-ln -sf /run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
 # Configure systemd user services
 arch-chroot /mnt systemctl --global enable pipewire
