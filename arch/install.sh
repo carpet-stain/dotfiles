@@ -86,14 +86,7 @@ timedatectl
 pacman -Sy --noconfirm --needed archlinux-keyring
 
 # Make sure some basic tools that will be used in this script are installed
-pacman -Sy --noconfirm --needed git terminus-font dialog wget pacman-contrib
-
-# Adjust the font size in case the screen is hard to read
-noyes=("Yes" "The font is too small" "No" "The font size is just fine")
-hidpi=$(get_choice "Font size" "Is your screen HiDPI?" "${noyes[@]}") || exit 1
-clear
-[[ "$hidpi" == "Yes" ]] && font="ter-132n" || font="ter-716n"
-setfont "$font"
+pacman -Sy --noconfirm --needed git dialog wget pacman-contrib
 
 # Ask which device to install ArchLinux on
 devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac | tr '\n' ' ')
