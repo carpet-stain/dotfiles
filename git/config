@@ -12,7 +12,7 @@
   # gpgsign = true
 
 [help]
-  autocorrect = 1
+  autoCorrect = 1
 
 [include]
   path = ~/.config/git/catppuccin.gitconfig
@@ -22,14 +22,14 @@
   followTags = true
 
 [branch]
-  autosetuprebase = always
+  autoSetupRebase = always
 
 [init]
   defaultBranch = main
 
 [merge]
   ff = only
-  conflictstyle = diff3
+  conflictStyle = diff3
 
 [rebase]
   autoStash = true
@@ -44,7 +44,7 @@
   colorMoved = default
 
 [core]
-  excludesfiles = ~/.config/git/ignore
+  excludesFiles = ~/.config/git/ignore
   autocrlf = input
   whitespace = cr-at-eol
   pager = delta
