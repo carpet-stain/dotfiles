@@ -22,7 +22,7 @@ export EDITOR=nvim
 export NVIM_APPNAME=dotfiles/nvim
 export PAGER=less
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4"
+export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4 --mouse --wheel-lines=3"
 export READNULLCMD=$PAGER
 
 # XDG basedir spec compliance
@@ -76,6 +76,9 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 
 # Add custom functions and completions
 fpath=($ZDOTDIR/fpath $fpath)
+
+autoload -z evalcache
+evalcache brew shellenv
 
 # Initialize path
 path=($HOMEBREW_PREFIX/{,s}bin $path)
