@@ -37,3 +37,9 @@
 [submodule "zsh/plugins/fzf-git"]
 	path = zsh/plugins/fzf-git
 	url = https://github.com/junegunn/fzf-git.sh.git
+[submodule "tmux/plugins/battery"]
+	path = tmux/plugins/battery
+	url = https://github.com/tmux-plugins/tmux-battery
+[submodule "tmux/plugins/cpu"]
+	path = tmux/plugins/cpu
+	url = https://github.com/tmux-plugins/tmux-cpu
