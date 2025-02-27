@@ -202,8 +202,8 @@ arch-chroot /mnt passwd -dl root
 # Configure systemd services
 arch-chroot /mnt systemctl enable sddm
 arch-chroot /mnt systemctl enable systemd-timesyncd
-arch-chroot /mnt systemctl enable iwd
 arch-chroot /mnt systemctl enable nftables
+arch-chroot /mnt systemctl enable networkmanager
 
 # Configure systemd user services
 arch-chroot /mnt systemctl --global enable pipewire

@@ -1,10 +1,10 @@
 # Zstyle pattern
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
 
-zstyle :completion:*:*:*:*:default   list-colors         ${(s.:.)EZA_COLORS}
+zstyle :completion:*                 list-colors         ${(s.:.)EZA_COLORS}
 
 # Define completers
-zstyle :completion:* completer _extensions _complete _approximate
+zstyle :completion:*                 completer           _extensions _complete _approximate
 
 # Use cache for commands using cache
 zstyle :completion:*                 use-cache           true
@@ -12,6 +12,7 @@ zstyle :completion:*                 cache-path          $XDG_CACHE_HOME/zsh/.zc
 
 zstyle :completion:*                 list-dirs-first     true
 zstyle :completion:*                 verbose             true
+zstyle :completion:*                 menu                no
 zstyle :completion:*                 matcher-list        '' 'm:{[:lower:]}={[:upper:]}'
 zstyle :completion:*:descriptions    format              '[%d]'
 zstyle :completion:*:corrections     format              '[%d]'
