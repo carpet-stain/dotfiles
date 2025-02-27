@@ -10,9 +10,6 @@
 [submodule "tmux/plugins/power-zoom"]
 	path = tmux/plugins/power-zoom
 	url = https://github.com/jaclu/tmux-power-zoom.git
-[submodule "tmux/plugins/resurrect"]
-	path = tmux/plugins/resurrect
-	url = https://github.com/tmux-plugins/tmux-resurrect
 [submodule "tmux/plugins/session-wizard"]
 	path = tmux/plugins/session-wizard
 	url = https://github.com/27medkamal/tmux-session-wizard
