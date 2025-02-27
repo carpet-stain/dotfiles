@@ -23,6 +23,8 @@ export NVIM_APPNAME=dotfiles/nvim
 export PAGER=less
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4 --mouse --wheel-lines=3"
+export LESSOPEN='lessopen.sh %s'
+export LESS_ADVANCED_PREPROCESSOR=1
 export READNULLCMD=$PAGER
 
 # XDG basedir spec compliance
@@ -44,9 +46,6 @@ export TERMINFO_DIRS=$TERMINFO_DIRS:$TERMINFO:/usr/share/terminfo
 export GOPATH=$XDG_DATA_HOME/go
 
 export HOMEBREW_PREFIX=/opt/homebrew
-
-export LESSOPEN='lessopen.sh %s'
-export LESS_ADVANCED_PREPROCESSOR=1
 
 # fzf
 export FZF_DEFAULT_COMMAND="rg --files"
