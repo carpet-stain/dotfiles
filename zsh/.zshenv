@@ -54,6 +54,7 @@ export FZF_DEFAULT_OPTS_FILE=$XDG_CONFIG_HOME/fzfrc
 # Preview file content using bat
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
+  --walker-skip .git,node_modules,target
   --preview 'bat {}'
   --color header:italic
   --select-1 --exit-0"
@@ -61,7 +62,6 @@ export FZF_CTRL_T_OPTS="
 # ? to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy
 export FZF_CTRL_R_OPTS="
-  --preview 'echo {}' --preview-window up:3:hidden:wrap
   --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
   --color header:italic
   --header 'Press CTRL-Y to copy command into clipboard'"
