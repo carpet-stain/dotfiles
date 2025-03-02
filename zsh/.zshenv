@@ -16,7 +16,6 @@ unsetopt GLOBAL_RCS
 #  │  EXPORT  │
 #  ╰──────────╯
 
-# Prefered editor and pager
 export VISUAL=nvim
 export EDITOR=nvim
 export NVIM_APPNAME=dotfiles/nvim

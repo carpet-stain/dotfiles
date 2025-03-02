@@ -1,6 +1,4 @@
-# +---------------+
-# | Powerlevel10k |
-# +---------------+
+#!/usr/bin/env zsh
 
 # Enable powerlevel10k prompt
 source $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k/powerlevel10k.zsh-theme

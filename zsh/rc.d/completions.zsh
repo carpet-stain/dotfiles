@@ -1,51 +1,54 @@
+#!/usr/bin/env zsh
+
 # Zstyle pattern
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
 
-zstyle :completion:*                 list-colors         ${(s.:.)EZA_COLORS}
+zstyle :completion:*                  list-colors         ${(s.:.)EZA_COLORS}
 
 # Define completers
-zstyle :completion:*                 completer           _extensions _complete _approximate
+zstyle :completion:*                  completer           _extensions _complete _approximate
 
 # Use cache for commands using cache
-zstyle :completion:*                 use-cache           true
-zstyle :completion:*                 cache-path          $XDG_CACHE_HOME/zsh/.zcompcache
+zstyle :completion:*                  use-cache           true
+zstyle :completion:*                  cache-path          $XDG_CACHE_HOME/zsh/.zcompcache
 
-zstyle :completion:*                 list-dirs-first     true
-zstyle :completion:*                 verbose             true
-zstyle :completion:*                 menu                no
-zstyle :completion:*                 matcher-list        '' 'm:{[:lower:]}={[:upper:]}'
-zstyle :completion:*:descriptions    format              '[%d]'
-zstyle :completion:*:corrections     format              '[%d]'
-zstyle :completion:*:manuals         separate-sections   true
+zstyle :completion:*                  list-dirs-first     true
+zstyle :completion:*                  verbose             true
+zstyle :completion:*                  menu                no
+zstyle :completion:*                  matcher-list        '' 'm:{[:lower:]}={[:upper:]}'
+
+# Display descriptions and corrections in a custom format
+zstyle :completion:*:descriptions     format              '[%d]'
+zstyle :completion:*:corrections      format              '[%d]'
+zstyle :completion:*:manuals          separate-sections   true
 
 # disable sort when completing options of any command
-zstyle :completion:complete:*:options sort false
+zstyle :completion:complete:*:options sort                false
 
 # Allow you to select in a menu
-zstyle :completion:*                 menu                select
+zstyle :completion:*                  menu                select
 
 # Autocomplete options for cd instead of directory stack
-zstyle :completion:*                 complete-options    true
+zstyle :completion:*                  complete-options    true
 
 # Only display some tags for the command cd
-zstyle :completion:*:*:cd:*          tag-order local-directories directory-stack path-directories
+zstyle :completion:*:*:cd:*           tag-order           local-directories directory-stack path-directories
 
 # To group the different type of matches under their descriptions
-zstyle :completion:*                 group-name ''
+zstyle :completion:*                  group-name          ''
 
-zstyle :completion:*:*:-command-:*:* group-order aliases builtins functions commands
+zstyle :completion:*:*:-command-:*:*  group-order         aliases builtins functions commands
 
-zstyle :completion:*                 keep-prefix         true
+zstyle :completion:*                  keep-prefix         true
 
 zstyle -e :completion:*:(ssh|scp|sftp|rsh|rsync):hosts hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
 
-# Enable cached completions, if present
-if [[ -d $XDG_CACHE_HOME/zsh/fpath ]]; then
-    fpath+=$XDG_CACHE_HOME/zsh/fpath
-fi
-
-fpath+=$HOMEBREW_PREFIX/share/zsh-completions
-fpath+=$HOMEBREW_PREFIX/share/zsh/site-functions
+# Add completion paths
+fpath+=( 
+    $XDG_CACHE_HOME/zsh/fpath (N)
+    $HOMEBREW_PREFIX/share/zsh-completions
+    $HOMEBREW_PREFIX/share/zsh/site-functions
+)
 
 # Make sure complist is loaded
 zmodload zsh/complist
