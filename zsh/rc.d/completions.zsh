@@ -14,7 +14,6 @@ zstyle :completion:*                  cache-path          $XDG_CACHE_HOME/zsh/.z
 
 zstyle :completion:*                  list-dirs-first     true
 zstyle :completion:*                  verbose             true
-zstyle :completion:*                  menu                no
 zstyle :completion:*                  matcher-list        '' 'm:{[:lower:]}={[:upper:]}'
 
 # Display descriptions and corrections in a custom format
