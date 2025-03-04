@@ -96,10 +96,10 @@ multiplier = 3
 # Default: true
 
 [font]
-normal = { family = "Hack Nerd Font Propo" }
-bold = { family = "Hack Nerd Font Propo" }
-italic = { family = "Hack Nerd Font Propo" }
-bold_italic = { family = "Hack Nerd Font Propo" }
+normal = { family = "JetBrainsMono Nerd Font" }
+bold = { family = "JetBrainsMono Nerd Font" }
+italic = { family = "JetBrainsMono Nerd Font" }
+bold_italic = { family = "JetBrainsMono Nerd Font" }
 size = 15
 builtin_box_drawing = true
 

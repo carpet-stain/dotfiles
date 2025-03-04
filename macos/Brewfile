@@ -28,7 +28,7 @@ brew 'olets/tap/zsh-abbr'
 brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
-cask 'font-hack-nerd-font'
+cask 'font-jetbrains-mono-nerd-font'
 cask 'alacritty' # Fast, minimal terminal
 cask 'bitwarden'
 cask 'electrum'
