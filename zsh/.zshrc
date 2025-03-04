@@ -131,9 +131,6 @@ fast-theme XDG:catppuccin-mocha &>/dev/null
 
 ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/rc.d/abbreviations-store
 
-# When an abbreviation expands, also push the expanded text to history.
-ABBR_EXPAND_PUSH_ABBREVIATION_TO_HISTORY=1
-
 # Enable a command to retrieve available abbreviations.
 ABBR_GET_AVAILABLE_ABBREVIATION=1
 
