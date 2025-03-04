@@ -34,9 +34,9 @@ HISTTIMEFORMAT='[%F %T]'
 
 setopt EXTENDED_GLOB             # Enables advanced globbing features
 setopt NULL_GLOB                 # Enables null globbing
-unsetopt FLOW_CONTROL            # disable annoying keys 
+unsetopt FLOW_CONTROL            # disable annoying keys
 setopt CLOBBER                   # allow > redirection to truncate existing files
-setopt MULTIOS                   # allows multiple input and output redirections 
+setopt MULTIOS                   # allows multiple input and output redirections
 setopt BRACE_CCL                 # allow brace character class list expansion
 unsetopt BEEP                    # do not beep on errors
 unsetopt NOMATCH                 # try to avoid the 'zsh: no matches found...'
