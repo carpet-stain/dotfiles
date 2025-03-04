@@ -18,7 +18,9 @@ emulate zsh -c "$(direnv export zsh)"
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-source $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh (N)
+if [[ -r $XDG_CACHE_HOME:-$HOME/.cache/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
+  source $XDG_CACHE_HOME:-$HOME/.cache/p10k-instant-prompt-${(%):-%n}.zsh
+fi
 
 emulate zsh -c "$(direnv hook zsh)"
 
@@ -91,6 +93,7 @@ source $ZDOTDIR/rc.d/completions.zsh
 # | ZOXIDE |
 # +--------+
 
+# zoxide needs to be called after compinit
 eval "$(zoxide init zsh)"
 
 # +-----+
@@ -120,6 +123,7 @@ source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+fast-theme XDG:catppuccin-mocha &>/dev/null
 
 # +----------+
 # | ZSH-ABBR |

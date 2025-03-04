@@ -29,7 +29,7 @@
 
 [merge]
   ff = only
-  conflictStyle = diff3
+  conflictStyle = zdiff3
 
 [rebase]
   autoStash = true
@@ -62,6 +62,7 @@
   side-by-side = true
   hyperlinks = true
   keep-plus-minus-markers = false
+  line-numbers = true
 
 [submodule]
   fetchJobs = 5

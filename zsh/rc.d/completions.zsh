@@ -3,7 +3,7 @@
 # Zstyle pattern
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
 
-zstyle :completion:*                  list-colors         ${(s.:.)EZA_COLORS}
+zstyle :completion:*                  list-colors         ${(s.:.)LS_COLORS}
 
 # Define completers
 zstyle :completion:*                  completer           _extensions _complete _approximate
@@ -44,7 +44,7 @@ zstyle -e :completion:*:(ssh|scp|sftp|rsh|rsync):hosts hosts 'reply=(${=${${(f)"
 
 # Add completion paths
 fpath+=( 
-    $XDG_CACHE_HOME/zsh/fpath (N)
+    $XDG_CACHE_HOME/zsh/fpath(N)
     $HOMEBREW_PREFIX/share/zsh-completions
     $HOMEBREW_PREFIX/share/zsh/site-functions
 )

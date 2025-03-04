@@ -25,9 +25,6 @@
 [submodule "theme/delta"]
 	path = theme/delta
 	url = https://github.com/catppuccin/delta.git
-[submodule "theme/btop"]
-	path = theme/btop
-	url = https://github.com/catppuccin/btop.git
 [submodule "theme/zsh-fsh"]
 	path = theme/zsh-fsh
 	url = https://github.com/catppuccin/zsh-fsh.git

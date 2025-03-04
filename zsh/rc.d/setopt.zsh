@@ -33,6 +33,7 @@ SAVEHIST=$HISTSIZE
 HISTTIMEFORMAT='[%F %T]'
 
 setopt EXTENDED_GLOB             # Enables advanced globbing features
+setopt NULL_GLOB                 # Enables null globbing
 unsetopt FLOW_CONTROL            # disable annoying keys 
 setopt CLOBBER                   # allow > redirection to truncate existing files
 setopt MULTIOS                   # allows multiple input and output redirections 
