@@ -1,5 +1,4 @@
 brew 'bat' # Better cat
-brew 'btop'
 brew 'coreutils'
 brew 'curl'
 brew 'curlie'
@@ -7,7 +6,6 @@ brew 'direnv' # Loading .envrc files
 brew 'doggo' # Better dig
 brew 'dua-cli' # Better du
 brew 'eza' # Better ls
-brew 'fastfetch' # Get system info
 brew 'fd' # better find
 brew 'fzf' # Fuzzy finder
 brew 'git' # More recent version of git
@@ -15,15 +13,14 @@ brew 'git-delta' # Better diff
 brew 'gnu-sed'
 brew 'gnu-tar'
 brew 'grep'
+brew 'htop'
 brew 'httpstat'
 brew 'neovim'
-brew 'openssh'
 brew 'powerlevel10k' # zsh command prompt
 brew 'ripgrep' # Faster ag written in Rust
 brew 'tealdeer' # tldr utility
 brew 'tmux' # terminal multiplexer
 brew 'tree' # Show directory trees
-brew 'wget'
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-fast-syntax-highlighting'
@@ -31,12 +28,12 @@ brew 'olets/tap/zsh-abbr'
 brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
+cask 'font-hack-nerd-font'
 cask 'alacritty' # Fast, minimal terminal
 cask 'bitwarden'
 cask 'electrum'
 cask 'eloston-chromium'
 cask 'firefox'
-cask 'font-hack-nerd-font'
 cask 'little-snitch'
 cask 'monero-wallet'
 cask 'protonvpn'

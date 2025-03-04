@@ -22,8 +22,8 @@ XDG_STATE_HOME=$HOME/.local/state
 # Create required directories
 print "Creating required directory tree..."
 zf_mkdir -p $XDG_CONFIG_HOME/{git,bat/themes,htop,alacritty,ripgrep,tealdeer,fsh,homebrew}
-zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,fzf,direnv,git,bat,ripgrep,eza,fonts,icons,tealdear,zoxide}
-zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf,pip,tmux,git,eza,tealdear,zoxide}
+zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,fzf,direnv,git,bat,ripgrep,eza,fonts,icons,tealdear,zsh-abbr,zoxide}
+zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdear,zoxide}
 zf_mkdir -p $XDG_STATE_HOME/zsh
 zf_mkdir -p $HOME/.ssh
 print "  ...done"

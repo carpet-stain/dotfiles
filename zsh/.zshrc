@@ -139,6 +139,8 @@ ABBR_GET_AVAILABLE_ABBREVIATION=1
 
 # Log available abbreviations after execution.
 ABBR_LOG_AVAILABLE_ABBREVIATION_AFTER=1
+
+ZSH_ABBR_CACHE_DIR=$XDG_CACHE_HOME/zsh-abbr
 source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
 
 # +--------------------+

@@ -40,7 +40,6 @@ setopt MULTIOS                   # allows multiple input and output redirections
 setopt BRACE_CCL                 # allow brace character class list expansion
 unsetopt BEEP                    # do not beep on errors
 unsetopt NOMATCH                 # try to avoid the 'zsh: no matches found...'
-unsetopt SHORT_LOOPS             # Disable short loop forms
 setopt INTERACTIVE_COMMENTS      # allow use of comments in interactive code
 setopt AUTO_PARAM_SLASH          # complete folders with / at end
 setopt LIST_TYPES                # mark type of completion suggestions

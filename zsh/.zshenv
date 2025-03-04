@@ -26,7 +26,7 @@ export LESSOPEN='lessopen.sh %s'
 export LESS_ADVANCED_PREPROCESSOR=1
 export READNULLCMD=$PAGER
 
-# eza colors
+# ls colors
 source "$ZDOTDIR/env.d/ls_colors.zsh"
 
 # XDG basedir spec compliance
@@ -41,11 +41,12 @@ export HTOPRC=$XDG_CONFIG_HOME/htop/htoprc
 export LESSHISTFILE=$XDG_DATA_HOME/lesshst
 export HISTFILE=$XDG_STATE_HOME/zsh/history
 export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
-export HTTPIE_CONFIG_DIR=$XDG_CONFIG_HOME/httpie
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO
+export TMUX_TMPDIR="$XDG_RUNTIME_DIR/tmux"
+export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 
 export HOMEBREW_PREFIX=/opt/homebrew
 

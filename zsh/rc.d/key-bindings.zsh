@@ -59,19 +59,26 @@ bindkey ${csi[base]}${csi[really-special-Home]}                                 
 bindkey ${csi[base]}${csi[really-special-End]}                                          end-of-line
 bindkey ${csi[base]}${csi[special-Home]}${csi[special-suffix]}                          beginning-of-line
 bindkey ${csi[base]}${csi[special-End]}${csi[special-suffix]}                           end-of-line
+bindkey '\e[2~'                                                                         overwrite-mode
+bindkey '\e[3~'                                                                         delete-char
 bindkey ${csi[base]}${csi[special-Insert]}${csi[special-suffix]}                        overwrite-mode
 bindkey ${csi[base]}${csi[special-Delete]}${csi[special-suffix]}                        delete-char
 bindkey ${csi[base]}${csi[special-Left]}${csi[special-suffix]}                          backward-char
 bindkey ${csi[base]}${csi[special-Right]}${csi[special-suffix]}                         forward-char
 bindkey ${csi[base]}${csi[special-Up]}${csi[special-suffix]}                            up-line-or-beginning-search
 bindkey ${csi[base]}${csi[special-Down]}${csi[special-suffix]}                          down-line-or-beginning-search
+
+bindkey '\e[1;5D'                                                                       backward-word  # Ctrl+Left alternative
+bindkey '\e[1;5C'                                                                       forward-word   # Ctrl+Right alternative
 bindkey ${csi[really-special-prefix]}${csi[modifier-Ctrl]}${csi[really-special-Left]}   backward-word
 bindkey ${csi[really-special-prefix]}${csi[modifier-Ctrl]}${csi[really-special-Right]}  forward-word
 unset csi
 
 # Make dot key autoexpand "..." to "../.." and so on
 _zsh-dot () {
-    if [[ $LBUFFER = *.. ]]; then
+    if [[ -z $LBUFFER ]]; then
+        LBUFFER=.
+    elif [[ $LBUFFER = *.. ]]; then
         LBUFFER+=/..
     else
         LBUFFER+=.
