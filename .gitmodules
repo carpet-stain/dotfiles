@@ -1,6 +1,3 @@
-[submodule "tmux/plugins/open"]
-	path = tmux/plugins/open
-	url = https://github.com/tmux-plugins/tmux-open.git
 [submodule "tmux/plugins/yank"]
 	path = tmux/plugins/yank
 	url = https://github.com/tmux-plugins/tmux-yank.git
@@ -10,9 +7,6 @@
 [submodule "tmux/plugins/power-zoom"]
 	path = tmux/plugins/power-zoom
 	url = https://github.com/jaclu/tmux-power-zoom.git
-[submodule "tmux/plugins/session-wizard"]
-	path = tmux/plugins/session-wizard
-	url = https://github.com/27medkamal/tmux-session-wizard
 [submodule "tmux/plugins/catppucin"]
 	path = tmux/plugins/catppucin
 	url = https://github.com/catppuccin/tmux.git
