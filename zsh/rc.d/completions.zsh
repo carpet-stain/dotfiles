@@ -13,7 +13,12 @@ zstyle :completion:*                  use-cache           on
 zstyle :completion:*                  cache-path          "$XDG_CACHE_HOME/zsh/zcompcache"
 
 zstyle :completion:*                  list-dirs-first     on
-zstyle :completion:*                  matcher-list        '' 'm:{[:lower:]}={[:upper:]}'
+
+# Additional matcher specifications to try one after the other until we have 1+ match.
+# (They will all by tried for all completers)
+# 1. 'm:{[:lower:]}={[:upper:]}' -> Case insensitive (low -> up) completions
+# 2. '+r:|[-_:./]=**' -> [1.] + Allow '-_:./' chars to act similar to glob patterns
+zstyle :completion:*                  matcher-list        'm:{[:lower:]}={[:upper:]}' '+r:|[-_:./]=**'
 
 # Display descriptions and corrections in a custom format
 zstyle :completion:*:descriptions     format              '[%d]'

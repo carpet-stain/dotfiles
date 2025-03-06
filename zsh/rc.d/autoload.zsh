@@ -32,7 +32,7 @@ autoload -Uz add-zsh-hook
 
 # run ls when cd into a directory
 _chpwd_ls() {
-  eza --icons --group-directories-first --all
+  eza --icons --group-directories-first -a --classify=auto
 }
 
 add-zsh-hook chpwd _chpwd_ls

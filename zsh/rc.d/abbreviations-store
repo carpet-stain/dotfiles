@@ -10,7 +10,7 @@ abbr dig="doggo"
 abbr diff="delta"
 abbr -g grep="rg"
 abbr tmux="tmux -f $DOTFILES/tmux/tmux.conf"
-abbr ls="eza --icons --group-directories-first -a"
+abbr ls="eza --icons --group-directories-first -a --classify=auto"
 
 # History suppression
 abbr clear=' clear'
@@ -29,6 +29,6 @@ abbr rm="rm -I --preserve-root=all"
 abbr mount="mount | column -t"
 
 abbr rsync="rsync --verbose --archive --human-readable --partial"
-abbr tree="tree -a -I .git --dirsfirst"
+abbr tree="tree -A -F -C --dirsfirst -a"
 abbr curl="curlie"
 abbr find="fd"
