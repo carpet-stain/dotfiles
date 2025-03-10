@@ -35,8 +35,6 @@ _chpwd_eza() {
   command eza --icons --group-directories-first -a --classify=auto --dereference
 }
 
-add-zsh-hook chpwd _chpwd_eza
-
 # Highlight use of sudo
 _highlight_sudo() {
   if [[ $1 == sudo* ]]; then
@@ -44,8 +42,10 @@ _highlight_sudo() {
   fi
 }
 
-add-zsh-hook preexec _highlight_sudo
-
+# Set cursor shape as I-beam before prompt, switch to block before executing commands
+# https://invisible-island.net/ncurses/terminfo.ti.html#toc-_X_T_E_R_M__Features
+# Ss - set cursor shape, usually 6 as argument means I-beam
+# Se - reset cursor shape, which is usually block
 _zsh_cursor_shape_reset() {
     echoti Se
 }
@@ -54,7 +54,8 @@ _zsh_cursor_shape_ibeam() {
     echoti Ss 6
 }
 
-add-zsh-hook preexec _zsh_cursor_shape_reset
+add-zsh-hook chpwd _chpwd_eza
+add-zsh-hook preexec _zsh_cursor_shape_reset _highlight_sudo
 add-zsh-hook precmd _zsh_cursor_shape_ibeam
 
 # Don't eat space after '<Tab>' followed by '&' or '|'
@@ -62,5 +63,3 @@ ZLE_SPACE_SUFFIX_CHARS="&|"
 
 # Eat space after '<Tab>' followed by ')', etc.
 ZLE_REMOVE_SUFFIX_CHARS=" \t\n;)"
-
-

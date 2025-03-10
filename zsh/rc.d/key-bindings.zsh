@@ -38,6 +38,7 @@ _zsh-dot () {
 zle -N _zsh-dot
 bindkey . _zsh-dot
 
+# Expand aliases
 expand-alias () {
     zle _expand_alias
     zle self-insert

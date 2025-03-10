@@ -7,9 +7,7 @@ zstyle ':fzf-tab:*'            continuous-trigger   space
 zstyle ':fzf-tab:*'            fzf-bindings         'tab:down' 'shift-tab:up' 'enter:accept'
 zstyle ':fzf-tab:*'            accept-line          enter
 zstyle ':fzf-tab:*'            switch-group         '<' '>'
-
-# To make fzf-tab follow FZF_DEFAULT_OPTS.
-zstyle ':fzf-tab:*' use-fzf-default-opts yes
+zstyle ':fzf-tab:*'            use-fzf-default-opts yes
 
 # User expand
 zstyle ':fzf-tab:user-expand:' fzf-preview          'less $word'
