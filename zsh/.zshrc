@@ -4,7 +4,7 @@
 
 # Start tmux, if it's first terminal tab, skip this on remote sessions and root/sudo
 # Handoff to tmux early, as rest of the rc config isn't needed for this
-if [[ ! -v TMUX && ! -v SSH_TTY && $EUID != 0 ]] && ! tmux list-sessions &>/dev/null; then
+if [[ ! -v TMUX && ! -v SSH_TTY && $EUID != 0 ]] && ! tmux list-sessions &> /dev/null; then
     exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
 fi
 
