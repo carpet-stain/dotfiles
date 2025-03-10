@@ -23,7 +23,6 @@ brew 'tree' # Show directory trees
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-fast-syntax-highlighting'
-brew 'olets/tap/zsh-abbr'
 brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 

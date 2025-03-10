@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env sh
 
 # Quit System Preferences so it doesn't override settings
 osascript -e 'tell application "System Preferences" to quit'

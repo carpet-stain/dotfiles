@@ -46,6 +46,17 @@ _highlight_sudo() {
 
 add-zsh-hook preexec _highlight_sudo
 
+_zsh_cursor_shape_reset() {
+    echoti Se
+}
+
+_zsh_cursor_shape_ibeam() {
+    echoti Ss 6
+}
+
+add-zsh-hook preexec _zsh_cursor_shape_reset
+add-zsh-hook precmd _zsh_cursor_shape_ibeam
+
 # Don't eat space after '<Tab>' followed by '&' or '|'
 ZLE_SPACE_SUFFIX_CHARS="&|"
 

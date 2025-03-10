@@ -33,7 +33,8 @@ zstyle ':fzf-tab:complete:(-command-:|command:option-(v|V)-rest)' fzf-preview \
 
 # Parameter completion preview
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview \
-'echo ${(P)word}'
+    'echo ${(P)word}'
 
 # Directory content preview with eza for cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --icons --group-directories-first -a --color=always --dereference $realpath' # remember to use single quote here!!
+zstyle ':fzf-tab:complete:cd:*' fzf-preview \
+    'eza -1 --icons --group-directories-first -a --color=always --dereference $realpath' # remember to use single quote here!!

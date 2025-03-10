@@ -24,7 +24,7 @@ alias cp="cp -i --verbose"
 # confirmation
 alias ln="ln -i"
 alias mv="mv -i"
-alias rm="rm -I --preserve-root=all"
+# alias rm="rm -I --preserve-root=all"
 
 # Make mount command output pretty and human readable format
 alias mount="mount | column -t"
