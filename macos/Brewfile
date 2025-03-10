@@ -14,7 +14,6 @@ brew 'gnu-sed'
 brew 'gnu-tar'
 brew 'grep'
 brew 'htop'
-brew 'httpstat'
 brew 'neovim'
 brew 'powerlevel10k' # zsh command prompt
 brew 'ripgrep' # Faster ag written in Rust

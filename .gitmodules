@@ -3,7 +3,7 @@
 	url = https://github.com/tmux-plugins/tmux-yank.git
 [submodule "zsh/plugins/fzf-tab"]
 	path = zsh/plugins/fzf-tab
-	url = https://github.com/Aloxaf/fzf-tab.git
+	url = https://github.com/Aloxaf/fzf-tab
 [submodule "tmux/plugins/power-zoom"]
 	path = tmux/plugins/power-zoom
 	url = https://github.com/jaclu/tmux-power-zoom.git

@@ -18,11 +18,10 @@
 # Configure which elements (line numbers, file headers, grid borders, Git modifications, ..)
 # to display in addition to the file contents. The argument is a comma-separated list of
 # components to display (e.g. 'numbers,changes,grid') or a pre-defined style ('full'). 
-# Uncomment the following line to disable automatic paging:
---style="full"
+--style="full,changes"
 
 # Always use colors
 --color=always
 
-## Theme
+# Theme
 --theme="Catppuccin Mocha"

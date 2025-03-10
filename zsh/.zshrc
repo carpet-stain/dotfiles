@@ -4,7 +4,7 @@
 
 # Start tmux, if it's first terminal tab, skip this on remote sessions and root/sudo
 # Handoff to tmux early, as rest of the rc config isn't needed for this
-if [[ ! -v TMUX && ! -v SSH_TTY && ${EUID} != 0 ]] && ! tmux list-sessions &>/dev/null; then
+if [[ ! -v TMUX && ! -v SSH_TTY && $EUID != 0 ]] && ! tmux list-sessions &>/dev/null; then
     exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
 fi
 
@@ -41,6 +41,12 @@ source $ZDOTDIR/rc.d/autoload.zsh
 # +--------------+
 
 source $ZDOTDIR/rc.d/key-bindings.zsh
+
+# +---------+
+# | ALIASES |
+# +---------+
+
+source $ZDOTDIR/rc.d/aliases.zsh
 
 # +---------------+
 # | POWERLEVEL10K |
@@ -89,45 +95,22 @@ source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-fast-theme XDG:catppuccin-mocha &>/dev/null
-
-# +----------+
-# | ZSH-ABBR |
-# +----------+
-
-ABBR_USER_ABBREVIATIONS_FILE=$ZDOTDIR/rc.d/abbreviations-store
-
-# Enable a command to retrieve available abbreviations.
-ABBR_GET_AVAILABLE_ABBREVIATION=1
-
-# Log available abbreviations after execution.
-ABBR_LOG_AVAILABLE_ABBREVIATION_AFTER=1
-
-ZSH_ABBR_CACHE_DIR=$XDG_CACHE_HOME/zsh-abbr
-source $HOMEBREW_PREFIX/share/zsh-abbr/zsh-abbr.zsh
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
 # +--------------------+
 
-# Don't rebind widgets by autosuggestion, it's already sourced pretty late
-ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Enable completion suggestions, if `history` returns nothing
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-# Ignore suggestions for abbreviations
-ZSH_AUTOSUGGEST_HISTORY_IGNORE=${(j:|:)${(Qk)ABBR_REGULAR_USER_ABBREVIATIONS}}
-ZSH_AUTOSUGGEST_COMPLETION_IGNORE=$ZSH_AUTOSUGGEST_HISTORY_IGNORE
-
-source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
 # Clear suggestions after paste
-ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command)
 
 # +----------------+
 # | SANITIZE PATHS |
 # +----------------+
 
 # Force path arrays to have unique values only
-typeset -U path cdpath fpath manpath
+typeset -U path fpath manpath

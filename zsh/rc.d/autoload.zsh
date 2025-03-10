@@ -30,22 +30,26 @@ zle -N down-line-or-beginning-search
 # Ensure add-zsh-hook is loaded
 autoload -Uz add-zsh-hook
 
-# run ls when cd into a directory
-_chpwd_ls() {
-  eza --icons --group-directories-first -a --classify=auto
+# run eza when cd into a directory
+_chpwd_eza() {
+  command eza --icons --group-directories-first -a --classify=auto --dereference
 }
 
-add-zsh-hook chpwd _chpwd_ls
+add-zsh-hook chpwd _chpwd_eza
 
 # Highlight use of sudo
 _highlight_sudo() {
-  if [[ "$1" == sudo* ]]; then
+  if [[ $1 == sudo* ]]; then
     echo "⚠️ Running as root: $1"
   fi
 }
 
 add-zsh-hook preexec _highlight_sudo
 
-# Custom personal functions
-# Don't use -U as we need aliases here
-autoload -z evalcache compdefcache rgf
+# Don't eat space after '<Tab>' followed by '&' or '|'
+ZLE_SPACE_SUFFIX_CHARS="&|"
+
+# Eat space after '<Tab>' followed by ')', etc.
+ZLE_REMOVE_SUFFIX_CHARS=" \t\n;)"
+
+

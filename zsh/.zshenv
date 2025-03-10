@@ -21,13 +21,12 @@ export VISUAL=$EDITOR
 export NVIM_APPNAME=dotfiles/nvim
 export PAGER=less
 export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'"
-export LESS="--RAW-CONTROL-CHARS --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4 --mouse --wheel-lines=3"
-export LESSOPEN='lessopen.sh %s'
-export LESS_ADVANCED_PREPROCESSOR=1
+export LESS="--RAW-CONTROL-CHARS --quit-if-one-screen --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4 --mouse --wheel-lines=3"
+export LESSOPEN="|lesspipe.sh %s"
 export READNULLCMD=$PAGER
 
 # ls colors
-source "$ZDOTDIR/env.d/ls_colors.zsh"
+source $ZDOTDIR/env.d/ls_colors.zsh
 
 # XDG basedir spec compliance
 export XDG_CONFIG_HOME=$HOME/.config
@@ -48,32 +47,36 @@ export TERMINFO_DIRS=$TERMINFO
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR/tmux"
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 
-export HOMEBREW_PREFIX=/opt/homebrew
-
 # +-----+
 # | FZF |
 # +-----+
 
 export FZF_DEFAULT_COMMAND="rg --files"
-export FZF_DEFAULT_OPTS_FILE=$XDG_CONFIG_HOME/fzfrc
+
+export FZF_DEFAULT_OPTS="
+  --color bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
+  --color fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
+  --color marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8
+  --color selected-bg:#45475a
+  --color border:#313244,label:#cdd6f4
+  --prompt ' : '
+  --pointer ''
+  --marker '✓'
+  --ansi
+  --tmux 80%"
 
 # Preview file content using bat
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
   --walker-skip .git,node_modules,target
   --preview 'bat {}'
-  --prompt ' : '
-  --pointer ''
-  --marker '✓'
-  --header '📌 ⌘ O open | ⌥ S sort | ⌘ Y copy | ⌘ E edit'
-  --bind 'ctrl-o:execute(open {} >/dev/null 2>&1 &)'
-  --bind 'alt-s:toggle-sort'
+  --header '📌 ⌃ O open | ⌃ Y copy | ⌃ E edit'
+  --bind 'ctrl-o:execute(open -R {} &)'
   --bind 'ctrl-y:execute-silent(echo {} | pbcopy)'
-  --bind 'ctrl-e:execute($EDITOR {} &>/dev/null &)'
+  --bind 'ctrl-e:become($EDITOR {1} +{2} < /dev/tty > /dev/tty)'
   --color header:italic
   --select-1 --exit-0"
 
-# ? to toggle small preview window to see the full command
 # CTRL-Y to copy the command into clipboard using pbcopy
 export FZF_CTRL_R_OPTS="
   --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
@@ -87,21 +90,14 @@ export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
 # | PATHS |
 # +-------+
 
-# Add custom functions and completions
-fpath=($ZDOTDIR/fpath $fpath)
-
 # Initialize path
-path=($HOMEBREW_PREFIX/{,s}bin $path)
+path+=$HOME/.local/bin
 
-autoload -z evalcache
-evalcache brew shellenv
+# Set Homebrew shell environment
+eval $($HOME/tiktok/homebrew/bin/brew shellenv)
 
 # Enable gnu version of utilities on macOS
-for bindir in ${HOMEBREW_PREFIX}/opt/*/libexec/gnubin; do export PATH=$bindir:$PATH; done
-for bindir in ${HOMEBREW_PREFIX}/opt/*/bin; do export PATH=$bindir:$PATH; done
-for mandir in ${HOMEBREW_PREFIX}/opt/*/libexec/gnuman; do export MANPATH=$mandir:$MANPATH; done
-for mandir in ${HOMEBREW_PREFIX}/opt/*/share/man/man1; do export MANPATH=$mandir:$MANPATH; done
-
-# Enable local binaries and man pages
-path=($HOME/.local/bin $path)
-MANPATH=$XDG_DATA_HOME/man:$MANPATH
+for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin; do path+=$bindir; done
+for bindir in $HOMEBREW_PREFIX/opt/*/bin; do path+=$bindir; done
+for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman; do manpath+=$mandir; done
+for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1; do manpath+=$mandir; done

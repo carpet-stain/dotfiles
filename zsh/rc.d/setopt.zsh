@@ -6,31 +6,32 @@ setopt AUTO_CD          # if the command is directory and cannot be executed, pe
 setopt AUTO_PUSHD       # Make cd push the old directory onto the directory stack
 setopt PUSHD_SILENT     # Do not print the directory stack after pushd or popd.
 setopt CORRECT_ALL      # try to correct the spelling of all arguments in a line
-setopt CDABLE_VARS      # Change directory to a path stored in a variable.
+setopt CDABLE_VARS      # Change directory to a path stored in a variable.  
 
 # +---------+
 # | HISTORY |
 # +---------+
 
 setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicates before oldest commands
-setopt HIST_NO_STORE             # Don't store commands starting with a space in the history file
-setopt INC_APPEND_HISTORY_TIME   # history appends to existing file as soon as it's written
 setopt HIST_IGNORE_DUPS          # Do not record an event that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event is a duplicate.
-setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
 setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
 setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
-setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
+setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
+setopt HIST_NO_STORE             # Don't store commands starting with a space in the history file
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
+setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
+
+setopt INC_APPEND_HISTORY_TIME   # history appends to existing file as soon as it's written
 setopt SHARE_HISTORY             # Share history among all sessions
+setopt APPEND_HISTORY            # Append history instead of overwriting it
+setopt EXTENDED_HISTORY          # Save timestamps of commands in the history file
 
 HISTSIZE=1000000
 SAVEHIST=$HISTSIZE
 
-# History: Use standard ISO 8601 timestamp.
-#   %F is equivalent to %Y-%m-%d
-#   %T is equivalent to %H:%M:%S (24-hours format)
-HISTTIMEFORMAT='[%F %T]'
+# Use standard ISO 8601 timestamp format: [YYYY-MM-DD HH:MM:SS]
+HISTTIMEFORMAT="[%F %T] "
 
 setopt EXTENDED_GLOB             # Enables advanced globbing features
 setopt NULL_GLOB                 # Enables null globbing
@@ -56,4 +57,4 @@ unsetopt RM_STAR_SILENT          # notify when rm is running with *
 setopt RM_STAR_WAIT              # wait for 10 seconds confirmation when running rm with *
 
 # a bit fancier than default
-PROMPT_EOL_MARK='%K{red} %k'
+PROMPT_EOL_MARK="%K{red} %k"
