@@ -27,9 +27,6 @@ zle -N up-line-or-beginning-search
 autoload -Uz down-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-# Ensure add-zsh-hook is loaded
-autoload -Uz add-zsh-hook
-
 # run eza when cd into a directory
 _chpwd_eza() {
   command eza --icons --group-directories-first -a --classify=auto --dereference
@@ -54,8 +51,12 @@ _zsh_cursor_shape_ibeam() {
     echoti Ss 6
 }
 
+# Ensure add-zsh-hook is loaded
+autoload -Uz add-zsh-hook
+
 add-zsh-hook chpwd _chpwd_eza
-add-zsh-hook preexec _zsh_cursor_shape_reset _highlight_sudo
+add-zsh-hook preexec _highlight_sudo
+add-zsh-hook preexec _zsh_cursor_shape_reset
 add-zsh-hook precmd _zsh_cursor_shape_ibeam
 
 # Don't eat space after '<Tab>' followed by '&' or '|'
