@@ -59,9 +59,7 @@
 [delta]
   features = interactive catppuccin-mocha
   navigate = true    # use n and N to move between diff sections
-  side-by-side = true
   hyperlinks = true
-  keep-plus-minus-markers = false
   line-numbers = true
 
 [submodule]

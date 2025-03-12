@@ -59,16 +59,21 @@ export FZF_DEFAULT_OPTS="
   --color selected-bg:#45475a
   --color border:#313244,label:#cdd6f4
   --color header:italic
+  --border rounded
+  --border-label ' 󱉭 $(pwd)/ '
+  --border-label-pos center
+  --info right
   --prompt ' : '
   --pointer ''
   --marker '✓'
   --ansi
-  --tmux 80%"
+  --tmux 90%"
 
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
   --walker-skip .git,node_modules,target
   --preview 'bat {}'
+  --preview-window 'right:65%'
   --header '📌 ⌃ O open | ⌃ Y copy | ⌃ E edit'
   --bind 'ctrl-o:execute(open -R {} &)'
   --bind 'ctrl-y:execute-silent(echo {} | pbcopy)'
@@ -79,7 +84,7 @@ export FZF_CTRL_R_OPTS="
   --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
   --header 'Press CTRL-Y to copy command into clipboard'"
 
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+export FZF_ALT_C_OPTS="--ansi --preview 'eza --tree --level=3 --icons --color=always {}'"
 
 # +-------+
 # | PATHS |

@@ -19,7 +19,7 @@ brew 'powerlevel10k' # zsh command prompt
 brew 'ripgrep' # Faster ag written in Rust
 brew 'tealdeer' # tldr utility
 brew 'tmux' # terminal multiplexer
-brew 'tree' # Show directory trees
+brew 'tmux-fingers' # Better copy pasting
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-fast-syntax-highlighting'

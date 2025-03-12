@@ -108,6 +108,12 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # Clear suggestions after paste
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command)
 
+# +--------+
+# | FORGIT |
+# +--------+
+
+source $HOMEBREW_PREFIX/opt/forgit/share/forgit/forgit.plugin.zsh
+
 # +----------------+
 # | SANITIZE PATHS |
 # +----------------+

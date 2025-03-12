@@ -41,6 +41,8 @@ bindkey . _zsh-dot
 # Expand aliases
 expand-alias () {
     zle _expand_alias
+    # Remove the leading backslash if present
+    [[ $LBUFFER == "\\"* ]] && LBUFFER=${LBUFFER:1}
     zle self-insert
 }
 

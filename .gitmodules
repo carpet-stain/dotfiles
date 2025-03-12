@@ -31,3 +31,6 @@
 [submodule "tmux/plugins/cpu"]
 	path = tmux/plugins/cpu
 	url = https://github.com/tmux-plugins/tmux-cpu
+[submodule "tmux/plugins/fingers"]
+	path = tmux/plugins/fingers
+	url = https://github.com/Morantron/tmux-fingers
