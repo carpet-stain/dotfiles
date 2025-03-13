@@ -10,7 +10,7 @@ alias du="dua"
 alias dig="doggo"
 alias diff="delta"
 alias tmux="tmux -f $DOTFILES/tmux/tmux.conf"
-alias ls="eza --icons --group-directories-first -a --classify=auto --dereference"
+alias ls="command $EZACMD"
 
 # Git
 alias gs="git status"

@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+# run eza when cd into a directory
+_chpwd-eza() {
+  local -a cmd
+  cmd=(${(z)EZACMD})  # Splits the string into an array like a proper command
+  command ${cmd[@]} $@
+}
+

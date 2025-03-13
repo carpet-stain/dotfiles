@@ -105,8 +105,7 @@ source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 # Enable completion suggestions, if `history` returns nothing
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-# Clear suggestions after paste
-ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command)
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
 
 # +--------+
 # | FORGIT |

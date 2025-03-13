@@ -35,4 +35,4 @@ zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|
 
 # Directory content preview with eza for cd
 zstyle ':fzf-tab:complete:cd:*' fzf-preview \
-    'eza -1 --icons --group-directories-first -a --color=always --dereference $realpath' # remember to use single quote here!!
+    '${EZACMD[@]} $@ -1 $realpath' # remember to use single quote here!!

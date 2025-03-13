@@ -27,40 +27,28 @@ zle -N up-line-or-beginning-search
 autoload -Uz down-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
-# run eza when cd into a directory
-_chpwd_eza() {
-  command eza --icons --group-directories-first -a --classify=auto --dereference
-}
+# Load custom functions
+autoload -Uz _zsh-dot _expand-alias _sesh-sessions _highlight-sudo _chpwd-eza _zsh-cursor-shape-reset _zsh-cursor-shape-ibeam
 
-# Highlight use of sudo
-_highlight_sudo() {
-  if [[ $1 == sudo* ]]; then
-    echo "⚠️ Running as root: $1"
-  fi
-}
-
-# Set cursor shape as I-beam before prompt, switch to block before executing commands
-# https://invisible-island.net/ncurses/terminfo.ti.html#toc-_X_T_E_R_M__Features
-# Ss - set cursor shape, usually 6 as argument means I-beam
-# Se - reset cursor shape, which is usually block
-_zsh_cursor_shape_reset() {
-    echoti Se
-}
-
-_zsh_cursor_shape_ibeam() {
-    echoti Ss 6
-}
+zle -N _zsh-dot
+zle -N _expand-alias
+zle -N _sesh-sessions
+zle -N _highlight-sudo
+zle -N _chpwd-eza
+zle -N _zsh-cursor-shape-ibeam
+zle -N _zsh-cursor-shape-reset
 
 # Ensure add-zsh-hook is loaded
 autoload -Uz add-zsh-hook
 
-add-zsh-hook chpwd _chpwd_eza
-add-zsh-hook preexec _highlight_sudo
-add-zsh-hook preexec _zsh_cursor_shape_reset
-add-zsh-hook precmd _zsh_cursor_shape_ibeam
+add-zsh-hook chpwd _chpwd-eza
+add-zsh-hook preexec _highlight-sudo
+add-zsh-hook preexec _zsh-cursor-shape-reset
+add-zsh-hook precmd _zsh-cursor-shape-ibeam
 
 # Don't eat space after '<Tab>' followed by '&' or '|'
 ZLE_SPACE_SUFFIX_CHARS="&|"
 
 # Eat space after '<Tab>' followed by ')', etc.
 ZLE_REMOVE_SUFFIX_CHARS=" \t\n;)"
+

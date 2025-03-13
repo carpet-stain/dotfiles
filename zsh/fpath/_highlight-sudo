@@ -1,0 +1,9 @@
+#/usr/bin/env zsh
+
+# Highlight use of sudo
+_highlight-sudo() {
+  if [[ $1 == sudo* ]]; then
+    echo "⚠️ Running as root: $1"
+  fi
+}
+

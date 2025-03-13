@@ -23,6 +23,7 @@ export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p
 export LESS="--RAW-CONTROL-CHARS --quit-if-one-screen --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4 --mouse --wheel-lines=3"
 export LESSOPEN="|lesspipe.sh %s"
 export READNULLCMD=$PAGER
+export EZACMD="eza --color=always --icons --group-directories-first -a --classify=auto --dereference"
 
 # ls colors
 source $ZDOTDIR/env.d/ls_colors.zsh
@@ -84,7 +85,7 @@ export FZF_CTRL_R_OPTS="
   --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
   --header 'Press CTRL-Y to copy command into clipboard'"
 
-export FZF_ALT_C_OPTS="--ansi --preview 'eza --tree --level=3 --icons --color=always {}'"
+export FZF_ALT_C_OPTS="--ansi --preview '$EZACMD --tree --level=3 {}'"
 
 # +-------+
 # | PATHS |
@@ -92,6 +93,9 @@ export FZF_ALT_C_OPTS="--ansi --preview 'eza --tree --level=3 --icons --color=al
 
 # Initialize path
 path+=$HOME/.local/bin
+
+# Add custom functions and completions
+fpath+=(${ZDOTDIR}/fpath)
 
 # Set Homebrew shell environment
 eval $($HOME/tiktok/homebrew/bin/brew shellenv)
