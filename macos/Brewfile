@@ -7,6 +7,7 @@ brew 'doggo' # Better dig
 brew 'dua-cli' # Better du
 brew 'eza' # Better ls
 brew 'fd' # better find
+brew 'forgit'
 brew 'fzf' # Fuzzy finder
 brew 'git' # More recent version of git
 brew 'git-delta' # Better diff
@@ -14,9 +15,11 @@ brew 'gnu-sed'
 brew 'gnu-tar'
 brew 'grep'
 brew 'htop'
+brew 'lesspipe'
 brew 'neovim'
 brew 'powerlevel10k' # zsh command prompt
 brew 'ripgrep' # Faster ag written in Rust
+brew 'sesh'
 brew 'tealdeer' # tldr utility
 brew 'tmux' # terminal multiplexer
 brew 'tmux-fingers' # Better copy pasting
