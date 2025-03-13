@@ -23,8 +23,7 @@ export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p
 export LESS="--RAW-CONTROL-CHARS --quit-if-one-screen --ignore-case --hilite-unread --LONG-PROMPT --window=-4 --tabs=4 --mouse --wheel-lines=3"
 export LESSOPEN="|lesspipe.sh %s"
 export READNULLCMD=$PAGER
-export EZACMD="eza --color=always --icons --group-directories-first -a --classify=auto --dereference"
-export FORGIT_FZF_DEFAULT_OPTS="--layout reverse"
+export EZACMD="eza --color=always --icons=always --group-directories-first -a --classify=auto --dereference"
 
 # ls colors
 source $ZDOTDIR/env.d/ls_colors.zsh
@@ -61,6 +60,7 @@ export FZF_DEFAULT_OPTS="
   --color border:#313244,label:#cdd6f4
   --color header:italic
   --border rounded
+  --layout reverse
   --info right
   --prompt ' : '
   --pointer ''
@@ -88,7 +88,7 @@ export FZF_CTRL_R_OPTS="
 export FZF_ALT_C_COMMAND="$EZACMD -I .git"
 export FZF_ALT_C_OPTS="
   --border-label '   Directory Explorer '
-  --preview '$EZACMD --tree --level=2 -I .git {}'"
+  --preview '$EZACMD --tree --level=2 -I .git {2}'"
 
 # +-------+
 # | PATHS |

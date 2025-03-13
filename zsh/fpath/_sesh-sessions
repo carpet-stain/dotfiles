@@ -4,8 +4,12 @@ _sesh-sessions () {
   exec </dev/tty
   exec <&1
   local session
-  session=$(sesh list -t -c | fzf --border-label ' sesh ' --border --prompt '⚡  ')
+  session=$(sesh list -t -c | fzf --border-label '  TMUX Session Manager (sesh) ' --border --prompt '⚡  ' --select-1 --exit-0)
   zle reset-prompt > /dev/null 2>&1 || true
-  [[ -z "$session" ]] && return
+
+  if [[ -z "$session" ]]; then
+    return
+  fi
+
   sesh connect $session
 }

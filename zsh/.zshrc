@@ -2,10 +2,19 @@
 # | TMUX |
 # +------+
 
-# Start tmux, if it's first terminal tab, skip this on remote sessions and root/sudo
-# Handoff to tmux early, as rest of the rc config isn't needed for this
-if [[ ! -v TMUX && ! -v SSH_TTY && $EUID != 0 ]] && ! tmux list-sessions &> /dev/null; then
-    exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
+# # Start tmux if it's the first terminal tab, skipping on remote sessions and root/sudo
+# # If tmux is running, invoke _sesh-sessions instead to select an available session
+if [[ ! -v SSH_TTY && $EUID != 0 ]]; then
+  # If tmux is not running on the system
+  if ! pgrep -x tmux &> /dev/null; then
+    echo 'Tmux is not running, starting a new session...'
+    exec tmux -f "$DOTFILES/tmux/tmux.conf" new-session -s personal
+
+  # If tmux is running, but we're not inside a tmux session
+  elif [[ -z $TMUX ]]; then
+    autoload -Uz _sesh-sessions
+    _sesh-sessions
+  fi
 fi
 
 # +---------------------+
