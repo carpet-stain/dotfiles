@@ -28,7 +28,17 @@ autoload -Uz down-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
 # Load custom functions
-autoload -Uz _zsh-dot _expand-alias _sesh-sessions _highlight-sudo _chpwd-eza _zsh-cursor-shape-reset _zsh-cursor-shape-ibeam
+autoload -Uz \
+  _zsh-dot \
+  _expand-alias \
+  _sesh-sessions \
+  _highlight-sudo \
+  _chpwd-eza \
+  _zsh-cursor-shape-reset \
+  _zsh-cursor-shape-ibeam \
+  _paste-init \
+  _paste-finish
+
 
 zle -N _zsh-dot
 zle -N _expand-alias
@@ -51,4 +61,7 @@ ZLE_SPACE_SUFFIX_CHARS="&|"
 
 # Eat space after '<Tab>' followed by ')', etc.
 ZLE_REMOVE_SUFFIX_CHARS=" \t\n;)"
+
+# Removes highlight when pasting
+zle_highlight+=(paste:none)
 

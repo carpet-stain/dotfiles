@@ -36,7 +36,7 @@ alias curl="curlie"
 alias find="fd"
 alias path='echo -e ${PATH//:/\\n}'
 alias fpath='echo -e ${FPATH//:/\\n}'
-alias reload="exec ${SHELL} -l"
+alias reload="exec $SHELL -l"
 alias vim="nvim"
 alias ip="doggo +short myip.opendns.com @resolver1.opendns.com"
 

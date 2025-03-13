@@ -53,7 +53,6 @@ export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 # +-----+
 
 export FZF_DEFAULT_COMMAND="rg --files"
-
 export FZF_DEFAULT_OPTS="
   --color bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
   --color fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
@@ -61,6 +60,7 @@ export FZF_DEFAULT_OPTS="
   --color selected-bg:#45475a
   --color border:#313244,label:#cdd6f4
   --color header:italic
+  --border rounded
   --info right
   --prompt ' : '
   --pointer ''
@@ -70,9 +70,7 @@ export FZF_DEFAULT_OPTS="
 
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
-  --walker-skip .git,node_modules,target
-  --border rounded
-  --border-label ' 󱉭 $(pwd)/ '
+  --border-label ' 󰱽 File Search '
   --border-label-pos center
   --preview 'bat {}'
   --preview-window 'right:65%'
@@ -83,11 +81,14 @@ export FZF_CTRL_T_OPTS="
   --select-1 --exit-0"
 
 export FZF_CTRL_R_OPTS="
+  --border-label '  Command History '
   --bind 'ctrl-y:become(echo -n {2..} | pbcopy)'
   --header '📌 ⌃Y to Copy'"
 
-export FZF_ALT_C_COMMAND="$EZACMD -1 --level=1 -D"
-export FZF_ALT_C_OPTS="--preview '$EZACMD --tree --level=3 {}'"
+export FZF_ALT_C_COMMAND="$EZACMD -I .git"
+export FZF_ALT_C_OPTS="
+  --border-label '   Directory Explorer '
+  --preview '$EZACMD --tree --level=2 -I .git {}'"
 
 # +-------+
 # | PATHS |
