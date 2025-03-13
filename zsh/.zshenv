@@ -24,6 +24,7 @@ export LESS="--RAW-CONTROL-CHARS --quit-if-one-screen --ignore-case --hilite-unr
 export LESSOPEN="|lesspipe.sh %s"
 export READNULLCMD=$PAGER
 export EZACMD="eza --color=always --icons --group-directories-first -a --classify=auto --dereference"
+export FORGIT_FZF_DEFAULT_OPTS="--layout reverse"
 
 # ls colors
 source $ZDOTDIR/env.d/ls_colors.zsh
@@ -60,9 +61,6 @@ export FZF_DEFAULT_OPTS="
   --color selected-bg:#45475a
   --color border:#313244,label:#cdd6f4
   --color header:italic
-  --border rounded
-  --border-label ' 󱉭 $(pwd)/ '
-  --border-label-pos center
   --info right
   --prompt ' : '
   --pointer ''
@@ -73,6 +71,9 @@ export FZF_DEFAULT_OPTS="
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
   --walker-skip .git,node_modules,target
+  --border rounded
+  --border-label ' 󱉭 $(pwd)/ '
+  --border-label-pos center
   --preview 'bat {}'
   --preview-window 'right:65%'
   --header '📌 ⌃ O open | ⌃ Y copy | ⌃ E edit'
@@ -101,7 +102,7 @@ fpath+=(${ZDOTDIR}/fpath)
 eval $($HOME/tiktok/homebrew/bin/brew shellenv)
 
 # Enable gnu version of utilities on macOS
-for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin; do path+=$bindir; done
-for bindir in $HOMEBREW_PREFIX/opt/*/bin; do path+=$bindir; done
-for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman; do manpath+=$mandir; done
-for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1; do manpath+=$mandir; done
+for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin; do path=($bindir $path); done
+for bindir in $HOMEBREW_PREFIX/opt/*/bin; do path=($bindir $path); done
+for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman; do manpath=($mandir $manpath); done
+for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1; do manpath=($mandir $manpath); done

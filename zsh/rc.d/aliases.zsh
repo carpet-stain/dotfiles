@@ -17,7 +17,7 @@ alias gs="git status"
 alias gc="git checkout"
 alias gd="git diff"
 
-alias mkdir='mkdir -pv'
+alias mkdir="mkdir -pv"
 alias cp="cp -i --verbose"
 
 # confirmation
@@ -37,7 +37,7 @@ alias find="fd"
 alias path='echo -e ${PATH//:/\\n}'
 alias reload="exec ${SHELL} -l"
 alias vim="nvim"
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias ip="doggo +short myip.opendns.com @resolver1.opendns.com"
 
 
 # Colorize help
