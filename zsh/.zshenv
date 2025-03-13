@@ -76,17 +76,18 @@ export FZF_CTRL_T_OPTS="
   --border-label-pos center
   --preview 'bat {}'
   --preview-window 'right:65%'
-  --header '📌 ⌃ O open | ⌃ Y copy | ⌃ E edit'
-  --bind 'ctrl-o:execute(open -R {} &)'
-  --bind 'ctrl-y:execute-silent(echo {} | pbcopy)'
-  --bind 'ctrl-e:become($EDITOR {1} +{2} < /dev/tty > /dev/tty)'
+  --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
+  --bind 'ctrl-o:become(open -R {})'
+  --bind 'ctrl-y:become(echo -n {} | pbcopy)'
+  --bind 'ctrl-e:become(tmux new-window $EDITOR -p {+1})'
   --select-1 --exit-0"
 
 export FZF_CTRL_R_OPTS="
-  --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
-  --header 'Press CTRL-Y to copy command into clipboard'"
+  --bind 'ctrl-y:become(echo -n {2..} | pbcopy)'
+  --header '📌 ⌃Y to Copy'"
 
-export FZF_ALT_C_OPTS="--ansi --preview '$EZACMD --tree --level=3 {}'"
+export FZF_ALT_C_COMMAND="$EZACMD -1 --level=1 -D"
+export FZF_ALT_C_OPTS="--preview '$EZACMD --tree --level=3 {}'"
 
 # +-------+
 # | PATHS |
@@ -96,7 +97,7 @@ export FZF_ALT_C_OPTS="--ansi --preview '$EZACMD --tree --level=3 {}'"
 path+=$HOME/.local/bin
 
 # Add custom functions and completions
-fpath+=(${ZDOTDIR}/fpath)
+fpath+=$ZDOTDIR/fpath
 
 # Set Homebrew shell environment
 eval $($HOME/tiktok/homebrew/bin/brew shellenv)

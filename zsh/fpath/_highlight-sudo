@@ -1,4 +1,4 @@
-#/usr/bin/env zsh
+#!/usr/bin/env zsh
 
 # Highlight use of sudo
 _highlight-sudo() {

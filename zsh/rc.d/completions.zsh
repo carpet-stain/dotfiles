@@ -51,7 +51,7 @@ zstyle ':completion:*'                  keep-prefix         true
 zstyle ':completion:*:git-checkout:*'   sort                false
 
 # Add completion paths
-fpath+=($HOMEBREW_PREFIX/share/zsh-completions $HOMEBREW_PREFIX/share/zsh/site-functions)
+fpath+=$HOMEBREW_PREFIX/share/zsh-completions
 
 # Make sure complist is loaded
 zmodload zsh/complist

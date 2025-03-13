@@ -3,6 +3,7 @@
 # Set cursor shape as I-beam before prompt, switch to block before executing commands
 # https://invisible-island.net/ncurses/terminfo.ti.html#toc-_X_T_E_R_M__Features
 # Se - reset cursor shape, which is usually block
-_zsh_cursor_shape_reset() {
+
+_zsh-cursor-shape-reset() {
     echoti Se
 }
