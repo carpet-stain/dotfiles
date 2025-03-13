@@ -58,7 +58,6 @@ typeset -A csi
 # Create an associative array for CSI key sequences
 csi[base]="\e["
 csi[suffix]="~"
-csi[alt-S]="\es"
 
 # Define key sequences for Delete, and Arrow keys
 csi[Delete]="3"
@@ -72,7 +71,6 @@ bindkey $csi[base]$csi[Left]$csi[suffix]    backward-char
 bindkey $csi[base]$csi[Right]$csi[suffix]   forward-char
 bindkey $csi[base]$csi[Up]$csi[suffix]      up-line-or-beginning-search
 bindkey $csi[base]$csi[Down]$csi[suffix]    down-line-or-beginning-search
-bindkey $csi[alt-S]                         _sesh-sessions
 unset csi
 
 bindkey . _zsh-dot

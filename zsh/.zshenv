@@ -60,20 +60,20 @@ export FZF_DEFAULT_OPTS="
   --color border:#313244,label:#cdd6f4
   --color header:italic
   --border rounded
+  --border-label-pos center
   --layout reverse
   --info right
   --prompt ' : '
   --pointer ''
   --marker '✓'
+  --preview-window 'right:65%'
   --ansi
   --tmux 90%"
 
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 export FZF_CTRL_T_OPTS="
   --border-label ' 󰱽 File Search '
-  --border-label-pos center
   --preview 'bat {}'
-  --preview-window 'right:65%'
   --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
   --bind 'ctrl-o:become(open -R {})'
   --bind 'ctrl-y:become(echo -n {} | pbcopy)'

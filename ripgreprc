@@ -7,8 +7,5 @@
 # Case insensitively if in all lower case
 --smart-case
 
-# Don't respect version control ignore files
---no-ignore-vcs
-
 # Always colorize
 --color=always

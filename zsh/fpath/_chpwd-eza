@@ -4,6 +4,6 @@
 _chpwd-eza() {
   local -a cmd
   cmd=(${(z)EZACMD})  # Splits the string into an array like a proper command
-  command ${cmd[@]} $@
+  command $cmd[@] $@
 }
 

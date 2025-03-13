@@ -31,7 +31,6 @@ zle -N down-line-or-beginning-search
 autoload -Uz \
   _zsh-dot \
   _expand-alias \
-  _sesh-sessions \
   _highlight-sudo \
   _chpwd-eza \
   _zsh-cursor-shape-reset \
@@ -39,10 +38,8 @@ autoload -Uz \
   _paste-init \
   _paste-finish
 
-
 zle -N _zsh-dot
 zle -N _expand-alias
-zle -N _sesh-sessions
 zle -N _highlight-sudo
 zle -N _chpwd-eza
 zle -N _zsh-cursor-shape-ibeam
