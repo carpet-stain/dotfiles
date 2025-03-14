@@ -51,8 +51,7 @@ zstyle ':completion:*'                  keep-prefix         true
 zstyle ':completion:*:git-checkout:*'   sort                false
 
 # Speeds up pasting into terminal
-zstyle ':bracketed-paste-magic'         paste-init          _paste-init
-zstyle ':bracketed-paste-magic'         paste-finish        _paste-finish
+zstyle ':bracketed-paste-magic'         active-widgets      '.self-*'
 
 # Add completion paths
 fpath+=$HOMEBREW_PREFIX/share/zsh-completions

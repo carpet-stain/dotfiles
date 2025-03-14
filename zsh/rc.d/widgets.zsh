@@ -34,9 +34,7 @@ autoload -Uz \
   _highlight-sudo \
   _chpwd-eza \
   _zsh-cursor-shape-reset \
-  _zsh-cursor-shape-ibeam \
-  _paste-init \
-  _paste-finish
+  _zsh-cursor-shape-ibeam
 
 zle -N _zsh-dot
 zle -N _expand-alias

@@ -2,13 +2,13 @@
 # | TMUX |
 # +------+
 
-# # Start tmux if it's the first terminal tab, skipping on remote sessions and root/sudo
-# # If tmux is running, invoke _sesh-sessions instead to select an available session
+# Start tmux if it's not attached, skipping on remote sessions and root/sudo
+# If tmux is running, invoke _sesh-sessions instead to select an available session
 if [[ ! -v SSH_TTY && $EUID != 0 ]]; then
   # If tmux is not running on the system
   if ! pgrep -x tmux &> /dev/null; then
-    echo 'Tmux is not running, starting a new session...'
-    exec tmux -f "$DOTFILES/tmux/tmux.conf" new-session -s personal
+    print "Tmux is not running, starting a new session..."
+    exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
 
   # If tmux is running, but we're not inside a tmux session
   elif [[ -z $TMUX ]]; then
@@ -33,20 +33,20 @@ fi
 
 emulate zsh -c "$(direnv hook zsh)"
 
-# +--------+
-# | SETOPT |
-# +--------+
+# +---------+
+# | OPTIONS |
+# +---------+
 
-source $ZDOTDIR/rc.d/setopt.zsh
+source $ZDOTDIR/rc.d/options.zsh
 
-# +----------+
-# | AUTOLOAD |
-# +----------+
+# +---------+
+# | WIDGETS |
+# +---------+
 
-source $ZDOTDIR/rc.d/autoload.zsh
+source $ZDOTDIR/rc.d/widgets.zsh
 
 # +--------------+
-# | Key Bindings |
+# | KEY BINDINGS |
 # +--------------+
 
 # Use emacs keybindings even if our EDITOR is set to vi
@@ -130,6 +130,7 @@ source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+fast-theme -q XDG:catppuccin-mocha
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
