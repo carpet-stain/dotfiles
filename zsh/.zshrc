@@ -103,6 +103,14 @@ source $ZDOTDIR/rc.d/completions.zsh
 # zoxide needs to be called after compinit
 eval "$(zoxide init zsh)"
 
+# +-------+
+# | PYENV |
+# +-------+
+
+eval "$(pyenv init -)"            # Initialize pyenv for interactive shells
+eval "$(pyenv init --path)"       # Initialize pyenv for login shells
+source $HOMEBREW_PREFIX/opt/pyenv/completions/pyenv.zsh
+
 # +-----+
 # | FZF |
 # +-----+
@@ -130,7 +138,6 @@ source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
 source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-fast-theme -q XDG:catppuccin-mocha
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -142,12 +149,6 @@ source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
-
-# +--------+
-# | FORGIT |
-# +--------+
-
-source $HOMEBREW_PREFIX/opt/forgit/share/forgit/forgit.plugin.zsh
 
 # +----------------+
 # | SANITIZE PATHS |

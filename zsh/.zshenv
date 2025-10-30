@@ -25,6 +25,10 @@ export LESSOPEN="|lesspipe.sh %s"
 export READNULLCMD=$PAGER
 export EZACMD="eza --color=always --icons=always --group-directories-first -a --classify=auto --dereference"
 
+# Don't indicate virtualenv in pyenv, indication is done in p10k
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
 # ls colors
 source $ZDOTDIR/env.d/ls_colors.zsh
 
@@ -46,6 +50,7 @@ export TERMINFO=$XDG_DATA_HOME/terminfo
 export TERMINFO_DIRS=$TERMINFO
 export TMUX_TMPDIR=$XDG_RUNTIME_DIR/tmux
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
+export PYENV_ROOT=$XDG_DATA_HOME/pyenv
 
 # +-----+
 # | FZF |
@@ -96,6 +101,9 @@ export FZF_ALT_C_OPTS="
 
 # Initialize path
 path+=$HOME/.local/bin
+
+# Add pyenv to the shell
+path=($PYENV_ROOT/bin $path)
 
 # Add custom functions and completions
 fpath+=$ZDOTDIR/fpath

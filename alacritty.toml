@@ -4,6 +4,9 @@
 # Alacritty's configuration file uses the TOML format. 
 # The format's specification can be found at https://toml.io/en/v1.0.0.
 
+[env]
+TERM = "tmux-256color"
+
 # GENERAL
 [general]
 

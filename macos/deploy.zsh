@@ -75,6 +75,7 @@ install_homebrew() {
   if [[ -z $(command -v brew) ]]; then
     print "Installing Homebrew..."
     NONINTERACTIVE=1 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
   else
     print "Homebrew already installed... Skipping"
   fi
@@ -83,7 +84,6 @@ install_homebrew() {
 # Install Brewfile packages
 install_brewfile() {
   print "Installing Brewfile packages..."
-  eval "$(brew shellenv)"
   brew bundle --file=$DEPLOY_DIR/Brewfile
 }
 
@@ -100,6 +100,12 @@ download_gitstatusd() {
   print "Downloading gitstatusd for powerlevel10k..."
   $SHELL -is <<< '' &> /dev/null
   print "  ...done"
+}
+
+set_fsh() {
+  print "Setting fast-syntax-highlighting theme...\n"
+  $SHELL -is <<<'fast-theme -q XDG:catppuccin-mocha' &> /dev/null
+  print "    ...done\n"
 }
 
 # Refresh TLDR pages
@@ -125,6 +131,19 @@ generate_tmux_terminfo() {
   print "  ...done"
 }
 
+set_neovim() {
+  # Launch nvim to trigger Lazy and download plugins
+  print "Downloading Neovim plugins and generating help tags...\n"
+  command nvim --headless -c "helptags ALL" -c "qall" &> /dev/null
+
+  # Launch Neovim and install Mason dependancies
+  print "Installing LSP servers/tools...\n"
+  # NOTE: `MasonInstallAll` isn't a neovim builtin.
+  # It's a user command declared in:  './nvim/lua/conf/lang/mason.lua'
+  command nvim --headless -c "MasonInstallAll" -c "qall" &> /dev/null
+  print "    ...done\n"
+}
+
 # Execute functions
 create_directories
 link_configs
@@ -132,6 +151,8 @@ install_homebrew
 install_brewfile
 sync_submodules
 download_gitstatusd
+set_fsh
 refresh_tldr
 rebuild_bat_cache
 generate_tmux_terminfo
+set_neovim

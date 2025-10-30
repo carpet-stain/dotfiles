@@ -30,12 +30,11 @@ alias rm="rm -I --preserve-root=all"
 # Make mount command output pretty and human readable format
 alias mount="mount | column -t"
 
-alias rsync="rsync --verbose --archive --human-readable --partial"
-alias tree="tree -A -F -C --dirsfirst -a"
+alias tree="$EZACMD --tree --level=2 -I .git"
 alias curl="curlie"
 alias find="fd"
-alias path='echo -e ${PATH//:/\\n}'
-alias fpath='echo -e ${FPATH//:/\\n}'
+alias path="echo -e ${PATH//:/\\n}"
+alias fpath="echo -e ${FPATH//:/\\n}"
 alias reload="exec $SHELL -l"
 alias vim="nvim"
 alias ip="doggo +short myip.opendns.com @resolver1.opendns.com"

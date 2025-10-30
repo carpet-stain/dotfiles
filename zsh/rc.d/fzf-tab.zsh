@@ -7,7 +7,7 @@ zstyle ':fzf-tab:*'            continuous-trigger   space
 zstyle ':fzf-tab:*'            fzf-bindings         'tab:down' 'shift-tab:up' 'enter:accept'
 zstyle ':fzf-tab:*'            accept-line          enter
 zstyle ':fzf-tab:*'            switch-group         '<' '>'
-zstyle ':fzf-tab:*'            use-fzf-default-opts yes
+# zstyle ':fzf-tab:*'            use-fzf-default-opts yes
 
 # User expand
 zstyle ':fzf-tab:user-expand:' fzf-preview          'less $word'
@@ -35,4 +35,4 @@ zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|
 
 # Directory content preview with eza for cd
 zstyle ':fzf-tab:complete:cd:*' fzf-preview \
-    '${EZACMD[@]} $@ -1 $realpath' # remember to use single quote here!!
+    'eval $EZACMD -1 $realpath' # remember to use single quote here!!

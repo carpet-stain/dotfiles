@@ -7,7 +7,6 @@ brew 'doggo' # Better dig
 brew 'dua-cli' # Better du
 brew 'eza' # Better ls
 brew 'fd' # better find
-brew 'forgit'
 brew 'fzf' # Fuzzy finder
 brew 'git' # More recent version of git
 brew 'git-delta' # Better diff
