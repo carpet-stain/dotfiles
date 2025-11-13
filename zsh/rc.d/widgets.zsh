@@ -1,62 +1,91 @@
 #!/usr/bin/env zsh
 
-# Initialize colors
-autoload -Uz colors
-colors
+  # Initialize colors
+  autoload -Uz colors
+  colors
 
-# Enhanced word navigation
-autoload -Uz forward-word backward-word
-zle -N forward-word
-zle -N backward-word
+  # Enhanced word navigation (e.g., for Alt-Left/Right arrows)
+  # 'autoload -Uz' is the standard, safe way to load a Zsh function.
+  #   -U: Marks for autoloading, disables alias expansion.
+  #   -z: Loads in "zsh" compatibility mode.
+  autoload -Uz forward-word backward-word
+  # 'zle -N' creates a new "widget" (a line-editor command)
+  # named 'forward-word' that calls the function 'forward-word'.
+  zle -N forward-word
+  zle -N backward-word
 
-# Ctrl+W stops on path delimiters
-autoload -Uz select-word-style
-select-word-style bash
+  # 'select-word-style bash' makes word-deletion widgets (like Ctrl+W)
+  # behave like Bash, stopping at path delimiters (/) instead of
+  # deleting the whole path.
+  autoload -Uz select-word-style
+  select-word-style bash
 
-# enable url-quote-magic
-autoload -Uz url-quote-magic
-zle -N self-insert url-quote-magic
+  # enable url-quote-magic
+  # This widget automatically quotes special characters in URLs
+  # when you paste them into the command line.
+  autoload -Uz url-quote-magic
+  zle -N self-insert url-quote-magic
 
-# enable bracketed paste
-autoload -Uz bracketed-paste-magic
-zle -N bracketed-paste bracketed-paste-magic
+  # enable bracketed paste
+  # This prevents pasted code (especially multi-line code) from
+  # auto-executing. It pastes it as a single, safe block.
+  autoload -Uz bracketed-paste-magic
+  zle -N bracketed-paste bracketed-paste-magic
 
-# Use default provided history search widgets
-autoload -Uz up-line-or-beginning-search
-zle -N up-line-or-beginning-search
-autoload -Uz down-line-or-beginning-search
-zle -N down-line-or-beginning-search
+  # Use default provided history search widgets
+  # These are the functions that power the "search-as-you-type"
+  # history when you press the Up/Down arrows.
+  autoload -Uz up-line-or-beginning-search
+  zle -N up-line-or-beginning-search
+  autoload -Uz down-line-or-beginning-search
+  zle -N down-line-or-beginning-search
 
-# Load custom functions
-autoload -Uz \
-  _zsh-dot \
-  _expand-alias \
-  _highlight-sudo \
-  _chpwd-eza \
-  _zsh-cursor-shape-reset \
-  _zsh-cursor-shape-ibeam
+  # Load custom functions
+  # Autoload all custom functions from our $fpath (e.g., ~/.config/zsh/fpath)
+  # These files must be named *exactly* the same as the function.
+  autoload -Uz \
+    _zsh-dot \
+    _expand-alias \
+    _chpwd-eza \
+    _zsh-cursor-shape-reset \
+    _zsh-cursor-shape-ibeam
 
-zle -N _zsh-dot
-zle -N _expand-alias
-zle -N _highlight-sudo
-zle -N _chpwd-eza
-zle -N _zsh-cursor-shape-ibeam
-zle -N _zsh-cursor-shape-reset
+  # Create Zle widgets for each of our custom functions so they can be bound to keys.
+  zle -N _zsh-dot
+  zle -N _expand-alias
+  zle -N _chpwd-eza
+  zle -N _zsh-cursor-shape-ibeam
+  zle -N _zsh-cursor-shape-reset
 
-# Ensure add-zsh-hook is loaded
-autoload -Uz add-zsh-hook
+  # Ensure add-zsh-hook is loaded
+  autoload -Uz add-zsh-hook
 
-add-zsh-hook chpwd _chpwd-eza
-add-zsh-hook preexec _highlight-sudo
-add-zsh-hook preexec _zsh-cursor-shape-reset
-add-zsh-hook precmd _zsh-cursor-shape-ibeam
+  # +----------------+
+  # | ZSH HOOKS      |
+  # +----------------+
+  # Hooks run custom functions at specific points in the shell's lifecycle.
 
-# Don't eat space after '<Tab>' followed by '&' or '|'
-ZLE_SPACE_SUFFIX_CHARS="&|"
+  # 'chpwd' hook: Runs *every time* the directory is changed.
+  # This calls our custom '_chpwd-eza' function (which runs 'eza').
+  add-zsh-hook chpwd _chpwd-eza
 
-# Eat space after '<Tab>' followed by ')', etc.
-ZLE_REMOVE_SUFFIX_CHARS=" \t\n;)"
+  # 'preexec' hook: Runs *just before* a command is executed.
+  # This calls our widget to change the cursor to a BLOCK (reset).
+  add-zsh-hook preexec _zsh-cursor-shape-reset
 
-# Removes highlight when pasting
-zle_highlight+=(paste:none)
+  # 'precmd' hook: Runs *just before* the prompt is drawn.
+  # This calls our widget to change the cursor to an I-BEAM.
+  add-zsh-hook precmd _zsh-cursor-shape-ibeam
 
+  # +--------------------+
+  # | ZLE (LINE EDITOR)  |
+  # +--------------------+
+
+  # Don't eat space after '<Tab>' followed by '&' or '|'
+  ZLE_SPACE_SUFFIX_CHARS="&|"
+
+  # Eat space after '<Tab>' followed by ')', etc.
+  ZLE_REMOVE_SUFFIX_CHARS=" \t\n;)"
+
+  # Removes the syntax highlighting "flash" when pasting text.
+  zle_highlight+=(paste:none)

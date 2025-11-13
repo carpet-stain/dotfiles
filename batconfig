@@ -7,21 +7,35 @@
 # A cat(1) clone with wings.
 # https://github.com/sharkdp/bat
 
-# This is `bat`s configuration file. Each line either contains a comment or
-# a command-line option that you want to pass to `bat` by default. You can
-# run `bat --help` to get a list of all possible configuration options.
+# This file defines the default behavior for `bat`.
+# Your `cat` alias (bat -p) will override these as needed.
 
-# Enable this to use italic text on the terminal. This is not supported on all
-# terminal emulators (like tmux, by default):
+# Enable italics
 --italic-text=always
 
-# Configure which elements (line numbers, file headers, grid borders, Git modifications, ..)
-# to display in addition to the file contents. The argument is a comma-separated list of
-# components to display (e.g. 'numbers,changes,grid') or a pre-defined style ('full'). 
---style="full,changes"
+# Default style for `bat`: Show line numbers, git changes, header, and grid.
+--style="full"
 
-# Always use colors
+# Always use colors, even when piping.
 --color=always
 
-# Theme
+# Set the theme to match the rest of the stack.
 --theme="Catppuccin Mocha"
+
+# --- Custom Syntax Mappings ---
+# Tell bat to always use Zsh syntax for these files.
+--map-syntax="*.zshenv:Zsh"
+--map-syntax="*.zshrc:Zsh"
+
+# Map all custom fpath functions to Zsh syntax
+--map-syntax="zsh/fpath/*:Zsh"
+
+# Map all gitconfig files (including your theme) to Git Config syntax
+--map-syntax="*gitconfig:Git Config"
+--map-syntax="git/config:Git Config"
+--map-syntax="git/ignore:Git Ignore"
+--map-syntax="git/attributes:Git Attributes"
+
+# Map your Homebrew files
+--map-syntax="*Brewfile:Brewfile"
+--map-syntax="*.env:Shell"

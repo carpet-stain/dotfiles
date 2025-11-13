@@ -1,19 +1,32 @@
+# .zshrc is sourced for interactive shells.
+# It's the main "command center" for your shell, loading plugins,
+# setting options, and defining aliases.
+
 # +------+
 # | TMUX |
 # +------+
 
-# Start tmux if it's not attached, skipping on remote sessions and root/sudo
-# If tmux is running, invoke _sesh-sessions instead to select an available session
+# Automatically start or attach to a tmux session on shell start.
+# This entire block is guarded to prevent it from running in situations
+# where you don't want it (like over SSH or when running as root).
+#
+# Guard conditions:
+#   ! -v SSH_TTY:  Ensures this does *not* run in an SSH session.
+#   $EUID != 0:    Ensures this does *not* run when root or using sudo.
 if [[ ! -v SSH_TTY && $EUID != 0 ]]; then
-  # If tmux is not running on the system
+  # `pgrep -x tmux` checks for an *exact* process match for "tmux".
   if ! pgrep -x tmux &> /dev/null; then
     print "Tmux is not running, starting a new session..."
+    # `exec` replaces the current zsh process with tmux.
+    # When you quit tmux, the shell/terminal will also close.
     exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
 
-  # If tmux is running, but we're not inside a tmux session
+  # Tmux sets the $TMUX variable for all shells running *inside* it.
+  # `[[ -z $TMUX ]]` checks if that variable is empty.
   elif [[ -z $TMUX ]]; then
-    autoload -Uz _sesh-sessions
-    _sesh-sessions
+    # Try to attach to the last-used session.
+    # If that fails (||), create a new 'personal' session instead.
+    exec tmux attach || exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
   fi
 fi
 
@@ -21,100 +34,90 @@ fi
 # | P10K INSTANT PROMPT |
 # +---------------------+
 
-# https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
+# This is the P10k+direnv integration, which must be in two parts.
+# PART 1: Load direnv *environment variables* before P10k instant prompt.
+# `emulate zsh` runs the command in a clean zsh state, ignoring local aliases/options.
 emulate zsh -c "$(direnv export zsh)"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+#
+# Check if the instant-prompt cache file exists and is readable (-r).
+# The `${(%):-%n}` is a Zsh-specific, robust way to get the $USERNAME.
+# `(%):-` tells Zsh to apply prompt-style expansion to `%n` (username).
+# This is safer than just `$USER` in all edge cases (e.g., sudo).
 if [[ -r $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh ]]; then
   source $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh
 fi
 
+# PART 2: Load the direnv *hook* (which runs on `cd`) *after* the instant prompt.
+# This prevents the direnv hook setup from slowing down the prompt.
 emulate zsh -c "$(direnv hook zsh)"
 
 # +---------+
 # | OPTIONS |
 # +---------+
 
+# Load all custom shell options (setopt, unsetopt).
 source $ZDOTDIR/rc.d/options.zsh
 
 # +---------+
 # | WIDGETS |
 # +---------+
 
+# Load all custom Zle (Zsh Line Editor) widgets and hooks.
 source $ZDOTDIR/rc.d/widgets.zsh
 
 # +--------------+
 # | KEY BINDINGS |
 # +--------------+
 
-# Use emacs keybindings even if our EDITOR is set to vi
-bindkey -e
-
-# Bind some 'CSI u' keys, https://www.leonerd.org.uk/hacks/fixterms/
-typeset -A csi
-
-# Create an associative array for CSI key sequences
-csi[base]="\e["
-csi[suffix]="~"
-
-# Define key sequences for Delete, and Arrow keys
-csi[Delete]="3"
-csi[Up]="A"
-csi[Down]="B"
-csi[Right]="C"
-csi[Left]="D"
-
-bindkey $csi[base]$csi[Delete]$csi[suffix]  delete-char
-bindkey $csi[base]$csi[Left]$csi[suffix]    backward-char
-bindkey $csi[base]$csi[Right]$csi[suffix]   forward-char
-bindkey $csi[base]$csi[Up]$csi[suffix]      up-line-or-beginning-search
-bindkey $csi[base]$csi[Down]$csi[suffix]    down-line-or-beginning-search
-unset csi
-
-bindkey . _zsh-dot
-
-bindkey ' ' _expand-alias
+# Bind keys to the widgets loaded above.
+source $ZDOTDIR/rc.d/key-bindings.zsh
 
 # +---------+
 # | ALIASES |
 # +---------+
 
+# Load all personal aliases.
 source $ZDOTDIR/rc.d/aliases.zsh
 
 # +---------------+
 # | POWERLEVEL10K |
 # +---------------+
 
+# Load the P10k theme configuration.
 source $ZDOTDIR/rc.d/powerlevel10k.zsh
 
 # +-------------+
 # | COMPLETIONS |
 # +-------------+
 
-# Compinit is called here
+# Initialize the Zsh completion system (`compinit`).
+# Compinit is called here.
 source $ZDOTDIR/rc.d/completions.zsh
-
-# +--------+
-# | ZOXIDE |
-# +--------+
-
-# zoxide needs to be called after compinit
-eval "$(zoxide init zsh)"
 
 # +-------+
 # | PYENV |
 # +-------+
 
-eval "$(pyenv init -)"            # Initialize pyenv for interactive shells
-eval "$(pyenv init --path)"       # Initialize pyenv for login shells
-source $HOMEBREW_PREFIX/opt/pyenv/completions/pyenv.zsh
+# Initialize pyenv shims and completions for interactive shells.
+eval "$(pyenv init -)"
+
+# +--------+
+# | ZOXIDE |
+# +--------+
+
+# The init script is smart enough to also set up completions
+# that will be picked up by compinit later.
+eval "$(zoxide init zsh)"
 
 # +-----+
 # | FZF |
 # +-----+
 
+# Source Homebrew-installed fzf completions and keybindings (Ctrl-T, Ctrl-R, Alt-C).
 source $HOMEBREW_PREFIX/opt/fzf/shell/completion.zsh
 source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 
@@ -122,22 +125,15 @@ source $HOMEBREW_PREFIX/opt/fzf/shell/key-bindings.zsh
 # | FZF-TAB |
 # +---------+
 
+# Load fzf-tab configuration, which replaces Zsh's default completion menu.
 source $ZDOTDIR/rc.d/fzf-tab.zsh
 
 # +--------------+
 # | ZSH-AUTOPAIR |
 # +--------------+
 
+# Source the autopair plugin (for auto-closing quotes, brackets, etc.).
 source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
-
-# +------------------------------+
-# | ZSH-FAST-SYNTAX-HIGHLIGHTING |
-# +------------------------------+
-
-# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
-function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
-
-source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # +--------------------+
 # | ZSH-AUTOGUESSTIONS |
@@ -145,14 +141,37 @@ source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-h
 
 source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# Enable completion suggestions, if `history` returns nothing
+# Set the suggestion strategy.
+# 1. 'history': First, try to find a suggestion from shell history.
+# 2. 'completion': If no history match, try to generate a suggestion
+#                  from the Zsh completion engine (e.g., suggest a filename).
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
+# Clear the current suggestion when any of these widgets are triggered.
+# This prevents suggestions from "sticking" when you paste, start a new
+# command, or use the custom `_zsh-dot` widget.
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
+
+# +------------------------------+
+# | ZSH-FAST-SYNTAX-HIGHLIGHTING |
+# +------------------------------+
+
+# This is a compatibility fix for a known issue where the 'whatis'
+# command conflicts with an internal variable (`THEFD`) used by
+# zsh-fast-syntax-highlighting (FSH) during its analysis.
+
+# This function wrapper checks:
+# 1. `[[ -v THEFD ]]`: Is the `THEFD` variable set (i.e., is FSH running)?
+# 2. `if ...; then :;`: If YES, do nothing (the `:` command).
+# 3. `else command whatis $@`: If NO, run the *real* `whatis` command.
+function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
+
+source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 
 # +----------------+
 # | SANITIZE PATHS |
 # +----------------+
 
-# Force path arrays to have unique values only
+# This is a final cleanup step.
+# `typeset -U` forces an array to only contain Unique values.
 typeset -U path fpath manpath

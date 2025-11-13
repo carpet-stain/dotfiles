@@ -1,272 +1,102 @@
 # alacritty - toml configuration file format.
 
-# SYNTAX
-# Alacritty's configuration file uses the TOML format. 
-# The format's specification can be found at https://toml.io/en/v1.0.0.
-
 [env]
+# This is the "glue" for the whole stack.
+# It tells the terminal to identify itself as "tmux-256color" from the start.
+# This ensures Tmux and Neovim inside it correctly detect true-color support.
 TERM = "tmux-256color"
 
-# GENERAL
 [general]
-
-# import = ["<string>",]
-
-# Import additional configuration files.
-# Imports are loaded in order, skipping all missing files, with the importing file being loaded last. If a field is already present in a previous import, it will be replaced.
-# All imports must either be absolute paths starting with /, or paths relative to the user's home directory starting with ~/.
-
+# Import the theme file. This is a great practice to separate
+# aesthetics (the theme) from behavior (this file).
 import = ["~/.config/alacritty/catppuccin-mocha.toml"]
 
-# live_config_reload = true | false
-# Live config reload (changes require restart)
-# Default: true
-
+# Reload the config file automatically when it's saved.
 live_config_reload = true
 
-# WINDOW
-
-# padding = { x = <integer>, y = <integer> }
-# Blank space added around the window in pixels. This padding is scaled by DPI and the specified value is always added at both opposing sides.
-# Default: { x = 0, y = 0 }
-
-# Window decorations.
-# decorations = "Full" | "None" | "Transparent" | "Buttonless"
-# Default: "Full"
-
-# Full
-# Borders and title bar.
-
-# None
-# Neither borders nor title bar.
-
-# Transparent (macOS only)
-# Title bar, transparent background and title bar buttons.
-
-# Buttonless (macOS only)
-# Title bar, transparent background and no title bar buttons.
-
-# Background opacity (works on macOS & KDE Wayland only)
-# opacity = <float>
-# Background opacity as a floating point number from 0.0 to 1.0. The value 0.0 is completely transparent and 1.0 is opaque.
-# Default: 1.0
-
-# blur = true | false 
-# Request compositor to blur content behind transparent windows (works on macOS & KDE Wayland only).
-# Default: false
-
-# Startup mode (changes require restart)
-# startup_mode = "Windowed" | "Maximized" | "Fullscreen" | "SimpleFullscreen"
-# Default: "Windowed"
-
-# option_as_alt = "OnlyLeft" | "OnlyRight" | "Both" | "None" # (macos only)
-# Make Option key behave as Alt.
-# Default: "None"
-
 [window]
-padding = { x = 5, y = 5 }
+# A small aesthetic padding.
+padding = { x = 15, y = 10 }
+
+# This removes all OS-native window chrome (title bar, buttons).
+# This provides a minimal, clean window, assuming you use a
+# window manager (like Rectangle) or Tmux for all window control.
 decorations = "None"
-opacity = 1.0
 blur = false
 startup_mode = "Windowed"
+
+# ESSENTIAL for macOS.
+# Maps the Option key to send Alt (Meta) keycodes.
+# This is required for all the `Alt+...` key bindings in Zsh and Tmux.
 option_as_alt = "Both"
 
-# SCROLLING
-# history = <integer>
-# Maximum number of lines in the scrollback buffer.
-# Specifying 0 will disable scrolling.
-# Limited to 100000.
-# Default: 10000
-
-# multiplier = <integer>
-# Number of line scrolled for every input scroll increment.
-# Default: 3
-
 [scrolling]
-history = 100000
-multiplier = 3
-
-# FONT
-# normal = { family = "<string>", style = "<string>" }
-# If the family is not specified, it will fall back to the value specified for the normal font.
-
-# size = <float>
-# Font size in points.
-# Default: 11.25
-
-# builtin_box_drawing = true | false
-# When true, Alacritty will use a custom built-in font for box drawing characters (Unicode points U+2500 - U+259F) and powerline symbols (Unicode points U+E0B0 - U+E0B3).
-# Default: true
+# Set to 0 to disable Alacritty's native scrollback.
+# We are 100% committed to using Tmux for all scrollback history,
+# so this saves memory and enforces the Tmux workflow.
+history = 0
 
 [font]
+# Use the Nerd Font variant to get all the icons for p10k and tmux.
 normal = { family = "JetBrainsMono Nerd Font" }
 bold = { family = "JetBrainsMono Nerd Font" }
 italic = { family = "JetBrainsMono Nerd Font" }
 bold_italic = { family = "JetBrainsMono Nerd Font" }
 size = 15
+
+# Use Alacritty's built-in glyphs for box-drawing and powerline symbols.
+# This is often faster and more reliable than the font's.
 builtin_box_drawing = true
 
-# BELL
-# This section documents the [bell] table of the configuration file.
-
-# animation = "Ease" | "EaseOut" | "EaseOutSine" | "EaseOutQuad" | "EaseOutCubic" | "EaseOutQuart" | "EaseOutQuint" | "EaseOutExpo" | "EaseOutCirc" | "Linear"
-# Visual bell animation effect for flashing the screen when the visual bell is rung.
-# Default: "Linear"
-
-# duration = <integer>
-# Duration of the visual bell flash in milliseconds. A `duration` of `0` will disable the visual bell animation.
-# Default: 0
-
 [bell]
+# Disable the visual bell (flash) entirely.
 animation = "Linear"
 duration = 0
 
-# SELECTION
-
-# semantic_escape_chars = "<string>"
-# This string contains all characters that are used as separators for "semantic words" in Alacritty.
-# Default: ",│`|:\"' ()[]{}<>\t"
-
-# save_to_clipboard = true | false
-# When set to true, selected text will be copied to the primary clipboard.
-# Default: false
-
 [selection]
+# Define what characters (like / . :) separate "words" for
+# double-click selection.
 semantic_escape_chars = ",│`|:\"' ()[]{<>\t"
-save_to_clipboard = true
-
-# CURSOR
-
-# style = { <shape>, <blinking> }
-
-# shape = "Block" | "Underline" | "Beam"
-# Default: "Block"
-
-# blinking = "Never" | "Off" | "On" | "Always"
-# Never - Prevent the cursor from ever blinking
-# Off - Disable blinking by default
-# On - Enable blinking by default
-# Always -Force the cursor to always blink
-# Default: "Off"
-
-# unfocused_hollow = true | false
-# When this is true, the cursor will be rendered as a hollow box when the window is not focused.
-# Default: true
-# thickness = <float>
-# Thickness of the cursor relative to the cell width as floating point number from 0.0 to 1.0.
-# Default: 0.15
 
 [cursor]
+# Set the default cursor to a non-blinking I-beam.
+# This is the "default state" that your Zsh precmd hook
+# (which runs `_zsh-cursor-shape-ibeam`) resets to.
 style = { shape = "Beam", blinking = "Off" }
 unfocused_hollow = true
 thickness = 0.15
 
-# MOUSE
-
-# hide_when_typing = true | false
-# When this is true, the cursor is temporarily hidden when typing.
-# Default: false
-
 [mouse]
 hide_when_typing = false
 
-# HINTS
-# Terminal hints can be used to find text or hyperlinks in the visible part of the terminal and pipe it to other applications.
-
-# regex = "<string>"
-# Regex each line will be compared against.
-
-# hyperlinks = true | false
-# When this is true, all OSC 8 escape sequence hyperlinks will be included in the hints.
-
-# post_processing = true | false
-# When this is true, heuristics will be used to shorten the match if there are characters likely not to be part of the hint (e.g. a trailing .). This is most useful for URIs and applies only to regex matches.
-
-# persist = true | false
-# When this is true, hints remain persistent after selection.
-
-# command = "<string>" | { program = "<string>", args = ["<string>",] }
-# Command which will be executed when the hint is clicked or selected with the binding.
-# The hint's text is always attached as the last argument.
-
-# binding = { key = "<string>", mods = "<string>", mode = "<string>" }
-# See keyboard.bindings for documentation on available values.
-# This controls which key binding is used to start the keyboard hint selection process.
-
-# mouse = { mods = "<string>", enabled = true | false }
-# See keyboard.bindings for documentation on available mods.
-# The enabled field controls if the hint should be underlined when hovering over the hint text with all mods pressed.
-
-# [[hints.enabled]]
-# command = "xdg-open" # On Linux/BSD
-# command = "open" # On macOS
-# command = { program = "cmd", args = [ "/c", "start", "" ] } # On Windows
-# hyperlinks = true
-# post_processing = true
-# persist = false
-# mouse.enabled = true
-# binding = { key = "U", mods = "Control|Shift" }
-# regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
-
-
-# KEYBOARD
-
-# bindings = [{ <key>, <mods>, <mode>, <action> | <chars> },]
-
-# To unset a default binding, you can use the action "ReceiveChar" to remove it or "None" to inhibit any action.
-# Multiple keybindings can be triggered by a single key press and will be executed in the order they are defined in.
-
-# key = "<string>"
-
-# The regular keys like "A", "0", and "Я" can be mapped directly without any special syntax. Full list of named keys like "F1" and the syntax for dead keys can be found here:
-
-# https://docs.rs/winit/latest/winit/keyboard/enum.NamedKey.html
-# https://docs.rs/winit/latest/winit/keyboard/enum.Key.html#variant.Dead
-
-# Numpad keys are prefixed by Numpad: "NumpadEnter" | "NumpadAdd" | "NumpadComma" | "NumpadDivide" | "NumpadEquals" | "NumpadSubtract" | "NumpadMultiply" | "Numpad[0-9]".
-# The key field also supports using scancodes, which are specified as a decimal number.
-
-# mods = "Command" | "Control" | "Option" | "Super" | "Shift" | "Alt"
-# Multiple modifiers can be combined using |, like this: "Control | Shift".
-
-# mode = "AppCursor" | "AppKeypad" | "Search" | "Alt" | "Vi"
-# This defines a terminal mode which must be active for this binding to have an effect.
-# Prepending ~ to a mode will require the mode to not be active for the binding to take effect.
-# Multiple modes can be combined using |, like this: "~Vi|Search".
-
-# chars = "<string>"
-# Writes the specified string to the terminal.
+[hints]
+# This enables Alacritty's native "hint" mode (like tmux-fingers).
+# Press Ctrl+Shift+U to highlight all matches.
+[[hints.enabled]]
+# Regex to match URLs (http, https, ftp, etc.)
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+command = "open" # On macOS, 'open' will launch the default browser.
+post_processing = true
+mouse.enabled = true
 
 [keyboard]
+# These bindings are crucial for a "native app" feel on macOS.
+# They re-map the standard Command-key shortcuts to Alacritty's
+# internal actions, so Cmd+C/V/Q work as expected.
 bindings = [
   { key = "Paste", action = "Paste" },
   { key = "Copy", action = "Copy" },
-  { key = "L", mods = "Control", action = "ClearLogNotice" },
-  { key = "L", mods = "Control", mode = "~Vi|~Search", chars = "\f" },
 
   # (macOS only)
-  { key = "K", mods = "Command", mode = "~Vi|~Search", chars = "\f" },
-  { key = "K", mods = "Command", mode = "~Vi|~Search", action = "ClearHistory" },
+  # This provides a `Cmd+K` equivalent (clear scrollback AND viewport).
+  { key = "K", mods = "Command", mode = "~Vi|~Search", chars = "\u0002" },
   { key = "Key0", mods = "Command", action = "ResetFontSize" },
   { key = "Equals", mods = "Command", action = "IncreaseFontSize" },
-  { key = "Plus", mods = "Command", action = "IncreaseFontSize" },
   { key = "Minus", mods = "Command", action = "DecreaseFontSize" },
   { key = "V", mods = "Command", action = "Paste" },
   { key = "C", mods = "Command", action = "Copy" },
   { key = "C", mods = "Command", mode = "Vi|~Search", action = "ClearSelection" },
   { key = "Q", mods = "Command", action = "Quit" },
   { key = "N", mods = "Command", action = "CreateNewWindow" },
-  { key = "F", mods = "Command", mode = "~Search", action = "SearchForward" },
-  { key = "B", mods = "Command", mode = "~Search", action = "SearchBackward" },
 
-  # (Windows, Linux, and BSD only)
-  # { key = "V", mods = "Control|Shift", mode = "~Vi", action = "Paste" },
-  # { key = "C", mods = "Control|Shift", action = "Copy" },
-  # { key = "F", mods = "Control|Shift", mode = "~Search", action = "SearchForward" },
-  # { key = "B", mods = "Control|Shift", mode = "~Search", action = "SearchBackward" },
-  # { key = "C", mods = "Control|Shift", mode = "Vi|~Search", action = "ClearSelection" },
-  # { key = "Key0", mods = "Control", action = "ResetFontSize" },
-  # { key = "Equals", mods = "Control", action = "IncreaseFontSize" },
-  # { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
-  # { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
 ]

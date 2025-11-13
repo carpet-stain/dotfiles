@@ -1,5 +1,14 @@
 [display]
+# Removes extra blank lines between list items for a cleaner look.
 compact = true
 
 [updates]
 auto_update = true
+
+[theme]
+# Catppuccin Mocha theme
+description = "cdd6f4"
+command_name = "f38ba8"
+example_text = "cdd6f4"
+example_code = "f9e2af"
+example_variable = "f5c2e7"

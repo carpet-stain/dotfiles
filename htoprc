@@ -1,5 +1,8 @@
-# Refresh rate (lower is faster, default: 1)
+# Refresh rate (15 = 1.5s)
 delay=15
+
+# Enable mouse support for clicking, scrolling, and sorting.
+enable_mouse=1
 
 # Show CPU frequency & temperatures (if supported)
 show_cpu_frequency=1
@@ -12,7 +15,7 @@ header_layout=two_50_50
 tree_view=1
 tree_view_always_by_pid=0
 
-# Sort by CPU usage by default
+# Sort by CPU usage (descending) by default
 sort_key=CPU
 sort_direction=1
 
@@ -27,19 +30,12 @@ hide_userland_threads=1
 
 # Highlight running tasks
 highlight_base_name=1
+# Show readable memory sizes (MB/GB)
 highlight_megabytes=1
 highlight_threads=1
 
-# Enable readable memory sizes (MB/GB instead of KB)
+# Show text inside the memory graph
 show_memory_in_graphs=1
 
-# Enable colors (if terminal supports it)
-color_scheme=5  # Catppuccin-like: use 0-9 for different themes
-
-# Use a clean display without unnecessary columns
-show_cpu_count=1
-show_cpu_graphs=1
-show_cpu_percentage=1
-show_memory_graphs=1
-show_memory_percentage=1
-show_swap_percentage=1
+# Catppuccin-like: use 0-9 for different themes (5 = Black Night)
+color_scheme=5

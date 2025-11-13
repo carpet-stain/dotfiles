@@ -22,7 +22,7 @@ XDG_STATE_HOME=$HOME/.local/state
 # Function to create required directories
 create_directories() {
   print "Creating required directory tree..."
-  zf_mkdir -p $XDG_CONFIG_HOME/{bat/themes,git,htop,alacritty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,alacritty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdear,zsh-abbr,zoxide}
   zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdear,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/zsh/{history}
@@ -46,7 +46,6 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc
 
   zf_ln -sf $DOTFILES_DIR/batconfig $XDG_CONFIG_HOME/bat/config
-  zf_ln -sf $DOTFILES_DIR/theme/bat/themes/Catppuccin\ Mocha.tmTheme $XDG_CONFIG_HOME/bat/themes/Catppuccin\ Mocha.tmTheme
 
   zf_ln -sf $DOTFILES_DIR/git/attributes $XDG_CONFIG_HOME/git/attributes
   zf_ln -sf $DOTFILES_DIR/git/committemplate $XDG_CONFIG_HOME/git/committemplate
@@ -60,6 +59,8 @@ link_configs() {
 
   zf_ln -sf $DEPLOY_DIR/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
   zf_ln -sf $DEPLOY_DIR/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
+
+  zf_ln -sf $DOTFILES_DIR/direnv.toml $XDG_CONFIG_HOME/direnv/direnv.toml
 
   # SSH config
   cp $DOTFILES_DIR/sshconfig $HOME/.ssh/config
@@ -84,7 +85,7 @@ install_homebrew() {
 # Install Brewfile packages
 install_brewfile() {
   print "Installing Brewfile packages..."
-  brew bundle --file=$DEPLOY_DIR/Brewfile
+  # brew bundle --file=$DEPLOY_DIR/Brewfile
 }
 
 # Sync Git submodules
@@ -112,13 +113,6 @@ set_fsh() {
 refresh_tldr() {
   print "Downloading TLDR pages..."
   tldr -u &> /dev/null
-  print "  ...done"
-}
-
-# Rebuild bat cache
-rebuild_bat_cache() {
-  print "Rebuilding bat cache..."
-  bat cache --build &> /dev/null
   print "  ...done"
 }
 
@@ -153,6 +147,5 @@ sync_submodules
 download_gitstatusd
 set_fsh
 refresh_tldr
-rebuild_bat_cache
 generate_tmux_terminfo
 set_neovim

@@ -4,18 +4,12 @@
 [submodule "zsh/plugins/fzf-tab"]
 	path = zsh/plugins/fzf-tab
 	url = https://github.com/Aloxaf/fzf-tab
-[submodule "tmux/plugins/power-zoom"]
-	path = tmux/plugins/power-zoom
-	url = https://github.com/jaclu/tmux-power-zoom.git
 [submodule "tmux/plugins/catppucin"]
 	path = tmux/plugins/catppucin
 	url = https://github.com/catppuccin/tmux.git
 [submodule "theme/alacritty"]
 	path = theme/alacritty
 	url = https://github.com/catppuccin/alacritty.git
-[submodule "theme/bat"]
-	path = theme/bat
-	url = https://github.com/catppuccin/bat.git
 [submodule "theme/delta"]
 	path = theme/delta
 	url = https://github.com/catppuccin/delta.git
@@ -31,6 +25,3 @@
 [submodule "tmux/plugins/cpu"]
 	path = tmux/plugins/cpu
 	url = https://github.com/tmux-plugins/tmux-cpu
-[submodule "tmux/plugins/fingers"]
-	path = tmux/plugins/fingers
-	url = https://github.com/Morantron/tmux-fingers

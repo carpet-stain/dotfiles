@@ -18,10 +18,8 @@ brew 'lesspipe'
 brew 'neovim'
 brew 'powerlevel10k' # zsh command prompt
 brew 'ripgrep' # Faster ag written in Rust
-brew 'sesh'
 brew 'tealdeer' # tldr utility
 brew 'tmux' # terminal multiplexer
-brew 'tmux-fingers' # Better copy pasting
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-fast-syntax-highlighting'
@@ -30,6 +28,9 @@ brew 'zsh-autosuggestions'
 
 cask 'font-jetbrains-mono-nerd-font'
 cask 'alacritty' # Fast, minimal terminal
+cask 'rectangle'
+
+# Personal
 cask 'bitwarden'
 cask 'electrum'
 cask 'eloston-chromium'
@@ -37,7 +38,6 @@ cask 'firefox'
 cask 'little-snitch'
 cask 'monero-wallet'
 cask 'protonvpn'
-cask 'rectangle'
 cask 'signal'
 cask 'slack'
 cask 'steam'

@@ -1,17 +1,12 @@
 #!/usr/bin/env zsh
 
-_zsh-dot () {
-    # If the buffer is empty, set it to 'cd .' to change to the current directory
-    if [[ -z $LBUFFER ]]; then
-        LBUFFER="."
-    # If the buffer ends with a single dot '.', make sure it's 'cd ./'
-    elif [[ $LBUFFER == "." ]]; then
-        LBUFFER="cd .."
-    # If the buffer ends with two dots '..', make sure there's a '/' between them
-    elif [[ $LBUFFER == *.. ]]; then
-        LBUFFER+=/..
-    # Otherwise, append '.' to navigate to the current directory
-    else
-        LBUFFER+="."
-    fi
+# A clearer "smart dot" widget
+_zsh-dot() {
+  # If the buffer ends with "..", expand it to "../.."
+  if [[ $LBUFFER == *.. ]]; then
+    LBUFFER+=/..
+  # Otherwise, just insert the dot
+  else
+    LBUFFER+="."
+  fi
 }

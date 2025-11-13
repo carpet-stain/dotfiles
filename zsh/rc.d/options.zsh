@@ -33,28 +33,43 @@ SAVEHIST=$HISTSIZE
 # Use standard ISO 8601 timestamp format: [YYYY-MM-DD HH:MM:SS]
 HISTTIMEFORMAT="[%F %T] "
 
+# +----------+
+# | GLOBBING |
+# +----------+
+
 setopt EXTENDED_GLOB             # Enables advanced globbing features
 setopt NULL_GLOB                 # Enables null globbing
-unsetopt FLOW_CONTROL            # disable annoying keys
-setopt CLOBBER                   # allow > redirection to truncate existing files
-setopt MULTIOS                   # allows multiple input and output redirections
 setopt BRACE_CCL                 # allow brace character class list expansion
-unsetopt BEEP                    # do not beep on errors
-unsetopt NOMATCH                 # try to avoid the 'zsh: no matches found...'
-setopt INTERACTIVE_COMMENTS      # allow use of comments in interactive code
+
+# +---------------------+
+# | COMPLETION BEHAVIOR |
+# +---------------------+
+
 setopt AUTO_PARAM_SLASH          # complete folders with / at end
 setopt LIST_TYPES                # mark type of completion suggestions
 setopt HASH_LIST_ALL             # whenever a command completion is attempted, make sure the entire command path is hashed first
 setopt COMPLETE_IN_WORD          # allow completion from within a word/phrase
 setopt ALWAYS_TO_END             # move cursor to the end of a completed word
+
+# +-------------+
+# | JOB CONTROL |
+# +-------------+
+
 setopt LONG_LIST_JOBS            # display PID when suspending processes as well
 setopt AUTO_RESUME               # attempt to resume existing job before creating a new process
 setopt NOTIFY                    # report status of background jobs immediately
 setopt NO_HUP                    # Don't send SIGHUP to background processes when the shell exits
+
+# +---------------------+
+# | SHELL QOL & SAFETY |
+# +---------------------+
+
+unsetopt FLOW_CONTROL            # disable annoying keys
+setopt CLOBBER                   # allow > redirection to truncate existing files
+setopt MULTIOS                   # allows multiple input and output redirections
+unsetopt BEEP                    # do not beep on errors
+setopt INTERACTIVE_COMMENTS      # allow use of comments in interactive code
 setopt PUSHD_IGNORE_DUPS         # don't push the same dir twice
 setopt NO_SH_WORD_SPLIT          # use zsh style word splitting
 unsetopt RM_STAR_SILENT          # notify when rm is running with *
 setopt RM_STAR_WAIT              # wait for 10 seconds confirmation when running rm with *
-
-# a bit fancier than default
-PROMPT_EOL_MARK="%K{red} %k"

@@ -9,3 +9,12 @@
 
 # Always colorize
 --color=always
+
+# Show line numbers with every match
+--line-number
+
+# Group results under a filename header (much cleaner)
+--heading
+
+# Format output as clickable hyperlinks for VSCodium
+--hyperlink-format=vscodium://file/{path}:{line}

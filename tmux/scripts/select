@@ -1,27 +1,65 @@
 #!/usr/bin/env zsh
 
-# Forward to vim
-command=$( tmux display -p '#{pane_current_command}' )
-title=$( tmux display -p '#{pane_title}' )
+# 1. Parse arguments (e.g., -L, -D, -U, -R)
+direction="$1"
 
-if [ $command != "ssh" ] && [[ $title =~ \ 😑$ ]]; then
-  key=$( echo ${1#-} | tr 'LDUR' 'hjkl' )
-  tmux send-keys "C-$key"
-
+# Safety check: If no direction is provided, exit.
+if [ -z "$direction" ]; then
   exit 0
 fi
 
-# Forward to tmux
-pane=$( tmux display -p '#{pane_index}' )
-panes=$( tmux display -p '#{window_panes}' )
+# Strip the dash to get L, D, U, R for mapping
+dir_char="${direction#-}"
 
-if [[ $pane -eq 1 && $1 =~ ^-[LU]$ ]] ||
-   [[ $pane -eq $panes && $1 =~ ^-[DR]$ ]]; then
-  tmux select-pane -P 'bg=#333333'
-  sleep 0.1
-  tmux select-pane -P bg=default
+# 2. Detect Vim (Local Check)
+# We query the TTY of the active pane from Tmux
+pane_tty=$(tmux display -p '#{pane_tty}')
+
+# Run the process check LOCALLY in this script.
+# We do NOT use 'tmux run-shell' here.
+# This prevents the "returned 1" error message if grep fails.
+ps -o state= -o comm= -t "$pane_tty" \
+  | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'
+
+# Capture the exit code: 0 = Vim found, 1 = Vim not found
+is_vim=$?
+
+# 3. Navigation Logic
+if [ $is_vim -eq 0 ]; then
+  # --- VIM MODE ---
+  # Map direction chars to Vim movement keys (h, j, k, l)
+  case $dir_char in
+    L) key="h" ;;
+    D) key="j" ;;
+    U) key="k" ;;
+    R) key="l" ;;
+  esac
+  # Send the key stroke to the Vim pane
+  tmux send-keys "C-$key"
 else
-  eval tmux select-pane $@
-fi
+  # --- TMUX MODE ---
+  # Check if we are at the edge of the screen
+  case $dir_char in
+    L) at_edge=$(tmux display -p '#{pane_at_left}') ;;
+    D) at_edge=$(tmux display -p '#{pane_at_bottom}') ;;
+    U) at_edge=$(tmux display -p '#{pane_at_top}') ;;
+    R) at_edge=$(tmux display -p '#{pane_at_right}') ;;
+  esac
 
-exit 0
+  if [ "$at_edge" -eq 1 ]; then
+    # --- FLASH EFFECT ---
+    # We hit an edge. Fetch the Catppuccin theme color for the flash.
+    # Fallback to a dark grey if the variable isn't set.
+    flash_color=$(tmux show-option -gqv "@thm_surface_0")
+    [ -z "$flash_color" ] && flash_color="#313244"
+
+    # Change background, wait, reset background
+    tmux select-pane -P "bg=$flash_color"
+    sleep 0.05
+    tmux select-pane -P 'bg=default'
+  else
+    # --- REGULAR MOVEMENT ---
+    # Just switch the pane using the original argument (e.g., -L)
+    tmux select-pane "$direction"
+  fi
+fi

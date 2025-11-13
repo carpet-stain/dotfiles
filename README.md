@@ -21,19 +21,14 @@ presence](#zero-home-presence).
 
 - Extensive Zsh [configuration](zsh/rc.d) and [plugins](zsh/plugins):
   - [powerline10k](https://github.com/romkatv/powerlevel10k) prompt stylized
-    like [pure](https://github.com/sindresorhus/pure)
   - [additional completions](https://github.com/zsh-users/zsh-completions)
   - [async autosuggestions
     plugin](https://github.com/zsh-users/zsh-autosuggestions)
   - [syntax highlighting
-    plugin](https://github.com/zsh-users/zsh-syntax-highlighting)
+    plugin](https://github.com/zsh-users/zsh-fast-syntax-highlighting)
   - [autopair plugin](https://github.com/hlissner/zsh-autopair)
 - Neovim [configuration](nvim/init.lua)
 - Tmux [configuration](tmux/tmux.conf) and [plugins](tmux/plugins)
-- Other configs:
-  - [Git](git/)
-- [goenv](https://github.com/syndbg/goenv),
-  [nodenv](https://github.com/nodenv/nodenv)
 
 ## Installation
 
@@ -70,13 +65,3 @@ The difference is that `env.d` is sourced always while `rc.d` is sourced in inte
 
 Also `$ZDOTDIR/.zlogin` and `$ZDOTDIR/.zlogout` are available for
 modifications, albeit missing by default.
-
-### Lazy \*env
-
-Pyenv and similar wrappers are lazy-loaded, it means that they won't be
-initialized on shell start. Activation is done on the first execution. Check
-out output of `type -f pyenv` in shell and
-[implementation](zsh/.zshrc). Also this means, that files like
-`.python-versear
-on` won't work as expected, it's recommended to use autoenv.zsh
-to explicitly activate needed environment.
