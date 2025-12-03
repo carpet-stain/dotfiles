@@ -165,7 +165,7 @@ source $ZDOTDIR/plugins/fsh/fast-syntax-highlighting.plugin.zsh
 # | FORGIT |
 # +--------+
 
-[ -f $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh ] && source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
+source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
  
 # +----------------+
 # | SANITIZE PATHS |
