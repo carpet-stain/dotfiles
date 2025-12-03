@@ -69,13 +69,6 @@ source $ZDOTDIR/rc.d/options.zsh
 # Load all custom Zle (Zsh Line Editor) widgets and hooks.
 source $ZDOTDIR/rc.d/widgets.zsh
 
-# +--------------+
-# | KEY BINDINGS |
-# +--------------+
-
-# Bind keys to the widgets loaded above.
-source $ZDOTDIR/rc.d/key-bindings.zsh
-
 # +---------+
 # | ALIASES |
 # +---------+
@@ -97,6 +90,13 @@ source $ZDOTDIR/rc.d/powerlevel10k.zsh
 # Initialize the Zsh completion system (`compinit`).
 # Compinit is called here.
 source $ZDOTDIR/rc.d/completions.zsh
+
+# +--------------+
+# | KEY BINDINGS |
+# +--------------+
+
+# Bind keys to the widgets loaded above.
+source $ZDOTDIR/rc.d/key-bindings.zsh
 
 # +-------+
 # | PYENV |
@@ -156,18 +156,17 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
 # | ZSH-FAST-SYNTAX-HIGHLIGHTING |
 # +------------------------------+
 
-# This is a compatibility fix for a known issue where the 'whatis'
-# command conflicts with an internal variable (`THEFD`) used by
-# zsh-fast-syntax-highlighting (FSH) during its analysis.
-
-# This function wrapper checks:
-# 1. `[[ -v THEFD ]]`: Is the `THEFD` variable set (i.e., is FSH running)?
-# 2. `if ...; then :;`: If YES, do nothing (the `:` command).
-# 3. `else command whatis $@`: If NO, run the *real* `whatis` command.
+# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis $@; fi; }
 
-source $HOMEBREW_PREFIX/opt/zsh-fast-syntax-highlighting/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+source $ZDOTDIR/plugins/fsh/fast-syntax-highlighting.plugin.zsh
 
+# +--------+
+# | FORGIT |
+# +--------+
+
+[ -f $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh ] && source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
+ 
 # +----------------+
 # | SANITIZE PATHS |
 # +----------------+

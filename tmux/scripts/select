@@ -25,7 +25,7 @@ ps -o state= -o comm= -t "$pane_tty" \
 is_vim=$?
 
 # 3. Navigation Logic
-if [ $is_vim -eq 0 ]; then
+if (( is_vim == 0 )); then
   # --- VIM MODE ---
   # Map direction chars to Vim movement keys (h, j, k, l)
   case $dir_char in
@@ -46,7 +46,7 @@ else
     R) at_edge=$(tmux display -p '#{pane_at_right}') ;;
   esac
 
-  if [ "$at_edge" -eq 1 ]; then
+  if (( at_edge == 1 )); then
     # --- FLASH EFFECT ---
     # We hit an edge. Fetch the Catppuccin theme color for the flash.
     # Fallback to a dark grey if the variable isn't set.

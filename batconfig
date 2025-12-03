@@ -38,4 +38,4 @@
 
 # Map your Homebrew files
 --map-syntax="*Brewfile:Brewfile"
---map-syntax="*.env:Shell"
+--map-syntax="*.env:Bourne Again Shell (bash)"

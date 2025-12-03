@@ -17,6 +17,7 @@ coverage.xml
 # virtualenv
 venv/
 .venv/
+.mypy_cache/
 
 ### Go ###
 # Binaries for programs and plugins
@@ -38,6 +39,12 @@ venv/
 # Go workspace file
 go.work
 
+### Rust / General Builds ###
+# Rust/Cargo build directory
+target/
+# Node dependency directory (for project with JS/TS)
+node_modules/
+
 ### *env ###
 # pyenv
 .python-version
@@ -57,6 +64,13 @@ go.work
 # compiled zsh script
 *.zwc
 *.zwc.old
+
+### Editor Swap & Backups ###
+# Neovim swap files and general editor backups
+*.swp
+*.swo
+*.bak
+*~
 
 ### OS ###
 # MacOS

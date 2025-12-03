@@ -3,7 +3,7 @@
 set -e
 
 # Load Zsh modules for managing files
-zmodload -m -F zsh/files b:zf_rm b:zf_ln b:zf_mkdir
+zmodload -m -F zsh/files b:zf_ln b:zf_mkdir
 
 # +----------------+
 # | XDG COMPLIANCE |
@@ -19,18 +19,24 @@ XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
 
+# XDG_RUNTIME_DIR is for non-persistent, temporary files (like sockets).
+# On macOS, the system-provided $TMPDIR is the correct, secure,
+# and non-persistent location to use.
+XDG_RUNTIME_DIR=$TMPDIR
+
 # Function to create required directories
 create_directories() {
   print "Creating required directory tree..."
   zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,alacritty,ripgrep,tealdeer,fsh,homebrew,nvim}
-  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdear,zsh-abbr,zoxide}
-  zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdear,zoxide}
+  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide}
+  zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdeer,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/zsh/{history}
+  zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $HOME/.ssh
   print "  ...done"
 }
 
-# Function to link config files
+# Symlink config files
 link_configs() {
   print "Linking config files..."
 
@@ -60,11 +66,9 @@ link_configs() {
   zf_ln -sf $DEPLOY_DIR/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
   zf_ln -sf $DEPLOY_DIR/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
 
-  zf_ln -sf $DOTFILES_DIR/direnv.toml $XDG_CONFIG_HOME/direnv/direnv.toml
-
-  # SSH config
-  cp $DOTFILES_DIR/sshconfig $HOME/.ssh/config
-  print "  ...done"
+  # SSH config. I don't want to symlink this, just merely copy.
+  cp "$DOTFILES_DIR/sshconfig" "$HOME/.ssh/config"
+  print "...done\n"
 }
 
 # +----------+
@@ -75,7 +79,7 @@ link_configs() {
 install_homebrew() {
   if [[ -z $(command -v brew) ]]; then
     print "Installing Homebrew..."
-    NONINTERACTIVE=1 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     eval "$(/opt/homebrew/bin/brew shellenv)"
   else
     print "Homebrew already installed... Skipping"
@@ -93,49 +97,47 @@ sync_submodules() {
   print "Syncing submodules..."
   git submodule sync > /dev/null
   git submodule update --init --recursive > /dev/null
-  print "  ...done"
+  print "...done\n"
 }
 
 # Trigger zsh run to download gitstatusd
 download_gitstatusd() {
   print "Downloading gitstatusd for powerlevel10k..."
   $SHELL -is <<< '' &> /dev/null
-  print "  ...done"
+  print "...done\n"
 }
 
 set_fsh() {
-  print "Setting fast-syntax-highlighting theme...\n"
-  $SHELL -is <<<'fast-theme -q XDG:catppuccin-mocha' &> /dev/null
-  print "    ...done\n"
+  print "Setting fast-syntax-highlighting theme..."
+  $SHELL -is <<< 'fast-theme -q XDG:catppuccin-mocha' &> /dev/null
+  print "...done\n"
 }
 
 # Refresh TLDR pages
 refresh_tldr() {
   print "Downloading TLDR pages..."
   tldr -u &> /dev/null
-  print "  ...done"
+  print "...done\n"
 }
 
 # Generate tmux-256color terminfo
 generate_tmux_terminfo() {
   print "Generating tmux-256color.info..."
-  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color > ~/tmux-256color.info
-  tic -x -o $XDG_DATA_HOME/terminfo ~/tmux-256color.info
-  zf_rm -f ~/tmux-256color.info
-  print "  ...done"
+  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color | tic -x -o "$XDG_DATA_HOME/terminfo" -
+  print "  ...done\n"
 }
 
 set_neovim() {
   # Launch nvim to trigger Lazy and download plugins
-  print "Downloading Neovim plugins and generating help tags...\n"
+  print "Downloading Neovim plugins and generating help tags..."
   command nvim --headless -c "helptags ALL" -c "qall" &> /dev/null
 
   # Launch Neovim and install Mason dependancies
-  print "Installing LSP servers/tools...\n"
+  print "Installing LSP servers/tools..."
   # NOTE: `MasonInstallAll` isn't a neovim builtin.
   # It's a user command declared in:  './nvim/lua/conf/lang/mason.lua'
   command nvim --headless -c "MasonInstallAll" -c "qall" &> /dev/null
-  print "    ...done\n"
+  print "...done\n"
 }
 
 # Execute functions

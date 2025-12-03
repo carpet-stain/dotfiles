@@ -1,0 +1,9 @@
+[global]
+# This tells direnv to look for .envrc files up to the root
+# of the filesystem.
+# You can also set this to a specific path like "~/code"
+# if you only want to search within your projects directory.
+search_parent_directories = true
+
+# This will load a global .envrc file if you ever want one
+# load_global_envrc = true

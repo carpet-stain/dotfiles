@@ -29,19 +29,15 @@ zstyle ':completion:*'                  list-dirs-first     on
 
 # This is the "magic" matching configuration.
 # Zsh tries matchers in this list until one succeeds.
-# 1. 'm:{[:lower:]}={[:upper:]}'
 #    'm:' -> A 'match' specification.
 #    '{[:lower:]}={[:upper:]}' -> Match lower-case input with upper-case equivalents (case-insensitive).
-#
-# 2. '+r:|[-_:./]=**'
-#    '+' -> This is *not* a new matcher, but a prefix for the *previous* one.
-#    'r:' -> Enables remote matching (e.g., 'f/b/z' matches 'foo/bar/baz').
-#    '|[-_:./]=**' -> Allows characters in the brackets to match any sequence (like '**').
-#    Example: 'm_f' could match 'my_file' or 'my-file' or 'my.file'.
-zstyle ':completion:*'                  matcher-list        'm:{[:lower:]}={[:upper:]}' '+r:|[-_:./]=**'
+zstyle ':completion:*'                  matcher-list        'm:{[:lower:]}={[:upper:]}'
 
 # Automatically add a space after a completed word.
 zstyle ':completion:*'                  add-space           true
+
+# Group completions by their type (e.g., "aliases", "commands").
+zstyle ':completion:*'                  group-name          ''
 
 # Format descriptions, corrections, and manuals with brackets. E.g., "[directory]"
 zstyle ':completion:*:descriptions'     format              '[%d]'
@@ -64,18 +60,11 @@ zstyle ':completion:*'                  complete-options    true
 # When completing 'cd', don't show the "users" tag (home directories).
 zstyle ':completion:*'                  tag-order           '! users'
 
-# Group completions by their type (e.g., "aliases", "commands").
-zstyle ':completion:*'                  group-name          ''
-
 # Define the order in which to display completion groups.
 zstyle ':completion:*:*:-command-:*:*'  group-order         aliases builtins functions commands
 
 # When completing, keep the prefix I've already typed.
 zstyle ':completion:*'                  keep-prefix         true
-
-# Speeds up pasting into the terminal by disabling special
-# paste-magic handling for most widgets, only keeping it for self-insert.
-zstyle ':bracketed-paste-magic'         active-widgets      '.self-*'
 
 # +--------------------------------+
 # | APPLICATION-SPECIFIC ZSTYLES   |
@@ -124,27 +113,23 @@ local compdump_file="$XDG_CACHE_HOME/zsh/compdump"
 #   .  -> Plain files only
 #   mh -> Modified time, in hours
 #   +20 -> More than 20 hours ago
-#
-# `[[ -n ... ]]` checks if the result of that glob is "not empty".
-#
 if ! [[ -f "$compdump_file" ]] || [[ -n "($compdump_file(#qN.mh+20))" ]]; then
     # If file is missing or old, regenerate it.
-    # 'nocorrect' prevents alias correction on the compinit command itself.
     # '-i' (insecure) skips security checks (we trust our own fpath).
     # '-u' (user) uses user's compdump file.
     # '-d' specifies the dump file path.
-    nocorrect compinit -i -u -d "$compdump_file"
+    compinit -i -u -d "$compdump_file"
 else
     # If the compdump is fresh, load it directly from cache ('-C').
-    nocorrect compinit -i -u -C -d "$compdump_file"
+    compinit -i -u -C -d "$compdump_file"
 fi
 
 # Pre-compile the compdump file into a '.zwc' file.
-# Zsh loads the binary '.zwc' file *much* faster than parsing the text compdump.
+# Zsh loads the binary '.zwc' file much faster than parsing the text compdump.
 # 'zrecompile' is smart and will skip if the .zwc is already up-to-date.
 autoload -Uz zrecompile
 zrecompile -pq "$compdump_file"
 
 # Load the bash completion compatibility system as a fallback
 # for tools that don't provide native Zsh completions.
-autoload -Uz bashcompinit && bashcompinit
+autoload -Uz bashcompinit && bashcompinit   

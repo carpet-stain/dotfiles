@@ -61,7 +61,7 @@ setopt NOTIFY                    # report status of background jobs immediately
 setopt NO_HUP                    # Don't send SIGHUP to background processes when the shell exits
 
 # +---------------------+
-# | SHELL QOL & SAFETY |
+# | SHELL QoL & SAFETY |
 # +---------------------+
 
 unsetopt FLOW_CONTROL            # disable annoying keys

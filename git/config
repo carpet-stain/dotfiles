@@ -3,13 +3,12 @@
 
 [user]
   email = brian@leppez
-  name = Brian Leppez
-  signingkey = 0x22483EA714C8FC1B
+  name = Brian Leppez 
 
 [commit]
   template = ~/.config/git/committemplate
   verbose = true
-  # gpgsign = true
+  # gpgsign = true # Uncomment this line to enable GPG signing
 
 [help]
   autoCorrect = 1
@@ -20,6 +19,11 @@
 [push]
   default = current
   followTags = true
+  # Automatically sets the upstream remote (no more --set-upstream)
+  autoSetupRemote = true
+
+[rerere]
+  enabled = true
 
 [branch]
   autoSetupRebase = always
@@ -42,7 +46,10 @@
 
 [diff]
   colorMoved = default
-
+  # Add specific diff drivers (if not already handled by delta)
+  # This makes the config explicit about what diff logic is used for file types.
+  # This relies on .gitattributes file.
+  
 [core]
   excludesFiles = ~/.config/git/ignore
   autocrlf = input
@@ -51,14 +58,15 @@
 
 [pager]
   diff = delta
-  status = true
+  log = delta 
+  tag = sort -V
 
 [interactive]
   diffFilter = delta --color-only
 
 [delta]
   features = interactive catppuccin-mocha
-  navigate = true    # use n and N to move between diff sections
+  navigate = true     # use n and N to move between diff sections
   hyperlinks = true
   line-numbers = true
 
@@ -71,3 +79,10 @@
 
 [pull]
   rebase = true
+
+[fetch]
+  prune = true
+  pruneTags = true
+
+[feature]
+  manyFiles = true

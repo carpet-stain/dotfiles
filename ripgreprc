@@ -18,3 +18,9 @@
 
 # Format output as clickable hyperlinks for VSCodium
 --hyperlink-format=vscodium://file/{path}:{line}
+
+# Add italics to the matching text to make it pop.
+--colors=match:style:italic
+
+# We use Catppuccin's "Subtext" color
+--colors=highlight:fg:166,173,200

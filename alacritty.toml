@@ -31,10 +31,7 @@ startup_mode = "Windowed"
 option_as_alt = "Both"
 
 [scrolling]
-# Set to 0 to disable Alacritty's native scrollback.
-# We are 100% committed to using Tmux for all scrollback history,
-# so this saves memory and enforces the Tmux workflow.
-history = 0
+history = 100000
 
 [font]
 # Use the Nerd Font variant to get all the icons for p10k and tmux.
@@ -98,5 +95,6 @@ bindings = [
   { key = "C", mods = "Command", mode = "Vi|~Search", action = "ClearSelection" },
   { key = "Q", mods = "Command", action = "Quit" },
   { key = "N", mods = "Command", action = "CreateNewWindow" },
-
+  { key = "F", mods = "Command", mode = "~Search", action = "SearchForward" },
+  { key = "B", mods = "Command", mode = "~Search", action = "SearchBackward" },
 ]

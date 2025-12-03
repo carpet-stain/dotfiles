@@ -19,9 +19,15 @@
 [submodule "zsh/plugins/fzf-git"]
 	path = zsh/plugins/fzf-git
 	url = https://github.com/junegunn/fzf-git.sh.git
-[submodule "tmux/plugins/battery"]
-	path = tmux/plugins/battery
-	url = https://github.com/tmux-plugins/tmux-battery
 [submodule "tmux/plugins/cpu"]
 	path = tmux/plugins/cpu
 	url = https://github.com/tmux-plugins/tmux-cpu
+[submodule "zsh/plugins/fsh"]
+	path = zsh/plugins/fsh
+	url = https://github.com/zdharma-continuum/fast-syntax-highlighting.git
+[submodule "theme/fzf"]
+	path = theme/fzf
+	url = https://github.com/catppuccin/fzf.git
+[submodule "zsh/plugins/fzf-tab-source"]
+	path = zsh/plugins/fzf-tab-source
+	url = https://github.com/Freed-Wu/fzf-tab-source

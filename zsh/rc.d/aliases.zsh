@@ -60,19 +60,19 @@ alias df="df -h"
 # Make 'mount' output much cleaner by piping it to 'column -t'.
 alias mount="mount | column -t"
 
-# Use Zsh Parameter Expansion to print $PATH with newlines instead of colons.
-# ${PATH//:/\\n} means:
-#   ${PATH...}  -> Get the $PATH variable.
-#   //:/         -> Globally replace (//) all colons (:).
-#   /\\n}        -> With a newline character (\\n).
-# 'echo -e' then interprets the \n characters.
-alias path="echo -e ${PATH//:/\\n}"
-alias fpath="echo -e ${FPATH//:/\\n}"
+# Use Zsh's 'print -P' with ANSI-C quoting to ensure \n is interpreted correctly.
+# The `\n` character must be expanded *after* the colon replacement.
+alias path="print -P \${(j:\n:)path}"
+alias fpath="print -P \${(j:\n:)fpath}"
 
 # Reload the shell by replacing the current shell process ('exec')
 # with a new login shell ('-l'), which re-sources all configs.
 alias reload="exec $SHELL -l"
 alias vim="nvim"
+alias vi="nvim"
+
+# Quick public IP check using OpenDNS and doggo
+alias ip="doggo +short myip.opendns.com @resolver1.opendns.com"
 
 # +-----------------+
 # |  GLOBAL ALIASES |
@@ -81,13 +81,10 @@ alias vim="nvim"
 # These are "global aliases" ('-g'), which work anywhere on the command line,
 # not just at the start.
 #
-# `alias -g -- -h=...` creates an alias for the literal string ' -h'.
-#
 # `2>&1 | bat ...` is the core:
 #   '2>&1' -> Redirects stderr (where help is often printed) to stdout.
 #   '| bat' -> Pipes the combined output to 'bat' for syntax highlighting.
 #
-# The result: Any command ending in ' -h' or ' --help'
-# (e.g., `grep -h` or `curl --help`) will be automatically colorized.
-alias -g -- -h="-h 2>&1 | bat --language=help --style=plain"
+# The result: Any command ending in ' --help'
+# (e.g., `curl --help`) will be automatically colorized.
 alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
