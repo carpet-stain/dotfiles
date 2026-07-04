@@ -2,8 +2,8 @@
   sslverify = true
 
 [user]
-  email = brian@leppez
-  name = Brian Leppez 
+  email = 5483606+carpet-stain@users.noreply.github.com
+  name = carpet-stain
 
 [commit]
   template = ~/.config/git/committemplate
