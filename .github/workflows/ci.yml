@@ -1,0 +1,48 @@
+name: CI
+
+# Gate merges into main: run on every PR targeting it (fires on each new push
+# to the PR's branch too).
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zsh-syntax:
+    name: zsh syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install zsh
+        run: sudo apt-get update && sudo apt-get install -y zsh
+
+      # zsh -n parses without executing, so missing tools/submodules don't matter.
+      - name: Syntax-check zsh files
+        run: |
+          fail=0
+          files=(
+            zsh/.zshenv
+            zsh/.zshrc
+            zsh/rc.d/*.zsh
+            zsh/env.d/*.zsh
+            zsh/fpath/*
+            macos/deploy.zsh
+          )
+          for f in "${files[@]}"; do
+            [ -f "$f" ] || continue
+            if zsh -n "$f"; then
+              echo "ok: $f"
+            else
+              echo "::error file=$f::zsh -n failed"
+              fail=1
+            fi
+          done
+          exit $fail
