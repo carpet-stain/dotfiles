@@ -68,8 +68,9 @@ Every commit:
 2. **Blank line** between subject and body.
 3. **Body** (wrap at 72 chars): explain *what* and *why*, never *how* — the diff
    shows how. Omit only for trivial, self-evident changes.
-4. **Trailers**: end with the Claude `Co-Authored-By` line, one blank line before
-   it. Add `Co-authored-by:` lines for human contributors above it.
+4. **Trailers** (optional): add a `Co-authored-by: Name <email>` line for each
+   human contributor, one blank line before the footer block. Do not add AI or
+   assistant attribution.
 
 Scope each commit to one logical change — prefer several focused commits over one
 sweeping commit. Propose the split and messages before committing.
