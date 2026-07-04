@@ -20,11 +20,11 @@ This configuration is built on three core principles:
     * `cd` → `zoxide` (teleportation)
 
 3.  **Explicit & Unified:**
-    * **Theming:** A consistent **Catppuccin Mocha** theme is applied programmatically across Alacritty, Tmux, FZF, Bat, Delta, and Neovim.
-    * **Workflow:** A "Tmux-First" approach where the terminal emulator (Alacritty) is merely a canvas. Window management, scrolling, and clipboard integration are handled explicitly by Tmux.
+    * **Theming:** A consistent **Catppuccin Mocha** theme is applied programmatically across Ghostty, Tmux, FZF, Bat, Delta, and Neovim.
+    * **Workflow:** A "Tmux-First" approach where the terminal emulator (Ghostty) is merely a canvas. Window management, scrolling, and clipboard integration are handled explicitly by Tmux.
 ## Features
 
-- **Fully Themed**: Consistent [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) theme across Alacritty, Tmux, FZF, Bat, Delta, and Neovim.
+- **Fully Themed**: Consistent [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) theme across Ghostty, Tmux, FZF, Bat, Delta, and Neovim.
 - Extensive Zsh [configuration](zsh/rc.d) and [plugins](zsh/plugins):
   - [powerlevel10k](https://github.com/romkatv/powerlevel10k) prompt (Catppuccin styled)
   - [fzf-tab](https://github.com/Aloxaf/fzf-tab) for interactive, preview-enabled tab completion
@@ -39,7 +39,7 @@ This configuration is built on three core principles:
   - Minimal, info-rich status bar (CPU/RAM/Battery/Zoom indicators)
   - Popup scratchpad (`Prefix + g`)
   - Hybrid mouse workflow (Tmux for yanking, terminal for scrolling)
-- **Alacritty**: Minimal, borderless [configuration](alacritty.toml) acting as a pure launchpad for Tmux.
+- **Ghostty**: Minimal, borderless [configuration](ghostty/config) acting as a pure launchpad for Tmux.
 - **Modern CLI Replacements**: `bat` (cat), `eza` (ls), `rg` (grep), `fd` (find), `delta` (diff), `doggo` (dig).
 
 ## Installation
