@@ -40,6 +40,10 @@ create_directories() {
 link_configs() {
   print "Linking config files..."
 
+  # AGENTS.md is the source of truth; CLAUDE.md is a gitignored symlink so Claude
+  # Code picks up the same guidance without duplicating it
+  zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
+
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
 
