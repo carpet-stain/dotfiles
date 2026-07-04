@@ -80,12 +80,19 @@ Branching model: **long-lived `dev` + protected `main`**, squash-merged.
 
 1. All work happens on `dev` — commit freely and messily; WIP commits don't need
    to follow the commit style (they get squashed away).
-2. When a unit of work is ready and tested, open a PR `dev` → `main`.
-3. CI must pass; then the PR is **squash-merged** into `main` as a single
-   Conventional Commit (this squashed message *does* follow the style above).
+2. **Scope each PR to one logical change.** Under squash-merge one PR becomes one
+   commit on `main`, so a focused PR yields a clean, atomic, revertable commit.
+   Never bundle unrelated changes into a single PR just to save a round trip.
+3. When a change is ready and tested, open a PR `dev` → `main`. CI must pass, then
+   **squash-merge**. The PR title becomes the `main` commit message, so title the
+   PR as a Conventional Commit (`type(scope): subject`).
 4. After the merge, reset `dev` onto `main` so histories don't drift:
    `git switch dev && git reset --hard origin/main && git push --force-with-lease origin dev`
 5. `main` stays releasable. Cut releases by tagging `vX.Y.Z`
-   ([SemVer](https://semver.org)) and publishing a GitHub Release.
+   ([SemVer](https://semver.org)) and publishing a GitHub Release with
+   `gh release create vX.Y.Z --generate-notes` — it bullets every PR merged since
+   the previous tag; add `--notes "…"` to prepend a summary.
 
-`main` is never committed to directly (except this initial bootstrap).
+`main` is never committed to directly (except one-time bootstraps). Merge method
+is **squash only**; rebase-merge stays disabled and is a deliberate, temporary
+exception used only to land a series of already-clean commits atomically.
