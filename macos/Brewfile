@@ -30,7 +30,7 @@ brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
 cask 'font-jetbrains-mono-nerd-font'
-cask 'alacritty' # Fast, minimal terminal
+cask 'ghostty' # GPU-accelerated terminal
 cask 'rectangle'
 
 # Personal

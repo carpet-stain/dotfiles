@@ -5,7 +5,7 @@ symlink to this file.
 
 ## What this is
 
-Personal macOS dotfiles: Alacritty + tmux + zsh + Neovim, themed Catppuccin
+Personal macOS dotfiles: Ghostty + tmux + zsh + Neovim, themed Catppuccin
 Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
 
 ## Philosophy
@@ -35,7 +35,8 @@ Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
   completions, fzf-tab, powerlevel10k).
 - `zsh/env.d/` — sourced always (e.g. `ls_colors.zsh`).
 - `zsh/fpath/` — custom zle widgets and completions, autoloaded.
-- `theme/` — Catppuccin submodules per tool (alacritty, bat, delta, zsh-fsh).
+- `theme/` — Catppuccin submodules per tool (bat, delta, zsh-fsh). Ghostty uses
+  its built-in `catppuccin-mocha` theme, no submodule.
 - `macos/deploy.zsh` — single bootstrap: creates XDG dirs, symlinks configs,
   installs Homebrew + Brewfile, syncs submodules, builds caches/terminfo.
 - Section headers use the ASCII box style: `# +------+`.
