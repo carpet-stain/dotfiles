@@ -89,10 +89,13 @@ Branching model: **long-lived `dev` + protected `main`**, squash-merged.
    PR as a Conventional Commit (`type(scope): subject`).
 4. After the merge, reset `dev` onto `main` so histories don't drift:
    `git switch dev && git reset --hard origin/main && git push --force-with-lease origin dev`
-5. `main` stays releasable. Cut releases by tagging `vX.Y.Z`
-   ([SemVer](https://semver.org)) and publishing a GitHub Release with
-   `gh release create vX.Y.Z --generate-notes` — it bullets every PR merged since
-   the previous tag; add `--notes "…"` to prepend a summary.
+5. `main` stays releasable. To cut `vX.Y.Z` ([SemVer](https://semver.org)),
+   git-cliff builds `CHANGELOG.md` from the Conventional Commits:
+   - On `dev`: `git cliff --tag vX.Y.Z -o CHANGELOG.md`, commit as
+     `chore(release): vX.Y.Z`, PR, squash-merge.
+   - Tag it: `git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z`.
+   - Publish notes from the same source:
+     `gh release create vX.Y.Z --notes-file <(git cliff --tag vX.Y.Z --latest --strip all)`.
 
 `main` is never committed to directly (except one-time bootstraps). Merge method
 is **squash only**; rebase-merge stays disabled and is a deliberate, temporary

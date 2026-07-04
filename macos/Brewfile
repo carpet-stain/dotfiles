@@ -14,6 +14,7 @@ brew 'fzf' # Fuzzy finder
 brew 'gh' # GitHub CLI (issues, PRs, releases)
 brew 'git' # More recent version of git
 brew 'git-delta' # Better diff
+brew 'git-cliff' # Changelog from conventional commits
 brew 'gnu-sed'
 brew 'gnu-tar'
 brew 'grep'
