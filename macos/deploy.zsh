@@ -30,7 +30,7 @@ create_directories() {
   zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide}
   zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdeer,zoxide}
-  zf_mkdir -p $XDG_STATE_HOME/{zsh/history,less}
+  zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $HOME/.ssh
   print "  ...done"
@@ -130,6 +130,21 @@ generate_tmux_terminfo() {
   print "  ...done\n"
 }
 
+# Install Ghostty's xterm-ghostty terminfo into the XDG terminfo dir.
+# Needed because TERMINFO points at $XDG_DATA_HOME/terminfo and macOS's system
+# terminfo predates Ghostty, so the bundled entry must be compiled in here.
+generate_ghostty_terminfo() {
+  print "Installing Ghostty terminfo..."
+  local ghostty_ti="/Applications/Ghostty.app/Contents/Resources/terminfo"
+  if [[ -d $ghostty_ti ]]; then
+    $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x -A $ghostty_ti xterm-ghostty \
+      | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" - 2> /dev/null
+    print "  ...done\n"
+  else
+    print "  Ghostty.app not found, skipping\n"
+  fi
+}
+
 set_neovim() {
   # Launch nvim to trigger Lazy and download plugins
   print "Downloading Neovim plugins and generating help tags..."
@@ -153,4 +168,5 @@ download_gitstatusd
 set_fsh
 refresh_tldr
 generate_tmux_terminfo
+generate_ghostty_terminfo
 set_neovim
