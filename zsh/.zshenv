@@ -65,6 +65,11 @@ export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 # | HOMEBREW |
 # +----------+
 
+# Keep Homebrew's cache, logs, and temp under XDG dirs (brew.env can't expand vars)
+export HOMEBREW_CACHE=$XDG_CACHE_HOME/Homebrew
+export HOMEBREW_LOGS=$XDG_STATE_HOME/Homebrew/logs
+export HOMEBREW_TEMP=$XDG_RUNTIME_DIR/Homebrew
+
 # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, HOMEBREW_REPOSITORY, PATH, MANPATH, INFOPATH
 eval $(/opt/homebrew/bin/brew shellenv)
 
