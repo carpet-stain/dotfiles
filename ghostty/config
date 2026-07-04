@@ -8,8 +8,8 @@
 # | THEME |
 # +-------+
 
-# Ships built-in — list with `ghostty +list-themes`
-theme = catppuccin-mocha
+# Ships built-in — exact name (with space/casing) from `ghostty +list-themes`
+theme = Catppuccin Mocha
 
 # +------+
 # | FONT |
