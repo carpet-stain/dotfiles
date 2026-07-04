@@ -1,8 +1,8 @@
 # Ghostty configuration — https://ghostty.org/docs/config
 #
-# Ported from the previous Alacritty setup. Ghostty's macOS defaults already
-# provide Cmd+C/V (copy/paste), Cmd+N (new window), Cmd+Q (quit), Cmd+K (clear),
-# and Cmd +/-/0 (font size), so no custom keybindings are needed here.
+# Ghostty's macOS defaults already provide Cmd+C/V (copy/paste), Cmd+N (new
+# window), Cmd+Q (quit), Cmd+K (clear), and Cmd +/-/0 (font size), so no custom
+# keybindings are needed here.
 
 # +-------+
 # | THEME |
@@ -22,7 +22,7 @@ font-size = 15
 # | WINDOW |
 # +--------+
 
-# Borderless, matching the old decorations = "None"
+# Borderless window
 window-decoration = false
 window-padding-x = 5
 window-padding-y = 5
@@ -39,11 +39,11 @@ cursor-style-blink = false
 # | BEHAVIOR |
 # +----------+
 
-# Treat both Option keys as Alt (was option_as_alt = "Both")
+# Treat both Option keys as Alt
 macos-option-as-alt = true
 
 # Keep the mouse cursor visible while typing
 mouse-hide-while-typing = false
 
-# Copy selections straight to the system clipboard (was save_to_clipboard)
+# Copy selections straight to the system clipboard
 copy-on-select = clipboard
