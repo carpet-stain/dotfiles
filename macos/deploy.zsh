@@ -30,7 +30,7 @@ create_directories() {
   zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,alacritty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide}
   zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdeer,zoxide}
-  zf_mkdir -p $XDG_STATE_HOME/zsh/{history}
+  zf_mkdir -p $XDG_STATE_HOME/{zsh/history,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $HOME/.ssh
   print "  ...done"
