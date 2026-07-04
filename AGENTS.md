@@ -53,11 +53,17 @@ Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
 
 ## Commit style
 
-Follow `git/committemplate`. Every commit:
+Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+Every commit:
 
-1. **Subject**: imperative mood, capitalized, no trailing period, ≤50 chars.
-   - Good: `Bind arrow keys via terminfo`
-   - Bad: `fixed arrow keys` (past tense, lowercase, vague)
+1. **Subject**: `type(scope): description`
+   - `type` ∈ feat, fix, docs, style, refactor, perf, test, build, ci, chore
+   - `scope` (optional): repo area — zsh, tmux, git, nvim, macos, theme
+   - `description`: imperative, lowercase, no trailing period; keep the whole
+     line ≤50 chars where possible (hard limit 72)
+   - Breaking change: `type!:` or a `BREAKING CHANGE:` footer
+   - Good: `fix(zsh): bind arrow keys via terminfo`
+   - Bad: `fixed arrow keys` (no type, past tense, vague)
 2. **Blank line** between subject and body.
 3. **Body** (wrap at 72 chars): explain *what* and *why*, never *how* — the diff
    shows how. Omit only for trivial, self-evident changes.
@@ -66,3 +72,19 @@ Follow `git/committemplate`. Every commit:
 
 Scope each commit to one logical change — prefer several focused commits over one
 sweeping commit. Propose the split and messages before committing.
+
+## Git workflow
+
+Branching model: **long-lived `dev` + protected `main`**, squash-merged.
+
+1. All work happens on `dev` — commit freely and messily; WIP commits don't need
+   to follow the commit style (they get squashed away).
+2. When a unit of work is ready and tested, open a PR `dev` → `main`.
+3. CI must pass; then the PR is **squash-merged** into `main` as a single
+   Conventional Commit (this squashed message *does* follow the style above).
+4. After the merge, reset `dev` onto `main` so histories don't drift:
+   `git switch dev && git reset --hard origin/main && git push --force-with-lease origin dev`
+5. `main` stays releasable. Cut releases by tagging `vX.Y.Z`
+   ([SemVer](https://semver.org)) and publishing a GitHub Release.
+
+`main` is never committed to directly (except this initial bootstrap).

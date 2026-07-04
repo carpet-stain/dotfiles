@@ -1,22 +1,29 @@
-# Title: Summary, imperative, start upper case, don't end with a period
-# No more than 50 chars. #### 50 chars is here:  #
-
-# Remember blank line between title and body.
-
-# Body: Explain *what* and *why* (not *how*). Include task ID (Jira issue).
-# Wrap at 72 chars. ################################## which is here:  #
-
-# At the end: Include Co-authored-by for all contributors. 
-# Include at least one empty line before it. Format: 
-# Co-authored-by: name <user@users.noreply.github.com>
+# <type>(<scope>): <subject>   imperative, lowercase, no period
+# ---- keep subject ≤50 chars, hard limit here: --------------------#
 #
-# How to Write a Git Commit Message:
-# https://chris.beams.io/posts/git-commit/
+# Blank line above the body. Explain *what* and *why*, not *how*.
+# Wrap body at 72 chars, which is here: ---------------------------------#
 #
-# 1. Separate subject from body with a blank line
-# 2. Limit the subject line to 50 characters
-# 3. Capitalize the subject line
-# 4. Do not end the subject line with a period
-# 5. Use the imperative mood in the subject line
-# 6. Wrap the body at 72 characters
-# 7. Use the body to explain what and why vs. how
+# Footer(s): BREAKING CHANGE: <desc>, Refs #<issue>, and
+# Co-authored-by: Name <user@users.noreply.github.com>
+# (one blank line before the footer block)
+#
+# ── Conventional Commits ── https://www.conventionalcommits.org/en/v1.0.0/
+#
+# type:
+#   feat      a new feature
+#   fix       a bug fix
+#   docs      documentation only
+#   style     formatting; no behaviour change
+#   refactor  neither fixes a bug nor adds a feature
+#   perf      performance improvement
+#   test      adding or correcting tests
+#   build     build system, dependencies (Brewfile, submodules)
+#   ci        CI configuration
+#   chore     maintenance, tooling
+#
+# scope (optional):  zsh  tmux  git  nvim  macos  theme
+# breaking change:   append ! after type/scope  ->  feat(zsh)!: ...
+#
+# e.g.  fix(zsh): bind arrow keys via terminfo
+#       feat(macos): add ghostty configuration
