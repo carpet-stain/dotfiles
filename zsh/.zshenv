@@ -114,12 +114,11 @@ export EZACMD="eza --color=always --icons=always --group-directories-first -a --
 
 export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
 
-export FZF_DEFAULT_OPTS="
-  --color bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
-  --color fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
-  --color marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8
-  --color selected-bg:#45475a
-  --color border:#313244,label:#cdd6f4
+# Colors from the catppuccin/fzf submodule (sets FZF_DEFAULT_OPTS)
+source $DOTFILES/theme/fzf/themes/catppuccin-fzf-mocha.sh
+
+# Append layout and behavior on top of the theme's colors
+FZF_DEFAULT_OPTS+="
   --color header:italic
   --border rounded
   --border-label-pos center
