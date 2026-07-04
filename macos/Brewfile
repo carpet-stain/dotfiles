@@ -1,3 +1,5 @@
+tap 'morantron/tmux-fingers'
+
 brew 'bat' # Better cat
 brew 'coreutils'
 brew 'curl'
@@ -35,11 +37,8 @@ cask 'bitwarden'
 cask 'electrum'
 cask 'eloston-chromium'
 cask 'firefox'
-cask 'little-snitch'
 cask 'monero-wallet'
 cask 'protonvpn'
-cask 'signal'
-cask 'slack'
 cask 'steam'
 cask 'transmission'
 cask 'vscodium'
