@@ -115,3 +115,10 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
 
 source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# +--------+
+# | FORGIT |
+# +--------+
+
+# Interactive git commands via fzf (ga, glo, gi, …); needs fzf loaded above
+source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
