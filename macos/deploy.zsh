@@ -27,7 +27,7 @@ XDG_RUNTIME_DIR=$TMPDIR
 # Function to create required directories
 create_directories() {
   print "Creating required directory tree..."
-  zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,alacritty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide}
   zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdeer,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/{zsh/history,less}
@@ -50,8 +50,7 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/nvim/init.lua $XDG_CONFIG_HOME/nvim/init.lua
   zf_ln -sfn $DOTFILES_DIR/nvim/lua $XDG_CONFIG_HOME/nvim/lua
 
-  zf_ln -sf $DOTFILES_DIR/alacritty.toml $XDG_CONFIG_HOME/alacritty/alacritty.toml
-  zf_ln -sf $DOTFILES_DIR/theme/alacritty/catppuccin-mocha.toml $XDG_CONFIG_HOME/alacritty/catppuccin-mocha.toml
+  zf_ln -sf $DOTFILES_DIR/ghostty/config $XDG_CONFIG_HOME/ghostty/config
 
   zf_ln -sf $DOTFILES_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc
 
