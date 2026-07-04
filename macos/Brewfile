@@ -11,6 +11,7 @@ brew 'eza' # Better ls
 brew 'fd' # better find
 brew 'forgit' # fzf-git integration
 brew 'fzf' # Fuzzy finder
+brew 'gh' # GitHub CLI (issues, PRs, releases)
 brew 'git' # More recent version of git
 brew 'git-delta' # Better diff
 brew 'gnu-sed'
