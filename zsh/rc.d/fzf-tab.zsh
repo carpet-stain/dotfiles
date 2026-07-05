@@ -2,7 +2,10 @@
 
 # Source the fzf-tab plugin from its submodule location
 source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
-source $ZDOTDIR/plugins/fzf-tab-source/fzf-tab-source.plugin.zsh
+
+# Registers preview zstyles for 200+ commands; not needed until the first Tab
+# press, so defer past the first prompt instead of blocking startup.
+zsh-defer source $ZDOTDIR/plugins/fzf-tab-source/fzf-tab-source.plugin.zsh
 
 # +------------------------+
 # |  GENERAL FZF-TAB SETTINGS  |
