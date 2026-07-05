@@ -1,5 +1,3 @@
-tap 'morantron/tmux-fingers'
-
 brew 'bat' # Better cat
 brew 'coreutils'
 brew 'curl'
@@ -30,17 +28,13 @@ brew 'zsh-completions'
 brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
+cask 'claude' # AI desktop app
 cask 'font-jetbrains-mono-nerd-font'
 cask 'ghostty' # GPU-accelerated terminal
 cask 'rectangle'
 
 # Personal
 cask 'bitwarden'
-cask 'electrum'
-cask 'eloston-chromium'
-cask 'firefox'
-cask 'monero-wallet'
-cask 'protonvpn'
 cask 'steam'
 cask 'transmission'
 cask 'vscodium'
