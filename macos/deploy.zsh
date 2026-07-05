@@ -1,7 +1,5 @@
 #!/usr/bin/env zsh
 
-set -e
-
 # Load Zsh modules for managing files
 zmodload -m -F zsh/files b:zf_ln b:zf_mkdir
 
@@ -24,22 +22,51 @@ XDG_STATE_HOME=$HOME/.local/state
 # and non-persistent location to use.
 XDG_RUNTIME_DIR=$TMPDIR
 
+# +---------+
+# | RUNNERS |
+# +---------+
+
+# A critical step: abort the whole deploy if it fails.
+required() {
+  local desc=$1; shift
+  print "$desc..."
+  local output
+  if output=$("$@" 2>&1); then
+    print "  ...done"
+  else
+    print "  FAILED:"
+    print "$output"
+    exit 1
+  fi
+}
+
+# A best-effort step: print the failure but let deploy continue.
+optional() {
+  local desc=$1; shift
+  print "$desc..."
+  local output
+  if output=$("$@" 2>&1); then
+    print "  ...done"
+  else
+    print "  FAILED (continuing):"
+    print "$output"
+  fi
+}
+
 # Function to create required directories
 create_directories() {
-  print "Creating required directory tree..."
+  setopt local_options err_exit
   zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
-  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide,fast-syntax-highlighting}
-  zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdeer,zoxide}
+  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,fast-syntax-highlighting,git-credential-cache}
+  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $HOME/.ssh
-  print "  ...done"
 }
 
 # Symlink config files
 link_configs() {
-  print "Linking config files..."
-
+  setopt local_options err_exit
   # AGENTS.md is the source of truth; CLAUDE.md is a gitignored symlink so Claude
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
@@ -71,7 +98,6 @@ link_configs() {
 
   # SSH config. I don't want to symlink this, just merely copy.
   cp "$DOTFILES_DIR/sshconfig" "$HOME/.ssh/config"
-  print "...done\n"
 }
 
 # +----------+
@@ -80,102 +106,83 @@ link_configs() {
 
 # Check for Homebrew
 install_homebrew() {
+  setopt local_options err_exit
   if [[ -z $(command -v brew) ]]; then
-    print "Installing Homebrew..."
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     eval "$(/opt/homebrew/bin/brew shellenv)"
-  else
-    print "Homebrew already installed... Skipping"
   fi
 }
 
 # Install Brewfile packages
 install_brewfile() {
-  print "Installing Brewfile packages..."
-  # brew bundle --file=$DEPLOY_DIR/Brewfile
+  brew bundle --file=$DEPLOY_DIR/Brewfile
 }
 
 # Sync Git submodules
 sync_submodules() {
-  print "Syncing submodules..."
-  git submodule sync > /dev/null
-  git submodule update --init --recursive > /dev/null
-  print "...done\n"
+  setopt local_options err_exit
+  git -C $DOTFILES_DIR submodule sync
+  git -C $DOTFILES_DIR submodule update --init --recursive
 }
 
 # Trigger zsh run to download gitstatusd
 download_gitstatusd() {
-  print "Downloading gitstatusd for powerlevel10k..."
-  $SHELL -is <<< '' &> /dev/null
-  print "...done\n"
+  $SHELL -is <<< ''
 }
 
 set_fsh() {
-  print "Setting fast-syntax-highlighting theme..."
-  $SHELL -is <<< 'fast-theme -q XDG:catppuccin-mocha' &> /dev/null
-  print "...done\n"
+  $SHELL -is <<< 'fast-theme -q XDG:catppuccin-mocha'
 }
 
 # Generate completions for tools with no Homebrew-shipped zsh completion file
 generate_completions() {
-  print "Generating dua/doggo completions..."
   dua completions zsh > $XDG_CACHE_HOME/zsh/completions/_dua
   doggo completions zsh > $XDG_CACHE_HOME/zsh/completions/_doggo
-  print "  ...done"
 }
 
 # Refresh TLDR pages
 refresh_tldr() {
-  print "Downloading TLDR pages..."
-  tldr -u &> /dev/null
-  print "...done\n"
+  tldr -u
 }
 
 # Generate tmux-256color terminfo
 generate_tmux_terminfo() {
-  print "Generating tmux-256color.info..."
-  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color | tic -x -o "$XDG_DATA_HOME/terminfo" -
-  print "  ...done\n"
+  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
 }
 
 # Install Ghostty's xterm-ghostty terminfo into the XDG terminfo dir.
 # Needed because TERMINFO points at $XDG_DATA_HOME/terminfo and macOS's system
 # terminfo predates Ghostty, so the bundled entry must be compiled in here.
 generate_ghostty_terminfo() {
-  print "Installing Ghostty terminfo..."
   local ghostty_ti="/Applications/Ghostty.app/Contents/Resources/terminfo"
-  if [[ -d $ghostty_ti ]]; then
-    $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x -A $ghostty_ti xterm-ghostty \
-      | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" - 2> /dev/null
-    print "  ...done\n"
-  else
-    print "  Ghostty.app not found, skipping\n"
-  fi
+  [[ -d $ghostty_ti ]] || return 0
+  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x -A $ghostty_ti xterm-ghostty \
+    | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
 }
 
 set_neovim() {
   # Launch nvim to trigger Lazy and download plugins
-  print "Downloading Neovim plugins and generating help tags..."
-  command nvim --headless -c "helptags ALL" -c "qall" &> /dev/null
+  command nvim --headless -c "helptags ALL" -c "qall"
 
-  # Launch Neovim and install Mason dependancies
-  print "Installing LSP servers/tools..."
+  # Launch Neovim and install Mason dependencies.
   # NOTE: `MasonInstallAll` isn't a neovim builtin.
   # It's a user command declared in:  './nvim/lua/conf/lang/mason.lua'
-  command nvim --headless -c "MasonInstallAll" -c "qall" &> /dev/null
-  print "...done\n"
+  command nvim --headless -c "MasonInstallAll" -c "qall"
 }
 
-# Execute functions
-create_directories
-link_configs
-install_homebrew
-install_brewfile
-sync_submodules
-download_gitstatusd
-set_fsh
-generate_completions
-refresh_tldr
-generate_tmux_terminfo
-generate_ghostty_terminfo
-set_neovim
+# +-------------------+
+# | EXECUTE FUNCTIONS |
+# +-------------------+
+
+required "Creating required directory tree"    create_directories
+required "Linking config files"                link_configs
+required "Checking for Homebrew"                install_homebrew
+required "Installing Brewfile packages"        install_brewfile
+required "Syncing submodules"                  sync_submodules
+optional "Downloading gitstatusd for p10k"     download_gitstatusd
+optional "Setting fast-syntax-highlighting theme" set_fsh
+optional "Generating dua/doggo completions"    generate_completions
+optional "Refreshing TLDR pages"               refresh_tldr
+optional "Generating tmux-256color terminfo"   generate_tmux_terminfo
+optional "Installing Ghostty terminfo"         generate_ghostty_terminfo
+optional "Setting up Neovim plugins/LSPs"      set_neovim
