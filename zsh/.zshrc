@@ -100,6 +100,7 @@ source $ZDOTDIR/rc.d/fzf-tab.zsh
 # | ZSH-AUTOPAIR |
 # +--------------+
 
+# Auto-closes/deletes matching brackets and quotes
 source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 
 # +------------------------------+
