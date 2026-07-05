@@ -27,6 +27,7 @@
 
 [branch]
   autoSetupRebase = always
+  sort = -committerdate # recently-active branches first in `git branch`
 
 [init]
   defaultBranch = main
@@ -37,6 +38,8 @@
 
 [rebase]
   autoStash = true
+  autoSquash = true # auto-apply fixup!/squash! commits during interactive rebase
+  updateRefs = true # update dependent branches when rebasing a stack
 
 [color]
   ui = auto
@@ -49,12 +52,17 @@
   # Add specific diff drivers (if not already handled by delta)
   # This makes the config explicit about what diff logic is used for file types.
   # This relies on .gitattributes file.
-  
+  ignoreSubmodules = dirty # ignore untracked cruft inside submodules in status/diff
+  submodule = log # show submodule commit summaries in diffs, not just the SHA bump
+  mnemonicPrefix = true # a/b/i/w/c prefixes instead of always a/b
+  renames = true
+
 [core]
   excludesFiles = ~/.config/git/ignore
   autocrlf = input
   whitespace = cr-at-eol
   pager = delta
+  untrackedCache = true
 
 [pager]
   diff = delta
