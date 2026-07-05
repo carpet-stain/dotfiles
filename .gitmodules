@@ -28,3 +28,6 @@
 [submodule "zsh/plugins/zsh-defer"]
 	path = zsh/plugins/zsh-defer
 	url = https://github.com/romkatv/zsh-defer.git
+[submodule "theme/eza"]
+	path = theme/eza
+	url = https://github.com/catppuccin/eza.git

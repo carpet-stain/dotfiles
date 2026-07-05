@@ -56,7 +56,7 @@ optional() {
 # Function to create required directories
 create_directories() {
   setopt local_options err_exit
-  zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,fast-syntax-highlighting,git-credential-cache}
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
@@ -73,6 +73,7 @@ link_configs() {
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
+  zf_ln -sf $DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml $XDG_CONFIG_HOME/eza/theme.yml
 
   zf_ln -sf $DOTFILES_DIR/nvim/init.lua $XDG_CONFIG_HOME/nvim/init.lua
   zf_ln -sfn $DOTFILES_DIR/nvim/lua $XDG_CONFIG_HOME/nvim/lua
