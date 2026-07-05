@@ -1,21 +1,27 @@
 # .zshrc is sourced only for interactive shells.
 # Plugin loading, key bindings, completions, and prompt configuration live here.
 
-# +------+
-# | TMUX |
-# +------+
+# +--------+
+# | ZELLIJ |
+# +--------+
 
 # Skip on remote sessions and root — those should not auto-attach.
-# Three states: tmux absent → start session; tmux present but unattached → pick session; inside tmux → do nothing.
-# if [[ -z $SSH_TTY && $EUID != 0 ]]; then
-#   if ! pgrep -x tmux &> /dev/null; then
-#     print "Tmux is not running, starting a new session..."
-#     exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
-#   elif [[ -z $TMUX ]]; then
-#     autoload -Uz _sesh-sessions
-#     _sesh-sessions
-#   fi
-# fi
+# Three states: no active session → start one; a session exists but we're not
+# attached → pick one; already inside zellij → do nothing.
+# "Active" excludes exited-but-resurrectable sessions (list-sessions marks
+# those "EXITED" and still exits 0 for them; only a genuinely running session
+# should skip straight to attaching).
+if [[ -z $SSH_TTY && $EUID != 0 ]]; then
+  local _zellij_active=$(zellij list-sessions --no-formatting 2>/dev/null | grep -v 'EXITED')
+  if [[ -z $_zellij_active ]]; then
+    print "Zellij is not running, starting a new session..."
+    exec zellij
+  elif [[ -z $ZELLIJ ]]; then
+    autoload -Uz _zellij-sessions
+    _zellij-sessions
+  fi
+  unset _zellij_active
+fi
 
 # +---------------------+
 # | P10K INSTANT PROMPT |
