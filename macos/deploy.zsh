@@ -57,6 +57,7 @@ optional() {
 create_directories() {
   setopt local_options err_exit
   zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,fast-syntax-highlighting,git-credential-cache}
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
@@ -79,6 +80,10 @@ link_configs() {
   zf_ln -sfn $DOTFILES_DIR/nvim/lua $XDG_CONFIG_HOME/nvim/lua
 
   zf_ln -sf $DOTFILES_DIR/ghostty/config $XDG_CONFIG_HOME/ghostty/config
+
+  zf_ln -sf $DOTFILES_DIR/zellij/config.kdl $XDG_CONFIG_HOME/zellij/config.kdl
+  zf_ln -sf $DOTFILES_DIR/zellij/themes/catppuccin.kdl $XDG_CONFIG_HOME/zellij/themes/catppuccin.kdl
+  zf_ln -sf $DOTFILES_DIR/zellij/layouts/default.kdl $XDG_CONFIG_HOME/zellij/layouts/default.kdl
 
   zf_ln -sf $DOTFILES_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc
 
