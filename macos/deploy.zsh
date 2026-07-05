@@ -166,37 +166,21 @@ generate_ghostty_terminfo() {
     | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
 }
 
-# Pre-grant permissions for plugins that can't reliably get an interactive
-# prompt:
-#   - zjstatus-hints loads via load_plugins (background, no attached tab), so
-#     it can never receive one at all (zellij-org/zellij#4982).
-#   - zjstatus lives in the 1-row status bar pane, where permission prompts
-#     are known to not render/be usable (zellij-org/zellij#4749).
+# Pre-grant zjstatus its permissions: it lives in the 1-row status bar pane,
+# where permission prompts are known to not render/be usable
+# (zellij-org/zellij#4749), so it can't realistically get them interactively.
 grant_zellij_permissions() {
   local perms_file="$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl"
-  zf_mkdir -p "${perms_file:h}"
-  [[ -f $perms_file ]] || touch "$perms_file"
-
   local zjstatus_url="https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm"
-  if ! grep -qF "$zjstatus_url" "$perms_file"; then
-    cat >>"$perms_file" <<-KDL
+  [[ -f $perms_file ]] && grep -qF "$zjstatus_url" "$perms_file" && return 0
+  zf_mkdir -p "${perms_file:h}"
+  cat >>"$perms_file" <<-KDL
 	"$zjstatus_url" {
 	    ReadApplicationState
 	    ChangeApplicationState
 	    RunCommands
 	}
 	KDL
-  fi
-
-  local hints_url="https://github.com/b0o/zjstatus-hints/releases/download/v0.1.4/zjstatus-hints.wasm"
-  if ! grep -qF "$hints_url" "$perms_file"; then
-    cat >>"$perms_file" <<-KDL
-	"$hints_url" {
-	    ReadApplicationState
-	    MessageAndLaunchOtherPlugins
-	}
-	KDL
-  fi
 }
 
 set_neovim() {
