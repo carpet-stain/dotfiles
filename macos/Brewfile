@@ -29,12 +29,14 @@ brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
 
 cask 'claude' # AI desktop app
+cask 'claude-code' # AI coding assistant CLI
 cask 'font-jetbrains-mono-nerd-font'
 cask 'ghostty' # GPU-accelerated terminal
 cask 'rectangle'
 
 # Personal
 cask 'bitwarden'
+cask 'mullvad-vpn'
 cask 'steam'
 cask 'transmission'
 cask 'vscodium'
