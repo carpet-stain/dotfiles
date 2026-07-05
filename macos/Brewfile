@@ -17,6 +17,8 @@ brew 'gnu-sed'
 brew 'gnu-tar'
 brew 'grep'
 brew 'htop'
+brew 'hyperfine' # Command-line benchmarking
+brew 'jaq' # Fast jq alternative
 brew 'lesspipe'
 brew 'neovim'
 brew 'powerlevel10k' # zsh command prompt
