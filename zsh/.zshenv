@@ -139,7 +139,7 @@ export FZF_CTRL_T_OPTS="
   --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
   --bind 'ctrl-o:become(open -R {})'
   --bind 'ctrl-y:become(echo -n {} | pbcopy)'
-  --bind 'ctrl-e:become(zellij action new-pane --floating -- $EDITOR {+1})'
+  --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+1})'
   --select-1 --exit-0"
 
 # Ctrl+R — command history
