@@ -15,8 +15,10 @@ brew 'git-delta' # Better diff
 brew 'git-cliff' # Changelog from conventional commits
 brew 'gnu-sed'
 brew 'gnu-tar'
-brew 'grep'
+brew 'grep' # aliased to rg interactively, but scripts/subprocesses call grep directly
 brew 'htop'
+brew 'hyperfine' # Command-line benchmarking
+brew 'jaq' # Fast jq alternative
 brew 'lesspipe'
 brew 'neovim'
 brew 'powerlevel10k' # zsh command prompt
