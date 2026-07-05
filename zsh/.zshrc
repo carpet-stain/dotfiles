@@ -82,6 +82,13 @@ eval "$(zoxide init zsh)"
 # Must come after compinit; sets up Ctrl+T, Ctrl+R, Alt+C bindings and tab completion
 eval "$(fzf --zsh)"
 
+# +-----------+
+# | ZSH-DEFER |
+# +-----------+
+
+# Lets non-critical plugins load after the first prompt instead of blocking startup
+source $ZDOTDIR/plugins/zsh-defer/zsh-defer.plugin.zsh
+
 # +---------+
 # | FZF-TAB |
 # +---------+
@@ -130,5 +137,6 @@ source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 # | FORGIT |
 # +--------+
 
-# Interactive git commands via fzf (ga, glo, gi, …); needs fzf loaded above
-source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
+# Interactive git commands via fzf (ga, glo, gi, …); needs fzf loaded above.
+# Not needed until first invoked, so defer past the first prompt.
+zsh-defer source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh

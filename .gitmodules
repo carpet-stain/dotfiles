@@ -25,3 +25,6 @@
 [submodule "zsh/plugins/fzf-tab-source"]
 	path = zsh/plugins/fzf-tab-source
 	url = https://github.com/Freed-Wu/fzf-tab-source
+[submodule "zsh/plugins/zsh-defer"]
+	path = zsh/plugins/zsh-defer
+	url = https://github.com/romkatv/zsh-defer.git
