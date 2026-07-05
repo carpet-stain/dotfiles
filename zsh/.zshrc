@@ -104,7 +104,17 @@ source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
 function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
 
 source $ZDOTDIR/plugins/fsh/fast-syntax-highlighting.plugin.zsh
-fast-theme -q XDG:catppuccin-mocha
+
+# `fast-theme` writes a compiled theme cache; deploy.zsh runs it once, so just
+# source the cache here instead of re-running the (much heavier) command on
+# every shell startup. Self-heals if the cache is missing (e.g. before deploy).
+FAST_THEME_CACHE=$XDG_CACHE_HOME/fast-syntax-highlighting/current_theme.zsh
+if [[ -r $FAST_THEME_CACHE ]]; then
+  source $FAST_THEME_CACHE
+else
+  fast-theme -q XDG:catppuccin-mocha
+fi
+unset FAST_THEME_CACHE
 
 # +---------------------+
 # | ZSH-AUTOSUGGESTIONS |
