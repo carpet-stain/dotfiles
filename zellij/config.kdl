@@ -57,23 +57,7 @@ keybinds {
 
 plugins {
     session-manager location="zellij:session-manager"
-
-    // Feeds the current mode's keybinding hints into zjstatus (which, unlike
-    // Zellij's own default status bar, doesn't show these on its own) — see
-    // layouts/default.kdl for where it's rendered.
-    zjstatus-hints location="https://github.com/b0o/zjstatus-hints/releases/download/v0.1.4/zjstatus-hints.wasm" {
-        max_length 80
-        overflow_str "…"
-        pipe_name "zjstatus_hints"
-        hide_in_base_mode true
-    }
 }
 
 // zjstatus itself is NOT listed here — it's only referenced from the layout's
 // pane (see layouts/default.kdl), matching its own documented setup exactly.
-// It needs a real pane context to show its interactive permission prompt;
-// zjstatus-hints has no pane of its own, so it's pre-granted in deploy.zsh
-// instead (see grant_zellij_permissions).
-load_plugins {
-    zjstatus-hints
-}

@@ -4,10 +4,6 @@
 // shell side by side (added ad hoc, not templated). zjstatus replaces
 // Zellij's built-in status bar with a Catppuccin Mocha bar showing session,
 // tabs, and time — no CPU/RAM (decorative in the old tmux bar, dropped).
-//
-// zjstatus doesn't show contextual keybinding hints the way Zellij's own
-// default status bar does, so zjstatus-hints feeds them back in — blank in
-// normal mode, showing "what can I press" whenever you enter Pane/Tab/etc.
 
 layout {
     default_tab_template {
@@ -16,7 +12,7 @@ layout {
             plugin location="https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm" {
                 format_left   "#[fg=#a6e3a1,bold] {session} "
                 format_center "{tabs}"
-                format_right  "{pipe_zjstatus_hints}#[fg=#585b70] {datetime} "
+                format_right  "#[fg=#585b70] {datetime} "
                 format_space  ""
 
                 border_enabled  "false"
@@ -26,8 +22,6 @@ layout {
 
                 datetime        "{format}"
                 datetime_format "%Y-%m-%d %H:%M"
-
-                pipe_zjstatus_hints_format "#[fg=#f9e2af] {output} "
             }
         }
     }
