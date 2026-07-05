@@ -166,6 +166,23 @@ generate_ghostty_terminfo() {
     | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
 }
 
+# zjstatus-hints is loaded via load_plugins (background, no attached tab), so
+# it can never receive an interactive permission prompt — Zellij just leaves
+# it permanently unauthorized (zellij-org/zellij#4982). Pre-seed the grant it
+# needs directly in Zellij's own permissions cache instead.
+grant_zellij_permissions() {
+  local perms_file="$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl"
+  local plugin_url="https://github.com/b0o/zjstatus-hints/releases/download/v0.1.4/zjstatus-hints.wasm"
+  [[ -f $perms_file ]] && grep -qF "$plugin_url" "$perms_file" && return 0
+  zf_mkdir -p "${perms_file:h}"
+  cat >>"$perms_file" <<-KDL
+	"$plugin_url" {
+	    ReadApplicationState
+	    MessageAndLaunchOtherPlugins
+	}
+	KDL
+}
+
 set_neovim() {
   # Launch nvim to trigger Lazy and download plugins
   command nvim --headless -c "helptags ALL" -c "qall"
@@ -191,4 +208,5 @@ optional "Generating dua/doggo completions"    generate_completions
 optional "Refreshing TLDR pages"               refresh_tldr
 optional "Generating tmux-256color terminfo"   generate_tmux_terminfo
 optional "Installing Ghostty terminfo"         generate_ghostty_terminfo
+optional "Granting zellij plugin permissions"  grant_zellij_permissions
 optional "Setting up Neovim plugins/LSPs"      set_neovim
