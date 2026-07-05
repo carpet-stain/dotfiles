@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+_zellij-sessions () {
+  exec </dev/tty
+  exec <&1
+  local session
+  session=$(zellij list-sessions --short 2>/dev/null | fzf --border-label '  Zellij Session Manager ' --border --prompt '⚡  ' --select-1 --exit-0)
+  zle reset-prompt > /dev/null 2>&1 || true
+
+  if [[ -z "$session" ]]; then
+    return
+  fi
+
+  zellij attach "$session"
+}
