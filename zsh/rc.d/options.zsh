@@ -30,9 +30,6 @@ setopt EXTENDED_HISTORY          # Save timestamps of commands in the history fi
 HISTSIZE=1000000
 SAVEHIST=$HISTSIZE
 
-# Use standard ISO 8601 timestamp format: [YYYY-MM-DD HH:MM:SS]
-HISTTIMEFORMAT="[%F %T] "
-
 # +----------+
 # | GLOBBING |
 # +----------+
