@@ -1,6 +1,20 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [0.3.1] - 2026-07-05
+
+### Features
+
+- *(theme)* Add catppuccin/eza, document ls_colors regeneration ([#43](https://github.com/carpet-stain/dotfiles/pull/43))
+
+### Bug Fixes
+
+- *(zsh)* Remove dead HISTTIMEFORMAT setting ([#45](https://github.com/carpet-stain/dotfiles/pull/45))
+
+### Refactor
+
+- *(zsh)* Remove cursor-shape widgets ([#44](https://github.com/carpet-stain/dotfiles/pull/44))
+
 ## [0.3.0] - 2026-07-05
 
 ### Features
