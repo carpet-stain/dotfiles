@@ -7,15 +7,15 @@
 
 # Skip on remote sessions and root — those should not auto-attach.
 # Three states: tmux absent → start session; tmux present but unattached → pick session; inside tmux → do nothing.
-if [[ -z $SSH_TTY && $EUID != 0 ]]; then
-  if ! pgrep -x tmux &> /dev/null; then
-    print "Tmux is not running, starting a new session..."
-    exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
-  elif [[ -z $TMUX ]]; then
-    autoload -Uz _sesh-sessions
-    _sesh-sessions
-  fi
-fi
+# if [[ -z $SSH_TTY && $EUID != 0 ]]; then
+#   if ! pgrep -x tmux &> /dev/null; then
+#     print "Tmux is not running, starting a new session..."
+#     exec tmux -f $DOTFILES/tmux/tmux.conf new-session -s personal
+#   elif [[ -z $TMUX ]]; then
+#     autoload -Uz _sesh-sessions
+#     _sesh-sessions
+#   fi
+# fi
 
 # +---------------------+
 # | P10K INSTANT PROMPT |
