@@ -33,15 +33,11 @@ zle -N down-line-or-beginning-search
 autoload -Uz \
   _zsh-dot \
   _expand-alias \
-  _chpwd-eza \
-  _zsh-cursor-shape-reset \
-  _zsh-cursor-shape-ibeam
+  _chpwd-eza
 
 zle -N _zsh-dot
 zle -N _expand-alias
 zle -N _chpwd-eza
-zle -N _zsh-cursor-shape-ibeam
-zle -N _zsh-cursor-shape-reset
 
 autoload -Uz add-zsh-hook
 
@@ -50,8 +46,6 @@ autoload -Uz add-zsh-hook
 # +-------+
 
 add-zsh-hook chpwd _chpwd-eza
-add-zsh-hook preexec _zsh-cursor-shape-reset
-add-zsh-hook precmd _zsh-cursor-shape-ibeam
 
 # +-----+
 # | ZLE |
