@@ -28,7 +28,7 @@ XDG_RUNTIME_DIR=$TMPDIR
 create_directories() {
   print "Creating required directory tree..."
   zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
-  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide}
+  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh,tmux,direnv,git,bat,ripgrep,eza,fonts,icons,tealdeer,zsh-abbr,zoxide,fast-syntax-highlighting}
   zf_mkdir -p $XDG_DATA_HOME/{zsh,nvim,terminfo,man,ssh,bat,direnv,fzf/history,pip,tmux,git,eza,tealdeer,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
