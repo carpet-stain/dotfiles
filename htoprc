@@ -1,0 +1,41 @@
+# Refresh rate (15 = 1.5s)
+delay=15
+
+# Enable mouse support for clicking, scrolling, and sorting.
+enable_mouse=1
+
+# Show CPU frequency & temperatures (if supported)
+show_cpu_frequency=1
+show_cpu_temperature=1
+
+# Use detailed meters at the top
+header_layout=two_50_50
+
+# Enable tree view by default (process hierarchy)
+tree_view=1
+tree_view_always_by_pid=0
+
+# Sort by CPU usage (descending) by default
+sort_key=CPU
+sort_direction=1
+
+# Show program path instead of just the process name
+show_program_path=1
+
+# Hide kernel threads (to reduce clutter)
+hide_kernel_threads=1
+
+# Hide user threads (to simplify process list)
+hide_userland_threads=1
+
+# Highlight running tasks
+highlight_base_name=1
+# Show readable memory sizes (MB/GB)
+highlight_megabytes=1
+highlight_threads=1
+
+# Show text inside the memory graph
+show_memory_in_graphs=1
+
+# Catppuccin-like: use 0-9 for different themes (5 = Black Night)
+color_scheme=5

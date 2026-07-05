@@ -1,0 +1,88 @@
+[http]
+  sslverify = true
+
+[user]
+  email = brian@leppez
+  name = Brian Leppez 
+
+[commit]
+  template = ~/.config/git/committemplate
+  verbose = true
+  # gpgsign = true # Uncomment this line to enable GPG signing
+
+[help]
+  autoCorrect = 1
+
+[include]
+  path = ~/.config/git/catppuccin.gitconfig
+
+[push]
+  default = current
+  followTags = true
+  # Automatically sets the upstream remote (no more --set-upstream)
+  autoSetupRemote = true
+
+[rerere]
+  enabled = true
+
+[branch]
+  autoSetupRebase = always
+
+[init]
+  defaultBranch = main
+
+[merge]
+  ff = only
+  conflictStyle = zdiff3
+
+[rebase]
+  autoStash = true
+
+[color]
+  ui = auto
+
+[credential]
+  helper = cache --socket ~/.cache/git-credential-cache/socket
+
+[diff]
+  colorMoved = default
+  # Add specific diff drivers (if not already handled by delta)
+  # This makes the config explicit about what diff logic is used for file types.
+  # This relies on .gitattributes file.
+  
+[core]
+  excludesFiles = ~/.config/git/ignore
+  autocrlf = input
+  whitespace = cr-at-eol
+  pager = delta
+
+[pager]
+  diff = delta
+  log = delta 
+  tag = sort -V
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  features = interactive catppuccin-mocha
+  navigate = true     # use n and N to move between diff sections
+  hyperlinks = true
+  line-numbers = true
+
+[submodule]
+  fetchJobs = 5
+  recurse = true
+
+[status]
+  submoduleSummary = true
+
+[pull]
+  rebase = true
+
+[fetch]
+  prune = true
+  pruneTags = true
+
+[feature]
+  manyFiles = true

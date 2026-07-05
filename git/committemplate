@@ -1,0 +1,29 @@
+# <type>(<scope>): <subject>   imperative, lowercase, no period
+# ---- keep subject ≤50 chars, hard limit here: --------------------#
+#
+# Blank line above the body. Explain *what* and *why*, not *how*.
+# Wrap body at 72 chars, which is here: ---------------------------------#
+#
+# Footer(s): BREAKING CHANGE: <desc>, Refs #<issue>, and
+# Co-authored-by: Name <user@users.noreply.github.com>
+# (one blank line before the footer block)
+#
+# ── Conventional Commits ── https://www.conventionalcommits.org/en/v1.0.0/
+#
+# type:
+#   feat      a new feature
+#   fix       a bug fix
+#   docs      documentation only
+#   style     formatting; no behaviour change
+#   refactor  neither fixes a bug nor adds a feature
+#   perf      performance improvement
+#   test      adding or correcting tests
+#   build     build system, dependencies (Brewfile, submodules)
+#   ci        CI configuration
+#   chore     maintenance, tooling
+#
+# scope (optional):  zsh  tmux  git  nvim  macos  theme
+# breaking change:   append ! after type/scope  ->  feat(zsh)!: ...
+#
+# e.g.  fix(zsh): bind arrow keys via terminfo
+#       feat(macos): add ghostty configuration

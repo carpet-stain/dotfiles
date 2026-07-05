@@ -1,0 +1,71 @@
+# Basic system tools
+base
+base-devel
+
+# Kernel related
+linux
+linux-firmware
+amd-ucode
+
+# Hardware acceleration
+mesa
+
+# Networking
+iptables-nft # includes nftables as a dependency, will automatically uninstall iptables
+networkmanager
+
+# Display Manager
+sddm
+
+# Desktop Environment
+plasma-desktop
+
+# Basic services
+pipewire
+pipewire-audio
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+wireplumber
+
+# Fonts
+
+# Developer
+neovim
+git
+man-db
+man-pages
+alacritty
+tmux
+fd
+
+# File viewers/editors
+dolphin
+
+# CLI
+zsh
+
+# Other
+bitwarden
+firefox
+ark # File compressor
+ffmpegthumbs
+gwenview
+kcalc
+kdegraphics-thumbnailers
+kdesdk-thumbnailers
+kwrite
+okular
+spectacle
+ktorrent
+kscreen
+kinfocenter
+kde-gtk-config
+bluez
+bluez-utils
+bluedevil
+kwallet-pam
+plasma-pa
+plasma-nm
+plasma-systemmonitor
+powerdevil

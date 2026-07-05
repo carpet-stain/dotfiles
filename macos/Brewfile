@@ -1,0 +1,45 @@
+tap 'morantron/tmux-fingers'
+
+brew 'bat' # Better cat
+brew 'coreutils'
+brew 'curl'
+brew 'curlie'
+brew 'direnv' # Loading .envrc files
+brew 'doggo' # Better dig
+brew 'dua-cli' # Better du
+brew 'eza' # Better ls
+brew 'fd' # better find
+brew 'forgit' # fzf-git integration
+brew 'fzf' # Fuzzy finder
+brew 'gh' # GitHub CLI (issues, PRs, releases)
+brew 'git' # More recent version of git
+brew 'git-delta' # Better diff
+brew 'gnu-sed'
+brew 'gnu-tar'
+brew 'grep'
+brew 'htop'
+brew 'lesspipe'
+brew 'neovim'
+brew 'powerlevel10k' # zsh command prompt
+brew 'ripgrep' # Faster ag written in Rust
+brew 'tealdeer' # tldr utility
+brew 'tmux' # terminal multiplexer
+brew 'zoxide' # Smart cd
+brew 'zsh-completions'
+brew 'zsh-autopair'
+brew 'zsh-autosuggestions'
+
+cask 'font-jetbrains-mono-nerd-font'
+cask 'alacritty' # Fast, minimal terminal
+cask 'rectangle'
+
+# Personal
+cask 'bitwarden'
+cask 'electrum'
+cask 'eloston-chromium'
+cask 'firefox'
+cask 'monero-wallet'
+cask 'protonvpn'
+cask 'steam'
+cask 'transmission'
+cask 'vscodium'

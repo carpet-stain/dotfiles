@@ -1,0 +1,100 @@
+# alacritty - toml configuration file format.
+
+[env]
+# This is the "glue" for the whole stack.
+# It tells the terminal to identify itself as "tmux-256color" from the start.
+# This ensures Tmux and Neovim inside it correctly detect true-color support.
+TERM = "tmux-256color"
+
+[general]
+# Import the theme file. This is a great practice to separate
+# aesthetics (the theme) from behavior (this file).
+import = ["~/.config/alacritty/catppuccin-mocha.toml"]
+
+# Reload the config file automatically when it's saved.
+live_config_reload = true
+
+[window]
+# A small aesthetic padding.
+padding = { x = 15, y = 10 }
+
+# This removes all OS-native window chrome (title bar, buttons).
+# This provides a minimal, clean window, assuming you use a
+# window manager (like Rectangle) or Tmux for all window control.
+decorations = "None"
+blur = false
+startup_mode = "Windowed"
+
+# ESSENTIAL for macOS.
+# Maps the Option key to send Alt (Meta) keycodes.
+# This is required for all the `Alt+...` key bindings in Zsh and Tmux.
+option_as_alt = "Both"
+
+[scrolling]
+history = 100000
+
+[font]
+# Use the Nerd Font variant to get all the icons for p10k and tmux.
+normal = { family = "JetBrainsMono Nerd Font" }
+bold = { family = "JetBrainsMono Nerd Font" }
+italic = { family = "JetBrainsMono Nerd Font" }
+bold_italic = { family = "JetBrainsMono Nerd Font" }
+size = 15
+
+# Use Alacritty's built-in glyphs for box-drawing and powerline symbols.
+# This is often faster and more reliable than the font's.
+builtin_box_drawing = true
+
+[bell]
+# Disable the visual bell (flash) entirely.
+animation = "Linear"
+duration = 0
+
+[selection]
+# Define what characters (like / . :) separate "words" for
+# double-click selection.
+semantic_escape_chars = ",│`|:\"' ()[]{<>\t"
+
+[cursor]
+# Set the default cursor to a non-blinking I-beam.
+# This is the "default state" that your Zsh precmd hook
+# (which runs `_zsh-cursor-shape-ibeam`) resets to.
+style = { shape = "Beam", blinking = "Off" }
+unfocused_hollow = true
+thickness = 0.15
+
+[mouse]
+hide_when_typing = false
+
+[hints]
+# This enables Alacritty's native "hint" mode (like tmux-fingers).
+# Press Ctrl+Shift+U to highlight all matches.
+[[hints.enabled]]
+# Regex to match URLs (http, https, ftp, etc.)
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+command = "open" # On macOS, 'open' will launch the default browser.
+post_processing = true
+mouse.enabled = true
+
+[keyboard]
+# These bindings are crucial for a "native app" feel on macOS.
+# They re-map the standard Command-key shortcuts to Alacritty's
+# internal actions, so Cmd+C/V/Q work as expected.
+bindings = [
+  { key = "Paste", action = "Paste" },
+  { key = "Copy", action = "Copy" },
+
+  # (macOS only)
+  # This provides a `Cmd+K` equivalent (clear scrollback AND viewport).
+  { key = "K", mods = "Command", mode = "~Vi|~Search", chars = "\u0002" },
+  { key = "Key0", mods = "Command", action = "ResetFontSize" },
+  { key = "Equals", mods = "Command", action = "IncreaseFontSize" },
+  { key = "Minus", mods = "Command", action = "DecreaseFontSize" },
+  { key = "V", mods = "Command", action = "Paste" },
+  { key = "C", mods = "Command", action = "Copy" },
+  { key = "C", mods = "Command", mode = "Vi|~Search", action = "ClearSelection" },
+  { key = "Q", mods = "Command", action = "Quit" },
+  { key = "N", mods = "Command", action = "CreateNewWindow" },
+  { key = "F", mods = "Command", mode = "~Search", action = "SearchForward" },
+  { key = "B", mods = "Command", mode = "~Search", action = "SearchBackward" },
+]

@@ -1,0 +1,26 @@
+# Search hidden files and directories
+--hidden
+
+# Force ripgrep to follow symlinks
+--follow
+
+# Case insensitively if in all lower case
+--smart-case
+
+# Always colorize
+--color=always
+
+# Show line numbers with every match
+--line-number
+
+# Group results under a filename header (much cleaner)
+--heading
+
+# Format output as clickable hyperlinks for VSCodium
+--hyperlink-format=vscodium://file/{path}:{line}
+
+# Add italics to the matching text to make it pop.
+--colors=match:style:italic
+
+# We use Catppuccin's "Subtext" color
+--colors=highlight:fg:166,173,200
