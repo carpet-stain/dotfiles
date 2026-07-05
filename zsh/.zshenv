@@ -57,7 +57,6 @@ export HTOPRC=$XDG_CONFIG_HOME/htop/htoprc
 export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
 export TERMINFO=$XDG_DATA_HOME/terminfo
-export TMUX_TMPDIR=$XDG_RUNTIME_DIR/tmux
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 

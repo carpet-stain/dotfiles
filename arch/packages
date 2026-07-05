@@ -36,7 +36,6 @@ git
 man-db
 man-pages
 ghostty
-tmux
 fd
 
 # File viewers/editors

@@ -1,21 +1,12 @@
-[submodule "tmux/plugins/yank"]
-	path = tmux/plugins/yank
-	url = https://github.com/tmux-plugins/tmux-yank.git
 [submodule "zsh/plugins/fzf-tab"]
 	path = zsh/plugins/fzf-tab
 	url = https://github.com/Aloxaf/fzf-tab
-[submodule "tmux/plugins/catppucin"]
-	path = tmux/plugins/catppucin
-	url = https://github.com/catppuccin/tmux.git
 [submodule "theme/delta"]
 	path = theme/delta
 	url = https://github.com/catppuccin/delta.git
 [submodule "theme/zsh-fsh"]
 	path = theme/zsh-fsh
 	url = https://github.com/catppuccin/zsh-fsh.git
-[submodule "tmux/plugins/cpu"]
-	path = tmux/plugins/cpu
-	url = https://github.com/tmux-plugins/tmux-cpu
 [submodule "zsh/plugins/fsh"]
 	path = zsh/plugins/fsh
 	url = https://github.com/zdharma-continuum/fast-syntax-highlighting.git

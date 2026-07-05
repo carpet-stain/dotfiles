@@ -2,13 +2,13 @@
 //
 // Keeps Zellij's own mode system (Pane/Tab/Resize/Session/etc., entered via
 // Ctrl-p/t/n/o/...) intact as a fallback, and layers a few direct,
-// no-mode-switch bindings on top for the habits carried over from tmux.
+// no-mode-switch bindings on top for prefix-less tab switching.
 // Everything else (kill pane, floating scratchpad, layout swap, sync) is
 // still TBD — using Zellij's own sensible defaults for now; see #2.
 
 theme "catppuccin-mocha"
 
-// True color, mouse selection/resize, big scrollback — matches tmux.conf
+// True color, mouse selection/resize, big scrollback
 simplified_ui false
 mouse_mode true
 scroll_buffer_size 100000
@@ -49,7 +49,7 @@ keybinds {
             }
         }
 
-        // Prefix-less tab switching, matching tmux's Alt-,/Alt-.
+        // Prefix-less tab switching (Alt-,/Alt-.)
         bind "Alt ," { GoToPreviousTab; }
         bind "Alt ." { GoToNextTab; }
     }

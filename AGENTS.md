@@ -5,7 +5,7 @@ symlink to this file.
 
 ## What this is
 
-Personal macOS dotfiles: Ghostty + tmux + zsh + Neovim, themed Catppuccin
+Personal macOS dotfiles: Ghostty + Zellij + zsh + Neovim, themed Catppuccin
 Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
 
 ## Philosophy
@@ -59,7 +59,7 @@ Every commit:
 
 1. **Subject**: `type(scope): description`
    - `type` ∈ feat, fix, docs, style, refactor, perf, test, build, ci, chore
-   - `scope` (optional): repo area — zsh, tmux, git, nvim, macos, theme
+   - `scope` (optional): repo area — zsh, zellij, git, nvim, macos, theme
    - `description`: imperative, lowercase, no trailing period; keep the whole
      line ≤50 chars where possible (hard limit 72)
    - Breaking change: `type!:` or a `BREAKING CHANGE:` footer

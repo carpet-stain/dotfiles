@@ -20,11 +20,11 @@ This configuration is built on three core principles:
     * `cd` → `zoxide` (teleportation)
 
 3.  **Explicit & Unified:**
-    * **Theming:** A consistent **Catppuccin Mocha** theme is applied programmatically across Ghostty, Tmux, FZF, Bat, Delta, and Neovim.
-    * **Workflow:** A "Tmux-First" approach where the terminal emulator (Ghostty) is merely a canvas. Window management, scrolling, and clipboard integration are handled explicitly by Tmux.
+    * **Theming:** A consistent **Catppuccin Mocha** theme is applied programmatically across Ghostty, Zellij, FZF, Bat, Delta, and Neovim.
+    * **Workflow:** A "Zellij-First" approach where the terminal emulator (Ghostty) is merely a canvas. Window management, scrolling, and clipboard integration are handled explicitly by Zellij.
 ## Features
 
-- **Fully Themed**: Consistent [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) theme across Ghostty, Tmux, FZF, Bat, Delta, and Neovim.
+- **Fully Themed**: Consistent [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) theme across Ghostty, Zellij, FZF, Bat, Delta, and Neovim.
 - Extensive Zsh [configuration](zsh/rc.d) and [plugins](zsh/plugins):
   - [powerlevel10k](https://github.com/romkatv/powerlevel10k) prompt (Catppuccin styled)
   - [fzf-tab](https://github.com/Aloxaf/fzf-tab) for interactive, preview-enabled tab completion
@@ -34,12 +34,11 @@ This configuration is built on three core principles:
   - [autopair](https://github.com/hlissner/zsh-autopair)
   - [zoxide](https://github.com/ajeetdsouza/zoxide) for smart directory jumping
 - **Neovim**: Full [LazyVim](https://www.lazyvim.org/) IDE setup with Catppuccin theme.
-- **Tmux**: Highly customized [configuration](tmux/tmux.conf) with:
-  - Smart pane navigation (seamlessly switch between Vim and Tmux panes)
-  - Minimal, info-rich status bar (CPU/RAM/Battery/Zoom indicators)
-  - Popup scratchpad (`Prefix + g`)
-  - Hybrid mouse workflow (Tmux for yanking, terminal for scrolling)
-- **Ghostty**: Minimal, borderless [configuration](ghostty/config) acting as a pure launchpad for Tmux.
+- **Zellij**: Customized [configuration](zellij/config.kdl) with:
+  - Vim-aware pane navigation via [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator) (seamlessly switch between Neovim splits and Zellij panes)
+  - Catppuccin Mocha status bar via [zjstatus](https://github.com/dj95/zjstatus) (session, tabs, time)
+  - Prefix-less tab switching (`Alt-,`/`Alt-.`)
+- **Ghostty**: Minimal, borderless [configuration](ghostty/config) acting as a pure launchpad for Zellij.
 - **Modern CLI Replacements**: `bat` (cat), `eza` (ls), `rg` (grep), `fd` (find), `delta` (diff), `doggo` (dig).
 
 ## Installation
@@ -71,7 +70,7 @@ The difference is that `env.d` is sourced always while `rc.d` is sourced in inte
 ### Dependencies
 
 The setup heavily relies on Homebrew to manage CLI tools. The `deploy.zsh` script handles the installation of:
-- Core: `git`, `neovim`, `tmux`
+- Core: `git`, `neovim`, `zellij`
 - Shell: `zsh`, `coreutils`, `curl`
 - Modern Utils: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `zoxide`
 - Data Tools: `jq`, `yq`
