@@ -57,7 +57,6 @@ export HTOPRC=$XDG_CONFIG_HOME/htop/htoprc
 export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
 export TERMINFO=$XDG_DATA_HOME/terminfo
-export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 
 # +----------+
@@ -79,13 +78,19 @@ eval $(/opt/homebrew/bin/brew shellenv)
 # Enforce uniqueness on path arrays before any additions
 typeset -U path fpath manpath
 
-# Prefer GNU coreutils over macOS BSD versions (provides un-prefixed names: sed, tar, etc.)
-for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin; do path=($bindir $path); done
-for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman; do manpath=($mandir $manpath); done
+# Remaining Homebrew opt package binaries and man pages. (N) glob qualifier
+# enables null_glob for just this pattern — NULL_GLOB isn't set yet this early
+# (it's an interactive-only option set later in rc.d/options.zsh), and without
+# it an unmatched glob aborts the rest of .zshenv, e.g. on a fresh machine
+# before `brew bundle` has installed anything.
+for bindir in $HOMEBREW_PREFIX/opt/*/bin(N); do path=($bindir $path); done
+for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1(N); do manpath=($mandir $manpath); done
 
-# Remaining Homebrew opt package binaries and man pages
-for bindir in $HOMEBREW_PREFIX/opt/*/bin; do path=($bindir $path); done
-for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1; do manpath=($mandir $manpath); done
+# Prefer GNU coreutils over macOS BSD versions (provides un-prefixed names:
+# sed, tar, etc.) — must come after the opt/*/bin loop above so gnubin wins
+# any name collision.
+for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin(N); do path=($bindir $path); done
+for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman(N); do manpath=($mandir $manpath); done
 
 # User-local binaries and scripts
 path+=$HOME/.local/bin
@@ -138,7 +143,7 @@ export FZF_CTRL_T_OPTS="
   --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
   --bind 'ctrl-o:become(open -R {})'
   --bind 'ctrl-y:become(echo -n {} | pbcopy)'
-  --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+1})'
+  --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
   --select-1 --exit-0"
 
 # Ctrl+R — command history
