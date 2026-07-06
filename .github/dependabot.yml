@@ -1,10 +1,21 @@
 version: 2
 updates:
+  # zsh plugins — scope: zsh
   - package-ecosystem: "gitsubmodule"
-    directory: "/"
+    directory: "/zsh/plugins"
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(deps)"
+      prefix: "chore(zsh)"
+    labels:
+      - "dependencies"
+
+  # Catppuccin theme submodules — scope: theme
+  - package-ecosystem: "gitsubmodule"
+    directory: "/theme"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(theme)"
     labels:
       - "dependencies"
