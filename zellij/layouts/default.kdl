@@ -2,28 +2,49 @@
 //
 // Matches typical usage: one pane per tab, occasionally split for nvim +
 // shell side by side (added ad hoc, not templated). zjstatus replaces
-// Zellij's built-in status bar with a Catppuccin Mocha bar showing session,
-// tabs, and time — no CPU/RAM (decorative, dropped).
+// Zellij's built-in status bar with a Catppuccin Mocha bar pinned to the
+// top, showing the current mode, tabs (with index badges), session, and
+// date — no CPU/RAM (decorative, dropped). Mode indicator and tab badge
+// styling inspired by
+// https://github.com/wiraki/dotfiles/blob/main/private_dot_config/zellij/layouts/default.kdl,
+// recolored to our Catppuccin Mocha palette (zellij/themes/catppuccin.kdl).
 
 layout {
     default_tab_template {
-        children
-        pane size=1 borderless=true {
+        pane size=2 borderless=true {
             plugin location="https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm" {
-                format_left   "#[fg=#a6e3a1,bold] {session} "
-                format_center "{tabs}"
-                format_right  "#[fg=#585b70] {datetime} "
+                format_left   "{mode}#[bg=#1e1e2e] {tabs}"
+                format_center ""
+                format_right  "#[fg=#6c7086] {session} · {datetime} "
                 format_space  ""
 
-                border_enabled  "false"
+                border_enabled "false"
 
-                tab_normal          "#[fg=#585b70] {name} "
-                tab_active          "#[fg=#cdd6f4,bold,bg=#313244] {name} "
+                mode_normal        "#[bg=#a6e3a1,fg=#1e1e2e,bold] NORMAL #[bg=#1e1e2e,fg=#a6e3a1]"
+                mode_locked        "#[bg=#6c7086,fg=#1e1e2e,bold] LOCKED #[bg=#1e1e2e,fg=#6c7086]"
+                mode_resize        "#[bg=#89b4fa,fg=#1e1e2e,bold] RESIZE #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_pane          "#[bg=#89b4fa,fg=#1e1e2e,bold] PANE #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_tab           "#[bg=#89b4fa,fg=#1e1e2e,bold] TAB #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_scroll        "#[bg=#89b4fa,fg=#1e1e2e,bold] SCROLL #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_enter_search  "#[bg=#89b4fa,fg=#1e1e2e,bold] ENT-SEARCH #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_search        "#[bg=#89b4fa,fg=#1e1e2e,bold] SEARCH #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_rename_tab    "#[bg=#89b4fa,fg=#1e1e2e,bold] RENAME-TAB #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_rename_pane   "#[bg=#89b4fa,fg=#1e1e2e,bold] RENAME-PANE #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_session       "#[bg=#89b4fa,fg=#1e1e2e,bold] SESSION #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_move          "#[bg=#89b4fa,fg=#1e1e2e,bold] MOVE #[bg=#1e1e2e,fg=#89b4fa]"
+                mode_prompt        "#[bg=#89b4fa,fg=#1e1e2e,bold] PROMPT #[bg=#1e1e2e,fg=#89b4fa]"
 
-                datetime        "{format}"
-                datetime_format "%Y-%m-%d %H:%M"
+                // Inactive tabs: teal index badge. Active tab: yellow index badge.
+                tab_normal    "#[bg=#94e2d5,fg=#1e1e2e,bold] {index} #[bg=#45475a,fg=#94e2d5,bold] {name} #[bg=#1e1e2e]"
+                tab_active    "#[bg=#f9e2af,fg=#1e1e2e,bold] {index} #[bg=#45475a,fg=#f9e2af,bold] {name} #[bg=#1e1e2e]"
+                tab_separator "#[bg=#1e1e2e] "
+
+                datetime          "{format}"
+                datetime_format   "%Y-%m-%d"
+                datetime_timezone "America/New_York"
             }
         }
+        children
     }
 
     tab name="main"

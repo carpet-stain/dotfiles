@@ -15,7 +15,10 @@ if [[ -z $SSH_TTY && $EUID != 0 ]]; then
   local _zellij_active=$(zellij list-sessions --no-formatting 2>/dev/null | grep -v 'EXITED')
   if [[ -z $_zellij_active ]]; then
     print "Zellij is not running, starting a new session..."
-    exec zellij
+    # attach --create both resurrects a dead "default" session and creates a
+    # fresh one if none exists yet — plain --session errors instead of
+    # resurrecting when a dead session of that name is already on record.
+    exec zellij attach --create default
   elif [[ -z $ZELLIJ ]]; then
     autoload -Uz _zellij-sessions
     _zellij-sessions
