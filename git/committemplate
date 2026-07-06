@@ -22,7 +22,7 @@
 #   ci        CI configuration
 #   chore     maintenance, tooling
 #
-# scope (optional):  zsh  tmux  git  nvim  macos  theme
+# scope (optional):  zsh  zellij  git  nvim  macos  theme
 # breaking change:   append ! after type/scope  ->  feat(zsh)!: ...
 #
 # e.g.  fix(zsh): bind arrow keys via terminfo

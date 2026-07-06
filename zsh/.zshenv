@@ -57,7 +57,6 @@ export HTOPRC=$XDG_CONFIG_HOME/htop/htoprc
 export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
 export TERMINFO=$XDG_DATA_HOME/terminfo
-export TMUX_TMPDIR=$XDG_RUNTIME_DIR/tmux
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 
@@ -129,7 +128,7 @@ FZF_DEFAULT_OPTS+="
   --marker '✓'
   --preview-window 'right:65%'
   --ansi
-  --tmux 90%"
+  --height 90%"
 
 # Ctrl+T — file search
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
@@ -139,7 +138,7 @@ export FZF_CTRL_T_OPTS="
   --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
   --bind 'ctrl-o:become(open -R {})'
   --bind 'ctrl-y:become(echo -n {} | pbcopy)'
-  --bind 'ctrl-e:become(tmux new-window $EDITOR -p {+1})'
+  --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+1})'
   --select-1 --exit-0"
 
 # Ctrl+R — command history

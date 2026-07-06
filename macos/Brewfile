@@ -24,7 +24,6 @@ brew 'neovim'
 brew 'powerlevel10k' # zsh command prompt
 brew 'ripgrep' # Faster ag written in Rust
 brew 'tealdeer' # tldr utility
-brew 'tmux' # terminal multiplexer (migrating to zellij, see #2)
 brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'

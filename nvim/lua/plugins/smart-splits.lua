@@ -1,5 +1,5 @@
--- Seamless pane navigation/resizing across Neovim splits and the terminal
--- multiplexer (tmux today, zellij once #2 lands).
+-- Seamless pane navigation/resizing across Neovim splits and the Zellij
+-- terminal multiplexer.
 return {
   {
     "mrjones2014/smart-splits.nvim",

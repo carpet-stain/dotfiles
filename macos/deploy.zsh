@@ -151,11 +151,6 @@ refresh_tldr() {
   tldr -u
 }
 
-# Generate tmux-256color terminfo
-generate_tmux_terminfo() {
-  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x tmux-256color | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
-}
-
 # Install Ghostty's xterm-ghostty terminfo into the XDG terminfo dir.
 # Needed because TERMINFO points at $XDG_DATA_HOME/terminfo and macOS's system
 # terminfo predates Ghostty, so the bundled entry must be compiled in here.
@@ -206,7 +201,6 @@ optional "Downloading gitstatusd for p10k"     download_gitstatusd
 optional "Setting fast-syntax-highlighting theme" set_fsh
 optional "Generating dua/doggo completions"    generate_completions
 optional "Refreshing TLDR pages"               refresh_tldr
-optional "Generating tmux-256color terminfo"   generate_tmux_terminfo
 optional "Installing Ghostty terminfo"         generate_ghostty_terminfo
 optional "Granting zellij plugin permissions"  grant_zellij_permissions
 optional "Setting up Neovim plugins/LSPs"      set_neovim

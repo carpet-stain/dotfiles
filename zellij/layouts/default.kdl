@@ -3,7 +3,7 @@
 // Matches typical usage: one pane per tab, occasionally split for nvim +
 // shell side by side (added ad hoc, not templated). zjstatus replaces
 // Zellij's built-in status bar with a Catppuccin Mocha bar showing session,
-// tabs, and time — no CPU/RAM (decorative in the old tmux bar, dropped).
+// tabs, and time — no CPU/RAM (decorative, dropped).
 
 layout {
     default_tab_template {

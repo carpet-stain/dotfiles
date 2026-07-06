@@ -52,9 +52,6 @@ alias help="tldr"
 # |  QoL & UTILITIES   |
 # +---------------------+
 
-# Ensure 'tmux' *always* loads our custom config file.
-alias tmux="tmux -f $DOTFILES/tmux/tmux.conf"
-
 # 'df -h' is for "human-readable" disk free space.
 alias df="df -h"
 # Make 'mount' output much cleaner by piping it to 'column -t'.
