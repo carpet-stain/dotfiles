@@ -15,13 +15,16 @@ brew 'git-delta' # Better diff
 brew 'git-cliff' # Changelog from conventional commits
 brew 'gnu-sed'
 brew 'gnu-tar'
+brew 'go' # Go toolchain — gopls/gofumpt/goimports (nvim) need `go` on PATH
 brew 'grep' # aliased to rg interactively, but scripts/subprocesses call grep directly
 brew 'htop'
 brew 'hyperfine' # Command-line benchmarking
 brew 'jaq' # Fast jq alternative
 brew 'lesspipe'
 brew 'neovim'
+brew 'node' # pyright/bash-language-server (nvim) are npm packages
 brew 'powerlevel10k' # zsh command prompt
+brew 'python' # Apple's bundled python3 is ancient (3.9) and not dev-grade
 brew 'ripgrep' # Faster ag written in Rust
 brew 'tealdeer' # tldr utility
 brew 'zellij' # terminal multiplexer

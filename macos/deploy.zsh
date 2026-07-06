@@ -78,6 +78,7 @@ link_configs() {
 
   zf_ln -sf $DOTFILES_DIR/nvim/init.lua $XDG_CONFIG_HOME/nvim/init.lua
   zf_ln -sfn $DOTFILES_DIR/nvim/lua $XDG_CONFIG_HOME/nvim/lua
+  zf_ln -sf $DOTFILES_DIR/nvim/lazy-lock.json $XDG_CONFIG_HOME/nvim/lazy-lock.json
 
   zf_ln -sf $DOTFILES_DIR/ghostty/config $XDG_CONFIG_HOME/ghostty/config
 
@@ -179,13 +180,11 @@ grant_zellij_permissions() {
 }
 
 set_neovim() {
-  # Launch nvim to trigger Lazy and download plugins
+  # Launch nvim to trigger Lazy to download plugins and Mason to install any
+  # LSPs/formatters declared via ensure_installed (LazyVim's own lang extras
+  # and lsp core plugin both do this automatically on startup — no separate
+  # install command needed).
   command nvim --headless -c "helptags ALL" -c "qall"
-
-  # Launch Neovim and install Mason dependencies.
-  # NOTE: `MasonInstallAll` isn't a neovim builtin.
-  # It's a user command declared in:  './nvim/lua/conf/lang/mason.lua'
-  command nvim --headless -c "MasonInstallAll" -c "qall"
 }
 
 # +-------------------+
