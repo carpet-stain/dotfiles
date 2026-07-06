@@ -39,14 +39,17 @@ alias curl="curlie"
 # Use 'fd' as a 'find' replacement.
 alias find="fd"
 # Use the '$EZACMD' variable (defined in .zshenv) for 'ls'.
-# 'command' prefix prevents this alias from looping on itself.
-alias ls="command $EZACMD"
+alias ls="$EZACMD"
 # Re-use '$EZACMD' to create a 'tree' alias.
 alias tree="$EZACMD --tree --level=2 -I .git"
 # Replace grep with ripgrep (rg)
 alias grep="rg"
+# Use 'jaq' as a faster 'jq' replacement
+alias jq="jaq"
 # Get "help" from tldr (tealdeer)
 alias help="tldr"
+# Use 'htop' as a 'top' replacement
+alias top="htop"
 
 # +---------------------+
 # |  QoL & UTILITIES   |
@@ -61,6 +64,7 @@ alias mount="mount | column -t"
 # The `\n` character must be expanded *after* the colon replacement.
 alias path="print -P \${(j:\n:)path}"
 alias fpath="print -P \${(j:\n:)fpath}"
+alias manpath="print -P \${(j:\n:)manpath}"
 
 # Reload the shell by replacing the current shell process ('exec')
 # with a new login shell ('-l'), which re-sources all configs.
