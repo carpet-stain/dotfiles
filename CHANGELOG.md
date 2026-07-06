@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.1.0] - 2026-07-06
+
+### Features
+
+- *(nvim)* Wire up Python/Go/Bash LSP tooling, track lazy-lock.json ([#62](https://github.com/carpet-stain/dotfiles/pull/62))
+
+### Chore
+
+- Update repo-watch state
+
 ## [1.0.0] - 2026-07-06
 
 ### Features
