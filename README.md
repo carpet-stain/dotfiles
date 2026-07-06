@@ -33,7 +33,9 @@ This configuration is built on three core principles:
   - [fast-syntax-highlighting](https://github.com/zdharma-continuum/fast-syntax-highlighting)
   - [autopair](https://github.com/hlissner/zsh-autopair)
   - [zoxide](https://github.com/ajeetdsouza/zoxide) for smart directory jumping
-- **Neovim**: Full [LazyVim](https://www.lazyvim.org/) IDE setup with Catppuccin theme.
+- **Neovim**: Full [LazyVim](https://www.lazyvim.org/) IDE setup with Catppuccin theme, Zellij-aware pane
+  navigation ([smart-splits.nvim](https://github.com/mrjones2014/smart-splits.nvim)), and LSP/formatting/linting
+  for Python, Go, and Bash.
 - **Zellij**: Customized [configuration](zellij/config.kdl) with:
   - Vim-aware pane navigation via [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator) (seamlessly switch between Neovim splits and Zellij panes)
   - Catppuccin Mocha status bar via [zjstatus](https://github.com/dj95/zjstatus) (session, tabs, time)
@@ -73,4 +75,6 @@ The setup heavily relies on Homebrew to manage CLI tools. The `deploy.zsh` scrip
 - Core: `git`, `neovim`, `zellij`
 - Shell: `zsh`, `coreutils`, `curl`
 - Modern Utils: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `zoxide`
-- Data Tools: `jq`, `yq`
+- Data Tools: `jaq` (fast `jq` alternative)
+- Language Toolchains: `go`, `node`, `python` — needed for Neovim's LSP tooling
+  (`gopls`, `pyright`/`ruff`, `bash-language-server`), not just their own development

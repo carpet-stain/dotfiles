@@ -37,6 +37,16 @@ Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
 - `zsh/fpath/` — custom zle widgets and completions, autoloaded.
 - `theme/` — Catppuccin submodules per tool (bat, delta, zsh-fsh). Ghostty uses
   its built-in `catppuccin-mocha` theme, no submodule.
+- `zellij/` — `config.kdl` (keybinds, kitty-keyboard-protocol disabled for nvim
+  compat), `layouts/default.kdl` (zjstatus status bar), `themes/catppuccin.kdl`
+  (vendored, not a submodule — same rationale as `theme/`).
+- `nvim/` — LazyVim on `lazy.nvim`. Official language extras are imported in
+  `lua/config/lazy.lua` (`lazyvim.plugins.extras.lang.*`); everything else
+  custom goes in `lua/plugins/*.lua`, one file per concern. Mason's
+  `ensure_installed` must list LSP/tool names explicitly — the indirect
+  auto-install via `nvim-lspconfig`'s `servers` table doesn't reliably fire
+  during a headless `deploy.zsh` run. `lazy-lock.json` is tracked and
+  symlinked in `deploy.zsh`, matching LazyVim's own recommended practice.
 - `macos/deploy.zsh` — single bootstrap: creates XDG dirs, symlinks configs,
   installs Homebrew + Brewfile, syncs submodules, builds caches/terminfo.
 - Section headers use the ASCII box style: `# +------+`.

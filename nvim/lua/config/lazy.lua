@@ -18,6 +18,11 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    -- Official LazyVim language extras (LSP, formatting, linting, treesitter
+    -- per language, maintained upstream). No extra exists for bash/shell —
+    -- see plugins/lang-bash.lua for that one.
+    { import = "lazyvim.plugins.extras.lang.python" },
+    { import = "lazyvim.plugins.extras.lang.go" },
     -- import/override with your plugins
     { import = "plugins" },
   },
