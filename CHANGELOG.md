@@ -1,6 +1,30 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.0.0] - 2026-07-06
+
+### Features
+
+- Add Zellij alongside tmux ([#47](https://github.com/carpet-stain/dotfiles/pull/47))
+- *(zellij)* Show contextual keybind hints in the status bar ([#49](https://github.com/carpet-stain/dotfiles/pull/49))
+- *(zsh)* Auto-start zellij instead of tmux ([#53](https://github.com/carpet-stain/dotfiles/pull/53))
+- *(zellij)* [**breaking**] Complete migration from tmux to zellij ([#54](https://github.com/carpet-stain/dotfiles/pull/54))
+- *(zellij)* Mode-aware status bar, tab badges, default session name ([#55](https://github.com/carpet-stain/dotfiles/pull/55))
+
+### Bug Fixes
+
+- *(macos)* Pre-grant zjstatus-hints permissions ([#50](https://github.com/carpet-stain/dotfiles/pull/50))
+- *(zellij)* Pin zjstatus, quote its booleans, pre-grant permissions ([#51](https://github.com/carpet-stain/dotfiles/pull/51))
+- *(zsh)* Fzf ctrl-e leak, PATH glob safety, small alias cleanup ([#56](https://github.com/carpet-stain/dotfiles/pull/56))
+
+### Revert
+
+- *(zellij)* Remove zjstatus-hints ([#52](https://github.com/carpet-stain/dotfiles/pull/52))
+
+### Chore
+
+- *(zsh)* Disable tmux auto-start for zellij testing ([#48](https://github.com/carpet-stain/dotfiles/pull/48))
+
 ## [0.3.1] - 2026-07-05
 
 ### Features
