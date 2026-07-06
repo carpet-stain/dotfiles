@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.2.0] - 2026-07-06
+
+### Chore
+
+- *(ci)* Path-filtered linting, dependabot submodules, zellij ci guard
+
 ## [1.1.0] - 2026-07-06
 
 ### Features
