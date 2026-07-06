@@ -11,7 +11,7 @@
 # "Active" excludes exited-but-resurrectable sessions (list-sessions marks
 # those "EXITED" and still exits 0 for them; only a genuinely running session
 # should skip straight to attaching).
-if [[ -z $SSH_TTY && $EUID != 0 ]]; then
+if [[ -z $CI && -z $SSH_TTY && $EUID != 0 ]]; then
   local _zellij_active=$(zellij list-sessions --no-formatting 2>/dev/null | grep -v 'EXITED')
   if [[ -z $_zellij_active ]]; then
     print "Zellij is not running, starting a new session..."
