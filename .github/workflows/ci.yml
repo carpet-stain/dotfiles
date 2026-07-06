@@ -21,11 +21,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Gate expensive steps on whether any zsh files actually changed.
+      # Using an in-job filter (rather than a top-level paths: trigger) keeps
+      # the job always-green for non-zsh PRs, satisfying required-status checks.
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            zsh:
+              - 'zsh/**'
+              - '**/*.zsh'
+              - 'macos/deploy.zsh'
+
       - name: Install zsh
+        if: steps.filter.outputs.zsh == 'true'
         run: sudo apt-get update && sudo apt-get install -y zsh
 
       # zsh -n parses without executing, so missing tools/submodules don't matter.
       - name: Syntax-check zsh files
+        if: steps.filter.outputs.zsh == 'true'
         run: |
           fail=0
           files=(
