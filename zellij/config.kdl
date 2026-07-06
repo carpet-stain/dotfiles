@@ -13,7 +13,17 @@ simplified_ui false
 mouse_mode true
 scroll_buffer_size 100000
 copy_on_select true
-pane_frames true
+
+// No pane borders/titles at all — tmux didn't have this either, and it was
+// too visually loud even muted. Split panes rely on zjstatus + spacing alone.
+pane_frames false
+
+// Neovim auto-requests the kitty keyboard protocol from any terminal that
+// advertises support (Ghostty does). With it enabled, Zellij's own Ctrl-based
+// mode-switch bindings (Ctrl p, Ctrl t, ...) stop firing while nvim is
+// focused — the raw key reaches nvim instead. Documented issue/fix:
+// https://github.com/zellij-org/zellij/issues/3723
+support_kitty_keyboard_protocol false
 
 keybinds {
     normal {
