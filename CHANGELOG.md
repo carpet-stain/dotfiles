@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.3.0] - 2026-07-07
+
+### Features
+
+- *(nvim)* Add json, yaml, markdown, zsh language support ([#67](https://github.com/carpet-stain/dotfiles/pull/67))
+
+### Chore
+
+- Xdg home audit — gopath, npm, ssh symlink, session suppress
+
 ## [1.2.0] - 2026-07-06
 
 ### Chore
