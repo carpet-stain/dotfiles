@@ -1,12 +1,16 @@
--- No official LazyVim extra exists for bash/shell (unlike lang.python,
+-- No official LazyVim extra exists for bash/shell/zsh (unlike lang.python,
 -- lang.go). Formatting is already a LazyVim default (shfmt); this adds the
 -- LSP server and a linter, following LazyVim's standard extension pattern.
+-- zsh: LSP only — shellcheck doesn't understand zsh-specific syntax
+-- (setopt, glob qualifiers, typeset) and produces constant false positives.
 return {
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        bashls = {},
+        bashls = {
+          filetypes = { "sh", "bash", "zsh" },
+        },
       },
     },
   },
