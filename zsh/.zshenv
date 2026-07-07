@@ -58,6 +58,10 @@ export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
 export TEALDEER_CONFIG_DIR=$XDG_CONFIG_HOME/tealdeer
 export TERMINFO=$XDG_DATA_HOME/terminfo
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
+export GOPATH=$XDG_DATA_HOME/go
+export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
+# Suppress Terminal.app session restore files (~/.zsh_sessions, ~/.bash_sessions)
+export SHELL_SESSIONS_DISABLE=1
 
 # +----------+
 # | HOMEBREW |
@@ -94,6 +98,7 @@ for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman(N); do manpath=($mandir $man
 
 # User-local binaries and scripts
 path+=$HOME/.local/bin
+path+=$GOPATH/bin
 
 # Custom zsh functions and completion definitions
 fpath+=$ZDOTDIR/fpath

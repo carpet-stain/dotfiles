@@ -1,0 +1,4 @@
+# Ignore everything except the tracked config
+*
+!config
+!.gitignore
