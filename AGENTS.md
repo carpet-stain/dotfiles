@@ -17,13 +17,26 @@ Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
   Powerlevel10k is the sole exception.
 - **XDG discipline.** Keep `$HOME` clean: only `.zshenv` lives there, everything
   else goes under `$XDG_{CONFIG,CACHE,DATA,STATE}_HOME`. Respect the distinction —
-  config vs cache vs data vs state.
+  config vs cache vs data vs state. Documented exceptions below.
 - **No bloat.** Every setting earns its place. Delete dead config; don't
   accumulate.
 - **Readability over cleverness.** Explicit names, conventional idioms, comments
   only where intent is non-obvious (never restate what the code plainly says).
 - **Portable, extendable, quick to install.** A fresh machine should reach a
   working setup by cloning and running the deploy script.
+
+### XDG exceptions
+
+Entries that must stay in `$HOME` despite the XDG rule:
+
+| Path | Reason |
+|---|---|
+| `.zshenv` | zsh's fixed entry point — always read from `$HOME` |
+| `.ssh/` | Symlink → `~/.config/ssh/`; config tracked in `ssh/config`, keys gitignored |
+| `.claude/`, `.claude.json` | Claude Code (Electron) — no XDG support |
+| `.vscode-oss/`, `.vscode-oss-shared/` | Claude Code desktop app data — no XDG support |
+| `.CFUserTextEncoding`, `.DS_Store`, `.Trash` | macOS system — not configurable |
+| `.zsh_sessions/`, `.bash_sessions/` | Terminal.app session restore — suppressed via `SHELL_SESSIONS_DISABLE=1` |
 
 ## Structure & conventions
 

@@ -62,7 +62,7 @@ create_directories() {
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
-  zf_mkdir -p $HOME/.ssh
+  zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
 }
 
 # Symlink config files
@@ -103,8 +103,13 @@ link_configs() {
   zf_ln -sf $DEPLOY_DIR/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
   zf_ln -sf $DEPLOY_DIR/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
 
-  # SSH config. I don't want to symlink this, just merely copy.
-  cp "$DOTFILES_DIR/sshconfig" "$HOME/.ssh/config"
+  zf_ln -sf $DOTFILES_DIR/ssh/config $XDG_CONFIG_HOME/ssh/config
+
+  # ~/.ssh → ~/.config/ssh (XDG via symlink). Skip if ~/.ssh is already a
+  # real directory — the user must migrate keys manually first.
+  if [[ ! -d $HOME/.ssh || -L $HOME/.ssh ]]; then
+    zf_ln -sf $XDG_CONFIG_HOME/ssh $HOME/.ssh
+  fi
 }
 
 # +----------+
