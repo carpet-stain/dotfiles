@@ -44,7 +44,11 @@ export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 export XDG_STATE_HOME=$HOME/.local/state
-export XDG_RUNTIME_DIR=$TMPDIR
+if [[ $OSTYPE == darwin* ]]; then
+  export XDG_RUNTIME_DIR=$TMPDIR
+else
+  export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$UID}
+fi
 
 # +----------------+
 # | XDG COMPLIANCE |
@@ -63,18 +67,6 @@ export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
 # Suppress Terminal.app session restore files (~/.zsh_sessions, ~/.bash_sessions)
 export SHELL_SESSIONS_DISABLE=1
 
-# +----------+
-# | HOMEBREW |
-# +----------+
-
-# Keep Homebrew's cache, logs, and temp under XDG dirs (brew.env can't expand vars)
-export HOMEBREW_CACHE=$XDG_CACHE_HOME/Homebrew
-export HOMEBREW_LOGS=$XDG_STATE_HOME/Homebrew/logs
-export HOMEBREW_TEMP=$XDG_RUNTIME_DIR/Homebrew
-
-# Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, HOMEBREW_REPOSITORY, PATH, MANPATH, INFOPATH
-eval $(/opt/homebrew/bin/brew shellenv)
-
 # +------+
 # | PATH |
 # +------+
@@ -82,19 +74,33 @@ eval $(/opt/homebrew/bin/brew shellenv)
 # Enforce uniqueness on path arrays before any additions
 typeset -U path fpath manpath
 
-# Remaining Homebrew opt package binaries and man pages. (N) glob qualifier
-# enables null_glob for just this pattern — NULL_GLOB isn't set yet this early
-# (it's an interactive-only option set later in rc.d/options.zsh), and without
-# it an unmatched glob aborts the rest of .zshenv, e.g. on a fresh machine
-# before `brew bundle` has installed anything.
-for bindir in $HOMEBREW_PREFIX/opt/*/bin(N); do path=($bindir $path); done
-for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1(N); do manpath=($mandir $manpath); done
+if [[ $OSTYPE == darwin* ]]; then
+  # +----------+
+  # | HOMEBREW |
+  # +----------+
 
-# Prefer GNU coreutils over macOS BSD versions (provides un-prefixed names:
-# sed, tar, etc.) — must come after the opt/*/bin loop above so gnubin wins
-# any name collision.
-for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin(N); do path=($bindir $path); done
-for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman(N); do manpath=($mandir $manpath); done
+  # Keep Homebrew's cache, logs, and temp under XDG dirs (brew.env can't expand vars)
+  export HOMEBREW_CACHE=$XDG_CACHE_HOME/Homebrew
+  export HOMEBREW_LOGS=$XDG_STATE_HOME/Homebrew/logs
+  export HOMEBREW_TEMP=$XDG_RUNTIME_DIR/Homebrew
+
+  # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, HOMEBREW_REPOSITORY, PATH, MANPATH, INFOPATH
+  eval $(/opt/homebrew/bin/brew shellenv)
+
+  # Remaining Homebrew opt package binaries and man pages. (N) glob qualifier
+  # enables null_glob for just this pattern — NULL_GLOB isn't set yet this early
+  # (it's an interactive-only option set later in rc.d/options.zsh), and without
+  # it an unmatched glob aborts the rest of .zshenv, e.g. on a fresh machine
+  # before `brew bundle` has installed anything.
+  for bindir in $HOMEBREW_PREFIX/opt/*/bin(N); do path=($bindir $path); done
+  for mandir in $HOMEBREW_PREFIX/opt/*/share/man/man1(N); do manpath=($mandir $manpath); done
+
+  # Prefer GNU coreutils over macOS BSD versions (provides un-prefixed names:
+  # sed, tar, etc.) — must come after the opt/*/bin loop above so gnubin wins
+  # any name collision.
+  for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin(N); do path=($bindir $path); done
+  for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman(N); do manpath=($mandir $manpath); done
+fi
 
 # User-local binaries and scripts
 path+=$HOME/.local/bin
@@ -129,36 +135,61 @@ source $DOTFILES/theme/fzf/themes/catppuccin-fzf-mocha.sh
 # Append layout and behavior on top of the theme's colors
 FZF_DEFAULT_OPTS+="
   --color header:italic
-  --border rounded
-  --border-label-pos center
+  --scrollbar '▋'
   --layout reverse
   --info right
   --prompt ' : '
   --pointer ''
   --marker '✓'
   --preview-window 'right:65%'
-  --ansi
-  --height 90%"
+  --ansi"
+
+# --popup, --highlight-line, and --input-border need a newer fzf than Debian's
+# apt package ships — Homebrew always tracks latest, so darwin-only.
+if [[ $OSTYPE == darwin* ]]; then
+  FZF_DEFAULT_OPTS+="
+  --popup=90%
+  --highlight-line
+  --input-border"
+fi
 
 # Ctrl+T — file search
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
-export FZF_CTRL_T_OPTS="
-  --border-label ' 󰱽 File Search '
-  --preview 'bat {}'
-  --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
-  --bind 'ctrl-o:become(open -R {})'
-  --bind 'ctrl-y:become(echo -n {} | pbcopy)'
-  --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
-  --select-1 --exit-0"
+if [[ $OSTYPE == darwin* ]]; then
+  export FZF_CTRL_T_OPTS="
+    --border-label ' 󰱽 File Search '
+    --preview 'bat {}'
+    --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
+    --bind 'ctrl-o:become(open -R {})'
+    --bind 'ctrl-y:become(echo -n {} | pbcopy)'
+    --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
+    --select-1 --exit-0"
 
-# Ctrl+R — command history
-export FZF_CTRL_R_OPTS="
-  --border-label '  Command History '
-  --bind 'ctrl-y:become(echo -n {2..} | pbcopy)'
-  --header '📌 ⌃Y to Copy'"
+  export FZF_CTRL_R_OPTS="
+    --border-label ' 󰱽 Command History '
+    --preview 'echo {2..} | bat -l bash --plain --color always'
+    --preview-window 'down:3:wrap:border-top'
+    --bind 'ctrl-y:become(echo -n {2..} | pbcopy)'
+    --header '⌃Y Copy'"
+else
+  export FZF_CTRL_T_OPTS="
+    --border-label ' 󰱽 File Search '
+    --preview 'bat {}'
+    --header '⌃Y to Copy | ⌃E to Edit'
+    --bind 'ctrl-y:become(echo -n {} | xclip -selection clipboard)'
+    --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
+    --select-1 --exit-0"
+
+  export FZF_CTRL_R_OPTS="
+    --border-label ' 󰱽 Command History '
+    --preview 'echo {2..} | bat -l bash --plain --color always'
+    --preview-window 'down:3:wrap:border-top'
+    --bind 'ctrl-y:become(echo -n {2..} | xclip -selection clipboard)'
+    --header '⌃Y Copy'"
+fi
 
 # Alt+C — directory jump
 export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git"
 export FZF_ALT_C_OPTS="
-  --border-label '   Directory Explorer '
+  --border-label ' 󰱽 Directory Explorer '
   --preview '$EZACMD --tree --level=2 {}'"
