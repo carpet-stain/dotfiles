@@ -1,0 +1,35 @@
+# Core shell
+zsh
+build-essential
+
+# Source control
+git
+
+# Network
+curl
+wget
+
+# Package management infrastructure
+gpg
+ca-certificates
+
+# Modern CLI replacements
+bat
+fd-find
+fzf
+ripgrep
+zoxide
+
+# Dev tooling
+direnv
+htop
+less
+ncdu
+python3
+python3-pip
+
+# Utilities
+tealdeer
+xz-utils
+unzip
+xclip
