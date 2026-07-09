@@ -56,10 +56,10 @@ optional() {
 # Function to create required directories
 create_directories() {
   setopt local_options err_exit
-  zf_mkdir -p $XDG_CONFIG_HOME/{bat,direnv,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{bat/themes,direnv,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,fast-syntax-highlighting,git-credential-cache}
-  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide}
+  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
@@ -89,6 +89,7 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc
 
   zf_ln -sf $DOTFILES_DIR/batconfig $XDG_CONFIG_HOME/bat/config
+  zf_ln -sf $DOTFILES_DIR/theme/bat/themes/"Catppuccin Mocha.tmTheme" $XDG_CONFIG_HOME/bat/themes/"Catppuccin Mocha.tmTheme"
 
   zf_ln -sf $DOTFILES_DIR/git/attributes $XDG_CONFIG_HOME/git/attributes
   zf_ln -sf $DOTFILES_DIR/git/committemplate $XDG_CONFIG_HOME/git/committemplate
@@ -104,6 +105,12 @@ link_configs() {
   zf_ln -sf $DEPLOY_DIR/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
 
   zf_ln -sf $DOTFILES_DIR/ssh/config $XDG_CONFIG_HOME/ssh/config
+
+  # Machine-specific SSH config (real hostnames/IPs, usernames) — deployed
+  # config.local's `Include` expects this to exist, but it's deliberately
+  # a plain local file, not something this repo tracks/symlinks, so it's
+  # created once here and never touched again on later deploy runs.
+  [[ -f $XDG_CONFIG_HOME/ssh/config.local ]] || touch $XDG_CONFIG_HOME/ssh/config.local
 
   # ~/.ssh → ~/.config/ssh (XDG via symlink). Skip if ~/.ssh is already a
   # real directory — the user must migrate keys manually first.
@@ -130,6 +137,26 @@ install_brewfile() {
   brew bundle --file=$DEPLOY_DIR/Brewfile
 }
 
+# Point $XDG_DATA_HOME/zsh/plugins/* at Homebrew's copies so .zshrc can use
+# the same paths on both macOS and Linux.
+link_zsh_plugins() {
+  setopt local_options err_exit
+  local -A plugin_srcs=(
+    powerlevel10k       $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k
+    zsh-autosuggestions $HOMEBREW_PREFIX/share/zsh-autosuggestions
+    zsh-autopair        $HOMEBREW_PREFIX/share/zsh-autopair
+    forgit              $HOMEBREW_PREFIX/share/forgit
+  )
+  local name
+  for name in ${(k)plugin_srcs}; do
+    # Fail loudly rather than symlink a path that doesn't exist yet — a
+    # dangling link here would surface later as an opaque `source` error
+    # at shell startup instead of a clear deploy-time failure.
+    [[ -e $plugin_srcs[$name] ]] || { print "  Missing $name at $plugin_srcs[$name]" >&2; return 1 }
+    zf_ln -sf $plugin_srcs[$name] $XDG_DATA_HOME/zsh/plugins/$name
+  done
+}
+
 # Sync Git submodules
 sync_submodules() {
   setopt local_options err_exit
@@ -139,11 +166,14 @@ sync_submodules() {
 
 # Trigger zsh run to download gitstatusd
 download_gitstatusd() {
-  $SHELL -is <<< ''
+  # CI=1 skips .zshrc's zellij auto-attach block — without it, this
+  # non-tty interactive shell hits `exec zellij attach` and hangs forever
+  # instead of just running the p10k/gitstatusd bootstrap it's here for.
+  CI=1 $SHELL -is <<< ''
 }
 
 set_fsh() {
-  $SHELL -is <<< 'fast-theme -q XDG:catppuccin-mocha'
+  CI=1 $SHELL -is <<< 'fast-theme -q XDG:catppuccin-mocha'
 }
 
 # Generate completions for tools with no Homebrew-shipped zsh completion file
@@ -165,6 +195,13 @@ generate_ghostty_terminfo() {
   [[ -d $ghostty_ti ]] || return 0
   $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x -A $ghostty_ti xterm-ghostty \
     | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
+}
+
+# bat only ships Catppuccin as a built-in theme in fairly recent releases;
+# batconfig requests "Catppuccin Mocha" unconditionally, so compile the
+# vendored theme/bat submodule copy into bat's cache regardless of version.
+build_bat_cache() {
+  bat cache --build
 }
 
 # Pre-grant zjstatus its permissions: it lives in the 1-row status bar pane,
@@ -200,7 +237,9 @@ required "Creating required directory tree"    create_directories
 required "Linking config files"                link_configs
 required "Checking for Homebrew"                install_homebrew
 required "Installing Brewfile packages"        install_brewfile
+required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
+optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
 optional "Setting fast-syntax-highlighting theme" set_fsh
 optional "Generating dua/doggo completions"    generate_completions

@@ -10,6 +10,14 @@ return {
       servers = {
         bashls = {
           filetypes = { "sh", "bash", "zsh" },
+          settings = {
+            bashIde = {
+              -- bash-language-server runs shellcheck internally across all its
+              -- filetypes; disabling it here so nvim-lint can run shellcheck
+              -- selectively (sh/bash only — zsh produces constant false positives).
+              shellcheckPath = "",
+            },
+          },
         },
       },
     },
@@ -18,7 +26,8 @@ return {
     "mfussenegger/nvim-lint",
     opts = {
       linters_by_ft = {
-        sh = { "shellcheck" },
+        sh   = { "shellcheck" },
+        bash = { "shellcheck" },
       },
     },
   },

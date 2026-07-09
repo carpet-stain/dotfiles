@@ -1,1 +1,70 @@
+# +-----------------+
+# | LOCAL OVERRIDES |
+# +-----------------+
+
+# config.local holds anything machine-specific: real hostnames/IPs,
+# usernames, per-box tweaks. It's created empty by deploy (once, if
+# missing) and never touched again — deliberately NOT tracked here, so it
+# can never leak on commit/push. Relative Include paths resolve against
+# ~/.ssh (ssh_config(5)), which is this repo's own symlink target, so this
+# resolves to $XDG_CONFIG_HOME/ssh/config.local — right next to this
+# tracked file, but outside the git working tree entirely. First match
+# wins in ssh_config, so putting this first lets config.local override
+# anything below it, not just add new Host blocks.
+Include config.local
+
+# +---------------------+
+# | DEVBOX PERSISTENCE  |
+# +---------------------+
+
+# Pattern for any remote box you want a persistent zellij session on
+# (survives dropped connections, laptop sleep, etc.) instead of losing
+# whatever was running when the SSH connection dies — add these two lines
+# to that box's own `Host` block below:
+#
+#   RequestTTY yes
+#   RemoteCommand zellij attach --create default
+#
+# Why not just rely on .zshrc's own zellij auto-attach? It deliberately
+# skips whenever $SSH_TTY is set ("Skip on remote sessions and root —
+# those should not auto-attach"), which is the right default for ad hoc
+# SSH to servers you don't want zellij launched on. RemoteCommand here
+# opts a *specific* box back in without touching that general guard.
+#
+# RequestTTY is required alongside it: it defaults to "auto", which does
+# NOT allocate a TTY when a RemoteCommand is set, and zellij needs a real
+# TTY or it crashes ("could not enable raw mode").
+#
+# This gets you remote-only multiplexing, not local+remote nested — your
+# local zellij (if any) isn't also wrapping the pane this SSH connection
+# lands in, so there's nothing fighting over the same Ctrl-key bindings.
+
+# +-----------+
+# | ORBSTACK  |
+# +-----------+
+
+# OrbStack normally self-registers `ssh <machine>@orb` by editing
+# ~/.ssh/config directly, but ~/.ssh here is a symlink to this tracked
+# file, so that edit never sticks (and gets clobbered by the next
+# deploy.zsh symlink anyway). Written by hand instead, from `orbctl ssh`'s
+# own documented connection details. 127.0.0.1 (not localhost) matters:
+# ~/.orbstack/ssh/known_hosts keys its entry to that literal string.
+Host orb *.orb
+  HostName 127.0.0.1
+  Port 32222
+  IdentityFile ~/.orbstack/ssh/id_ed25519
+  IdentitiesOnly yes
+  UserKnownHostsFile ~/.orbstack/ssh/known_hosts
+  # See "DEVBOX PERSISTENCE" above.
+  RequestTTY yes
+  RemoteCommand zellij attach --create default
+
+# mDNS alternative — connects straight to the VM's own sshd instead of
+# through the port-32222 broker above, still using OrbStack's keypair
+# since the VM only trusts that one, not your regular SSH keys.
+Host *.orb.local
+  User default
+  IdentityFile ~/.orbstack/ssh/id_ed25519
+  IdentitiesOnly yes
+
 Host *

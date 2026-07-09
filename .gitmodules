@@ -22,3 +22,6 @@
 [submodule "theme/eza"]
 	path = theme/eza
 	url = https://github.com/catppuccin/eza.git
+[submodule "theme/bat"]
+	path = theme/bat
+	url = https://github.com/catppuccin/bat.git

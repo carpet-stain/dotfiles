@@ -7,6 +7,8 @@ symlink to this file.
 
 Personal macOS dotfiles: Ghostty + Zellij + zsh + Neovim, themed Catppuccin
 Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
+Debian (`linux/deploy.sh`) is a secondary target — mainly used in disposable
+OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 
 ## Philosophy
 
@@ -14,7 +16,10 @@ Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
   delta, zoxide, fzf) over defaults.
 - **Homebrew-first.** Install packages via Homebrew. Only when Homebrew lacks a
   package does it become a git submodule. No dotfile manager or framework —
-  Powerlevel10k is the sole exception.
+  Powerlevel10k is the sole exception. On Linux, where there's no Homebrew,
+  `linux/deploy.sh` installs via apt where possible and falls back to
+  git-cloning zsh plugins straight to `$XDG_DATA_HOME/zsh/plugins` (no
+  submodules — that dir's not tracked in this repo).
 - **XDG discipline.** Keep `$HOME` clean: only `.zshenv` lives there, everything
   else goes under `$XDG_{CONFIG,CACHE,DATA,STATE}_HOME`. Respect the distinction —
   config vs cache vs data vs state. Documented exceptions below.
@@ -60,8 +65,13 @@ Entries that must stay in `$HOME` despite the XDG rule:
   auto-install via `nvim-lspconfig`'s `servers` table doesn't reliably fire
   during a headless `deploy.zsh` run. `lazy-lock.json` is tracked and
   symlinked in `deploy.zsh`, matching LazyVim's own recommended practice.
-- `macos/deploy.zsh` — single bootstrap: creates XDG dirs, symlinks configs,
+- `macos/deploy.zsh` — macOS bootstrap: creates XDG dirs, symlinks configs,
   installs Homebrew + Brewfile, syncs submodules, builds caches/terminfo.
+- `linux/deploy.sh` — Debian bootstrap: same shape as `macos/deploy.zsh` but
+  bash, apt (`linux/Aptfile`) instead of Homebrew, and GitHub release
+  binaries for tools too old/missing in Debian's repos (neovim, git-delta,
+  zellij, eza). Both scripts hand-maintain their own directory/runner
+  logic — no shared lib between them; when one changes, check the other.
 - Section headers use the ASCII box style: `# +------+`.
 - Keep ordering dependencies explicit and commented (e.g. "must come after
   compinit").
@@ -74,6 +84,15 @@ Entries that must stay in `$HOME` despite the XDG rule:
 - Fix bugs found along the way, but call them out.
 - Summarize what changed and why — a short table beats prose.
 - Prefer the change that removes a setting over the one that adds one.
+
+## Verify, Don't Trust
+
+When producing an analysis or summarization of something gleaned from a
+resource (web page, MCP call, user-provided document), do not trust a memory
+or retained summary of that resource. Always retrieve the resource afresh
+and compare it to the summary or analysis you are preparing. When comparing,
+do so in an adversarial way: you are fact-checking work that you suspect at
+the start contains errors and hallucinations.
 
 ## Commit style
 

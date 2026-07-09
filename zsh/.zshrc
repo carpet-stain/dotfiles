@@ -110,7 +110,7 @@ source $ZDOTDIR/rc.d/fzf-tab.zsh
 # +--------------+
 
 # Auto-closes/deletes matching brackets and quotes
-source $HOMEBREW_PREFIX/share/zsh-autopair/autopair.zsh
+source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 
 # +------------------------------+
 # | ZSH-FAST-SYNTAX-HIGHLIGHTING |
@@ -141,7 +141,7 @@ unset FAST_THEME_CACHE
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
 
-source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $XDG_DATA_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # +--------+
 # | FORGIT |
@@ -149,4 +149,4 @@ source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Interactive git commands via fzf (ga, glo, gi, …); needs fzf loaded above.
 # Not needed until first invoked, so defer past the first prompt.
-zsh-defer source $HOMEBREW_PREFIX/share/forgit/forgit.plugin.zsh
+zsh-defer source $XDG_DATA_HOME/zsh/plugins/forgit/forgit.plugin.zsh
