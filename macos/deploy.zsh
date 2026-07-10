@@ -62,6 +62,7 @@ create_directories() {
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
+  zf_mkdir -p $XDG_CONFIG_HOME/claude/fragments
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
 }
 
@@ -71,6 +72,14 @@ link_configs() {
   # AGENTS.md is the source of truth; CLAUDE.md is a gitignored symlink so Claude
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
+
+  # Claude Code agent config → $CLAUDE_CONFIG_DIR ($XDG_CONFIG_HOME/claude).
+  # Layered loader + fragments. See claude/README.md. Globs every fragment
+  # present so machine-local (gitignored) fragments are linked too.
+  zf_ln -sf $DOTFILES_DIR/claude/CLAUDE.md $XDG_CONFIG_HOME/claude/CLAUDE.md
+  for _frag in $DOTFILES_DIR/claude/fragments/*.md(N); do
+    zf_ln -sf $_frag $XDG_CONFIG_HOME/claude/fragments/$_frag:t
+  done
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
