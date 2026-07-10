@@ -3,9 +3,10 @@
 Guidance for AI assistants working in this repo (Layer 3 — repo-specific).
 Vendor-neutral; the root `CLAUDE.md` is a gitignored symlink to this file.
 
-> **Note:** two files named `CLAUDE.md` exist here and are unrelated. The root
-> `/CLAUDE.md` symlinks to *this* guide. `claude/CLAUDE.md` is the global agent-config
-> *loader* (tracked, deployed to `$CLAUDE_CONFIG_DIR`) — see `claude/README.md`.
+> **Note:** this repo also has a `claude/` directory unrelated to the root
+> `CLAUDE.md` symlink above. `claude/rules/*.md` are the global agent-config
+> layer files (tracked, deployed to `$CLAUDE_CONFIG_DIR/rules`, where Claude
+> Code auto-discovers and loads them) — see `claude/README.md`.
 
 ## Precedence: this repo's own docs win over generic layers
 
@@ -95,7 +96,7 @@ Entries that must stay in `$HOME` despite the XDG rule:
 
 ## Commit style
 
-> Concrete realization of the **GitHub layer** (`claude/fragments/github.md`) for this repo:
+> Concrete realization of the **GitHub layer** (`claude/rules/github.md`) for this repo:
 > scopes = `zsh, zellij, git, nvim, macos, theme`; version scheme = SemVer; branches =
 > `dev` (long-lived) → `main` (protected). The layer is baseline; the rules below win here and
 > are complete on their own.

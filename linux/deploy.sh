@@ -90,7 +90,7 @@ create_directories() {
     "$XDG_STATE_HOME/less" \
     "$XDG_STATE_HOME/zsh" \
     "$LOCAL_BIN"
-  mkdir -p "$XDG_CONFIG_HOME/claude/fragments"
+  mkdir -p "$XDG_CONFIG_HOME/claude/rules"
   mkdir -p "$XDG_CONFIG_HOME/ssh" && chmod 700 "$XDG_CONFIG_HOME/ssh"
 }
 
@@ -290,12 +290,16 @@ install_jaq() {
 link_configs() {
   ln -sf "$DOTFILES_DIR/zsh/.zshenv"           "$HOME/.zshenv"
 
-  # Claude Code agent config → $CLAUDE_CONFIG_DIR ($XDG_CONFIG_HOME/claude).
-  # Layered loader + fragments. See claude/README.md. Globs every fragment
-  # present so machine-local (gitignored) fragments are linked too.
-  ln -sf "$DOTFILES_DIR/claude/CLAUDE.md"                "$XDG_CONFIG_HOME/claude/CLAUDE.md"
-  for _frag in "$DOTFILES_DIR"/claude/fragments/*.md; do
-    [ -e "$_frag" ] && ln -sf "$_frag" "$XDG_CONFIG_HOME/claude/fragments/$(basename "$_frag")"
+  # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
+  # Claude Code auto-discovers and loads every *.md in rules/ unconditionally —
+  # no loader file or @import wiring needed. See claude/README.md. Globs every
+  # layer file present so machine-local (gitignored) ones are linked too.
+  # One-time cleanup of the old loader-based layout (claude/CLAUDE.md +
+  # claude/fragments/), safe since deploy fully owns both paths.
+  rm -f "$XDG_CONFIG_HOME/claude/CLAUDE.md"
+  rm -rf "$XDG_CONFIG_HOME/claude/fragments"
+  for _rule in "$DOTFILES_DIR"/claude/rules/*.md; do
+    [ -e "$_rule" ] && ln -sf "$_rule" "$XDG_CONFIG_HOME/claude/rules/$(basename "$_rule")"
   done
 
   ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \

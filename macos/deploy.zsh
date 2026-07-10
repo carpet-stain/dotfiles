@@ -62,7 +62,7 @@ create_directories() {
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
-  zf_mkdir -p $XDG_CONFIG_HOME/claude/fragments
+  zf_mkdir -p $XDG_CONFIG_HOME/claude/rules
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
 }
 
@@ -73,12 +73,16 @@ link_configs() {
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
 
-  # Claude Code agent config → $CLAUDE_CONFIG_DIR ($XDG_CONFIG_HOME/claude).
-  # Layered loader + fragments. See claude/README.md. Globs every fragment
-  # present so machine-local (gitignored) fragments are linked too.
-  zf_ln -sf $DOTFILES_DIR/claude/CLAUDE.md $XDG_CONFIG_HOME/claude/CLAUDE.md
-  for _frag in $DOTFILES_DIR/claude/fragments/*.md(N); do
-    zf_ln -sf $_frag $XDG_CONFIG_HOME/claude/fragments/$_frag:t
+  # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
+  # Claude Code auto-discovers and loads every *.md in rules/ unconditionally —
+  # no loader file or @import wiring needed. See claude/README.md. Globs every
+  # layer file present so machine-local (gitignored) ones are linked too.
+  # One-time cleanup of the old loader-based layout (claude/CLAUDE.md +
+  # claude/fragments/), safe since deploy fully owns both paths.
+  rm -f $XDG_CONFIG_HOME/claude/CLAUDE.md
+  rm -rf $XDG_CONFIG_HOME/claude/fragments
+  for _rule in $DOTFILES_DIR/claude/rules/*.md(N); do
+    zf_ln -sf $_rule $XDG_CONFIG_HOME/claude/rules/$_rule:t
   done
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
