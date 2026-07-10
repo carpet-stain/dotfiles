@@ -1,0 +1,69 @@
+name: Prepare release
+
+# Manual trigger only — deciding *when* to cut a release stays a human call;
+# this automates the busywork around that decision (compute the next
+# version, regenerate CHANGELOG.md, open the PR) per the steps documented
+# in AGENTS.md's Git workflow section.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump (auto lets git-cliff decide from Conventional Commits)"
+        type: choice
+        default: auto
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    name: prepare release PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      # --bump (no --unreleased) renders the FULL changelog with the newly
+      # computed version applied at the top, matching this repo's existing
+      # `git cliff --tag vX.Y.Z -o CHANGELOG.md` convention — just with the
+      # version computed from Conventional Commits instead of typed by hand.
+      - name: Compute next version and update changelog
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: >-
+            --bump
+            ${{ inputs.bump != 'auto' && inputs.bump || '' }}
+        env:
+          OUTPUT: CHANGELOG.md
+
+      # A dedicated release/vX.Y.Z branch (not dev directly) so dev never
+      # has to be "frozen" while this PR is pending — you can keep
+      # committing new work to dev without it silently becoming part of
+      # the release. release-publish.yml deletes this branch once merged
+      # (scoped to the release/v* prefix, never touches dev) and resets
+      # dev onto main so the version bump/changelog land there too.
+      - name: Commit changelog on a release branch and open the PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.cliff.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "release/${VERSION}"
+          git add CHANGELOG.md
+          git commit -m "chore(release): ${VERSION}"
+          git push origin "release/${VERSION}"
+          gh pr create \
+            --base main --head "release/${VERSION}" \
+            --title "chore(release): ${VERSION}" \
+            --body "Automated release prep via git-cliff (\`${{ inputs.bump }}\` bump). Review the changelog, then squash-merge to cut the release — merging triggers tagging, the GitHub release, deleting this branch, and resetting \`dev\` onto \`main\` (see release-publish.yml)."

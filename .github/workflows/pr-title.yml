@@ -1,0 +1,40 @@
+name: PR title
+
+# Squash-merge makes the PR title the actual commit message on main (per
+# AGENTS.md's git workflow), and release-publish.yml keys off that exact
+# format — so this validates the PR title, not individual commits. Dev
+# commits stay intentionally messy/WIP per AGENTS.md ("commit freely and
+# messily... they get squashed away"); linting every commit would fight
+# that convention instead of enforcing the thing that actually matters.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  title:
+    name: conventional commit format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+          # Scope is documented as optional/descriptive ("repo area"), not
+          # an enum — left unrestricted so new areas (linux, ssh, ...)
+          # don't need this workflow updated to stay unblocked.
+          requireScope: false
