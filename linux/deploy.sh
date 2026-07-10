@@ -13,6 +13,7 @@ XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOCAL_BIN="$HOME/.local/bin"
 
 ARCH="$(uname -m)"   # x86_64 or aarch64
+# shellcheck disable=SC1091 # /etc/os-release is a system file, not part of this repo
 CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"   # e.g. bookworm, bullseye
 
 # Guarantee $LOCAL_BIN (where this script installs neovim, delta, zellij,

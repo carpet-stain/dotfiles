@@ -64,7 +64,9 @@ jobs:
             --notes-file RELEASE_NOTES.md
 
       - name: Delete the ephemeral release branch
-        run: git push origin --delete "${{ github.event.pull_request.head.ref }}"
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: git push origin --delete "$HEAD_REF"
 
       # dev's reset onto main is handled by sync-dev.yml for every merge,
       # release or not — not duplicated here.

@@ -137,6 +137,16 @@ install_brewfile() {
   brew bundle --file=$DEPLOY_DIR/Brewfile
 }
 
+# Activate the git hooks in .pre-commit-config.yaml: pre-commit (zsh syntax,
+# shellcheck, actionlint — mirrors of what ci.yml/pr-title.yml enforce) and
+# pre-push (auto-rebase if dev has moved, e.g. via sync-dev.yml). A single
+# `pre-commit install` covers both hook types via default_install_hook_types.
+install_pre_commit_hooks() {
+  # pre-commit has no -C/--cwd equivalent; it discovers .git relative to the
+  # working directory, so it has to actually run from inside the repo.
+  (cd $DOTFILES_DIR && pre-commit install -f)
+}
+
 # Point $XDG_DATA_HOME/zsh/plugins/* at Homebrew's copies so .zshrc can use
 # the same paths on both macOS and Linux.
 link_zsh_plugins() {
@@ -237,6 +247,7 @@ required "Creating required directory tree"    create_directories
 required "Linking config files"                link_configs
 required "Checking for Homebrew"                install_homebrew
 required "Installing Brewfile packages"        install_brewfile
+optional "Installing pre-commit hooks"         install_pre_commit_hooks
 required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
 optional "Building bat theme cache"            build_bat_cache

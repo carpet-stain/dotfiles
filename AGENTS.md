@@ -117,6 +117,40 @@ Every commit:
 Scope each commit to one logical change — prefer several focused commits over one
 sweeping commit. Propose the split and messages before committing.
 
+## Local tooling (shift-left)
+
+`.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
+instead of after:
+- zsh syntax (`zsh -n`, same files `ci.yml` checks)
+- `shellcheck` on `linux/*.sh`
+- `actionlint` on `.github/workflows/*.yml`
+- auto-rebase if `dev` has moved (`sync-dev.yml` rewrites it after every
+  merge, which routinely makes a plain push get rejected)
+- `.envrc.local.example` never picks up a real credential and stays in
+  sync with `.envrc.local`
+
+Installed automatically by `macos/deploy.zsh`'s `install_pre_commit_hooks`
+step; run `pre-commit run --all-files` to check everything at once.
+
+Two more tools worth reaching for by hand, not wired into any hook:
+- `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
+  would compute, with zero side effects, before actually triggering it.
+- `act` — runs the GitHub Actions workflows themselves locally (via Docker),
+  for testing workflow changes without pushing and waiting on real CI.
+
+### Credentials: `.envrc` / `.envrc.local`
+
+`gh` CLI defaults to a scoped-down fine-grained PAT (Contents/Pull
+requests/Actions read-write, no Administration) via `GH_TOKEN`, loaded by
+`direnv` from `.envrc.local` (gitignored — never commit a real token) rather
+than the full-admin `gh auth login` session, so day-to-day work in this repo
+can't accidentally touch repo settings. `.envrc.local.example` is the tracked
+template — copy it to `.envrc.local` and fill in a real token (every export
+line in the template itself must stay empty; a pre-commit hook enforces both
+that and that the template hasn't drifted from `.envrc.local`'s structure).
+Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
+session (e.g. changing branch protection).
+
 ## Git workflow
 
 Branching model: **long-lived `dev` + protected `main`**, squash-merged.
