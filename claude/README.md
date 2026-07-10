@@ -1,0 +1,177 @@
+# Claude Code Agent Configuration
+
+Layered, reusable agent instructions for [Claude Code](https://claude.ai/code),
+designed so **abstract engineering philosophy is written once and inherited by every
+project**, while language-, platform-, and repo-specific detail stays scoped to where
+it actually applies.
+
+## Why this exists
+
+A single monolithic `CLAUDE.md`/`AGENTS.md` per repo mixes three incompatible things:
+
+1. **Universal philosophy** — how I want code designed, tested, and shipped. True everywhere.
+2. **Language/platform conventions** — Go idioms, a hosting platform's mechanics. True for *some* repos.
+3. **Repo-specific facts** — commands, paths, branch names. True for *one* repo.
+
+Mixing them blocks reuse (you can't lift the philosophy into another repo without dragging
+repo facts along) and injects **wrong context** into the agent (Go rules in a Python repo,
+one platform's commands in an unrelated repo). This setup separates them into layers.
+
+## The layers
+
+| Layer | File | Scope | Loading |
+|-------|------|-------|---------|
+| **0 — Philosophy** | `fragments/philosophy.md` | Universal, language/platform-agnostic | Always applies |
+| **1 — Go** | `fragments/go.md` | Go repos only | Self-gates on `go.mod` |
+| **2 — GitHub** | `fragments/github.md` | GitHub-hosted repos only | Self-gates on github.com origin |
+| **2 — Platform (private)** | *(machine-local, gitignored)* | Repos on a given hosting platform | Self-gates on that platform's tooling |
+| **3 — Repo** | *(in each repo)* `AGENTS.md` + `docs/` | One repo only | Repo's own files |
+
+`CLAUDE.md` in this directory is **not content** — it is a thin *loader* that `@import`s
+the fragments. Claude Code reads it automatically as global user memory.
+
+Platform layers for **private or work-internal** hosting environments are deliberately
+**not committed** here — see [Private fragments](#private-fragments-workinternal-layers) below.
+
+## The model: load-all, then self-gate ("blacklist")
+
+Every layer is imported globally and loaded in **every** project. Scope is enforced *after*
+loading, by an **APPLY guard** at the top of each fragment that the agent evaluates against
+the current repo:
+
+- `philosophy.md` → applies always (no gate).
+- `go.md` → applies only if `go.mod` exists at the repo root; otherwise ignored.
+- `github.md` → applies only if the repo's origin is GitHub; otherwise ignored.
+- a private platform layer → applies only if that platform's tooling is present; otherwise
+  ignored (emphatically — its commands are *wrong*, not merely unnecessary, elsewhere).
+  Distinct hosting platforms are mutually exclusive per repo — each gates on its own tooling.
+
+This is a **blacklist** model (load everything, exclude what doesn't fit) rather than a
+whitelist (opt-in per repo). Chosen because there are only a few, broad fragments that match
+most of my work, so the always-loaded token cost is negligible and there is **zero per-repo
+wiring** in the common case. If many niche fragments accumulate later, revisit — whitelist
+scales better then.
+
+### Trade-off (be honest)
+
+The gating is **soft**: it works because the model honors the guard text, not because the
+layer is structurally absent. Reliability is high for crisp guards ("no `go.mod` → ignore").
+Every repo pays the token cost of all layers even when gated off.
+
+## Local-wins precedence
+
+When an applied layer overlaps a repo's own docs, **the repo wins**. This is enforced
+redundantly so no single soft instruction is load-bearing:
+
+1. Each fragment's APPLY guard says "if the repo has its own doc, prefer it; treat this as baseline."
+2. The repo's committed `AGENTS.md` independently claims authority for its `docs/`.
+3. (For composed repos) the COMPOSE step below writes that precedence line into the repo.
+
+Philosophy (Layer 0) is the exception: a repo never *overrides* it — a repo's `DESIGN.md`
+*illustrates* how the principles are realized there. Illustrate, don't replace.
+
+## COMPOSE protocol (Layers 1 & 2 only)
+
+Layers 1 and 2 are **templates**. `go.md` has abstractions ("your linter"); a platform layer
+has literal `<placeholders>` (repo id, branch names). When a repo *lacks* a concrete doc for
+that layer, the fragment's COMPOSE protocol tells the agent how to distill a repo-specific doc
+(e.g. `docs/CODING.md`, `docs/OPERATIONS.md`) by filling in the real nouns, then wire the
+precedence line. Default is **propose-don't-create** — the agent suggests and waits before
+writing committed files.
+
+For a *mature* repo that already has those docs, COMPOSE is **inert**: the fragment was
+distilled *from* that repo and must not be fed back. Only the APPLY guards fire, deferring to
+the existing local docs.
+
+Layer 0 has **no** COMPOSE protocol — a standard is applied, not instantiated.
+
+## Deployment (Strict XDG)
+
+Claude Code defaults to `~/.claude`, which violates this repo's Zero-Home-Presence rule.
+Instead, `zsh/.zshenv` exports:
+
+```sh
+export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
+```
+
+and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the loader plus
+**every fragment present** into `$XDG_CONFIG_HOME/claude/`:
+
+```
+claude/CLAUDE.md                 → $XDG_CONFIG_HOME/claude/CLAUDE.md
+claude/fragments/*.md            → $XDG_CONFIG_HOME/claude/fragments/*.md
+```
+
+The scripts glob `fragments/*.md` rather than naming each file, so machine-private fragments
+(gitignored, see below) are linked too without editing the tracked scripts.
+
+The loader's `@import` lines point at the deployed fragment paths
+(`~/.config/claude/fragments/*.md`) — `@import` does not expand environment variables, so the
+path is written out to match where the deploy symlinks land. Edit a source file here → the
+symlink reflects it → every project inherits the change, with nothing copied.
+
+> **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`,
+> for the dotfiles repo's *own* agent guidance) which is gitignored. That rule is **anchored to
+> root** (`/CLAUDE.md`) precisely so it does not also ignore `claude/CLAUDE.md`, which is real,
+> tracked content.
+
+## Private fragments (work/internal layers)
+
+Some platform layers describe **internal or employer-owned tooling** (hostnames, CLIs, build
+systems) that must **never** land in this public repo. They are kept **machine-local and
+gitignored**, yet still load through the same mechanism. The setup:
+
+1. **Write the fragment** at `claude/fragments/<name>.md` with its own APPLY guard, exactly
+   like a committed layer. Gitignore it in `.gitignore`:
+   ```gitignore
+   claude/fragments/<name>.md
+   ```
+2. **Wire a private loader hook.** The committed `claude/CLAUDE.md` ends with an import of a
+   gitignored `local.md`:
+   ```
+   @~/.config/claude/fragments/local.md
+   ```
+   `local.md` is itself gitignored and `@import`s the private fragment(s):
+   ```
+   @~/.config/claude/fragments/<name>.md
+   ```
+   Put private `@import`s in `local.md`, not in the committed loader, so the tracked file
+   names nothing internal.
+3. **Deploy.** The scripts glob every `fragments/*.md`, so `local.md` and the private
+   fragment are symlinked into `$CLAUDE_CONFIG_DIR` alongside the public ones.
+
+**On a fresh clone** (or any machine that lacks these files) `local.md` is simply absent, and
+Claude Code skips the missing `@import` — the public layers load normally with zero internal
+leakage. On a machine that needs them, drop the two gitignored files in place and re-deploy.
+
+This keeps the public repo clean while letting a work laptop reuse the same dotfiles with its
+internal platform layer fully wired.
+
+## How it behaves per repo (worked examples)
+
+| Repo | philosophy | go | private platform | Net effect |
+|------|-----------|----|------------------|-----------|
+| Go + internal platform, rich docs | applies; DESIGN.md shows how | gates on, but CODING.md wins | gates on, but OPERATIONS.md wins | local docs authoritative; layers baseline |
+| New Go µ-service on internal platform, no docs | applies | gates on, fully used | gates on, fully used | layers carry conventions from day one |
+| Python repo | applies | gates off (no go.mod) | gates off | philosophy only — no wrong context |
+| GitHub OSS (Go) | applies | gates on | gates off (emphatic) | philosophy + Go, zero internal-platform leakage |
+
+## Authoring rules for the fragments
+
+- **Layer 0/1 must contain no repo-specific nouns** — no paths, branch names, service names.
+  Layer 1 may name Go tools/idioms; a Layer 2 platform fragment may name that platform's tools
+  but keeps repo values as `<placeholders>`.
+- **References are one-directional**: a repo may point at a layer; a layer must never point at
+  a specific repo.
+- **Never commit a personal `@import` path into a shared repo** — it leaks machine layout and
+  breaks for teammates/CI. Live import is only for the global loader here (or a gitignored
+  local memory file in a solo repo). Shared repos use COMPOSE (distill-once) instead.
+- **Never commit an internal/work platform fragment to a public repo** — keep it as a
+  [private fragment](#private-fragments-workinternal-layers).
+
+## Verifying it works
+
+In a fresh session inside any repo, ask the agent to confirm: which layers loaded, whether
+each APPLY guard fired correctly for this repo, and whether local docs win on overlap. The
+decisive negative test is a repo on none of the gated platforms/languages — only `philosophy`
+should apply.

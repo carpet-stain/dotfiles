@@ -90,6 +90,7 @@ create_directories() {
     "$XDG_STATE_HOME/less" \
     "$XDG_STATE_HOME/zsh" \
     "$LOCAL_BIN"
+  mkdir -p "$XDG_CONFIG_HOME/claude/fragments"
   mkdir -p "$XDG_CONFIG_HOME/ssh" && chmod 700 "$XDG_CONFIG_HOME/ssh"
 }
 
@@ -288,6 +289,14 @@ install_jaq() {
 
 link_configs() {
   ln -sf "$DOTFILES_DIR/zsh/.zshenv"           "$HOME/.zshenv"
+
+  # Claude Code agent config → $CLAUDE_CONFIG_DIR ($XDG_CONFIG_HOME/claude).
+  # Layered loader + fragments. See claude/README.md. Globs every fragment
+  # present so machine-local (gitignored) fragments are linked too.
+  ln -sf "$DOTFILES_DIR/claude/CLAUDE.md"                "$XDG_CONFIG_HOME/claude/CLAUDE.md"
+  for _frag in "$DOTFILES_DIR"/claude/fragments/*.md; do
+    [ -e "$_frag" ] && ln -sf "$_frag" "$XDG_CONFIG_HOME/claude/fragments/$(basename "$_frag")"
+  done
 
   ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \
          "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"

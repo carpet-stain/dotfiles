@@ -1,7 +1,19 @@
 # AGENTS.md
 
-Guidance for AI assistants working in this repo. Vendor-neutral; `CLAUDE.md` is a
-symlink to this file.
+Guidance for AI assistants working in this repo (Layer 3 — repo-specific).
+Vendor-neutral; the root `CLAUDE.md` is a gitignored symlink to this file.
+
+> **Note:** two files named `CLAUDE.md` exist here and are unrelated. The root
+> `/CLAUDE.md` symlinks to *this* guide. `claude/CLAUDE.md` is the global agent-config
+> *loader* (tracked, deployed to `$CLAUDE_CONFIG_DIR`) — see `claude/README.md`.
+
+## Precedence: this repo's own docs win over generic layers
+
+If the agent supplies generic global layers (universal philosophy, Go, GitHub mechanics),
+this repo's own documents are **authoritative** where they overlap — treat any generic layer
+as baseline and prefer this file and the sections below on conflict. The universal philosophy
+layer is not *overridden*; this repo illustrates how it is realized. A contributor without any
+global layers loses nothing — this guide is the full story.
 
 ## What this is
 
@@ -23,10 +35,6 @@ OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 - **XDG discipline.** Keep `$HOME` clean: only `.zshenv` lives there, everything
   else goes under `$XDG_{CONFIG,CACHE,DATA,STATE}_HOME`. Respect the distinction —
   config vs cache vs data vs state. Documented exceptions below.
-- **No bloat.** Every setting earns its place. Delete dead config; don't
-  accumulate.
-- **Readability over cleverness.** Explicit names, conventional idioms, comments
-  only where intent is non-obvious (never restate what the code plainly says).
 - **Portable, extendable, quick to install.** A fresh machine should reach a
   working setup by cloning and running the deploy script.
 
@@ -38,7 +46,7 @@ Entries that must stay in `$HOME` despite the XDG rule:
 |---|---|
 | `.zshenv` | zsh's fixed entry point — always read from `$HOME` |
 | `.ssh/` | Symlink → `~/.config/ssh/`; config tracked in `ssh/config`, keys gitignored |
-| `.claude/`, `.claude.json` | Claude Code (Electron) — no XDG support |
+| `.claude.json` legacy path | Claude Code now honors `CLAUDE_CONFIG_DIR` → `$XDG_CONFIG_HOME/claude` (set in `.zshenv`); config is XDG. A stale `~/.claude*` may remain from before the switch. |
 | `.vscode-oss/`, `.vscode-oss-shared/` | Claude Code desktop app data — no XDG support |
 | `.CFUserTextEncoding`, `.DS_Store`, `.Trash` | macOS system — not configurable |
 | `.zsh_sessions/`, `.bash_sessions/` | Terminal.app session restore — suppressed via `SHELL_SESSIONS_DISABLE=1` |
@@ -85,16 +93,12 @@ Entries that must stay in `$HOME` despite the XDG rule:
 - Summarize what changed and why — a short table beats prose.
 - Prefer the change that removes a setting over the one that adds one.
 
-## Verify, Don't Trust
-
-When producing an analysis or summarization of something gleaned from a
-resource (web page, MCP call, user-provided document), do not trust a memory
-or retained summary of that resource. Always retrieve the resource afresh
-and compare it to the summary or analysis you are preparing. When comparing,
-do so in an adversarial way: you are fact-checking work that you suspect at
-the start contains errors and hallucinations.
-
 ## Commit style
+
+> Concrete realization of the **GitHub layer** (`claude/fragments/github.md`) for this repo:
+> scopes = `zsh, zellij, git, nvim, macos, theme`; version scheme = SemVer; branches =
+> `dev` (long-lived) → `main` (protected). The layer is baseline; the rules below win here and
+> are complete on their own.
 
 Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 Every commit:
