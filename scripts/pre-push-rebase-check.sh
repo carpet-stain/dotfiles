@@ -22,8 +22,18 @@ case "$remote_ref" in refs/heads/*) ;; *) exit 0 ;; esac
 local_branch="${local_ref#refs/heads/}"
 remote_branch="${remote_ref#refs/heads/}"
 
-if ! git fetch --quiet "$remote_name" "$remote_branch" 2>/dev/null; then
+# A missing remote branch (first-ever push) is genuinely safe to skip —
+# but that's distinct from the fetch itself failing for some other reason
+# (network blip, auth issue), which must NOT be treated as "safe to
+# proceed": silently allowing the push through was exactly what let a
+# real divergence slip past this check once already.
+if ! git ls-remote --exit-code --heads "$remote_name" "$remote_branch" > /dev/null 2>&1; then
   exit 0 # remote branch doesn't exist yet (first push) — nothing to compare against
+fi
+
+if ! git fetch --quiet "$remote_name" "$remote_branch"; then
+  echo "error: failed to fetch $remote_name/$remote_branch to check for divergence — refusing to guess, blocking the push" >&2
+  exit 1
 fi
 
 fresh_remote_sha="$(git rev-parse FETCH_HEAD)"
