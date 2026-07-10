@@ -31,6 +31,8 @@ knowledge, chat memory, or an assumption in someone's head.
   note, or a regression test — not a mental note.
 - Do not answer a recurring question the same way twice from memory; put the answer where it will be
   found next time.
+- Record *why* a decision was made, not just *what* was decided. A choice without its reasoning is
+  tribal knowledge with extra steps — the next person (or agent) re-litigates it from scratch.
 
 ## Verify, Don't Trust
 
@@ -58,6 +60,19 @@ it so.
   silently.
 - Do not self-authorize beyond what a human in the same seat would do; when an action is
   irreversible or exceeds that scope, stop and involve a human.
+
+## Configuration Is Code, Not Ambient State
+
+Tooling configuration — linter rules, formatter settings, hook definitions, CI behavior — is a
+versioned file in the repo, not a contributor's global dotfiles, IDE settings, or personal
+defaults. Same idea as Infrastructure as Code, applied to the toolchain itself.
+
+- If a rule matters, it lives in a config file every contributor and CI both read — not a wiki
+  page, a chat message, or "everyone just remembers to pass these flags."
+- One canonical config a tool reads directly beats the same rule restated in several places (an
+  IDE setting *and* a CI flag *and* a doc) that can silently drift apart.
+- Changing a rule is a reviewable diff to that file, not an undocumented change to someone's local
+  environment that the next contributor can't see or reproduce.
 
 ## Code Should Explain Itself To The Next Reader
 
@@ -94,6 +109,20 @@ the need for it.
 
 Governing idea: **convert external reality into stable internal meaning as early as possible, and
 keep each layer responsible for exactly one kind of problem.**
+
+## Small, Composable Tools
+
+The Unix philosophy — one tool, one job, done well, composed through clean interfaces — is
+Layered Design's counterpart outside the codebase. It governs which tools get reached for and how
+scripts or CLIs get shaped, not just how a codebase's internals are structured.
+
+- Prefer a small tool that does one thing over a monolithic one that does many unrelated things
+  behind a pile of flags. Compose several small tools rather than growing one to cover every case.
+- Give a script or CLI a narrow, well-defined job with a clean interface — stdin/stdout, exit
+  codes, a small flag surface — so it composes with pipes and other tools instead of needing a
+  bespoke integration.
+- If a tool or script is doing two unrelated jobs, split it. Same test as a code unit: can it be
+  described in one sentence?
 
 ## Naming & Files
 
@@ -177,6 +206,8 @@ descriptions, comments, docs. The repo should read as the contributor's own work
 ## Before Finishing, Ask
 
 - Does the change live in the layer that should own it?
+- Is a tool or script doing one job well, or several unrelated ones that should split?
+- Is tooling configuration committed as versioned code, not left to ambient/personal defaults?
 - Is the naming semantic rather than shape-based?
 - Did any backend-specific behavior leak past its boundary?
 - Are logs diagnostic and user-facing output concise?
