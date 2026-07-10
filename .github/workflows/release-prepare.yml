@@ -52,9 +52,17 @@ jobs:
       # the release. release-publish.yml deletes this branch once merged
       # (scoped to the release/v* prefix, never touches dev) and resets
       # dev onto main so the version bump/changelog land there too.
+      #
+      # gh pr create uses RELEASE_PAT, not the default GITHUB_TOKEN: a PR
+      # opened via GITHUB_TOKEN has its pull_request-triggered workflows
+      # (ci.yml, pr-title.yml) land in an approval-required state instead
+      # of running — deliberate GitHub behavior to prevent recursive
+      # workflow runs, but it means every release PR would otherwise need
+      # a human to manually approve/rerun its own required checks before
+      # branch protection would even allow merging it.
       - name: Commit changelog on a release branch and open the PR
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
           VERSION: ${{ steps.cliff.outputs.version }}
         run: |
           git config user.name "github-actions[bot]"
