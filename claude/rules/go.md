@@ -1,9 +1,18 @@
-<!-- LAYER 1 — Go idioms. Canonical source: my dotfiles.
-     Language-level only: never any repo path, service name, or branch name here. -->
+---
+paths:
+  - "go.mod"
+  - "**/*.go"
+---
 
-> ### APPLY GUARD
-> APPLY ONLY IF this repo is a Go project — a go.mod exists at the repo root.
-> If there is no go.mod, IGNORE this entire file; it is not relevant.
+<!-- LAYER 1 — Go idioms. Canonical source: my dotfiles.
+     Language-level only: never any repo path, service name, or branch name here.
+     The paths: frontmatter above is a native Claude Code mechanism: this file only
+     enters context when go.mod or a *.go file is actually touched, in any repo —
+     no prose guard needed to gate on go.mod presence, Claude Code enforces that
+     structurally. Unlike philosophy.md/github.md (always loaded, self-gated by
+     prose), this layer has a crisp file-based signal to hook into. -->
+
+> ### LOCAL-WINS GUARD
 > If this repo already has its own Go standards doc (e.g. docs/CODING.md), that doc is
 > AUTHORITATIVE: treat this layer as baseline only and prefer the repo's doc on conflict.
 

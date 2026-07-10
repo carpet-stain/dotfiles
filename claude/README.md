@@ -22,7 +22,7 @@ one platform's commands in an unrelated repo). This setup separates them into la
 | Layer | File | Scope | Loading |
 |-------|------|-------|---------|
 | **0 — Philosophy** | `rules/philosophy.md` | Universal, language/platform-agnostic | Always applies |
-| **1 — Go** | `rules/go.md` | Go repos only | Self-gates on `go.mod` |
+| **1 — Go** | `rules/go.md` | Go repos only | Native `paths:` frontmatter — loads only on `go.mod`/`*.go` |
 | **2 — GitHub** | `rules/github.md` | GitHub-hosted repos only | Self-gates on github.com origin |
 | **2 — Platform (private)** | *(machine-local, gitignored)* | Repos on a given hosting platform | Self-gates on that platform's tooling |
 | **3 — Repo** | *(in each repo)* `AGENTS.md` + `docs/` | One repo only | Repo's own files |
@@ -35,30 +35,38 @@ it loaded; there's nothing to wire.
 Platform layers for **private or work-internal** hosting environments are deliberately
 **not committed** here — see [Private layer files](#private-layer-files-workinternal-layers) below.
 
-## The model: load-all, then self-gate ("blacklist")
+## The model: load-all, then self-gate ("blacklist") — except where a native gate exists
 
-Every layer file sits in `$CLAUDE_CONFIG_DIR/rules/` and loads in **every** project. Scope is
-enforced *after* loading, by an **APPLY guard** at the top of each file that the agent evaluates
+Most layer files sit in `$CLAUDE_CONFIG_DIR/rules/` and load in **every** project; scope is
+enforced *after* loading, by an **APPLY guard** at the top of the file that the agent evaluates
 against the current repo:
 
 - `philosophy.md` → applies always (no gate).
-- `go.md` → applies only if `go.mod` exists at the repo root; otherwise ignored.
 - `github.md` → applies only if the repo's origin is GitHub; otherwise ignored.
 - a private platform layer → applies only if that platform's tooling is present; otherwise
   ignored (emphatically — its commands are *wrong*, not merely unnecessary, elsewhere).
   Distinct hosting platforms are mutually exclusive per repo — each gates on its own tooling.
 
-This is a **blacklist** model (load everything, exclude what doesn't fit) rather than a
-whitelist (opt-in per repo). Chosen because there are only a few, broad layer files that match
-most of my work, so the always-loaded token cost is negligible and there is **zero per-repo
-wiring** in the common case. If many niche layers accumulate later, revisit — whitelist
-scales better then.
+`go.md` is the exception: it uses Claude Code's native `paths:` frontmatter instead of a prose
+guard, because "is this file a `.go` file or `go.mod`" is a crisp, per-file signal a glob can
+express directly — unlike GitHub-origin or platform-tooling checks, which have no path to hook
+into and stay prose-gated.
+
+This is a **blacklist** model (load everything, exclude what doesn't fit) for the prose-gated
+layers, rather than a whitelist (opt-in per repo). Chosen because there are only a few, broad
+layer files that match most of my work, so the always-loaded token cost is negligible and there
+is **zero per-repo wiring** in the common case. If many niche layers accumulate later, revisit —
+whitelist scales better then.
 
 ### Trade-off (be honest)
 
-The gating is **soft**: it works because the model honors the guard text, not because the
-layer is structurally absent. Reliability is high for crisp guards ("no `go.mod` → ignore").
-Every repo pays the token cost of all layers even when gated off.
+For the prose-gated layers, the gating is **soft**: it works because the model honors the guard
+text, not because the layer is structurally absent. Reliability is high for crisp guards ("not
+GitHub → ignore"). Every repo pays the token cost of those layers even when gated off.
+`go.md` doesn't have this cost — `paths:` frontmatter makes it structurally absent from context
+on any turn that doesn't touch a Go file, in any repo. Where a layer's gate *can* be expressed as
+a path pattern, prefer that over a prose guard; not every gate can (GitHub origin, platform
+tooling), which is why the two mechanisms coexist here.
 
 ## Local-wins precedence
 
