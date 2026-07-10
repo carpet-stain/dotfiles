@@ -28,9 +28,9 @@ OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 - **Best tool for the job.** Prefer purpose-built modern tools (fd, rg, eza, bat,
   delta, zoxide, fzf) over defaults — this repo's concrete realization of the
   universal layer's Small, Composable Tools principle.
-- **No bloat.** Every setting earns its place; delete dead config instead of
-  letting it accumulate. Concrete realization of Simplicity First for a repo
-  that's entirely configuration.
+- **No bloat.** Every setting earns its place — Simplicity First's "no
+  speculative additions" applied to config. Delete dead config instead of
+  letting it accumulate, the same discipline Refactoring asks of code.
 - **Homebrew-first.** Install packages via Homebrew. Only when Homebrew lacks a
   package does it become a git submodule. No dotfile manager or framework —
   Powerlevel10k is the sole exception. On Linux, where there's no Homebrew,
@@ -110,7 +110,10 @@ Entries that must stay in `$HOME` despite the XDG rule:
 
 ## Verifying changes
 
-Concrete realization of Testing By Layer for a repo with no test suite:
+This repo has no test suite or architectural layers to test against — Testing
+By Layer's underlying idea (different kinds of behavior need different kinds
+of proof) still applies, just mapped onto kinds of *changes* rather than
+architectural layers:
 
 - **Syntax**: `zsh -n` on zsh files, `shellcheck` on `linux/*.sh` — same checks
   `.pre-commit-config.yaml` and `ci.yml` run.
@@ -180,8 +183,11 @@ Two more tools worth reaching for by hand, not wired into any hook:
 
 ### Credentials: `.envrc` / `.envrc.local`
 
-Concrete realization of Security By Default: routine `gh` usage in this repo
-never has admin rights to lose.
+Concrete realization of two layers: the credential-scoping guidance in the
+**GitHub layer**'s Local tooling section (`claude/rules/github.md`) — routine
+`gh` usage in this repo never has admin rights to lose — and Security By
+Default's rule that secrets live in an environment file, gitignored, never
+hardcoded.
 
 `gh` CLI defaults to a scoped-down fine-grained PAT (Contents/Pull
 requests/Actions read-write, no Administration) via `GH_TOKEN`, loaded by
