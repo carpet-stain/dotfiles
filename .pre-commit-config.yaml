@@ -25,6 +25,18 @@ repos:
         stages: [pre-push]
         pass_filenames: false
 
+      - id: envrc-local-example-sync
+        name: .envrc.local.example matches .envrc.local (credentials scrubbed)
+        description: >
+          Blocks a real-looking credential from ever landing in the
+          tracked template, and keeps the template from silently drifting
+          from what .envrc.local actually needs (comments included).
+        entry: scripts/check-envrc-local-example.sh
+        language: system
+        stages: [pre-commit, pre-push]
+        always_run: true
+        pass_filenames: false
+
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:

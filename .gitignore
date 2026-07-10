@@ -8,3 +8,6 @@ CLAUDE.md
 # entirely, so this never actually matches anything; here only as a
 # safety net in case it's ever created inside the repo by mistake.
 ssh/config.local
+
+# Scoped-down GH_TOKEN for .envrc — never commit a real token
+.envrc.local
