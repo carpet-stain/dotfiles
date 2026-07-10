@@ -130,7 +130,7 @@ architectural layers:
 
 ## Commit style
 
-> Concrete realization of the **GitHub layer** (`claude/rules/github.md`) for this repo:
+> Concrete realization of the **git layer** (`claude/rules/layer1-tools/git.md`) for this repo:
 > scopes = `zsh, zellij, git, nvim, macos, theme`; version scheme = SemVer; branches =
 > `dev` (long-lived) → `main` (protected). The layer is baseline; the rules below win here and
 > are complete on their own.
@@ -158,9 +158,10 @@ sweeping commit. Propose the split and messages before committing.
 
 ## Local tooling (shift-left)
 
-> Concrete realization of the **GitHub layer**'s Local tooling section
-> (`claude/rules/github.md`) for this repo — same shift-left-CI idea, this repo's
-> actual tools.
+> Concrete realization of two layers: the shift-left-CI-mirroring and credential-scoping
+> guidance in **git.md** (`claude/rules/layer1-tools/git.md`), plus the GitHub-specific
+> instances of it — `act`, GitHub Actions workflow linting — in **github.md**
+> (`claude/rules/layer2-platform/github.md`).
 
 `.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
 instead of after:
@@ -183,11 +184,12 @@ Two more tools worth reaching for by hand, not wired into any hook:
 
 ### Credentials: `.envrc` / `.envrc.local`
 
-Concrete realization of two layers: the credential-scoping guidance in the
-**GitHub layer**'s Local tooling section (`claude/rules/github.md`) — routine
-`gh` usage in this repo never has admin rights to lose — and Security By
-Default's rule that secrets live in an environment file, gitignored, never
-hardcoded.
+Concrete realization of three layers: the credential-scoping *principle* in
+**git.md** (`claude/rules/layer1-tools/git.md`), its GitHub-specific instance in
+**github.md** (`claude/rules/layer2-platform/github.md`) — routine `gh` usage in
+this repo never has admin rights to lose — and Security By Default's rule
+(`claude/rules/layer0-universal/engineering-practices.md`) that secrets live in
+an environment file, gitignored, never hardcoded.
 
 `gh` CLI defaults to a scoped-down fine-grained PAT (Contents/Pull
 requests/Actions read-write, no Administration) via `GH_TOKEN`, loaded by
@@ -202,10 +204,12 @@ session (e.g. changing branch protection).
 
 ## Git workflow
 
-> Concrete realization of the **GitHub layer**'s Branch & PR model
-> (`claude/rules/github.md`) for this repo: long-lived branch = `dev`,
+> Concrete realization of **git.md**'s Branch & PR model
+> (`claude/rules/layer1-tools/git.md`) for this repo: long-lived branch = `dev`,
 > protected branch = `main`, version scheme = SemVer. The layer is baseline;
-> the rules below win here and are complete on their own.
+> the rules below win here and are complete on their own. The squash-merge
+> carrying the PR title into the commit message is GitHub's own behavior —
+> see `claude/rules/layer2-platform/github.md`.
 
 Branching model: **long-lived `dev` + protected `main`**, squash-merged.
 

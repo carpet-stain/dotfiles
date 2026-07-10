@@ -62,7 +62,7 @@ create_directories() {
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
-  zf_mkdir -p $XDG_CONFIG_HOME/claude/rules
+  zf_mkdir -p $XDG_CONFIG_HOME/claude
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
 }
 
@@ -74,16 +74,18 @@ link_configs() {
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
 
   # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
-  # Claude Code auto-discovers and loads every *.md in rules/ unconditionally —
-  # no loader file or @import wiring needed. See claude/README.md. Globs every
-  # layer file present so machine-local (gitignored) ones are linked too.
-  # One-time cleanup of the old loader-based layout (claude/CLAUDE.md +
-  # claude/fragments/), safe since deploy fully owns both paths.
+  # Claude Code auto-discovers and loads every *.md under rules/ recursively and
+  # unconditionally — no loader file or @import wiring needed. See claude/README.md.
+  # Symlinked as one directory so layer0-universal/layer1-tools/layer2-platform (and
+  # any gitignored private layer file dropped inside them) all come along with zero
+  # per-file wiring.
+  # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
+  # old loader design; a real claude/rules/ dir of individual symlinks from the
+  # per-file-glob design) — safe since deploy fully owns all of these paths.
   rm -f $XDG_CONFIG_HOME/claude/CLAUDE.md
   rm -rf $XDG_CONFIG_HOME/claude/fragments
-  for _rule in $DOTFILES_DIR/claude/rules/*.md(N); do
-    zf_ln -sf $_rule $XDG_CONFIG_HOME/claude/rules/$_rule:t
-  done
+  rm -rf $XDG_CONFIG_HOME/claude/rules
+  zf_ln -sfn $DOTFILES_DIR/claude/rules $XDG_CONFIG_HOME/claude/rules
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini

@@ -9,8 +9,8 @@ paths:
      The paths: frontmatter above is a native Claude Code mechanism: this file only
      enters context when go.mod or a *.go file is actually touched, in any repo —
      no prose guard needed to gate on go.mod presence, Claude Code enforces that
-     structurally. Unlike philosophy.md/github.md (always loaded, self-gated by
-     prose), this layer has a crisp file-based signal to hook into. -->
+     structurally. Unlike the layer0-universal/ files and github.md (always loaded,
+     self-gated by prose), this layer has a crisp file-based signal to hook into. -->
 
 > ### LOCAL-WINS GUARD
 > If this repo already has its own Go standards doc (e.g. docs/CODING.md), that doc is

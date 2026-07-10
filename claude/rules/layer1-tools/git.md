@@ -1,18 +1,16 @@
-<!-- LAYER 2 — GitHub platform mechanics. Canonical source: my dotfiles.
-     Platform-level only: the gh/Conventional-Commits/git-cliff workflow, NOT any one
-     repo's scopes, version scheme, or branch names — those fill the <placeholders>
-     and live in each repo's own guide. Wrong for non-GitHub (e.g. GitLab) repos. -->
+<!-- LAYER 1 — Git workflow mechanics, platform-agnostic. Canonical source: my dotfiles.
+     VCS-level only: works the same on GitHub, GitLab, Bitbucket, or a bare remote.
+     Platform-specific realization (gh/glab CLI, GitHub Actions, a host's specific
+     squash-merge behavior) lives in the Layer 2 platform file instead (e.g. github.md). -->
 
 > ### APPLY GUARD
-> APPLY ONLY IF this repo's origin is GitHub (git remote points at github.com, or gh CLI
-> is configured for it).
-> Otherwise IGNORE this entire file. Do NOT apply gh/PR mechanics to a GitLab or other
-> non-GitHub repo — use that platform's own flow instead.
-> If this repo has its own contributing/workflow doc that specifies commit or PR rules,
+> APPLY ONLY IF this repo uses git (true for nearly every repo — this is the rare-exception
+> gate, not a real filter). If somehow not, ignore this entire file.
+> If this repo has its own contributing/workflow doc that specifies commit or branch rules,
 > that doc is AUTHORITATIVE: treat this layer as baseline and prefer the repo's doc on conflict.
 
-> ### COMPOSE PROTOCOL (how to give a repo its own concrete GitHub workflow doc)
-> Trigger: only when the human asks to scaffold, OR a GitHub repo lacks a stated commit/PR
+> ### COMPOSE PROTOCOL (how to give a repo its own concrete git workflow doc)
+> Trigger: only when the human asks to scaffold, OR a repo lacks a stated commit/branch
 > workflow and one is warranted. Default to PROPOSE, don't create — suggest and wait before
 > writing committed files.
 > Steps:
@@ -21,15 +19,17 @@
 >      this repo's real values: <scopes> (its module/area names), <version-scheme>, the
 >      <long-lived-branch>/<protected-branch> names, and whether release automation applies.
 >   3. Wire the gate so local wins: add to the repo's committed AGENTS.md:
->        "This repo's workflow doc is authoritative for commit/PR rules; treat any generic
->         GitHub layer as baseline and prefer this repo's doc on conflict."
+>        "This repo's workflow doc is authoritative for commit/branch rules; treat any
+>         generic git layer as baseline and prefer this repo's doc on conflict."
 >      (Names NO personal path — commit-safe, true for any contributor.)
 >   4. After this, the repo reads its own doc; do not re-distill this layer for that repo.
 
-# GitHub Workflow
+# Git Workflow
 
-Mechanics for realizing my version-control discipline on GitHub. Repo-specific values
-(commit scopes, version scheme, branch names) fill the <placeholders> and live in the repo.
+Mechanics for realizing my version-control discipline with plain git — true regardless of
+hosting platform. Repo-specific values (commit scopes, version scheme, branch names) fill the
+<placeholders> and live in the repo. "PR" below means a pull or merge request, whichever your
+host calls it.
 
 ## Commits — Conventional Commits
 
@@ -49,6 +49,19 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). E
 Scope each commit to one logical change — prefer several focused commits over one sweeping
 commit. Propose the split and messages before committing.
 
+## Version Control Discipline
+
+- **Review before committing.** Don't commit or push on your own initiative; show what changed and
+  get explicit approval, then commit only what was approved.
+- **Commit freely while developing** on the working branch; intermediate checkpoints are expected.
+- **Main-line history is clean.** Each merged change is one clear, complete, squashed commit
+  describing the whole change — not its iteration history.
+- **Rebase onto latest main-line before merging.**
+- **Never rewrite history you don't own.** The only sanctioned force-push is the deliberate rewrite
+  of your own just-squashed branch, and it must abort if the remote moved unexpectedly.
+- If the remote moved unexpectedly, stop and inspect before doing anything destructive; realign
+  rather than overwrite.
+
 ## Branch & PR model — long-lived working branch + protected main, squash-merged
 
 0. Fetch and check the remote <long-lived-branch>/<protected-branch> state before starting
@@ -60,8 +73,8 @@ commit. Propose the split and messages before committing.
    <protected-branch>, so a focused PR yields a clean, atomic, revertable commit. Never bundle
    unrelated changes into one PR to save a round trip.
 3. When ready and tested, open a PR <long-lived-branch> → <protected-branch>. CI must pass, then
-   **squash-merge**. The PR title becomes the <protected-branch> commit message, so title the PR
-   as a Conventional Commit (`type(scope): subject`).
+   **squash-merge**. Title the PR as a Conventional Commit (`type(scope): subject`) — most hosts
+   carry the PR title into the resulting commit message on squash-merge.
 4. After merge, reset the working branch onto the protected branch so histories don't drift:
    `git switch <long-lived-branch> && git reset --hard origin/<protected-branch> && git push --force-with-lease origin <long-lived-branch>`
    This periodically rewrites the working branch out from under anyone still on an older commit —
@@ -87,27 +100,32 @@ rendering, keybinding behavior. For that kind of work:
 Work verifiable directly — syntax checks, a dry run, non-interactive CLI behavior — doesn't need
 this; the normal per-change cadence is fine there.
 
-## Local tooling
+## Shift-left tooling and credential scope
 
 Mirror what CI enforces locally (pre-commit hooks or equivalent) so failures surface before push,
 not after — the same checks CI runs, not a subset that drifts from them.
 
 Scope the day-to-day credential (a CLI token, not a full-admin auth session) down to what routine
-commits/PRs actually need, so an agent driving `gh` (or equivalent) can't accidentally touch repo
+commits/PRs actually need, so an agent driving the host's CLI can't accidentally touch repo
 settings, branch protection, or other administrative surfaces. Elevate explicitly only for the
-one action that needs it.
+one action that needs it. (Concrete instance for GitHub: the Layer 2 `github.md` file.)
 
-Two tools worth reaching for by hand, not wired into any hook: `git cliff --bump` to preview the
-exact version/changelog release automation would produce, with zero side effects, before
-triggering it for real; and running CI workflows locally (`act` for GitHub Actions) instead of
-pushing and waiting on a real run when iterating on the workflow files themselves.
+`git cliff --bump` is worth reaching for by hand, not wired into any hook: preview the exact
+version/changelog release automation would produce, with zero side effects, before triggering it
+for real.
 
-## Releases (if the repo versions releases) — git-cliff + gh
+## Releases (if the repo versions releases) — git-cliff
 
 Cut <version-scheme> (e.g. [SemVer](https://semver.org)) from Conventional Commits:
 
 - On the working branch: `git cliff --tag <TAG> -o CHANGELOG.md`, commit as
   `chore(release): <TAG>`, PR, squash-merge.
 - Tag it: `git tag -a <TAG> -m <TAG> && git push origin <TAG>`.
-- Publish notes from the same source:
-  `gh release create <TAG> --notes-file <(git cliff --tag <TAG> --latest --strip all)`.
+- Publishing the release itself (notes, a release page) is host-specific — see the Layer 2
+  platform file.
+
+## Before Finishing, Ask
+
+- Did I fetch and check the remote before starting substantial work?
+- Is this PR scoped to one logical change, with commits following Conventional Commits?
+- For unvalidated/unverifiable work, did I hold off on push/PR until it's actually confirmed?

@@ -13,10 +13,10 @@ ssh/config.local
 .envrc.local
 
 # Machine-private Claude Code layer files — internal/work platform tooling that
-# must never reach this public repo. Kept on-machine and deployed via symlink
-# (the deploy scripts glob every rule file present in claude/rules/ and link it
-# into $CLAUDE_CONFIG_DIR/rules, where Claude Code auto-discovers it — no wiring
-# needed). A fresh clone simply lacks these files, so nothing gets linked.
+# must never reach this public repo. Kept on-machine; the whole claude/rules/
+# tree deploys as one symlink, so any file physically present here (tracked or
+# not) reaches $CLAUDE_CONFIG_DIR/rules and Claude Code auto-discovers it — no
+# wiring needed. A fresh clone simply lacks these files, so nothing appears.
 # See claude/README.md § Private layer files.
-claude/rules/local.md
-claude/rules/bytecloud.md
+claude/rules/layer2-platform/local.md
+claude/rules/layer2-platform/bytecloud.md
