@@ -132,10 +132,11 @@ export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
 ```
 
 and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/`
-tree** as one unit:
+tree** as one unit, plus the global `settings.json`:
 
 ```
-claude/rules/  → $XDG_CONFIG_HOME/claude/rules/
+claude/rules/                → $XDG_CONFIG_HOME/claude/rules/
+claude/settings.json         → $XDG_CONFIG_HOME/claude/settings.json
 ```
 
 Claude Code reads `$CLAUDE_CONFIG_DIR/rules/` recursively — every `*.md` anywhere under it
@@ -143,6 +144,10 @@ loads at launch with no index file, no import list, and nothing to keep in sync 
 added, renamed, or moved anywhere in the tree. Edit a source file here → the symlink reflects
 it → every project inherits the change, with nothing copied. Adding a whole new layer tier (a
 fourth layer, say) needs no deploy-script edit either — it's already inside the symlinked tree.
+
+`claude/settings.json` is unrelated to the layer system above — it's Claude Code's own
+top-level config (telemetry, error reporting, auto-update), not agent instructions. Kept
+here and symlinked the same way so it's version-controlled instead of a manual one-off edit.
 
 > **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`,
 > for the dotfiles repo's *own* agent guidance) which is gitignored.

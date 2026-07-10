@@ -87,6 +87,9 @@ link_configs() {
   rm -rf $XDG_CONFIG_HOME/claude/rules
   zf_ln -sfn $DOTFILES_DIR/claude/rules $XDG_CONFIG_HOME/claude/rules
 
+  # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
+  zf_ln -sf $DOTFILES_DIR/claude/settings.json $XDG_CONFIG_HOME/claude/settings.json
+
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
   zf_ln -sf $DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml $XDG_CONFIG_HOME/eza/theme.yml

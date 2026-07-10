@@ -304,6 +304,9 @@ link_configs() {
   rm -rf "$XDG_CONFIG_HOME/claude/rules"
   ln -sfn "$DOTFILES_DIR/claude/rules" "$XDG_CONFIG_HOME/claude/rules"
 
+  # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
+  ln -sf "$DOTFILES_DIR/claude/settings.json" "$XDG_CONFIG_HOME/claude/settings.json"
+
   ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \
          "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"
   ln -sf "$DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml" \
