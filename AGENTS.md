@@ -26,7 +26,11 @@ OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 ## Philosophy
 
 - **Best tool for the job.** Prefer purpose-built modern tools (fd, rg, eza, bat,
-  delta, zoxide, fzf) over defaults.
+  delta, zoxide, fzf) over defaults — this repo's concrete realization of the
+  universal layer's Small, Composable Tools principle.
+- **No bloat.** Every setting earns its place; delete dead config instead of
+  letting it accumulate. Concrete realization of Simplicity First for a repo
+  that's entirely configuration.
 - **Homebrew-first.** Install packages via Homebrew. Only when Homebrew lacks a
   package does it become a git submodule. No dotfile manager or framework —
   Powerlevel10k is the sole exception. On Linux, where there's no Homebrew,
@@ -81,6 +85,12 @@ Entries that must stay in `$HOME` despite the XDG rule:
   binaries for tools too old/missing in Debian's repos (neovim, git-delta,
   zellij, eza). Both scripts hand-maintain their own directory/runner
   logic — no shared lib between them; when one changes, check the other.
+- Both deploy scripts run every step through a `required()`/`optional()`
+  wrapper: critical steps (creating dirs, symlinking configs) abort loud on
+  failure; best-effort steps (a specific Brewfile package, a headless nvim
+  bootstrap) log and continue. Concrete realization of Logs Are For
+  Diagnosis, Output Is For Humans — a failed `optional()` step is visible
+  in the run output without stopping the whole deploy.
 - Section headers use the ASCII box style: `# +------+`.
 - Keep ordering dependencies explicit and commented (e.g. "must come after
   compinit").
@@ -93,6 +103,27 @@ Entries that must stay in `$HOME` despite the XDG rule:
 - Fix bugs found along the way, but call them out.
 - Summarize what changed and why — a short table beats prose.
 - Prefer the change that removes a setting over the one that adds one.
+- Concrete realization of Propose Before Implementing for this repo: editing
+  `claude/rules/*.md`, `README.md`'s voice, or this file itself is opinion/judgment
+  content — discuss before writing or committing. zsh/nvim/tool-config tweaks are
+  mechanical — proceed and report.
+
+## Verifying changes
+
+Concrete realization of Testing By Layer for a repo with no test suite:
+
+- **Syntax**: `zsh -n` on zsh files, `shellcheck` on `linux/*.sh` — same checks
+  `.pre-commit-config.yaml` and `ci.yml` run.
+- **Runtime behavior for nvim plugin config**: launch the real deployed config
+  headlessly and query the plugin's own merged config to confirm an option
+  actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
+  the relevant `:Command` and reading back its Lua module state, not just that
+  the file parses.
+- **Claude Code config changes** (`claude/rules/*.md`, deploy symlinking):
+  check `/memory` in a real session lists the expected rules files loaded from
+  `$CLAUDE_CONFIG_DIR/rules`.
+- **Deploy script changes**: re-run `deploy.zsh`/`deploy.sh` and confirm it's
+  idempotent — a second run should be clean, not error or duplicate work.
 
 ## Commit style
 
@@ -124,6 +155,10 @@ sweeping commit. Propose the split and messages before committing.
 
 ## Local tooling (shift-left)
 
+> Concrete realization of the **GitHub layer**'s Local tooling section
+> (`claude/rules/github.md`) for this repo — same shift-left-CI idea, this repo's
+> actual tools.
+
 `.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
 instead of after:
 - zsh syntax (`zsh -n`, same files `ci.yml` checks)
@@ -145,6 +180,9 @@ Two more tools worth reaching for by hand, not wired into any hook:
 
 ### Credentials: `.envrc` / `.envrc.local`
 
+Concrete realization of Security By Default: routine `gh` usage in this repo
+never has admin rights to lose.
+
 `gh` CLI defaults to a scoped-down fine-grained PAT (Contents/Pull
 requests/Actions read-write, no Administration) via `GH_TOKEN`, loaded by
 `direnv` from `.envrc.local` (gitignored — never commit a real token) rather
@@ -157,6 +195,11 @@ Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
 session (e.g. changing branch protection).
 
 ## Git workflow
+
+> Concrete realization of the **GitHub layer**'s Branch & PR model
+> (`claude/rules/github.md`) for this repo: long-lived branch = `dev`,
+> protected branch = `main`, version scheme = SemVer. The layer is baseline;
+> the rules below win here and are complete on their own.
 
 Branching model: **long-lived `dev` + protected `main`**, squash-merged.
 
