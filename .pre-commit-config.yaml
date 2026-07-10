@@ -1,6 +1,8 @@
 # Local shift-left mirror of what CI enforces (ci.yml, pr-title.yml) — catches
 # the same issues before push instead of after. Install with `pre-commit
-# install` (installed via macos/Brewfile's `pre-commit` formula).
+# install` (installed via macos/Brewfile's `pre-commit` formula); a single
+# install covers both hook types listed below.
+default_install_hook_types: [pre-commit, pre-push]
 
 repos:
   - repo: local
@@ -11,6 +13,17 @@ repos:
         entry: zsh -n
         language: system
         files: ^(zsh/\.zshenv|zsh/\.zshrc|zsh/(rc\.d|env\.d|fpath)/.*|macos/deploy\.zsh)$
+
+      - id: rebase-on-push
+        name: auto-rebase if remote has moved
+        description: >
+          sync-dev.yml rewrites dev's history after every merge, which
+          routinely makes a plain push get rejected — catch that here
+          and rebase automatically instead of waiting for the rejection.
+        entry: scripts/pre-push-rebase-check.sh
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1

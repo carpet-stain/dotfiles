@@ -120,10 +120,15 @@ sweeping commit. Propose the split and messages before committing.
 ## Local tooling (shift-left)
 
 `.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
-instead of after: zsh syntax (`zsh -n`, same files `ci.yml` checks), `shellcheck`
-on `linux/*.sh`, and `actionlint` on `.github/workflows/*.yml`. Installed
-automatically by `macos/deploy.zsh`'s `install_pre_commit_hooks` step; run
-`pre-commit run --all-files` to check everything at once.
+instead of after:
+- zsh syntax (`zsh -n`, same files `ci.yml` checks)
+- `shellcheck` on `linux/*.sh`
+- `actionlint` on `.github/workflows/*.yml`
+- auto-rebase if `dev` has moved (`sync-dev.yml` rewrites it after every
+  merge, which routinely makes a plain push get rejected)
+
+Installed automatically by `macos/deploy.zsh`'s `install_pre_commit_hooks`
+step; run `pre-commit run --all-files` to check everything at once.
 
 Two more tools worth reaching for by hand, not wired into any hook:
 - `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
