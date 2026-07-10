@@ -1,3 +1,5 @@
+brew 'act' # Run GitHub Actions workflows locally
+brew 'actionlint' # Lint GitHub Actions workflow files
 brew 'bat' # Better cat
 brew 'coreutils'
 brew 'curl'
@@ -24,8 +26,10 @@ brew 'lesspipe'
 brew 'neovim'
 brew 'node' # pyright/bash-language-server (nvim) are npm packages
 brew 'powerlevel10k' # zsh command prompt
+brew 'pre-commit' # Manages the git hooks in .pre-commit-config.yaml
 brew 'python' # Apple's bundled python3 is ancient (3.9) and not dev-grade
 brew 'ripgrep' # Faster ag written in Rust
+brew 'shellcheck' # Lint shell scripts
 brew 'tealdeer' # tldr utility
 brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd

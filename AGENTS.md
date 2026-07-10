@@ -117,6 +117,20 @@ Every commit:
 Scope each commit to one logical change — prefer several focused commits over one
 sweeping commit. Propose the split and messages before committing.
 
+## Local tooling (shift-left)
+
+`.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
+instead of after: zsh syntax (`zsh -n`, same files `ci.yml` checks), `shellcheck`
+on `linux/*.sh`, and `actionlint` on `.github/workflows/*.yml`. Installed
+automatically by `macos/deploy.zsh`'s `install_pre_commit_hooks` step; run
+`pre-commit run --all-files` to check everything at once.
+
+Two more tools worth reaching for by hand, not wired into any hook:
+- `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
+  would compute, with zero side effects, before actually triggering it.
+- `act` — runs the GitHub Actions workflows themselves locally (via Docker),
+  for testing workflow changes without pushing and waiting on real CI.
+
 ## Git workflow
 
 Branching model: **long-lived `dev` + protected `main`**, squash-merged.
