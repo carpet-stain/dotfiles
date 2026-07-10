@@ -6,6 +6,7 @@
   - [Philosophy & Stack](#philosophy--stack)
   - [Features](#features)
   - [Installation](#installation)
+  - [Releases](#releases)
   - [Configuration](#configuration)
     - [Zsh configuration](#zsh-configuration)
     - [Dependencies](#dependencies)
@@ -103,6 +104,36 @@ The [deploy script](macos/deploy.zsh) is idempotent and handles:
 2. Installing Homebrew and all `Brewfile` packages.
 3. Linking all config files to `$XDG_CONFIG_HOME`.
 4. Compiling terminfo entries and shell plugins.
+
+## Releases
+
+Tagged releases (`vX.Y.Z`) mark known-good checkpoints — see
+[CHANGELOG.md](CHANGELOG.md) for what changed in each. Useful for rolling
+back after something breaks, or for setting up a new machine on a specific
+version rather than whatever `main` happens to be.
+
+**Roll back an existing clone:**
+
+```zsh
+git -C ~/.config/dotfiles fetch --tags
+git -C ~/.config/dotfiles checkout v1.3.0
+```
+
+Symlinked configs update immediately — they point into the checked-out
+working tree. Re-run the deploy script too if the rollback involves a
+tool/package change, not just config content.
+
+**Clone fresh at a specific release:**
+
+```zsh
+git clone https://github.com/carpet-stain/dotfiles ~/.config/dotfiles
+git -C ~/.config/dotfiles checkout v1.3.0
+zsh ~/.config/dotfiles/macos/deploy.zsh
+```
+
+Both leave the repo in a detached HEAD state — switch back with
+`git checkout main` when you're done (or `dev`, if you're continuing to
+develop).
 
 ## Configuration
 
