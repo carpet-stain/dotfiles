@@ -1,29 +1,20 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
-## [1.3.0] - 2026-07-09
+## [1.3.0] - 2026-07-10
 
 ### Features
 
 - *(nvim)* Add json, yaml, markdown, zsh language support ([#67](https://github.com/carpet-stain/dotfiles/pull/67))
-- *(linux)* Add Debian deploy support
-- *(ssh)* OrbStack devbox access with persistent zellij session
-- *(linux)* Add Makefile + smoke-test for deploy.sh testing
 
-### Bug Fixes
+### CI
 
-- *(zsh)* Gate darwin-only fzf flags, fix completions on Linux
-- *(nvim)* Scope bashls shellcheck to sh/bash via nvim-lint
-
-### Refactor
-
-- *(zsh)* Share plugin path scheme across macOS and Linux
+- Enforce PR title format and automate release cutting ([#69](https://github.com/carpet-stain/dotfiles/pull/69))
+- Shift-left tooling, credential scoping, and pre-push automation ([#70](https://github.com/carpet-stain/dotfiles/pull/70))
 
 ### Chore
 
 - Xdg home audit — gopath, npm, ssh symlink, session suppress
-- *(nvim)* Bump lazy-lock.json
-- *(nvim)* Bump lazy-lock.json
 
 ## [1.2.0] - 2026-07-06
 
