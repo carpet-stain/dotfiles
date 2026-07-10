@@ -1,0 +1,36 @@
+name: Sync dev with main
+
+# Automates AGENTS.md's documented post-merge step ("After the merge, reset
+# dev onto main so histories don't drift") for *every* merge into main, not
+# just releases. Without this, dev's raw commit graph keeps carrying
+# already-squashed content in unsquashed form alongside genuinely new work,
+# accumulating forever — by the time a release is cut, git-cliff computes
+# the version/changelog against that messy history instead of main's clean
+# one, with no error raised. Triggering on PR close (not push) means this
+# fires exactly once per merge, keyed off structural PR metadata rather
+# than commit-message text.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: reset dev onto main
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reset dev onto main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B dev origin/main
+          git push --force-with-lease origin dev
