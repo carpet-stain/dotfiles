@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.3.1] - 2026-07-10
+
+### Bug Fixes
+
+- *(ci)* Use a PAT for release PR creation to avoid action_required ([#72](https://github.com/carpet-stain/dotfiles/pull/72))
+- *(ci)* Don't silently allow a push through when fetch fails ([#77](https://github.com/carpet-stain/dotfiles/pull/77))
+
 ## [1.3.0] - 2026-07-10
 
 ### Features
