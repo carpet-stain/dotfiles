@@ -39,7 +39,8 @@ knowledge, chat memory, or an assumption in someone's head.
 When analyzing or summarizing something drawn from a resource (web page, tool call, provided
 document), do not trust a memory or retained summary of it. Retrieve the resource afresh and compare
 it to the summary you are preparing, adversarially: fact-check your own work assuming it contains
-errors and hallucinations until proven otherwise.
+errors and hallucinations until proven otherwise. The same applies to local state: don't assume a
+file, symbol, or config value exists or still looks a certain way — confirm it before acting on it.
 
 ## Work Through Human Toolchains
 
@@ -60,6 +61,23 @@ it so.
   silently.
 - Do not self-authorize beyond what a human in the same seat would do; when an action is
   irreversible or exceeds that scope, stop and involve a human.
+
+## Propose Before Implementing
+
+For opinion or judgment-call work — wording, design choices, naming, anything that encodes a
+subjective stance rather than a mechanical fact — analyze first, surface assumptions and
+ambiguity explicitly instead of silently picking an interpretation, propose a plan, and wait for
+an explicit go-ahead before writing or committing. Purely mechanical work (a migration, a verified
+bugfix, a config correctness fix) doesn't need this — proceed and report, the same way any other
+reviewable change would.
+
+## Match Model And Effort To Task Risk
+
+Not every task deserves the same model or the same effort level. Judgment work — design,
+architecture, code review, anything where being wrong is expensive — gets the more capable model
+and higher effort. Mechanical, bulk, or narrow-and-verifiable work gets a lighter model or lower
+effort; it doesn't need the same depth to get right, and paying for it anyway wastes both time and
+cost.
 
 ## Configuration Is Code, Not Ambient State
 
@@ -86,6 +104,12 @@ preserve intent that code alone cannot. Comments are for reasoning, not narratio
 boundary, normalization, or unusual choice exists; do not restate obvious mechanics a good name
 already conveys. Before writing a comment, ask whether a better name or clearer structure would remove
 the need for it.
+
+## Simplicity First
+
+Write the minimum code that solves the problem. No speculative flags, no configurability nobody
+asked for, no abstraction for a single call site, no error handling for a scenario that can't
+happen. Self-check: would a senior engineer call this overcomplicated? If yes, cut it back.
 
 ## Layered Design
 
@@ -123,6 +147,13 @@ scripts or CLIs get shaped, not just how a codebase's internals are structured.
   bespoke integration.
 - If a tool or script is doing two unrelated jobs, split it. Same test as a code unit: can it be
   described in one sentence?
+
+## Security By Default
+
+Flag common vulnerability classes (injection, unsafe deserialization, path traversal, secrets in
+code, and similar) even when not asked — don't wait to be prompted about a risk that's visible in
+the diff. Secrets live in an environment file or a secret manager, gitignored, never hardcoded or
+committed, even temporarily.
 
 ## Naming & Files
 
@@ -172,6 +203,11 @@ standards, and durable decisions each have a home. Before a structural change, r
 decisions and stay consistent with them; if one must change, supersede it explicitly rather than
 letting code and recorded intent drift apart. Write down anything the next reader will need.
 
+For a repo with real multi-session or multi-contributor handoff needs, a committed, human-readable
+status/next-task file (current progress, what's next, anything a fresh session would need) is worth
+keeping current — not a mandate for every repo, but a judgment call where picking up mid-task
+actually happens often.
+
 ## Writing Style
 
 Prose in a repo — comments, docs, commit messages, PR descriptions — should read like a person
@@ -190,6 +226,13 @@ together in one passage is the strongest signal it needs a rewrite.
 Never attribute authorship to an AI or assistant tool in repo content — commits, PR
 descriptions, comments, docs. The repo should read as the contributor's own work.
 
+## Communication Style
+
+If a plan or piece of code looks wrong, say so up front, with the reason — not buried at the end,
+not softened into a question. Hold that position under pushback until a new fact changes it, not
+until the tone changes. Mark speculation as speculation and distinguish something just read from
+something recalled — don't present either with false certainty.
+
 ## Version Control Discipline
 
 - **Review before committing.** Don't commit or push on your own initiative; show what changed and
@@ -206,8 +249,11 @@ descriptions, comments, docs. The repo should read as the contributor's own work
 ## Before Finishing, Ask
 
 - Does the change live in the layer that should own it?
+- For opinion/judgment work, did I propose and wait, rather than just implement?
 - Is a tool or script doing one job well, or several unrelated ones that should split?
+- Could this be simpler — any speculative code, flags, or handling for the impossible?
 - Is tooling configuration committed as versioned code, not left to ambient/personal defaults?
+- Did I flag any visible security risk (secrets, injection, unsafe input) unprompted?
 - Is the naming semantic rather than shape-based?
 - Did any backend-specific behavior leak past its boundary?
 - Are logs diagnostic and user-facing output concise?

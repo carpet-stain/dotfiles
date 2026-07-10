@@ -156,6 +156,20 @@ internal platform layer fully wired.
 - **Never commit an internal/work platform layer file to a public repo** — keep it as a
   [private layer file](#private-layer-files-workinternal-layers).
 
+## Maintenance discipline (the removal test)
+
+These files should grow the same way any codebase should: additions earn their place, and nothing
+sits there just because it seemed like a good idea once.
+
+- **Add a rule only after it would have prevented an actual mistake** — not because it sounds
+  reasonable in the abstract.
+- **Remove a rule once it's being followed without being told** — a convention that's now just how
+  things are done doesn't need to keep paying rent in every session's context.
+- **Audit periodically for contradictions** across layer files and against a repo's own docs; two
+  rules that disagree mean the model picks one arbitrarily.
+- Longer files cost more context and weaken adherence — if a layer file is growing, look for what
+  it's earned the right to keep before assuming it should just keep growing.
+
 ## Verifying it works
 
 Run `/memory` in a fresh session inside any repo — it lists every loaded `CLAUDE.md` and rules
