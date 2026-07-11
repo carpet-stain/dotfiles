@@ -1,6 +1,21 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.4.0] - 2026-07-11
+
+### Features
+
+- *(zsh)* Add zmv batch-rename and portable clipboard aliases ([#93](https://github.com/carpet-stain/dotfiles/pull/93))
+- *(claude)* Add layered global agent-config system ([#94](https://github.com/carpet-stain/dotfiles/pull/94))
+- *(nvim)* Auto-refresh neo-tree like an IDE explorer ([#95](https://github.com/carpet-stain/dotfiles/pull/95))
+- *(linux)* Vendor zsh plugins as submodules; add make-test; drop forgit ([#98](https://github.com/carpet-stain/dotfiles/pull/98))
+- *(claude)* Add backlog-manager subagent ([#100](https://github.com/carpet-stain/dotfiles/pull/100))
+- *(linux)* Xterm-ghostty terminfo, work-VM docs, remove arch scaffolding ([#101](https://github.com/carpet-stain/dotfiles/pull/101))
+
+### Documentation
+
+- *(readme)* Document how to roll back to or install a tagged release ([#79](https://github.com/carpet-stain/dotfiles/pull/79))
+
 ## [1.3.1] - 2026-07-10
 
 ### Bug Fixes
