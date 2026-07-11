@@ -139,12 +139,13 @@ Claude Code defaults to `~/.claude`, which violates this repo's Zero-Home-Presen
 export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
 ```
 
-and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/` tree** and
-the **`agents/`** tree as units, plus the global `settings.json`:
+and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/` tree**,
+the **`agents/`** tree, and the **`skills/`** tree as units, plus the global `settings.json`:
 
 ```text
 claude/rules/                → $XDG_CONFIG_HOME/claude/rules/
 claude/agents/               → $XDG_CONFIG_HOME/claude/agents/
+claude/skills/               → $XDG_CONFIG_HOME/claude/skills/
 claude/settings.json         → $XDG_CONFIG_HOME/claude/settings.json
 ```
 
@@ -174,6 +175,23 @@ always-on context — it loads only when delegated to, so it costs nothing until
   repo's labels and conventions at runtime rather than hardcoding them — and uses project-scoped memory
   to retain a repo's backlog knowledge across sessions. Delegate by mentioning issues/backlog, by name,
   or run a dedicated session with `claude --agent backlog-manager`.
+
+## Skills (`claude/skills/`)
+
+A Skill is on-demand, not always-on: Claude Code invokes it by name (`/skill-name`) or
+auto-invokes it when its `description` matches the request, and it costs nothing outside that.
+That's the deciding difference from a subagent — a subagent earns its place only when
+persistent memory, repeated delegation, _and_ context isolation all apply together; a one-shot
+analysis with none of those is a skill, not a subagent. `skills/` deploys exactly like `rules/`
+and `agents/`: one directory symlink to `$CLAUDE_CONFIG_DIR/skills/`, with each skill's
+`SKILL.md` living at `skills/<name>/SKILL.md`, discovered recursively, no per-skill wiring.
+Skills are repo-agnostic and don't GATE the way rules do — a skill either fires on request or it
+doesn't, there's nothing to self-gate against a repo's shape.
+
+- **`audit-rules`** — reads `$CLAUDE_CONFIG_DIR/rules/` and reports contradictions (two
+  directives that disagree) and sprawl (files over ~200 lines or spanning more than one topic).
+  Propose-don't-apply, enforced structurally: it has no Write/Edit access, so it can only report
+  findings, never act on them.
 
 ## Private files (work/internal platform files)
 
@@ -251,7 +269,8 @@ there just because it seemed like a good idea once.
 - **Remove a rule once it's being followed without being told** — a convention that's now just how
   things are done doesn't need to keep paying rent in every session's context.
 - **Audit periodically for contradictions** across these files and against a repo's own docs; two rules
-  that disagree mean the model picks one arbitrarily.
+  that disagree mean the model picks one arbitrarily. The `audit-rules` skill automates finding these
+  (and length/topic sprawl) — it doesn't replace the judgment calls below, only the sweep.
 - **Longer files weaken adherence** — if a file is growing, look for what it's earned the right to keep;
   if it's growing because it covers more than one topic, split it, the way `philosophy.md` split into
   the four `universal/` files. The same test applies to this README: rationale lives here, but it earns

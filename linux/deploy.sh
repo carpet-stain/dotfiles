@@ -248,6 +248,12 @@ link_configs() {
   rm -rf "$XDG_CONFIG_HOME/claude/agents"
   ln -sfn "$DOTFILES_DIR/claude/agents" "$XDG_CONFIG_HOME/claude/agents"
 
+  # Claude Code skills → $CLAUDE_CONFIG_DIR/skills. Same one-directory symlink as
+  # rules/ and agents/ above — every skill's SKILL.md under skills/<name>/ is
+  # discovered recursively, no per-skill wiring. See claude/README.md § Skills.
+  rm -rf "$XDG_CONFIG_HOME/claude/skills"
+  ln -sfn "$DOTFILES_DIR/claude/skills" "$XDG_CONFIG_HOME/claude/skills"
+
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   ln -sf "$DOTFILES_DIR/claude/settings.json" "$XDG_CONFIG_HOME/claude/settings.json"
 
