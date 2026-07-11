@@ -107,8 +107,9 @@ The [deploy script](macos/deploy.zsh) is idempotent and handles:
 ### Linux (Debian — secondary target)
 
 Debian support ([`linux/deploy.sh`](linux/deploy.sh)) is a secondary target,
-mainly for disposable dev VMs you SSH into from a local Ghostty. Run as a
-regular user with passwordless sudo:
+mainly for a Linux dev VM you SSH into — e.g. a remote work box. It sets up
+the shell/CLI environment only; GUI concerns don't apply. Run as a regular
+user with passwordless sudo:
 
 ```bash
 git clone https://github.com/carpet-stain/dotfiles ~/.config/dotfiles
@@ -117,12 +118,8 @@ bash ~/.config/dotfiles/linux/deploy.sh
 
 Same shape as the macOS deploy, but uses `apt` ([`linux/Aptfile`](linux/Aptfile))
 plus GitHub-release binaries for tools too old or missing in Debian's repos,
-and vendored submodules for the zsh plugins. It also compiles the
-`xterm-ghostty` terminfo, which Debian lacks.
-
-> **Arch Linux:** `arch/install.sh` is a personal bare-metal install guide (ISO,
-> UEFI, partitioning), not a dotfiles deploy like the paths above — experimental
-> scaffolding, not a supported target.
+and vendored submodules for the zsh plugins. If you SSH in from a Ghostty
+client, it also compiles the `xterm-ghostty` terminfo that Debian lacks.
 
 ## Releases
 
