@@ -1,4 +1,4 @@
-# Local shift-left mirror of what CI enforces (ci.yml, pr-title.yml) — catches
+# Local shift-left mirror of what CI enforces (ci.yml, pr-guards.yml) — catches
 # the same issues before push instead of after. Install with `pre-commit
 # install` (installed via macos/Brewfile's `pre-commit` formula); a single
 # install covers both hook types listed below.
@@ -13,17 +13,6 @@ repos:
         entry: zsh -n
         language: system
         files: ^(zsh/\.zshenv|zsh/\.zshrc|zsh/(rc\.d|env\.d|fpath)/.*|macos/deploy\.zsh)$
-
-      - id: rebase-on-push
-        name: auto-rebase if remote has moved
-        description: >
-          sync-dev.yml rewrites dev's history after every merge, which
-          routinely makes a plain push get rejected — catch that here
-          and rebase automatically instead of waiting for the rejection.
-        entry: scripts/pre-push-rebase-check.sh
-        language: system
-        stages: [pre-push]
-        pass_filenames: false
 
       - id: envrc-local-example-sync
         name: .envrc.local.example matches .envrc.local (credentials scrubbed)

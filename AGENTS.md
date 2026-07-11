@@ -168,8 +168,6 @@ instead of after:
 - zsh syntax (`zsh -n`, same files `ci.yml` checks)
 - `shellcheck` on `linux/*.sh`
 - `actionlint` on `.github/workflows/*.yml`
-- auto-rebase if `dev` has moved (`sync-dev.yml` rewrites it after every
-  merge, which routinely makes a plain push get rejected)
 - `.envrc.local.example` never picks up a real credential and stays in
   sync with `.envrc.local`
 
@@ -205,34 +203,32 @@ session (e.g. changing branch protection).
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model
-> (`claude/rules/tools/git.md`) for this repo: long-lived branch = `dev`,
-> protected branch = `main`, version scheme = SemVer. It's baseline;
-> the rules below win here and are complete on their own. The squash-merge
-> carrying the PR title into the commit message is GitHub's own behavior —
-> see `claude/rules/platform/github.md`.
+> (`claude/rules/tools/git.md`) for this repo: short-lived feature branches,
+> protected branch = `main`, version scheme = SemVer. It's baseline; the
+> rules below win here and are complete on their own.
 
-Branching model: **long-lived `dev` + protected `main`**, squash-merged.
+Branching model: **short-lived feature branches + protected `main`**,
+rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrite it.
 
-1. All work happens on `dev` — commit freely and messily; WIP commits don't need
-   to follow the commit style (they get squashed away).
-2. **Scope each PR to one logical change.** Under squash-merge one PR becomes one
-   commit on `main`, so a focused PR yields a clean, atomic, revertable commit.
-   Never bundle unrelated changes into a single PR just to save a round trip.
-3. When a change is ready and tested, open a PR `dev` → `main`. CI must pass, then
-   **squash-merge**. The PR title becomes the `main` commit message, so title the
-   PR as a Conventional Commit (`type(scope): subject`).
-4. After the merge, reset `dev` onto `main` so histories don't drift:
-   `git switch dev && git reset --hard origin/main && git push --force-with-lease origin dev`
-5. `main` stays releasable, and cutting a release is automated — you decide
+1. Branch off `main` for each change: `git switch -c <name> origin/main`. Commit
+   freely while working — WIP commits needn't follow the commit style.
+2. **One logical change per PR.** Never bundle unrelated changes into a single PR
+   just to save a round trip.
+3. When ready and tested, **squash the branch to exactly one Conventional Commit**
+   (`git reset --soft origin/main && git commit`), then open a PR → `main`. CI gates
+   the PR on being exactly one commit (`single commit`) whose subject is a
+   Conventional Commit (`conventional commit`); once green, **rebase-merge** and your
+   single commit lands on `main` verbatim. The branch auto-deletes on merge.
+4. `main` stays releasable, and cutting a release is automated — you decide
    *when*, the workflows do the busywork ([SemVer](https://semver.org) versions
    computed from the Conventional Commits by [git-cliff](https://git-cliff.org)):
    - **Dispatch `release-prepare.yml`** — `gh workflow run release-prepare.yml
      -f bump=auto` (or the Actions UI; `auto` lets git-cliff pick the bump). It
      computes the next version, regenerates `CHANGELOG.md`, and opens a
      `release/vX.Y.Z` PR.
-   - **Review and squash-merge that PR.** The merge triggers
+   - **Review and rebase-merge that PR.** The merge triggers
      `release-publish.yml`, which tags `vX.Y.Z`, creates the GitHub release with
-     notes, deletes the release branch, and lets `sync-dev.yml` reset `dev`.
+     notes, and deletes the release branch.
    - Preview with zero side effects first: `git cliff --bumped-version` (the next
      version) or `git cliff --unreleased --bump` (the changelog it will write).
 

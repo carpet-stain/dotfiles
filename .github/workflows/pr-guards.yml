@@ -1,0 +1,61 @@
+name: PR guards
+
+# Enforces the one-commit-per-PR + rebase-merge workflow (AGENTS.md): a PR must
+# be exactly one commit whose subject is a Conventional Commit, so rebase-merge
+# lands a single clean, author-written commit on main. Replaces pr-title.yml —
+# under rebase-merge the PR title no longer becomes main's commit message, so
+# the commit itself is what must be valid, not the title.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-guards-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  single-commit:
+    name: single commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert the PR is exactly one commit
+        env:
+          COMMITS: ${{ github.event.pull_request.commits }}
+        run: |
+          if [ "$COMMITS" -ne 1 ]; then
+            echo "::error::PR has $COMMITS commits; squash to exactly one before merge (git reset --soft origin/main && git commit)."
+            exit 1
+          fi
+          echo "PR is a single commit."
+
+  conventional-commit:
+    name: conventional commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      # The commit that rebase-merges onto main is what git-cliff reads for the
+      # changelog, so its subject must be a Conventional Commit. Same type set
+      # as the retired pr-title.yml; scope stays optional/unrestricted.
+      - name: Validate Conventional Commit subject
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          rc=0
+          for sha in $(git rev-list "$BASE"..HEAD); do
+            subject=$(git log -1 --format=%s "$sha")
+            if echo "$subject" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\([a-z0-9._-]+\))?!?: .+'; then
+              echo "ok: $subject"
+            else
+              echo "::error::not a Conventional Commit: $subject"
+              rc=1
+            fi
+          done
+          exit $rc
