@@ -36,6 +36,7 @@ brew 'shfmt' # Format shell scripts
 brew 'stylua' # Format Lua files
 brew 'taplo' # Lint and format TOML files
 brew 'tealdeer' # tldr utility
+brew 'uv' # Python package/env manager for project scaffolding
 brew 'yamlfmt' # Format YAML files
 brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd
