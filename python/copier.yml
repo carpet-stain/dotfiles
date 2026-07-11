@@ -1,0 +1,35 @@
+_subdirectory: template
+
+project_name:
+  type: str
+  help: Human-readable project name (e.g. "Golden Ratio")
+
+package_name:
+  type: str
+  help: Importable package name (snake_case)
+  default: "{{ project_name.lower().replace('-', '_').replace(' ', '_') }}"
+
+description:
+  type: str
+  help: One-line project description
+  default: ""
+
+author_name:
+  type: str
+  help: Author name for pyproject.toml
+
+author_email:
+  type: str
+  help: Author email for pyproject.toml
+
+_tasks:
+  - |
+    set -euo pipefail
+    latest=$(uv python list | awk '{print $1}' | grep -E '^cpython-[0-9]+\.[0-9]+\.[0-9]+-' | grep -vE '(a|b|rc)[0-9]+-' | head -1 | cut -d- -f2)
+    uv python pin "$(cut -d. -f1,2 <<<"$latest")"
+    pyver=$(cat .python-version)
+    sed -i.bak "s/^requires-python = .*/requires-python = \">=${pyver}\"/" pyproject.toml
+    rm -f pyproject.toml.bak
+    uv sync
+    git init -q
+    lefthook install

@@ -1,0 +1,13 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Development
+
+```sh
+uv sync
+uv run pytest
+```
+
+Git hooks (lefthook) are installed by the template's post-generation task;
+`uv run ruff check`/`ruff format` run on commit, `uv run pyright` on push.
