@@ -1,0 +1,130 @@
+name: Linux e2e
+
+# Fresh-install verification for the Debian target (linux/deploy.sh): a real
+# apt/curl/binary-download run in a bare container, not just zsh -n syntax
+# checking — this is what would have caught the install_brewfile bug in #10.
+# Phase 1 of #42; a macOS-runner equivalent (#116) follows once this proves
+# out. Debian on a free ubuntu-latest runner is the cheap platform to prove
+# the harness on first.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-smoke:
+    name: deploy + smoke-test
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
+    # container: jobs default run: steps to sh (dash on Debian), not bash —
+    # unlike a plain runs-on job. dash doesn't support <<< and other
+    # bashisms this job's steps use; confirmed by an actual run failing
+    # with "redirection unexpected" before this was added.
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # container: jobs run as root in a bare image with none of the tooling
+      # a real fresh Debian install already has partially set up. git +
+      # ca-certificates are the minimum needed before checkout/paths-filter
+      # can run at all — kept unconditional (fast) so the in-job filter below
+      # can gate everything actually expensive. nodejs is required too: a
+      # container: job runs its JS-based actions (checkout, paths-filter)
+      # inside the job's own container, not the host runner, so unlike a
+      # plain runs-on job (which has Node preinstalled), this image needs
+      # its own Node runtime or those actions fail with "node: not found".
+      - name: Install git, Node runtime (for checkout/paths-filter)
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends git ca-certificates nodejs
+
+      # No submodules: here on purpose — this checkout only needs to exist
+      # for paths-filter to diff against. Submodule fetch is the expensive
+      # part of a full checkout, so it moves to its own gated step below.
+      - uses: actions/checkout@v4
+
+      # Gate the expensive steps on whether any relevant file actually
+      # changed, the same in-job-filter shape this repo's own ci.yml used
+      # before #75 replaced that job's (cheap) checks with an unconditional
+      # run — reapplying it here because this job, unlike that one, is
+      # genuinely expensive. An in-job filter (rather than a top-level
+      # on.pull_request.paths:) keeps this job always-green and fast for
+      # unrelated PRs instead of leaving a required check permanently
+      # pending.
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            linux:
+              - 'linux/**'
+              - 'zsh/**'
+              - '**/*.zsh'
+              - 'theme/**'
+              - 'claude/**'
+              - 'nvim/**'
+              - 'zellij/**'
+              - 'git/**'
+              - '.github/workflows/e2e-linux.yml'
+
+      # actions/checkout adds its own safe.directory exception, but only
+      # inside a temporary HOME it overrides for its own internal git calls
+      # — a plain run: step doesn't inherit that, and the container's UID
+      # mapping doesn't match what root expects here, so a raw git command
+      # fails with "detected dubious ownership" without this. Confirmed by
+      # actually running this job on a real ubuntu-latest runner, not
+      # something act's local emulation surfaced.
+      - name: Fetch submodules
+        if: steps.filter.outputs.linux == 'true'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git submodule sync
+          git submodule update --init --recursive
+
+      # deploy.sh assumes "a regular user with passwordless sudo (the
+      # default on OrbStack VMs)" — running it as root instead would be a
+      # shortcut that skips the code path it's actually written for (every
+      # sudo call becomes sudo-as-root) and would also skip .zshrc's own
+      # $EUID != 0 guard below, losing coverage of the zellij-related logic
+      # that guard exists to gate. Build the real target shape instead.
+      - name: Install sudo, create deploy user
+        if: steps.filter.outputs.linux == 'true'
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends sudo
+          useradd -m -s /bin/bash deployuser
+          echo 'deployuser ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/deployuser
+          chmod 0440 /etc/sudoers.d/deployuser
+          chown -R deployuser:deployuser "$GITHUB_WORKSPACE"
+
+      - name: Run linux/deploy.sh as deployuser
+        if: steps.filter.outputs.linux == 'true'
+        run: su - deployuser -c "cd '$GITHUB_WORKSPACE' && bash linux/deploy.sh"
+
+      # Stronger than zsh -n: actually executes .zshenv then .zshrc,
+      # surfacing undefined vars / missing runtime files, not just parse
+      # errors. CI=1 is required, not optional — .zshrc's zellij
+      # auto-attach block is gated on $CI being unset specifically so a
+      # non-interactive shell doesn't hang on `exec zellij attach`;
+      # deploy.sh's own download_gitstatusd() step relies on the same
+      # guard. -i (not just -c) is required so .zshrc actually gets
+      # sourced, not only .zshenv. The explicit marker + grep (rather than
+      # trusting zsh -ic's bare exit code) hedges against an error
+      # mid-sourcing that a later eval silently swallows without
+      # propagating to a nonzero exit.
+      - name: Assert .zshenv/.zshrc source cleanly
+        if: steps.filter.outputs.linux == 'true'
+        run: |
+          output="$(su - deployuser -c 'CI=1 zsh -ic "echo ZSHRC_SOURCED_OK"' 2>&1)"
+          echo "$output"
+          grep -q ZSHRC_SOURCED_OK <<< "$output"
+
+      - name: Run linux/smoke-test.sh
+        if: steps.filter.outputs.linux == 'true'
+        run: su - deployuser -c "cd '$GITHUB_WORKSPACE' && bash linux/smoke-test.sh"
