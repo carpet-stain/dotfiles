@@ -463,6 +463,14 @@ set_neovim() {
   nvim --headless -c "helptags ALL" -c "qall"
 }
 
+# Install Ghostty's xterm-ghostty terminfo from the vendored source. Debian
+# hosts are SSH'd into from a local Ghostty but don't have Ghostty installed,
+# so the entry $TERM points at has to be compiled in from the repo. macOS
+# installs the same entry from the Ghostty.app bundle instead.
+generate_ghostty_terminfo() {
+  tic -x -o "$XDG_DATA_HOME/terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
+}
+
 # +--------------------+
 # | EXECUTE FUNCTIONS  |
 # +--------------------+
@@ -483,6 +491,7 @@ required "Syncing submodules"                     sync_submodules
 required "Linking config files"                   link_configs
 required "Installing zsh plugins"                 install_zsh_plugins
 required "Setting zsh as default shell"           set_default_shell
+optional "Installing Ghostty terminfo"            generate_ghostty_terminfo
 optional "Building bat theme cache"               build_bat_cache
 optional "Downloading gitstatusd for p10k"        download_gitstatusd
 optional "Setting fast-syntax-highlighting theme" set_fsh

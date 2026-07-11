@@ -86,10 +86,9 @@ This configuration is built on three core principles:
 
 ## Installation
 
-Requirements:
+Requirements: `zsh` 5.1 or newer, and `git`.
 
-- `zsh` 5.1 or newer
-- `git`
+### macOS (primary target — Apple Silicon)
 
 Clone the repo to `~/.config/dotfiles` and run the deploy script:
 
@@ -104,6 +103,23 @@ The [deploy script](macos/deploy.zsh) is idempotent and handles:
 2. Installing Homebrew and all `Brewfile` packages.
 3. Linking all config files to `$XDG_CONFIG_HOME`.
 4. Compiling terminfo entries and shell plugins.
+
+### Linux (Debian — secondary target)
+
+Debian support ([`linux/deploy.sh`](linux/deploy.sh)) is a secondary target,
+mainly for a Linux dev VM you SSH into — e.g. a remote work box. It sets up
+the shell/CLI environment only; GUI concerns don't apply. Run as a regular
+user with passwordless sudo:
+
+```bash
+git clone https://github.com/carpet-stain/dotfiles ~/.config/dotfiles
+bash ~/.config/dotfiles/linux/deploy.sh
+```
+
+Same shape as the macOS deploy, but uses `apt` ([`linux/Aptfile`](linux/Aptfile))
+plus GitHub-release binaries for tools too old or missing in Debian's repos,
+and vendored submodules for the zsh plugins. If you SSH in from a Ghostty
+client, it also compiles the `xterm-ghostty` terminfo that Debian lacks.
 
 ## Releases
 
