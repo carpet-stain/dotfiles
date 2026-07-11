@@ -263,5 +263,6 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
    automation is ever unavailable.
 
 `main` is never committed to directly (except one-time bootstraps). Merge method
-is **squash only**; rebase-merge stays disabled and is a deliberate, temporary
-exception used only to land a series of already-clean commits atomically.
+is **rebase-merge only**, gated by `pr-guards.yml`'s single-commit and
+Conventional-Commit checks — every PR lands as the one already-squashed,
+already-titled commit you pushed, verbatim.
