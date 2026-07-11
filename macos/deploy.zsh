@@ -9,7 +9,19 @@ zmodload -m -F zsh/files b:zf_ln b:zf_mkdir
 
 # Get the current script directory
 DEPLOY_DIR=$(dirname $(realpath $0))
-DOTFILES_DIR=$DEPLOY_DIR:h
+
+# Anchor to the main checkout's root via the shared .git dir, not wherever
+# this script physically lives. A linked worktree (e.g. Claude Code session
+# isolation) has its own directory that's deleted once its task is done —
+# symlinking live $HOME/$XDG config at that ephemeral copy leaves every
+# symlink dangling. --git-common-dir resolves to the main repo's .git
+# regardless of which worktree invokes it, so this is safe from any of them.
+GIT_COMMON_DIR=$(git -C $DEPLOY_DIR rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+if [[ -n $GIT_COMMON_DIR ]]; then
+  DOTFILES_DIR=${GIT_COMMON_DIR:h}
+else
+  DOTFILES_DIR=$DEPLOY_DIR:h
+fi
 
 # Default XDG paths
 XDG_CACHE_HOME=$HOME/.cache
