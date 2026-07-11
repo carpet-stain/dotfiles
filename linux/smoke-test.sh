@@ -9,6 +9,9 @@
 # "no TTY in this test harness".
 set -uo pipefail
 
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+
 failures=0
 
 check() {
@@ -33,6 +36,25 @@ check "tealdeer installed (dpkg)" bash -c "dpkg -l tealdeer | grep -q '^ii'"
 
 echo "bat theme:"
 check "Catppuccin Mocha registered" bash -c "bat --list-themes | grep -qi 'catppuccin mocha'"
+
+# Single-quoted bash -c bodies below are deliberate: expansion happens in
+# the child shell (which inherits the exported XDG_*/HOME vars above), not
+# here.
+echo "Config symlinks:"
+# shellcheck disable=SC2016
+check ".zshenv linked" bash -c '[[ -L $HOME/.zshenv && -e $HOME/.zshenv ]]'
+# shellcheck disable=SC2016
+check "nvim init.lua linked" bash -c '[[ -L $XDG_CONFIG_HOME/nvim/init.lua && -e $XDG_CONFIG_HOME/nvim/init.lua ]]'
+# shellcheck disable=SC2016
+check "claude/rules linked" bash -c '[[ -L $XDG_CONFIG_HOME/claude/rules && -e $XDG_CONFIG_HOME/claude/rules ]]'
+
+echo "Shell:"
+# shellcheck disable=SC2016
+check "zsh is the default login shell" bash -c '[[ "$(getent passwd "$(id -un)" | cut -d: -f7)" == "$(command -v zsh)" ]]'
+
+echo "Ghostty terminfo:"
+# shellcheck disable=SC2016
+check "xterm-ghostty registered" bash -c 'TERMINFO="$XDG_DATA_HOME/terminfo" infocmp xterm-ghostty'
 
 echo
 if [[ $failures -eq 0 ]]; then
