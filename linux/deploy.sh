@@ -50,14 +50,6 @@ optional() {
   fi
 }
 
-# Returns the first download URL from a GitHub release matching a pattern.
-gh_latest_url() {
-  curl -sf "https://api.github.com/repos/$1/releases/latest" \
-    | grep -oP '"browser_download_url":\s*"\K[^"]+' \
-    | grep "$2" \
-    | head -1
-}
-
 # +----------------+
 # | XDG DIRS       |
 # +----------------+
@@ -154,20 +146,59 @@ install_apt_packages() {
 # +-------------------+
 # | GITHUB BINARIES   |
 # +-------------------+
-# Tools not packaged in Debian 12: neovim (0.7.2 is too old), git-delta,
-# zellij, eza. Install pre-built release binaries from GitHub.
+# Tools too old or missing in Debian's apt repos. Each is installed from a
+# GitHub release pinned in binaries.lock (version + sha256 per arch), so a
+# deploy is reproducible and the download is integrity-checked. Bump versions
+# with update-binaries.sh, which regenerates the lock.
 
+# fetch_verified <tool> — download this arch's pinned asset from binaries.lock,
+# verify its sha256 (fail-closed on mismatch), and echo the local file path.
+fetch_verified() {
+  local tool="$1" row url sha dest
+  row="$(awk -F'\t' -v t="$tool" -v a="$ARCH" '$1==t && $2==a {print; exit}' "$SCRIPT_DIR/binaries.lock")"
+  if [[ -z "$row" ]]; then
+    printf 'no pinned %s entry for %s in binaries.lock\n' "$ARCH" "$tool" >&2
+    return 1
+  fi
+  url="$(cut -f4 <<<"$row")"; sha="$(cut -f5 <<<"$row")"
+  dest="$(mktemp)"
+  if ! curl -fsSL "$url" -o "$dest"; then
+    printf 'download failed: %s\n' "$url" >&2; rm -f "$dest"; return 1
+  fi
+  if ! printf '%s  %s' "$sha" "$dest" | sha256sum -c --status -; then
+    printf 'sha256 mismatch for %s (%s) — expected %s\n' "$tool" "$ARCH" "$sha" >&2
+    rm -f "$dest"; return 1
+  fi
+  printf '%s' "$dest"
+}
+
+# install_tool <tool> <binary> — single-binary tools. Extracts the verified
+# asset if it's a gzip tarball, otherwise treats it as a bare binary.
+install_tool() {
+  local tool="$1" binary="$2" archive
+  archive="$(fetch_verified "$tool")" || return 1
+  if tar -tzf "$archive" >/dev/null 2>&1; then
+    local tmp; tmp="$(mktemp -d)"
+    tar -xzf "$archive" -C "$tmp"
+    find "$tmp" -name "$binary" -type f -exec cp {} "$LOCAL_BIN/$binary" \;
+    rm -rf "$tmp"
+  else
+    cp "$archive" "$LOCAL_BIN/$binary"
+  fi
+  rm -f "$archive"
+  if [[ ! -f "$LOCAL_BIN/$binary" ]]; then
+    printf 'install_tool: %s not found after installing %s\n' "$binary" "$tool" >&2
+    return 1
+  fi
+  chmod +x "$LOCAL_BIN/$binary"
+}
+
+# neovim needs its runtime (share/nvim) beside the binary, so it can't use the
+# generic single-binary installer above.
 install_neovim() {
-  local asset_arch
-  case "$ARCH" in
-    x86_64)  asset_arch="x86_64" ;;
-    aarch64) asset_arch="arm64"  ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-
-  local url; url="$(gh_latest_url neovim/neovim "nvim-linux-${asset_arch}.tar.gz")"
+  local archive; archive="$(fetch_verified neovim)" || return 1
   local tmp; tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp"
+  tar -xzf "$archive" -C "$tmp"
   local src; src="$(find "$tmp" -maxdepth 1 -name 'nvim-linux-*' -type d | head -1)"
 
   cp "$src/bin/nvim" "$LOCAL_BIN/nvim"
@@ -175,112 +206,7 @@ install_neovim() {
   # Runtime must sit at $HOME/.local/share/nvim/runtime relative to the binary
   cp -r "$src/share/nvim" "$XDG_DATA_HOME/"
   [[ -d "$src/lib" ]] && { mkdir -p "$HOME/.local/lib"; cp -r "$src/lib/." "$HOME/.local/lib/"; }
-  rm -rf "$tmp"
-}
-
-install_git_delta() {
-  local asset_arch
-  case "$ARCH" in
-    x86_64)  asset_arch="x86_64-unknown-linux-musl"   ;;
-    aarch64) asset_arch="aarch64-unknown-linux-gnu"   ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-
-  local url; url="$(gh_latest_url dandavison/delta "delta-.*-${asset_arch}.tar.gz")"
-  local tmp; tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp"
-  find "$tmp" -name 'delta' -type f -exec cp {} "$LOCAL_BIN/delta" \;
-  chmod +x "$LOCAL_BIN/delta"
-  rm -rf "$tmp"
-}
-
-install_zellij() {
-  local asset_arch
-  case "$ARCH" in
-    x86_64)  asset_arch="x86_64-unknown-linux-musl"  ;;
-    aarch64) asset_arch="aarch64-unknown-linux-musl" ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-
-  local url; url="$(gh_latest_url zellij-org/zellij "zellij-${asset_arch}.tar.gz")"
-  local tmp; tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp"
-  cp "$tmp/zellij" "$LOCAL_BIN/zellij"
-  chmod +x "$LOCAL_BIN/zellij"
-  rm -rf "$tmp"
-}
-
-install_eza() {
-  local asset_arch
-  case "$ARCH" in
-    # eza only publishes a musl build for x86_64; aarch64 is gnu-only.
-    x86_64)  asset_arch="x86_64-unknown-linux-musl" ;;
-    aarch64) asset_arch="aarch64-unknown-linux-gnu" ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-
-  local url; url="$(gh_latest_url eza-community/eza "eza_${asset_arch}.tar.gz")"
-  local tmp; tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp"
-  cp "$tmp/eza" "$LOCAL_BIN/eza"
-  chmod +x "$LOCAL_BIN/eza"
-  rm -rf "$tmp"
-}
-
-# Shared installer for the tools below: none of these are in Debian's apt
-# repos at all (unlike neovim/delta/zellij/eza above, which are apt-present
-# but too old/missing — these just aren't packaged), and aliases.zsh aliases
-# dig/du/curl/jq to them unconditionally, so a missing binary here breaks a
-# basic alias, not just a nice-to-have. Handles both shapes GitHub releases
-# use: a .tar.gz archive to extract, or a bare binary asset to use as-is.
-install_github_binary() {
-  local repo="$1" asset_pattern="$2" binary_name="$3"
-  local url; url="$(gh_latest_url "$repo" "$asset_pattern")"
-  if [[ "$asset_pattern" == *.tar.gz ]]; then
-    local tmp; tmp="$(mktemp -d)"
-    curl -fsSL "$url" | tar -xz -C "$tmp"
-    find "$tmp" -name "$binary_name" -type f -exec cp {} "$LOCAL_BIN/$binary_name" \;
-    rm -rf "$tmp"
-  else
-    curl -fsSL "$url" -o "$LOCAL_BIN/$binary_name"
-  fi
-  chmod +x "$LOCAL_BIN/$binary_name"
-}
-
-install_doggo() {
-  # doggo's release arch strings already match `uname -m` as-is.
-  install_github_binary mr-karan/doggo "doggo-linux-${ARCH}.tar.gz" doggo
-}
-
-install_dua() {
-  local asset_arch
-  case "$ARCH" in
-    x86_64)  asset_arch="x86_64-unknown-linux-musl"  ;;
-    aarch64) asset_arch="aarch64-unknown-linux-musl" ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-  install_github_binary Byron/dua-cli "dua-v.*-${asset_arch}.tar.gz" dua
-}
-
-install_curlie() {
-  local asset_arch
-  case "$ARCH" in
-    x86_64)  asset_arch="amd64" ;;
-    aarch64) asset_arch="arm64" ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-  install_github_binary rs/curlie "curlie_.*_linux_${asset_arch}.tar.gz" curlie
-}
-
-install_jaq() {
-  # jaq's release assets are bare binaries, not archives.
-  local asset_arch
-  case "$ARCH" in
-    x86_64)  asset_arch="x86_64-unknown-linux-gnu"  ;;
-    aarch64) asset_arch="aarch64-unknown-linux-gnu" ;;
-    *) printf 'Unsupported arch: %s\n' "$ARCH"; return 1 ;;
-  esac
-  install_github_binary 01mf02/jaq "jaq-${asset_arch}\$" jaq
+  rm -rf "$tmp" "$archive"
 }
 
 # +------------------+
@@ -479,14 +405,14 @@ required "Creating directory tree"                create_directories
 required "Bootstrapping apt"                      bootstrap_apt
 required "Adding custom apt repositories"         add_apt_repos
 required "Installing apt packages"                install_apt_packages
-required "Installing Neovim from GitHub"          install_neovim
-required "Installing git-delta from GitHub"       install_git_delta
-required "Installing zellij from GitHub"          install_zellij
-required "Installing eza from GitHub"             install_eza
-required "Installing doggo from GitHub"           install_doggo
-required "Installing dua from GitHub"             install_dua
-required "Installing curlie from GitHub"          install_curlie
-required "Installing jaq from GitHub"             install_jaq
+required "Installing Neovim"                      install_neovim
+required "Installing git-delta"                   install_tool delta delta
+required "Installing zellij"                      install_tool zellij zellij
+required "Installing eza"                         install_tool eza eza
+required "Installing doggo"                       install_tool doggo doggo
+required "Installing dua"                         install_tool dua dua
+required "Installing curlie"                      install_tool curlie curlie
+required "Installing jaq"                         install_tool jaq jaq
 required "Syncing submodules"                     sync_submodules
 required "Linking config files"                   link_configs
 required "Installing zsh plugins"                 install_zsh_plugins
