@@ -160,14 +160,14 @@ install_brewfile() {
   brew bundle --file=$DEPLOY_DIR/Brewfile
 }
 
-# Activate the git hooks in .pre-commit-config.yaml: pre-commit (zsh syntax,
-# shellcheck, actionlint — mirrors of what ci.yml/pr-guards.yml enforce) and
-# pre-push (the .envrc.local.example sync check). A single `pre-commit install`
-# covers both hook types via default_install_hook_types.
-install_pre_commit_hooks() {
-  # pre-commit has no -C/--cwd equivalent; it discovers .git relative to the
+# Activate the git hooks in lefthook.yml: pre-commit (zsh syntax, shellcheck,
+# actionlint — mirrors of what ci.yml/pr-guards.yml enforce) and pre-push (the
+# .envrc.local.example sync check). A single `lefthook install` covers every
+# hook type declared as a top-level key in lefthook.yml.
+install_lefthook_hooks() {
+  # lefthook has no -C/--cwd equivalent; it discovers .git relative to the
   # working directory, so it has to actually run from inside the repo.
-  (cd $DOTFILES_DIR && pre-commit install -f)
+  (cd $DOTFILES_DIR && lefthook install -f)
 }
 
 # Point $XDG_DATA_HOME/zsh/plugins/* at Homebrew's copies so .zshrc can use
@@ -269,7 +269,7 @@ required "Creating required directory tree"    create_directories
 required "Linking config files"                link_configs
 required "Checking for Homebrew"                install_homebrew
 required "Installing Brewfile packages"        install_brewfile
-optional "Installing pre-commit hooks"         install_pre_commit_hooks
+optional "Installing lefthook hooks"           install_lefthook_hooks
 required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
 optional "Building bat theme cache"            build_bat_cache

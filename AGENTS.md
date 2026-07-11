@@ -116,7 +116,7 @@ of proof) still applies, just mapped onto kinds of *changes* rather than
 architectural layers:
 
 - **Syntax**: `zsh -n` on zsh files, `shellcheck` on `linux/*.sh` — same checks
-  `.pre-commit-config.yaml` and `ci.yml` run.
+  `lefthook.yml` and `ci.yml` run.
 - **Runtime behavior for nvim plugin config**: launch the real deployed config
   headlessly and query the plugin's own merged config to confirm an option
   actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
@@ -132,8 +132,8 @@ architectural layers:
 
 > Concrete realization of **git.md** (`claude/rules/tools/git.md`) for this repo:
 > scopes = `zsh, zellij, git, nvim, macos, theme`; version scheme = SemVer; branches =
-> `dev` (long-lived) → `main` (protected). It's baseline; the rules below win here and
-> are complete on their own.
+> short-lived feature branches → `main` (protected). It's baseline; the rules below
+> win here and are complete on their own.
 
 Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 Every commit:
@@ -163,16 +163,16 @@ sweeping commit. Propose the split and messages before committing.
 > instances of it — `act`, GitHub Actions workflow linting — in **github.md**
 > (`claude/rules/platform/github.md`).
 
-`.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
-instead of after:
+`lefthook.yml` mirrors what CI enforces, run locally before push instead of
+after:
 - zsh syntax (`zsh -n`, same files `ci.yml` checks)
 - `shellcheck` on `linux/*.sh`
 - `actionlint` on `.github/workflows/*.yml`
 - `.envrc.local.example` never picks up a real credential and stays in
   sync with `.envrc.local`
 
-Installed automatically by `macos/deploy.zsh`'s `install_pre_commit_hooks`
-step; run `pre-commit run --all-files` to check everything at once.
+Installed automatically by `macos/deploy.zsh`'s `install_lefthook_hooks`
+step; run `lefthook run pre-commit --all-files` to check everything at once.
 
 Two more tools worth reaching for by hand, not wired into any hook:
 - `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
