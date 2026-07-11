@@ -369,33 +369,27 @@ link_configs() {
 # +-------------+
 # | ZSH PLUGINS |
 # +-------------+
-# On macOS these come from Homebrew; on Linux clone directly to XDG_DATA_HOME.
-# .zshrc sources from $XDG_DATA_HOME/zsh/plugins/ on both platforms.
+# .zshrc sources these from $XDG_DATA_HOME/zsh/plugins/ on both platforms.
+# macOS points those paths at Homebrew's copies (deploy.zsh's link_zsh_plugins);
+# Linux points them at the vendored submodules under zsh/plugins/, so a deploy
+# uses the pinned in-repo copy instead of cloning fresh from the network.
+# sync_submodules (run earlier) guarantees the submodule content exists.
 
 install_zsh_plugins() {
   local plugin_dir="$XDG_DATA_HOME/zsh/plugins"
-
-  _clone_or_pull() {
-    local url="$1" dest="$2"
-    if [[ -d "$dest/.git" ]]; then
-      # A rewritten upstream default branch makes --ff-only fail; re-clone
-      # rather than aborting the whole (required) deploy over one plugin.
-      git -C "$dest" pull --ff-only --quiet || {
-        rm -rf "$dest"
-        git clone --depth=1 --quiet "$url" "$dest"
-      }
-    else
-      git clone --depth=1 --quiet "$url" "$dest"
+  local name src
+  for name in powerlevel10k zsh-autopair zsh-autosuggestions zsh-completions; do
+    src="$DOTFILES_DIR/zsh/plugins/$name"
+    if [[ ! -e "$src" ]]; then
+      printf '  Missing submodule %s at %s (run: git submodule update --init)\n' "$name" "$src" >&2
+      return 1
     fi
-  }
-
-  _clone_or_pull "https://github.com/romkatv/powerlevel10k"         "$plugin_dir/powerlevel10k"
-  _clone_or_pull "https://github.com/hlissner/zsh-autopair"         "$plugin_dir/zsh-autopair"
-  _clone_or_pull "https://github.com/zsh-users/zsh-autosuggestions" "$plugin_dir/zsh-autosuggestions"
-  _clone_or_pull "https://github.com/wfxr/forgit"                   "$plugin_dir/forgit"
-  # apt has no zsh-completions package (absent from Trixie's archive, and
-  # unreliable across releases generally) — git-clone it like the others.
-  _clone_or_pull "https://github.com/zsh-users/zsh-completions"     "$plugin_dir/zsh-completions"
+    # rm first: an earlier deploy may have left a real clone dir here, and
+    # `ln -sfn` into an existing directory would nest the link inside it.
+    # ${plugin_dir:?} guards against ever rm-ing / if the var were empty.
+    rm -rf "${plugin_dir:?}/$name"
+    ln -sfn "$src" "$plugin_dir/$name"
+  done
 }
 
 # +-----+
