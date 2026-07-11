@@ -1,0 +1,13 @@
+pre-commit:
+  commands:
+    ruff-check:
+      glob: "*.py"
+      run: uv run ruff check {staged_files}
+    ruff-format:
+      glob: "*.py"
+      run: uv run ruff format --check {staged_files}
+
+pre-push:
+  commands:
+    pyright:
+      run: uv run pyright
