@@ -76,6 +76,7 @@ create_directories() {
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $XDG_CONFIG_HOME/claude
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
+  zf_mkdir -p $HOME/.local/bin
 }
 
 # Symlink config files
@@ -137,6 +138,10 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/git/config $XDG_CONFIG_HOME/git/config
   zf_ln -sf $DOTFILES_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
   zf_ln -sf $DOTFILES_DIR/theme/delta/catppuccin.gitconfig $XDG_CONFIG_HOME/git/catppuccin.gitconfig
+
+  # Backs the `pr` alias above — must be on PATH as a bare command, not just
+  # reachable by relative path, since git/config is used from any repo.
+  zf_ln -sf $DOTFILES_DIR/scripts/git-pr-link.sh $HOME/.local/bin/git-pr-link
 
   zf_ln -sf $DOTFILES_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
   zf_ln -sf $DOTFILES_DIR/curlrc $XDG_CONFIG_HOME/curlrc

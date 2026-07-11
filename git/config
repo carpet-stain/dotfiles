@@ -14,9 +14,11 @@
   autoCorrect = 1
 
 [alias]
-  # Open a PR only if the branch is exactly one commit ahead of origin/main —
-  # the local mirror of pr-guards.yml's `single commit` gate. Squash first if not.
-  pr = "!f() { n=$(git rev-list --count origin/main..HEAD); [ \"$n\" = 1 ] || { echo \"squash to 1 commit first (branch has $n vs origin/main): git reset --soft origin/main && git commit\" >&2; exit 1; }; gh pr create \"$@\"; }; f"
+  # Open a PR (only if the branch is exactly one commit ahead of origin/main —
+  # the local mirror of pr-guards.yml's `single commit` gate), then amend that
+  # commit's subject to append " (#N)" so it still lands on main with the PR
+  # reference rebase-merge no longer adds for you. See git-pr-link.sh.
+  pr = "!git-pr-link"
 
 [include]
   path = ~/.config/git/catppuccin.gitconfig

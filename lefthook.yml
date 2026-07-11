@@ -16,6 +16,7 @@ pre-commit:
     - name: shellcheck
       glob:
         - "linux/*.sh"
+        - "scripts/*.sh"
         - "claude/skills/**/*.sh"
       run: shellcheck {staged_files}
 
