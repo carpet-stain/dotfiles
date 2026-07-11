@@ -62,6 +62,7 @@ create_directories() {
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
+  zf_mkdir -p $XDG_CONFIG_HOME/claude
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
 }
 
@@ -71,6 +72,22 @@ link_configs() {
   # AGENTS.md is the source of truth; CLAUDE.md is a gitignored symlink so Claude
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
+
+  # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
+  # Claude Code auto-discovers and loads every *.md under rules/ recursively and
+  # unconditionally — no loader file or @import wiring needed. See claude/README.md.
+  # Symlinked as one directory so universal/tools/platform (and any gitignored
+  # private file dropped inside them) all come along with zero per-file wiring.
+  # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
+  # old loader design; a real claude/rules/ dir of individual symlinks from the
+  # per-file-glob design) — safe since deploy fully owns all of these paths.
+  rm -f $XDG_CONFIG_HOME/claude/CLAUDE.md
+  rm -rf $XDG_CONFIG_HOME/claude/fragments
+  rm -rf $XDG_CONFIG_HOME/claude/rules
+  zf_ln -sfn $DOTFILES_DIR/claude/rules $XDG_CONFIG_HOME/claude/rules
+
+  # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
+  zf_ln -sf $DOTFILES_DIR/claude/settings.json $XDG_CONFIG_HOME/claude/settings.json
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
