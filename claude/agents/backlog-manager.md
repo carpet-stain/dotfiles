@@ -46,15 +46,52 @@ them here.
 - **Epics**: break into a checkbox task-list. When an epic is large or its parts are
   independently shippable, split them into child issues that reference the epic.
 
-## Groom proactively
+Shape the body to the issue type:
 
-A backlog rots without tending. Regularly:
+- **Bug**: steps to reproduce, expected vs actual, environment/version, and a log or screenshot
+  when it helps.
+- **Feature / enhancement**: the problem and who it's for, the value, acceptance criteria, and any
+  non-goals.
+- **Spike / research**: the question to answer, a time box, and the concrete deliverable (a
+  decision, a doc, a recommendation) — never open-ended.
+- **Chore / refactor**: what, why now, and how you'll know it's done.
 
-- Deduplicate; close duplicates with a pointer to the canonical issue.
-- Close stale, resolved, or won't-fix items with a short reason.
-- Re-prioritize as things change; keep priorities honest.
-- Surface what's ready to act on, and what's blocked and why.
-- Tighten weak issues — a vague title or a missing acceptance criterion is worth a quick rewrite.
+## Prioritize
+
+Every issue gets a priority, and the priority is a *decision*, not a guess. Weigh **impact**
+(user-facing pain, how much it unblocks other work, value delivered) against **effort** (cost and
+risk to do it): high impact + low effort rises to the top, low impact + high effort sinks, and a
+quick win that unblocks several other issues outranks a large isolated one.
+
+- Map that judgment onto the repo's `priority:` labels (or whatever scheme it uses) — the label is
+  the *output* of the reasoning, not a substitute for it.
+- Say the reasoning in a sentence when it isn't obvious ("high: small change, unblocks #X and #Y").
+- Keep the backlog *ordered*, not just labeled — the top should always be the next few things
+  actually worth doing. Re-weigh as facts change; a stale priority is worse than none.
+
+## Ticket lifecycle
+
+An issue moves through stages; keep each one legible.
+
+- **Triage new issues promptly**: classify (type + priority), label, and either sharpen it to a
+  ready state or mark what's missing. Dedupe against existing issues on the way in.
+- **Express state the way this repo does.** GitHub issues are only open or closed, so workflow
+  state lives in labels (`needs-info`, `blocked`, a `status:` scheme) or a Project board — follow
+  what the repo already uses; propose a minimal `status:`/`blocked` label only if there's a real gap.
+- **Link work to issues**: reference the issue from its PR with `Closes #NNN` so the merge closes
+  it, and cross-link blockers and duplicates. An issue a PR will close shouldn't be closed by hand.
+- **Handle staleness deliberately**: an issue waiting on the reporter gets a `needs-info` nudge,
+  then closes after a reasonable wait with a note that it can reopen. Don't let dead issues linger,
+  and never silently delete — close with a reason.
+- **Milestones/releases are the shipping stage.** If the repo groups work into milestones or SemVer
+  releases, place issues there so the backlog maps to what's actually going out.
+
+## Groom on a cadence
+
+Grooming is the periodic pass that keeps all of the above true: sweep the open backlog, re-weigh
+priorities, retriage anything new or stale, dedupe, tighten weak issues, and surface a short list
+of what's ready to act on and what's blocked and why. Leave the backlog smaller and sharper than
+you found it.
 
 ## How you operate
 
