@@ -75,6 +75,16 @@ alias vi="nvim"
 # Quick public IP check using OpenDNS and doggo
 alias ip="doggo +short myip.opendns.com @resolver1.opendns.com"
 
+# +----------------+
+# |  BATCH RENAME  |
+# +----------------+
+
+# 'zmv' is a zsh builtin module for pattern-based batch rename/copy/link.
+# e.g. `zmv '(*).log' '$1.txt'` renames every .log file to .txt.
+autoload -Uz zmv
+alias zcp="zmv -C"   # copy-mode:  batch copy by pattern
+alias zln="zmv -L"   # link-mode:  batch hard-link by pattern
+
 # +-----------------+
 # |  GLOBAL ALIASES |
 # +-----------------+
@@ -89,3 +99,20 @@ alias ip="doggo +short myip.opendns.com @resolver1.opendns.com"
 # The result: Any command ending in ' --help'
 # (e.g., `curl --help`) will be automatically colorized.
 alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
+
+# Pipe/redirect shorthands. Uppercase to avoid clashing with real commands,
+# though as global aliases they still expand anywhere on the line.
+# 'J' pipes to 'jq', which itself re-expands to 'jaq' via the alias above.
+# 'C' uses the platform clipboard command resolved in .zshenv.
+alias -g -- J="| jq"
+alias -g -- C="| $CLIPBOARD_COPY"  # copy to clipboard (pbcopy/wl-copy/xclip)
+alias -g -- F="| fzf"              # fuzzy-filter
+alias -g -- NUL=">/dev/null 2>&1"  # silence stdout and stderr
+
+# +------------------+
+# |  SUFFIX ALIASES  |
+# +------------------+
+
+# Suffix alias ('-s') runs a bare filename through a handler by extension:
+# typing 'data.json' becomes 'jq . < data.json' (jq -> jaq via alias above).
+alias -s json="jq . <"
