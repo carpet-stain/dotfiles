@@ -4,67 +4,44 @@ paths:
   - "**/*.go"
 ---
 
-<!-- Go idioms. Canonical source: my dotfiles.
-     Language-level only: never any repo path, service name, or branch name here.
-     The paths: frontmatter above is a native Claude Code mechanism: this file only
-     enters context when go.mod or a *.go file is actually touched, in any repo —
-     no prose guard needed to gate on go.mod presence, Claude Code enforces that
-     structurally. Unlike the universal/ files and github.md (always loaded,
-     self-gated by prose), this file has a crisp file-based signal to hook into. -->
+<!-- Go idioms. Canonical source: my dotfiles. Language-level only — never a repo path,
+     service name, or branch name. The paths: frontmatter is the gate: Claude Code loads this
+     only when a go.mod/*.go file is read, structurally, no prose guard needed.
+     Rationale: claude/README.md. -->
 
 > ### GATE
-> Handled by the `paths:` frontmatter above, not prose: this file loads only when Claude
-> reads a Go file (`go.mod`/`*.go`), in any repo. The frontmatter is the gate — no prose
-> guard needed.
+> The `paths:` frontmatter is the gate — this file loads only when Claude reads a Go file
+> (`go.mod`/`*.go`), in any repo. No prose guard needed.
 
 > ### LOCAL-WINS
-> If this repo already has its own Go standards doc (e.g. docs/CODING.md), that doc is
-> AUTHORITATIVE: treat this as baseline only and prefer the repo's doc on conflict.
+> If this repo has its own Go standards doc (e.g. docs/CODING.md), that doc is AUTHORITATIVE:
+> treat this as baseline and prefer the repo's doc on conflict.
 
-> ### COMPOSE — how to give a repo its own concrete Go doc
-> Trigger: only when the human asks to scaffold/adopt conventions, OR a Go repo has no
-> Go standards doc and one is warranted. Default to PROPOSE, don't create — suggest the
-> doc and wait for approval before writing committed files.
-> Steps:
->   1. Read this once as the baseline.
->   2. Write a repo-local doc (e.g. docs/CODING.md) that RESTATES these principles with
->      the repo's CONCRETE nouns: its actual linters + config file, its module layout,
->      its pinned tool versions, its file-naming in practice. Keep the principle, replace
->      the abstraction with the specific.
->   3. Wire the gate so local wins: add to the repo's committed AGENTS.md:
->        "docs/CODING.md is authoritative for Go specifics; treat any generic Go
->         conventions as baseline and prefer this repo's doc on conflict."
->      (This line names NO personal path — commit-safe, true for any contributor.)
->   4. After this, the repo reads its own doc; do not re-distill this for that repo.
+> ### COMPOSE — give a repo its own concrete Go doc
+> Trigger: the human asks to scaffold, OR a Go repo lacks a standards doc and one is warranted.
+> PROPOSE, don't create. Steps: (1) read this as baseline; (2) write a repo-local doc (e.g.
+> docs/CODING.md) restating these with the repo's concrete nouns — its linters + config file,
+> module layout, pinned tool versions, file-naming; (3) add to the repo's AGENTS.md that
+> docs/CODING.md is authoritative over generic Go conventions (name no personal path); (4) after
+> this the repo reads its own doc — don't re-distill.
 
 # Go Conventions
 
-Baseline is **Effective Go** (https://go.dev/doc/effective_go): gofmt formatting (tabs, no manual
-alignment); short lower-case single-word package names (no under_scores, no mixedCaps);
-`MixedCaps`/`mixedCaps` for multiword names; getters without a `Get` prefix; `-er` names for
-one-method interfaces; short receiver names; early-return control flow that omits the unnecessary
-`else`; error strings that identify their origin (lower-case, no trailing punctuation); always
-checking returned errors (never discarding a failure with `_`); doc comments on exported
-identifiers; idiomatic interfaces, slices/maps, `defer`, and the comma-ok idiom.
+Baseline is **Effective Go** (https://go.dev/doc/effective_go): gofmt formatting; short lower-case
+single-word package names; `MixedCaps`/`mixedCaps` for multiword names; getters without a `Get`
+prefix; `-er` names for one-method interfaces; short receiver names; early-return flow that omits
+the needless `else`; error strings that identify their origin (lower-case, no trailing
+punctuation); always check returned errors (never `_`-discard a failure); doc comments on exported
+identifiers. Complement it with modern Go it predates: generics where they clarify,
+`errors.Is`/`errors.As`, the `slices`/`maps` stdlib, module-aware layout.
 
-Effective Go predates generics and modules — treat it as the idiom baseline and complement it with
-modern Go: generics where they clarify, `errors.Is`/`errors.As`, the `slices`/`maps` stdlib, and
-module-aware layout. All consistent with its spirit.
+Make the mechanizable parts tooling-enforced: `gofmt`/`gofumpt` + `goimports` for
+formatting/imports, `golangci-lint` for lintable rules (staticcheck, errcheck, errorlint, revive
+for naming/indent-error-flow and initialism casing, exported-identifier doc comments). Judgment
+parts — package purpose, comment quality, interface design — stay a matter of review.
 
-Make the mechanizable parts tooling-enforced rather than left to convention:
-`gofmt`/`gofumpt` and `goimports` for formatting/imports, and `golangci-lint` for the lintable rules
-(staticcheck including error-string style, errcheck for unchecked errors, errorlint, revive for
-naming/indent-error-flow and initialism casing, package doc comments, and a meaningful doc comment on
-every exported identifier). Judgment parts — package purpose, comment quality, interface design —
-stay a matter of review.
-
-File naming: keep files topical (`inventory.go`, `errors.go`, `logging.go`), avoid dumping-ground
-names (`utils.go`, `helpers.go`, `misc.go`, `common.go`).
-
-Package docs: give every package a `doc.go` with a concise overview (what it owns, primary
-invariants, start-here files) that surfaces in `go doc` and IDE hovers. When a package needs a deeper
-guide, put a co-located `README.md` next to the code and have `doc.go` point to it.
-
-For relational code navigation — who calls this exact symbol, what implements this interface, is a
-rename safe — prefer a language-server-backed tool (gopls) over grep; grep matches text and yields
-false positives on symbol queries. Keep grep for fast text/config/log scans.
+Keep files topical (`inventory.go`, `errors.go`), not dumping grounds (`utils.go`, `helpers.go`).
+Give every package a `doc.go` overview (what it owns, primary invariants, start-here files);
+co-locate a `README.md` for a deeper guide and point `doc.go` at it. For relational navigation —
+callers of a symbol, implementers of an interface, rename safety — prefer gopls over grep; grep is
+for text/config/log scans.
