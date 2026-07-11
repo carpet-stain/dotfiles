@@ -1,133 +1,80 @@
 <!-- Git workflow mechanics, platform-agnostic. Canonical source: my dotfiles.
-     VCS-level only: works the same on GitHub, GitLab, Bitbucket, or a bare remote.
-     Platform-specific realization (gh/glab CLI, GitHub Actions, a host's specific
-     squash-merge behavior) lives in the platform file instead (e.g. github.md). -->
+     VCS-level only: same on GitHub, GitLab, Bitbucket, or a bare remote. Platform specifics
+     (gh/glab, Actions, a host's squash-merge behavior) live in the platform file (github.md).
+     Rationale: claude/README.md. -->
 
 > ### GATE
-> Applies only if this repo uses git — true for nearly every repo, so this is the
-> rare-exception gate, not a real filter. If somehow not, ignore this entire file.
+> Applies only if this repo uses git — true for nearly every repo, so this is the rare-exception
+> gate, not a real filter. If not, ignore this file.
 
 > ### LOCAL-WINS
-> If this repo has its own contributing/workflow doc that specifies commit or branch rules,
-> that doc is AUTHORITATIVE: treat this as baseline and prefer the repo's doc on conflict.
+> If this repo has its own commit/branch-workflow doc, that doc is AUTHORITATIVE: treat this as
+> baseline and prefer the repo's doc on conflict.
 
-> ### COMPOSE — how to give a repo its own concrete git workflow doc
-> Trigger: only when the human asks to scaffold, OR a repo lacks a stated commit/branch
-> workflow and one is warranted. Default to PROPOSE, don't create — suggest and wait before
-> writing committed files.
-> Steps:
->   1. Read this once as the baseline.
->   2. Write a repo-local doc (or an AGENTS.md section) that fills the <placeholders> with
->      this repo's real values: <scopes> (its module/area names), <version-scheme>, the
->      <long-lived-branch>/<protected-branch> names, and whether release automation applies.
->   3. Wire the gate so local wins: add to the repo's committed AGENTS.md:
->        "This repo's workflow doc is authoritative for commit/branch rules; treat any
->         generic git conventions as baseline and prefer this repo's doc on conflict."
->      (Names NO personal path — commit-safe, true for any contributor.)
->   4. After this, the repo reads its own doc; do not re-distill this for that repo.
+> ### COMPOSE — give a repo its own concrete git workflow doc
+> Trigger: the human asks to scaffold, OR a repo lacks a stated workflow and one is warranted.
+> PROPOSE, don't create — suggest and wait. Steps: (1) read this as baseline; (2) write a
+> repo-local doc filling the <placeholders> — <scopes>, <version-scheme>,
+> <long-lived-branch>/<protected-branch>, whether release automation applies; (3) add to the
+> repo's AGENTS.md that its workflow doc is authoritative over generic git conventions (name no
+> personal path); (4) after this the repo reads its own doc — don't re-distill.
 
 # Git Workflow
 
-Mechanics for realizing my version-control discipline with plain git — true regardless of
-hosting platform. Repo-specific values (commit scopes, version scheme, branch names) fill the
-<placeholders> and live in the repo. "PR" below means a pull or merge request, whichever your
-host calls it.
+Repo-specific values (scopes, version scheme, branch names) fill the <placeholders> and live in
+the repo. "PR" means a pull or merge request, whichever your host calls it.
 
 ## Commits — Conventional Commits
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Every commit:
-
-- **Subject** `type(scope): description`
-  - `type` ∈ feat, fix, docs, style, refactor, perf, test, build, ci, chore
-  - `scope` (optional): a repo area from this repo's <scopes>
-  - `description`: imperative, lowercase, no trailing period; ≤50 chars where possible
-    (hard limit 72)
-  - Breaking change: `type!:` or a `BREAKING CHANGE:` footer
-- **Blank line**, then a **body** wrapped at 72 chars explaining *what* and *why*, never
-  *how* (the diff shows how). Omit only for trivial, self-evident changes.
-- **Trailers** (optional): `Co-authored-by: Name <email>` per human contributor. Do NOT add
-  AI/assistant attribution.
-
-Scope each commit to one logical change — prefer several focused commits over one sweeping
-commit. Propose the split and messages before committing.
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): description`,
+imperative lowercase subject ≤50 chars (hard limit 72); `type` ∈ feat/fix/docs/style/refactor/perf/
+test/build/ci/chore; `scope` from this repo's <scopes>. Breaking change: `type!:` or a
+`BREAKING CHANGE:` footer. Blank line, then a body wrapped at 72 explaining *what* and *why*, never
+*how*. `Co-authored-by:` per human contributor; never AI attribution. One logical change per
+commit; propose the split before committing.
 
 ## Version Control Discipline
 
-- **Review before committing.** Don't commit or push on your own initiative; show what changed and
-  get explicit approval, then commit only what was approved.
-- **Commit freely while developing** on the working branch; intermediate checkpoints are expected.
-- **Main-line history is clean.** Each merged change is one clear, complete, squashed commit
-  describing the whole change — not its iteration history.
-- **Rebase onto latest main-line before merging.**
-- **Never rewrite history you don't own.** The only sanctioned force-push is the deliberate rewrite
-  of your own just-squashed branch, and it must abort if the remote moved unexpectedly.
-- If the remote moved unexpectedly, stop and inspect before doing anything destructive; realign
-  rather than overwrite.
+- Don't commit or push on your own initiative — show what changed, get approval, commit only that.
+- Commit freely on the working branch; main-line history stays clean (one squashed commit per
+  merged change, not its iteration history).
+- Rebase onto latest main-line before merging.
+- Never rewrite history you don't own. The only sanctioned force-push is your own just-squashed
+  branch, and it aborts if the remote moved. If the remote moved unexpectedly, stop and inspect
+  before anything destructive — realign, don't overwrite.
 
 ## Branch & PR model — long-lived working branch + protected main, squash-merged
 
-0. Fetch and check the remote <long-lived-branch>/<protected-branch> state before starting
-   substantial work. Building several commits on a stale base causes painful divergence and
-   rebase conflicts later — cheaper to catch upfront.
-1. All work happens on the <long-lived-branch> — commit freely and messily; WIP commits need
-   not follow commit style (they get squashed away).
-2. Scope each PR to one logical change. Under squash-merge one PR = one commit on
-   <protected-branch>, so a focused PR yields a clean, atomic, revertable commit. Never bundle
-   unrelated changes into one PR to save a round trip.
-3. When ready and tested, open a PR <long-lived-branch> → <protected-branch>. CI must pass, then
-   **squash-merge**. Title the PR as a Conventional Commit (`type(scope): subject`) — most hosts
-   carry the PR title into the resulting commit message on squash-merge.
-4. After merge, reset the working branch onto the protected branch so histories don't drift:
-   `git switch <long-lived-branch> && git reset --hard origin/<protected-branch> && git push --force-with-lease origin <long-lived-branch>`
-   This periodically rewrites the working branch out from under anyone still on an older commit —
-   local automation that pushes to it should auto-rebase onto the latest remote state rather than
-   just fail on a rejected push.
-5. The protected branch stays releasable and is never committed to directly (except one-time
-   bootstraps). Merge method is **squash only**.
+1. Fetch and check the remote <long-lived-branch>/<protected-branch> before substantial work — a
+   stale base means painful divergence later.
+2. Work on <long-lived-branch>, committing freely (WIP commits get squashed).
+3. One logical change per PR — under squash-merge one PR is one commit on <protected-branch>. Never
+   bundle unrelated changes to save a round trip.
+4. When ready and tested, PR → <protected-branch>, CI passes, **squash-merge**. Title the PR as a
+   Conventional Commit — most hosts carry it into the commit message.
+5. After merge, reset the working branch onto the protected branch so histories don't drift:
+   `git switch <long-lived-branch> && git reset --hard origin/<protected-branch> && git push --force-with-lease origin <long-lived-branch>`.
+   Local automation pushing to it should auto-rebase onto latest remote, not fail on rejection.
+6. The protected branch stays releasable, never committed to directly. Merge method is squash only.
 
 ## Working iteratively when you can't self-verify
 
-Some changes can't be confirmed by the agent alone — GUI apps, interactive TUIs, visual
-rendering, keybinding behavior. For that kind of work:
-
-- Commit locally on the <long-lived-branch> as a checkpoint between attempts, but hold off on
-  push/PR until the change is actually confirmed working. Each PR round-trip (CI, merge, branch
-  reset/sync) is real overhead to pay for something still unvalidated.
-- Once confirmed, squash the iteration into one commit representing the final validated state —
-  not the trial-and-error path to get there — then push → PR → merge once.
-- Squash the working branch to one commit before opening the PR even for self-verifiable work
-  (`git reset --soft origin/<protected-branch> && git commit`). A PR showing twenty WIP commits
-  is hard to review, even though squash-merge collapses them anyway.
-
-Work verifiable directly — syntax checks, a dry run, non-interactive CLI behavior — doesn't need
-this; the normal per-change cadence is fine there.
+For changes the agent can't confirm alone (GUI, TUI, rendering, keybindings): commit locally as
+checkpoints but hold off push/PR until confirmed — each round-trip is real overhead for something
+unvalidated. Once confirmed, squash to one commit for the final state and push → PR → merge once.
+Squash before any PR (`git reset --soft origin/<protected-branch> && git commit`) — a twenty-WIP
+PR is hard to review. Directly-verifiable work (syntax, dry run, CLI) skips this.
 
 ## Shift-left tooling and credential scope
 
-Mirror what CI enforces locally (pre-commit hooks or equivalent) so failures surface before push,
-not after — the same checks CI runs, not a subset that drifts from them.
-
-Scope the day-to-day credential (a CLI token, not a full-admin auth session) down to what routine
-commits/PRs actually need, so an agent driving the host's CLI can't accidentally touch repo
-settings, branch protection, or other administrative surfaces. Elevate explicitly only for the
-one action that needs it. (Concrete instance for GitHub: the platform `github.md` file.)
-
-`git cliff --bump` is worth reaching for by hand, not wired into any hook: preview the exact
-version/changelog release automation would produce, with zero side effects, before triggering it
-for real.
+Mirror what CI enforces locally (pre-commit or equivalent) — the same checks, not a drifting
+subset. Scope the day-to-day credential (a CLI token, not a full-admin session) to what routine
+commits/PRs need, so an agent driving the host CLI can't touch repo settings or branch protection;
+elevate explicitly only for the one action that needs it. `git cliff --bump` previews the exact
+version/changelog release automation would compute, with zero side effects — reach for it by hand.
 
 ## Releases (if the repo versions releases) — git-cliff
 
-Cut <version-scheme> (e.g. [SemVer](https://semver.org)) from Conventional Commits:
-
-- On the working branch: `git cliff --tag <TAG> -o CHANGELOG.md`, commit as
-  `chore(release): <TAG>`, PR, squash-merge.
-- Tag it: `git tag -a <TAG> -m <TAG> && git push origin <TAG>`.
-- Publishing the release itself (notes, a release page) is host-specific — see the
-  platform file.
-
-## Before Finishing, Ask
-
-- Did I fetch and check the remote before starting substantial work?
-- Is this PR scoped to one logical change, with commits following Conventional Commits?
-- For unvalidated/unverifiable work, did I hold off on push/PR until it's actually confirmed?
+Cut <version-scheme> from Conventional Commits: on the working branch `git cliff --tag <TAG> -o
+CHANGELOG.md`, commit as `chore(release): <TAG>`, PR, squash-merge, then `git tag -a <TAG> -m <TAG>
+&& git push origin <TAG>`. Publishing notes is host-specific — see the platform file.
