@@ -275,6 +275,27 @@ internal platform file fully wired.
 - **Never commit an internal/work platform file to a public repo** — keep it as a
   [private file](#private-files-workinternal-platform-files).
 
+## Why the rule files are terse
+
+The `rules/` files are directives, not essays. They load into **every** session, and Claude Code's
+own guidance is blunt: files over ~200 lines cost context and *reduce* adherence — the more concise
+the instruction, the more reliably it's followed. So the files hold themselves to `communication.md`'s
+own standard (terse, concrete, lead with the point) instead of exempting themselves from it.
+
+The split that keeps them lean:
+
+- **Directive vs. rationale.** The always-loaded file carries the *what*. The *why* lives here in the
+  README (which loads *never*) when a reader would need it, or is cut entirely when it's generic
+  engineering knowledge the model already has ("write the minimum code" doesn't need three sentences
+  defending it). Non-obvious *why* that changes behavior stays inline (e.g. force-push aborts if the
+  remote moved).
+- **No restatement.** A closing "Before Finishing" checklist that re-lists the file's own principles
+  is pure duplication; it's compressed to a handful of cross-cutting checks in `ai-collaboration.md`,
+  not repeated per file.
+
+A pass in this spirit took the always-loaded set (universal + `git.md`) from ~390 to ~250 lines with
+no directive lost — proof that most of the length was justification, not instruction.
+
 ## Maintenance discipline (the removal test)
 
 These files should grow the same way any codebase should: additions earn their place, and nothing
