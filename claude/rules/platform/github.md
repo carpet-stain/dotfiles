@@ -17,11 +17,13 @@
 
 Realizes `git.md`'s workflow on GitHub. No placeholders — `git.md` owns everything composable.
 
-## Squash-merge and branch protection
+## Rebase-merge and branch protection
 
-GitHub squash-merge carries the PR title into the commit message on the protected branch — title
-the PR as a Conventional Commit, per `git.md`. Branch protection (rules/rulesets) is what enforces
-`git.md`'s squash-only merge and required status checks. "PR" is GitHub's review/merge request.
+GitHub rebase-merge replays the branch's commits onto the protected branch as-is — it doesn't
+rewrite the message the way squash-merge does, so the commit itself (already squashed to one,
+already a Conventional Commit subject) is what lands, not the PR title. Branch protection
+(rules/rulesets) is what enforces `git.md`'s single-commit + rebase-merge rule and required status
+checks. "PR" is GitHub's review/merge request.
 
 ## Local tooling
 

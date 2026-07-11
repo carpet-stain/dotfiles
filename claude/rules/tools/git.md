@@ -17,10 +17,10 @@
 >
 > Trigger: the human asks to scaffold, OR a repo lacks a stated workflow and one is warranted.
 > PROPOSE, don't create — suggest and wait. Steps: (1) read this as baseline; (2) write a
-> repo-local doc filling the <placeholders> — <scopes>, <version-scheme>,
-> <long-lived-branch>/<protected-branch>, whether release automation applies; (3) add to the
-> repo's AGENTS.md that its workflow doc is authoritative over generic git conventions (name no
-> personal path); (4) after this the repo reads its own doc — don't re-distill.
+> repo-local doc filling the <placeholders> — <scopes>, <version-scheme>, <protected-branch>,
+> whether release automation applies; (3) add to the repo's AGENTS.md that its workflow doc is
+> authoritative over generic git conventions (name no personal path); (4) after this the repo
+> reads its own doc — don't re-distill.
 
 # Git Workflow
 
@@ -46,19 +46,22 @@ commit; propose the split before committing.
   branch, and it aborts if the remote moved. If the remote moved unexpectedly, stop and inspect
   before anything destructive — realign, don't overwrite.
 
-## Branch & PR model — long-lived working branch + protected main, squash-merged
+## Branch & PR model — short-lived feature branches + protected main, rebase-merged
 
-1. Fetch and check the remote <long-lived-branch>/<protected-branch> before substantial work — a
-   stale base means painful divergence later.
-2. Work on <long-lived-branch>, committing freely (WIP commits get squashed).
-3. One logical change per PR — under squash-merge one PR is one commit on <protected-branch>. Never
-   bundle unrelated changes to save a round trip.
-4. When ready and tested, PR → <protected-branch>, CI passes, **squash-merge**. Title the PR as a
-   Conventional Commit — most hosts carry it into the commit message.
-5. After merge, reset the working branch onto the protected branch so histories don't drift:
-   `git switch <long-lived-branch> && git reset --hard origin/<protected-branch> && git push --force-with-lease origin <long-lived-branch>`. <!-- markdownlint-disable-line MD013 -->
-   Local automation pushing to it should auto-rebase onto latest remote, not fail on rejection.
-6. The protected branch stays releasable, never committed to directly. Merge method is squash only.
+1. Fetch and check the remote <protected-branch> before branching — a stale base means painful
+   divergence later. Branch off it per change; the branch is single-use and short-lived.
+2. Commit freely on the feature branch — WIP commits needn't follow the commit style, since only
+   the final squashed commit reaches <protected-branch>.
+3. One logical change per PR. Never bundle unrelated changes to save a round trip.
+4. When ready and tested, squash the branch to exactly one Conventional Commit
+   (`git reset --soft origin/<protected-branch> && git commit`), then PR → <protected-branch>. CI
+   gates on the PR being exactly one commit with a Conventional-Commit subject — the two checks
+   rebase-merge relies on, since the host won't rewrite the message the way squash-merge would.
+5. Once green, **rebase-merge**: your single commit lands on <protected-branch> verbatim, and the
+   branch auto-deletes. No branch reuse or reset step needed — the next change starts a fresh
+   branch off <protected-branch>.
+6. <protected-branch> stays releasable, never committed to directly. Merge method is rebase-merge
+   only, enforced by the single-commit + Conventional-Commit checks.
 
 ## Working iteratively when you can't self-verify
 
@@ -78,6 +81,6 @@ version/changelog release automation would compute, with zero side effects — r
 
 ## Releases (if the repo versions releases) — git-cliff
 
-Cut <version-scheme> from Conventional Commits: on the working branch `git cliff --tag <TAG> -o
-CHANGELOG.md`, commit as `chore(release): <TAG>`, PR, squash-merge, then `git tag -a <TAG> -m <TAG>
+Cut <version-scheme> from Conventional Commits: on a release branch `git cliff --tag <TAG> -o
+CHANGELOG.md`, commit as `chore(release): <TAG>`, PR, rebase-merge, then `git tag -a <TAG> -m <TAG>
 && git push origin <TAG>`. Publishing notes is host-specific — see the platform file.

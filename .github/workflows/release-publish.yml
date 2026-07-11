@@ -2,13 +2,12 @@ name: Publish release
 
 # Triggers on the PR's own close event rather than the resulting push, and
 # gates on the PR's actual head branch name (structural metadata) rather
-# than the squash-commit message text. A push-based trigger checking
-# commit-message text is fragile: GitHub lets you edit the squash-commit
-# message in the merge confirmation box regardless of what the PR title
-# said, so a push-triggered check could silently no-op on a genuine
-# release, or fire on something it shouldn't. head.ref isn't editable at
-# merge time, so gating on it here doubles as the verification step this
-# workflow used to need separately.
+# than the merged commit's message text. A push-based trigger checking
+# commit-message text is fragile even under rebase-merge, where the message
+# is already pr-guards.yml-verified: a push-time parse would just duplicate
+# that check instead of trusting it. head.ref isn't editable at merge time,
+# so gating on it here doubles as the verification step this workflow used
+# to need separately.
 on:
   pull_request:
     types: [closed]
