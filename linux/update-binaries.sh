@@ -37,7 +37,8 @@ match_asset() {
 }
 
 sha_of_url() {
-  local tmp; tmp="$(mktemp)"
+  local tmp
+  tmp="$(mktemp)"
   curl -fsSL "$1" -o "$tmp"
   sha256sum "$tmp" | cut -d' ' -f1
   rm -f "$tmp"
@@ -53,7 +54,8 @@ sha_of_url() {
     json="$(gh_api "$repo")"
     version="$(grep -oP '"tag_name":\s*"\K[^"]+' <<<"$json" | head -1)"
     for arch_pat in "x86_64|$pat_x86" "aarch64|$pat_arm"; do
-      arch="${arch_pat%%|*}"; pat="${arch_pat#*|}"
+      arch="${arch_pat%%|*}"
+      pat="${arch_pat#*|}"
       url="$(match_asset "$json" "$pat")"
       if [[ -z "$url" ]]; then
         printf '  ERROR: no %s asset matching /%s/ for %s\n' "$arch" "$pat" "$tool" >&2
@@ -63,6 +65,6 @@ sha_of_url() {
       printf '%s\t%s\t%s\t%s\t%s\n' "$tool" "$arch" "$version" "$url" "$(sha_of_url "$url")"
     done
   done
-} > "$LOCK.tmp"
+} >"$LOCK.tmp"
 mv "$LOCK.tmp" "$LOCK"
 printf 'wrote %s\n' "$LOCK" >&2

@@ -4,3 +4,11 @@ config:
     code_blocks: false
     tables: false
     headings: false
+  # claude/rules/*.md deliberately open with a blockquote-styled GATE/
+  # LOCAL-WINS/COMPOSE meta-header (stacked blockquote paragraphs, separated
+  # by blank lines) before the file's real H1 — not a mistake to flag.
+  MD041: false
+  MD028: false
+  # <placeholder> markers (<scopes>, <version-scheme>, etc.) in claude/rules/
+  # are literal template syntax, not real HTML.
+  MD033: false

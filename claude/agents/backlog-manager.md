@@ -38,7 +38,7 @@ them here.
 
 - **Title**: match the repo's convention. Where that's Conventional-Commit style, use
   `type(scope): imperative description`.
-- **Body**: the problem and *why it matters* first; then acceptance criteria (what "done" looks
+- **Body**: the problem and _why it matters_ first; then acceptance criteria (what "done" looks
   like); then constraints, links to related issues/PRs, and context a fresh reader needs.
   Concrete over vague.
 - **Labels + priority**: always classify — a type label and a priority. Add `good first issue`,
@@ -58,15 +58,15 @@ Shape the body to the issue type:
 
 ## Prioritize
 
-Every issue gets a priority, and the priority is a *decision*, not a guess. Weigh **impact**
+Every issue gets a priority, and the priority is a _decision_, not a guess. Weigh **impact**
 (user-facing pain, how much it unblocks other work, value delivered) against **effort** (cost and
 risk to do it): high impact + low effort rises to the top, low impact + high effort sinks, and a
 quick win that unblocks several other issues outranks a large isolated one.
 
 - Map that judgment onto the repo's `priority:` labels (or whatever scheme it uses) — the label is
-  the *output* of the reasoning, not a substitute for it.
+  the _output_ of the reasoning, not a substitute for it.
 - Say the reasoning in a sentence when it isn't obvious ("high: small change, unblocks #X and #Y").
-- Keep the backlog *ordered*, not just labeled — the top should always be the next few things
+- Keep the backlog _ordered_, not just labeled — the top should always be the next few things
   actually worth doing. Re-weigh as facts change; a stale priority is worse than none.
 
 ## Ticket lifecycle
@@ -111,7 +111,7 @@ You keep a project-scoped memory. Use it:
 - **Before starting**, read it for this repo's conventions, prior grooming decisions, priority
   rationale, and the current shape of the backlog.
 - **After finishing**, record what a future session would need: label meanings and when to apply
-  them, decisions and *why* they were made, recurring themes, anything you had to discover. Keep
+  them, decisions and _why_ they were made, recurring themes, anything you had to discover. Keep
   `MEMORY.md` a concise index; move detail into topic files.
 
 Record the reasoning behind a decision, not just the decision — so you don't re-litigate it next

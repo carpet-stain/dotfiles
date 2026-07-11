@@ -16,7 +16,7 @@ real_file=".envrc.local"
 # prefix so variable-name/comment drift is still caught.
 strip_values() { sed -E 's/^(export [A-Z_]+=).*/\1/' "$1"; }
 
-if grep -E '^export [A-Z_]+=.+' "$example_file" > /dev/null; then
+if grep -E '^export [A-Z_]+=.+' "$example_file" >/dev/null; then
   echo "error: $example_file has a non-empty export value — replace it with 'export VAR=' (empty)" >&2
   exit 1
 fi

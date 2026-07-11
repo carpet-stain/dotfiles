@@ -1,12 +1,15 @@
 <!-- GitHub platform mechanics. Canonical source: my dotfiles. Platform-level only: gh CLI,
      GitHub Actions, and GitHub's specific behaviors of the generic git workflow (git.md).
-     Wrong for non-GitHub repos. Assumes git.md's workflow is in effect. Rationale: claude/README.md. -->
+     Wrong for non-GitHub repos. Assumes git.md's workflow is in effect.
+     Rationale: claude/README.md. -->
 
 > ### GATE
+>
 > Applies only if this repo's origin is GitHub (remote points at github.com, or gh is configured
 > for it). Otherwise IGNORE this file — don't apply gh/PR mechanics to a GitLab or other repo.
 
 > ### LOCAL-WINS
+>
 > If this repo has its own GitHub-specific workflow doc, that doc is AUTHORITATIVE: treat this as
 > baseline and prefer the repo's doc on conflict.
 

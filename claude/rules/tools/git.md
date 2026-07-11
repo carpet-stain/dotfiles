@@ -4,14 +4,17 @@
      Rationale: claude/README.md. -->
 
 > ### GATE
+>
 > Applies only if this repo uses git — true for nearly every repo, so this is the rare-exception
 > gate, not a real filter. If not, ignore this file.
 
 > ### LOCAL-WINS
+>
 > If this repo has its own commit/branch-workflow doc, that doc is AUTHORITATIVE: treat this as
 > baseline and prefer the repo's doc on conflict.
 
 > ### COMPOSE — give a repo its own concrete git workflow doc
+>
 > Trigger: the human asks to scaffold, OR a repo lacks a stated workflow and one is warranted.
 > PROPOSE, don't create — suggest and wait. Steps: (1) read this as baseline; (2) write a
 > repo-local doc filling the <placeholders> — <scopes>, <version-scheme>,
@@ -29,8 +32,8 @@ the repo. "PR" means a pull or merge request, whichever your host calls it.
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): description`,
 imperative lowercase subject ≤50 chars (hard limit 72); `type` ∈ feat/fix/docs/style/refactor/perf/
 test/build/ci/chore; `scope` from this repo's <scopes>. Breaking change: `type!:` or a
-`BREAKING CHANGE:` footer. Blank line, then a body wrapped at 72 explaining *what* and *why*, never
-*how*. `Co-authored-by:` per human contributor; never AI attribution. One logical change per
+`BREAKING CHANGE:` footer. Blank line, then a body wrapped at 72 explaining _what_ and _why_, never
+_how_. `Co-authored-by:` per human contributor; never AI attribution. One logical change per
 commit; propose the split before committing.
 
 ## Version Control Discipline
@@ -53,7 +56,7 @@ commit; propose the split before committing.
 4. When ready and tested, PR → <protected-branch>, CI passes, **squash-merge**. Title the PR as a
    Conventional Commit — most hosts carry it into the commit message.
 5. After merge, reset the working branch onto the protected branch so histories don't drift:
-   `git switch <long-lived-branch> && git reset --hard origin/<protected-branch> && git push --force-with-lease origin <long-lived-branch>`.
+   `git switch <long-lived-branch> && git reset --hard origin/<protected-branch> && git push --force-with-lease origin <long-lived-branch>`. <!-- markdownlint-disable-line MD013 -->
    Local automation pushing to it should auto-rebase onto latest remote, not fail on rejection.
 6. The protected branch stays releasable, never committed to directly. Merge method is squash only.
 

@@ -12,9 +12,9 @@ XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOCAL_BIN="$HOME/.local/bin"
 
-ARCH="$(uname -m)"   # x86_64 or aarch64
+ARCH="$(uname -m)" # x86_64 or aarch64
 # shellcheck disable=SC1091 # /etc/os-release is a system file, not part of this repo
-CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"   # e.g. bookworm, bullseye
+CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")" # e.g. bookworm, bullseye
 
 # Guarantee $LOCAL_BIN (where this script installs neovim, delta, zellij,
 # eza) and the standard system dirs are searched, regardless of what PATH
@@ -28,7 +28,8 @@ export PATH="$LOCAL_BIN:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 # +---------+
 
 required() {
-  local desc="$1"; shift
+  local desc="$1"
+  shift
   printf '%s...\n' "$desc"
   local output
   if output=$("$@" 2>&1); then
@@ -40,7 +41,8 @@ required() {
 }
 
 optional() {
-  local desc="$1"; shift
+  local desc="$1"
+  shift
   printf '%s...\n' "$desc"
   local output
   if output=$("$@" 2>&1); then
@@ -98,17 +100,17 @@ bootstrap_apt() {
 add_apt_repos() {
   # GitHub CLI
   if ! dpkg -l gh &>/dev/null 2>&1; then
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-      | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg |
+      sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
     sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
     printf 'deb [arch=%s signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\n' \
-      "$(dpkg --print-architecture)" \
-      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+      "$(dpkg --print-architecture)" |
+      sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
   fi
 
   # NodeSource — Node 20 LTS
   if ! node --version 2>/dev/null | grep -q '^v20'; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - > /dev/null
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - >/dev/null
   fi
 
   # Debian backports — golang-go 1.22+ (stable's own golang-go is too old for
@@ -117,8 +119,8 @@ add_apt_repos() {
   # Debian version, which can leave dpkg/apt in a broken, hard-to-diagnose
   # state — always derive the suite name from the running release instead.
   if ! grep -rq "${CODENAME}-backports" /etc/apt/sources.list* 2>/dev/null; then
-    printf 'deb http://deb.debian.org/debian %s-backports main\n' "$CODENAME" \
-      | sudo tee /etc/apt/sources.list.d/backports.list > /dev/null
+    printf 'deb http://deb.debian.org/debian %s-backports main\n' "$CODENAME" |
+      sudo tee /etc/apt/sources.list.d/backports.list >/dev/null
   fi
 
   sudo apt-get update -qq
@@ -160,14 +162,18 @@ fetch_verified() {
     printf 'no pinned %s entry for %s in binaries.lock\n' "$ARCH" "$tool" >&2
     return 1
   fi
-  url="$(cut -f4 <<<"$row")"; sha="$(cut -f5 <<<"$row")"
+  url="$(cut -f4 <<<"$row")"
+  sha="$(cut -f5 <<<"$row")"
   dest="$(mktemp)"
   if ! curl -fsSL "$url" -o "$dest"; then
-    printf 'download failed: %s\n' "$url" >&2; rm -f "$dest"; return 1
+    printf 'download failed: %s\n' "$url" >&2
+    rm -f "$dest"
+    return 1
   fi
   if ! printf '%s  %s' "$sha" "$dest" | sha256sum -c --status -; then
     printf 'sha256 mismatch for %s (%s) — expected %s\n' "$tool" "$ARCH" "$sha" >&2
-    rm -f "$dest"; return 1
+    rm -f "$dest"
+    return 1
   fi
   printf '%s' "$dest"
 }
@@ -178,7 +184,8 @@ install_tool() {
   local tool="$1" binary="$2" archive
   archive="$(fetch_verified "$tool")" || return 1
   if tar -tzf "$archive" >/dev/null 2>&1; then
-    local tmp; tmp="$(mktemp -d)"
+    local tmp
+    tmp="$(mktemp -d)"
     tar -xzf "$archive" -C "$tmp"
     find "$tmp" -name "$binary" -type f -exec cp {} "$LOCAL_BIN/$binary" \;
     rm -rf "$tmp"
@@ -196,16 +203,22 @@ install_tool() {
 # neovim needs its runtime (share/nvim) beside the binary, so it can't use the
 # generic single-binary installer above.
 install_neovim() {
-  local archive; archive="$(fetch_verified neovim)" || return 1
-  local tmp; tmp="$(mktemp -d)"
+  local archive
+  archive="$(fetch_verified neovim)" || return 1
+  local tmp
+  tmp="$(mktemp -d)"
   tar -xzf "$archive" -C "$tmp"
-  local src; src="$(find "$tmp" -maxdepth 1 -name 'nvim-linux-*' -type d | head -1)"
+  local src
+  src="$(find "$tmp" -maxdepth 1 -name 'nvim-linux-*' -type d | head -1)"
 
   cp "$src/bin/nvim" "$LOCAL_BIN/nvim"
   chmod +x "$LOCAL_BIN/nvim"
   # Runtime must sit at $HOME/.local/share/nvim/runtime relative to the binary
   cp -r "$src/share/nvim" "$XDG_DATA_HOME/"
-  [[ -d "$src/lib" ]] && { mkdir -p "$HOME/.local/lib"; cp -r "$src/lib/." "$HOME/.local/lib/"; }
+  [[ -d "$src/lib" ]] && {
+    mkdir -p "$HOME/.local/lib"
+    cp -r "$src/lib/." "$HOME/.local/lib/"
+  }
   rm -rf "$tmp" "$archive"
 }
 
@@ -214,7 +227,7 @@ install_neovim() {
 # +------------------+
 
 link_configs() {
-  ln -sf "$DOTFILES_DIR/zsh/.zshenv"           "$HOME/.zshenv"
+  ln -sf "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 
   # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
   # Claude Code auto-discovers and loads every *.md under rules/ recursively and
@@ -239,37 +252,37 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/claude/settings.json" "$XDG_CONFIG_HOME/claude/settings.json"
 
   ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \
-         "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"
+    "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"
   ln -sf "$DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml" \
-         "$XDG_CONFIG_HOME/eza/theme.yml"
+    "$XDG_CONFIG_HOME/eza/theme.yml"
 
-  ln -sf "$DOTFILES_DIR/nvim/init.lua"         "$XDG_CONFIG_HOME/nvim/init.lua"
-  ln -sfn "$DOTFILES_DIR/nvim/lua"             "$XDG_CONFIG_HOME/nvim/lua"
-  ln -sf "$DOTFILES_DIR/nvim/lazy-lock.json"   "$XDG_CONFIG_HOME/nvim/lazy-lock.json"
+  ln -sf "$DOTFILES_DIR/nvim/init.lua" "$XDG_CONFIG_HOME/nvim/init.lua"
+  ln -sfn "$DOTFILES_DIR/nvim/lua" "$XDG_CONFIG_HOME/nvim/lua"
+  ln -sf "$DOTFILES_DIR/nvim/lazy-lock.json" "$XDG_CONFIG_HOME/nvim/lazy-lock.json"
 
-  ln -sf "$DOTFILES_DIR/zellij/config.kdl"     "$XDG_CONFIG_HOME/zellij/config.kdl"
+  ln -sf "$DOTFILES_DIR/zellij/config.kdl" "$XDG_CONFIG_HOME/zellij/config.kdl"
   ln -sf "$DOTFILES_DIR/zellij/themes/catppuccin.kdl" \
-         "$XDG_CONFIG_HOME/zellij/themes/catppuccin.kdl"
+    "$XDG_CONFIG_HOME/zellij/themes/catppuccin.kdl"
   ln -sf "$DOTFILES_DIR/zellij/layouts/default.kdl" \
-         "$XDG_CONFIG_HOME/zellij/layouts/default.kdl"
+    "$XDG_CONFIG_HOME/zellij/layouts/default.kdl"
 
-  ln -sf "$DOTFILES_DIR/htoprc"                "$XDG_CONFIG_HOME/htop/htoprc"
-  ln -sf "$DOTFILES_DIR/batconfig"             "$XDG_CONFIG_HOME/bat/config"
+  ln -sf "$DOTFILES_DIR/htoprc" "$XDG_CONFIG_HOME/htop/htoprc"
+  ln -sf "$DOTFILES_DIR/batconfig" "$XDG_CONFIG_HOME/bat/config"
   ln -sf "$DOTFILES_DIR/theme/bat/themes/Catppuccin Mocha.tmTheme" \
-         "$XDG_CONFIG_HOME/bat/themes/Catppuccin Mocha.tmTheme"
+    "$XDG_CONFIG_HOME/bat/themes/Catppuccin Mocha.tmTheme"
 
-  ln -sf "$DOTFILES_DIR/git/attributes"        "$XDG_CONFIG_HOME/git/attributes"
-  ln -sf "$DOTFILES_DIR/git/committemplate"    "$XDG_CONFIG_HOME/git/committemplate"
-  ln -sf "$DOTFILES_DIR/git/config"            "$XDG_CONFIG_HOME/git/config"
-  ln -sf "$DOTFILES_DIR/git/ignore"            "$XDG_CONFIG_HOME/git/ignore"
+  ln -sf "$DOTFILES_DIR/git/attributes" "$XDG_CONFIG_HOME/git/attributes"
+  ln -sf "$DOTFILES_DIR/git/committemplate" "$XDG_CONFIG_HOME/git/committemplate"
+  ln -sf "$DOTFILES_DIR/git/config" "$XDG_CONFIG_HOME/git/config"
+  ln -sf "$DOTFILES_DIR/git/ignore" "$XDG_CONFIG_HOME/git/ignore"
   ln -sf "$DOTFILES_DIR/theme/delta/catppuccin.gitconfig" \
-         "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
+    "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
 
-  ln -sf "$DOTFILES_DIR/ripgreprc"             "$XDG_CONFIG_HOME/ripgrep/config"
-  ln -sf "$DOTFILES_DIR/curlrc"                "$XDG_CONFIG_HOME/curlrc"
-  ln -sf "$DOTFILES_DIR/tealdeerconfig.toml"   "$XDG_CONFIG_HOME/tealdeer/config.toml"
+  ln -sf "$DOTFILES_DIR/ripgreprc" "$XDG_CONFIG_HOME/ripgrep/config"
+  ln -sf "$DOTFILES_DIR/curlrc" "$XDG_CONFIG_HOME/curlrc"
+  ln -sf "$DOTFILES_DIR/tealdeerconfig.toml" "$XDG_CONFIG_HOME/tealdeer/config.toml"
 
-  ln -sf "$DOTFILES_DIR/ssh/config"            "$XDG_CONFIG_HOME/ssh/config"
+  ln -sf "$DOTFILES_DIR/ssh/config" "$XDG_CONFIG_HOME/ssh/config"
 
   # Machine-specific SSH config (real hostnames/IPs, usernames) — deployed
   # config.local's `Include` expects this to exist, but it's deliberately
@@ -278,7 +291,7 @@ link_configs() {
   [[ -f "$XDG_CONFIG_HOME/ssh/config.local" ]] || touch "$XDG_CONFIG_HOME/ssh/config.local"
 
   if [[ ! -d "$HOME/.ssh" || -L "$HOME/.ssh" ]]; then
-    ln -sf "$XDG_CONFIG_HOME/ssh"              "$HOME/.ssh"
+    ln -sf "$XDG_CONFIG_HOME/ssh" "$HOME/.ssh"
   fi
 
   # Debian installs fd as fdfind; symlink so PATH references just work
@@ -329,7 +342,8 @@ install_zsh_plugins() {
 # +-----+
 
 set_default_shell() {
-  local zsh_path; zsh_path="$(command -v zsh)"
+  local zsh_path
+  zsh_path="$(command -v zsh)"
   if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$zsh_path" ]]; then
     sudo usermod -s "$zsh_path" "$USER"
     printf '  Note: log out and back in for the new shell to take effect\n'
@@ -345,11 +359,11 @@ download_gitstatusd() {
   # CI=1 skips .zshrc's zellij auto-attach block — without it, this
   # non-tty interactive shell hits `exec zellij attach` and hangs forever
   # instead of just running the p10k/gitstatusd bootstrap it's here for.
-  CI=1 zsh -is <<< ''
+  CI=1 zsh -is <<<''
 }
 
 set_fsh() {
-  CI=1 zsh -is <<< 'fast-theme -q XDG:catppuccin-mocha'
+  CI=1 zsh -is <<<'fast-theme -q XDG:catppuccin-mocha'
 }
 
 refresh_tldr() {
@@ -401,29 +415,29 @@ generate_ghostty_terminfo() {
 # | EXECUTE FUNCTIONS  |
 # +--------------------+
 
-required "Creating directory tree"                create_directories
-required "Bootstrapping apt"                      bootstrap_apt
-required "Adding custom apt repositories"         add_apt_repos
-required "Installing apt packages"                install_apt_packages
-required "Installing Neovim"                      install_neovim
-required "Installing git-delta"                   install_tool delta delta
-required "Installing zellij"                      install_tool zellij zellij
-required "Installing eza"                         install_tool eza eza
-required "Installing doggo"                       install_tool doggo doggo
-required "Installing dua"                         install_tool dua dua
-required "Installing curlie"                      install_tool curlie curlie
-required "Installing jaq"                         install_tool jaq jaq
-required "Syncing submodules"                     sync_submodules
-required "Linking config files"                   link_configs
-required "Installing zsh plugins"                 install_zsh_plugins
-required "Setting zsh as default shell"           set_default_shell
-optional "Installing Ghostty terminfo"            generate_ghostty_terminfo
-optional "Building bat theme cache"               build_bat_cache
-optional "Downloading gitstatusd for p10k"        download_gitstatusd
+required "Creating directory tree" create_directories
+required "Bootstrapping apt" bootstrap_apt
+required "Adding custom apt repositories" add_apt_repos
+required "Installing apt packages" install_apt_packages
+required "Installing Neovim" install_neovim
+required "Installing git-delta" install_tool delta delta
+required "Installing zellij" install_tool zellij zellij
+required "Installing eza" install_tool eza eza
+required "Installing doggo" install_tool doggo doggo
+required "Installing dua" install_tool dua dua
+required "Installing curlie" install_tool curlie curlie
+required "Installing jaq" install_tool jaq jaq
+required "Syncing submodules" sync_submodules
+required "Linking config files" link_configs
+required "Installing zsh plugins" install_zsh_plugins
+required "Setting zsh as default shell" set_default_shell
+optional "Installing Ghostty terminfo" generate_ghostty_terminfo
+optional "Building bat theme cache" build_bat_cache
+optional "Downloading gitstatusd for p10k" download_gitstatusd
 optional "Setting fast-syntax-highlighting theme" set_fsh
-optional "Refreshing TLDR pages"                  refresh_tldr
-optional "Granting zellij plugin permissions"     grant_zellij_permissions
-optional "Setting up Neovim plugins/LSPs"         set_neovim
+optional "Refreshing TLDR pages" refresh_tldr
+optional "Granting zellij plugin permissions" grant_zellij_permissions
+optional "Setting up Neovim plugins/LSPs" set_neovim
 
 # set_default_shell only takes effect on the next login; exec straight into
 # zsh so this session lands there too instead of staying on bash until then.

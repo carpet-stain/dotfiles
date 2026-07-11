@@ -15,48 +15,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  zsh-syntax:
-    name: zsh syntax
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Gate expensive steps on whether any zsh files actually changed.
-      # Using an in-job filter (rather than a top-level paths: trigger) keeps
-      # the job always-green for non-zsh PRs, satisfying required-status checks.
-      - id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            zsh:
-              - 'zsh/**'
-              - '**/*.zsh'
-              - 'macos/deploy.zsh'
+      # ubuntu-latest ships Homebrew already; this just puts it on PATH, so
+      # CI installs the exact same formulae/versions as macos/deploy.zsh and
+      # a contributor's local machine — one tool list, not a second one
+      # re-declared in apt/npm/go-install form.
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Install zsh
-        if: steps.filter.outputs.zsh == 'true'
-        run: sudo apt-get update && sudo apt-get install -y zsh
-
-      # zsh -n parses without executing, so missing tools/submodules don't matter.
-      - name: Syntax-check zsh files
-        if: steps.filter.outputs.zsh == 'true'
+      - name: Install lint/format tools
         run: |
-          fail=0
-          files=(
-            zsh/.zshenv
-            zsh/.zshrc
-            zsh/rc.d/*.zsh
-            zsh/env.d/*.zsh
-            zsh/fpath/*
-            macos/deploy.zsh
-          )
-          for f in "${files[@]}"; do
-            [ -f "$f" ] || continue
-            if zsh -n "$f"; then
-              echo "ok: $f"
-            else
-              echo "::error file=$f::zsh -n failed"
-              fail=1
-            fi
-          done
-          exit $fail
+          brew install lefthook zsh shellcheck actionlint shfmt stylua \
+            selene taplo yamlfmt markdownlint-cli2 prettier
+
+      # lefthook.yml is the single source of truth for these checks — CI runs
+      # it directly instead of re-implementing each one as a separate job, so
+      # CI can't drift from what a contributor's pre-commit hook already runs.
+      - name: Run lint/format checks
+        run: lefthook run pre-commit --all-files --no-tty

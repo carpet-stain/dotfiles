@@ -17,11 +17,62 @@ pre-commit:
       glob: "linux/*.sh"
       run: shellcheck {staged_files}
 
+    - name: shfmt
+      glob:
+        - "linux/*.sh"
+        - "scripts/*.sh"
+      run: shfmt -i 2 -ci -d {staged_files}
+
     - name: actionlint
       glob:
         - ".github/workflows/*.yml"
         - ".github/workflows/*.yaml"
       run: actionlint {staged_files}
+
+    - name: lua-format
+      glob:
+        - "nvim/*.lua"
+        - "nvim/**/*.lua"
+      run: stylua --check {staged_files}
+
+    - name: lua-lint
+      glob:
+        - "nvim/*.lua"
+        - "nvim/**/*.lua"
+      run: selene --config nvim/selene.toml {staged_files}
+
+    - name: toml-format
+      glob:
+        - "*.toml"
+        - "nvim/*.toml"
+      run: taplo fmt --check {staged_files}
+
+    - name: toml-lint
+      glob:
+        - "*.toml"
+        - "nvim/*.toml"
+      run: taplo lint {staged_files}
+
+    - name: yaml-format
+      glob:
+        - ".github/dependabot.yml"
+        - ".markdownlint-cli2.yaml"
+        - "lefthook.yml"
+      run: yamlfmt -lint {staged_files}
+
+    - name: markdownlint
+      glob:
+        - "*.md"
+        - "**/*.md"
+      exclude: "CHANGELOG.md"
+      run: markdownlint-cli2 {staged_files}
+
+    - name: md-format
+      glob:
+        - "*.md"
+        - "**/*.md"
+      exclude: "CHANGELOG.md"
+      run: prettier --check {staged_files}
 
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh

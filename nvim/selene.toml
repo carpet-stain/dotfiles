@@ -1,0 +1,7 @@
+std = "lua51+vim"
+
+[rules]
+# LazyVim's plugin-spec table shape (`{ "plugin/name", opts = {...} }`) mixes
+# array- and dict-style keys by design — not a real bug, so this repo's own
+# idiom would otherwise trip selene's default warning on every plugin file.
+mixed_table = "allow"

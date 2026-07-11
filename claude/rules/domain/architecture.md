@@ -4,10 +4,11 @@
      so it stops loading in config/script/dotfiles repos. Rationale: claude/README.md. -->
 
 > ### GATE
+>
 > Applies only when this repo builds an application with distinct internal layers — a service, a
 > CLI with real orchestration, a library with a public contract. SKIP for pure config, dotfiles,
 > scripts, or single-purpose tools: wrong context there, not merely unnecessary.
-> Like the universal principles, a repo's DESIGN.md/ADRs *illustrate* these, never override them.
+> Like the universal principles, a repo's DESIGN.md/ADRs _illustrate_ these, never override them.
 
 # Application Architecture
 

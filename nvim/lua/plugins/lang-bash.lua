@@ -26,19 +26,20 @@ return {
     "mfussenegger/nvim-lint",
     opts = {
       linters_by_ft = {
-        sh   = { "shellcheck" },
+        sh = { "shellcheck" },
         bash = { "shellcheck" },
       },
     },
   },
   -- nvim-lspconfig's `servers` table is supposed to auto-install LSP servers
-  -- via Mason too, but that path is unreliably slow/async in practice (and
-  -- standalone linter CLIs like shellcheck don't go through it at all) — so
-  -- list both explicitly here for a deterministic `deploy.zsh` bootstrap.
+  -- via Mason too, but that path is unreliably slow/async in practice — so
+  -- list it explicitly here for a deterministic `deploy.zsh` bootstrap.
+  -- shellcheck itself comes from macos/Brewfile now (shared with lefthook.yml
+  -- and CI), not Mason — one copy on PATH instead of two.
   {
     "mason-org/mason.nvim",
     -- mason.nvim's ensure_installed wants Mason's own package name
     -- ("bash-language-server"), not nvim-lspconfig's server name ("bashls").
-    opts = { ensure_installed = { "bash-language-server", "shellcheck" } },
+    opts = { ensure_installed = { "bash-language-server" } },
   },
 }
