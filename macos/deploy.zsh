@@ -172,7 +172,6 @@ link_zsh_plugins() {
     powerlevel10k       $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k
     zsh-autosuggestions $HOMEBREW_PREFIX/share/zsh-autosuggestions
     zsh-autopair        $HOMEBREW_PREFIX/share/zsh-autopair
-    forgit              $HOMEBREW_PREFIX/share/forgit
   )
   local name
   for name in ${(k)plugin_srcs}; do

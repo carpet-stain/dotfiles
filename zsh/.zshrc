@@ -142,11 +142,3 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
 
 source $XDG_DATA_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# +--------+
-# | FORGIT |
-# +--------+
-
-# Interactive git commands via fzf (ga, glo, gi, …); needs fzf loaded above.
-# Not needed until first invoked, so defer past the first prompt.
-zsh-defer source $XDG_DATA_HOME/zsh/plugins/forgit/forgit.plugin.zsh
