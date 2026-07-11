@@ -90,6 +90,7 @@ create_directories() {
     "$XDG_STATE_HOME/less" \
     "$XDG_STATE_HOME/zsh" \
     "$LOCAL_BIN"
+  mkdir -p "$XDG_CONFIG_HOME/claude"
   mkdir -p "$XDG_CONFIG_HOME/ssh" && chmod 700 "$XDG_CONFIG_HOME/ssh"
 }
 
@@ -288,6 +289,22 @@ install_jaq() {
 
 link_configs() {
   ln -sf "$DOTFILES_DIR/zsh/.zshenv"           "$HOME/.zshenv"
+
+  # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
+  # Claude Code auto-discovers and loads every *.md under rules/ recursively and
+  # unconditionally — no loader file or @import wiring needed. See claude/README.md.
+  # Symlinked as one directory so universal/tools/platform (and any gitignored
+  # private file dropped inside them) all come along with zero per-file wiring.
+  # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
+  # old loader design; a real claude/rules/ dir of individual symlinks from the
+  # per-file-glob design) — safe since deploy fully owns all of these paths.
+  rm -f "$XDG_CONFIG_HOME/claude/CLAUDE.md"
+  rm -rf "$XDG_CONFIG_HOME/claude/fragments"
+  rm -rf "$XDG_CONFIG_HOME/claude/rules"
+  ln -sfn "$DOTFILES_DIR/claude/rules" "$XDG_CONFIG_HOME/claude/rules"
+
+  # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
+  ln -sf "$DOTFILES_DIR/claude/settings.json" "$XDG_CONFIG_HOME/claude/settings.json"
 
   ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \
          "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"

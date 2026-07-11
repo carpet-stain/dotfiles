@@ -66,6 +66,9 @@ export GOPATH=$XDG_DATA_HOME/go
 export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
 # Suppress Terminal.app session restore files (~/.zsh_sessions, ~/.bash_sessions)
 export SHELL_SESSIONS_DISABLE=1
+# Claude Code honors CLAUDE_CONFIG_DIR; point it at XDG instead of ~/.claude so
+# the agent config obeys the same Strict-XDG rule as every other tool here.
+export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
 
 # +------+
 # | PATH |

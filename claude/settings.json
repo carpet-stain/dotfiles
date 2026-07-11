@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_AUTOUPDATER": "1"
+  },
+  "disableClaudeAiConnectors": true,
+  "theme": "auto",
+  "disableDeepLinkRegistration": "disable"
+}

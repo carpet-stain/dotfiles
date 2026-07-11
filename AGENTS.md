@@ -1,7 +1,20 @@
 # AGENTS.md
 
-Guidance for AI assistants working in this repo. Vendor-neutral; `CLAUDE.md` is a
-symlink to this file.
+Guidance for AI assistants working in this repo (repo-specific).
+Vendor-neutral; the root `CLAUDE.md` is a gitignored symlink to this file.
+
+> **Note:** this repo also has a `claude/` directory unrelated to the root
+> `CLAUDE.md` symlink above. `claude/rules/*.md` are the global agent-config
+> files (tracked, deployed to `$CLAUDE_CONFIG_DIR/rules`, where Claude
+> Code auto-discovers and loads them) — see `claude/README.md`.
+
+## Precedence: this repo's own docs win over the generic files
+
+If the agent supplies the generic global files (universal philosophy, Go, GitHub mechanics),
+this repo's own documents are **authoritative** where they overlap — treat any generic file
+as baseline and prefer this file and the sections below on conflict. The universal philosophy
+is not *overridden*; this repo illustrates how it is realized. A contributor without any
+of the global files loses nothing — this guide is the full story.
 
 ## What this is
 
@@ -13,7 +26,11 @@ OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 ## Philosophy
 
 - **Best tool for the job.** Prefer purpose-built modern tools (fd, rg, eza, bat,
-  delta, zoxide, fzf) over defaults.
+  delta, zoxide, fzf) over defaults — this repo's concrete realization of the
+  universal Small, Composable Tools principle.
+- **No bloat.** Every setting earns its place — Simplicity First's "no
+  speculative additions" applied to config. Delete dead config instead of
+  letting it accumulate, the same discipline Refactoring asks of code.
 - **Homebrew-first.** Install packages via Homebrew. Only when Homebrew lacks a
   package does it become a git submodule. No dotfile manager or framework —
   Powerlevel10k is the sole exception. On Linux, where there's no Homebrew,
@@ -23,10 +40,6 @@ OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 - **XDG discipline.** Keep `$HOME` clean: only `.zshenv` lives there, everything
   else goes under `$XDG_{CONFIG,CACHE,DATA,STATE}_HOME`. Respect the distinction —
   config vs cache vs data vs state. Documented exceptions below.
-- **No bloat.** Every setting earns its place. Delete dead config; don't
-  accumulate.
-- **Readability over cleverness.** Explicit names, conventional idioms, comments
-  only where intent is non-obvious (never restate what the code plainly says).
 - **Portable, extendable, quick to install.** A fresh machine should reach a
   working setup by cloning and running the deploy script.
 
@@ -38,7 +51,7 @@ Entries that must stay in `$HOME` despite the XDG rule:
 |---|---|
 | `.zshenv` | zsh's fixed entry point — always read from `$HOME` |
 | `.ssh/` | Symlink → `~/.config/ssh/`; config tracked in `ssh/config`, keys gitignored |
-| `.claude/`, `.claude.json` | Claude Code (Electron) — no XDG support |
+| `.claude.json` legacy path | Claude Code now honors `CLAUDE_CONFIG_DIR` → `$XDG_CONFIG_HOME/claude` (set in `.zshenv`); config is XDG. A stale `~/.claude*` may remain from before the switch. |
 | `.vscode-oss/`, `.vscode-oss-shared/` | Claude Code desktop app data — no XDG support |
 | `.CFUserTextEncoding`, `.DS_Store`, `.Trash` | macOS system — not configurable |
 | `.zsh_sessions/`, `.bash_sessions/` | Terminal.app session restore — suppressed via `SHELL_SESSIONS_DISABLE=1` |
@@ -72,6 +85,12 @@ Entries that must stay in `$HOME` despite the XDG rule:
   binaries for tools too old/missing in Debian's repos (neovim, git-delta,
   zellij, eza). Both scripts hand-maintain their own directory/runner
   logic — no shared lib between them; when one changes, check the other.
+- Both deploy scripts run every step through a `required()`/`optional()`
+  wrapper: critical steps (creating dirs, symlinking configs) abort loud on
+  failure; best-effort steps (a specific Brewfile package, a headless nvim
+  bootstrap) log and continue. Concrete realization of Logs Are For
+  Diagnosis, Output Is For Humans — a failed `optional()` step is visible
+  in the run output without stopping the whole deploy.
 - Section headers use the ASCII box style: `# +------+`.
 - Keep ordering dependencies explicit and commented (e.g. "must come after
   compinit").
@@ -84,17 +103,37 @@ Entries that must stay in `$HOME` despite the XDG rule:
 - Fix bugs found along the way, but call them out.
 - Summarize what changed and why — a short table beats prose.
 - Prefer the change that removes a setting over the one that adds one.
+- Concrete realization of Propose Before Implementing for this repo: editing
+  `claude/rules/*.md`, `README.md`'s voice, or this file itself is opinion/judgment
+  content — discuss before writing or committing. zsh/nvim/tool-config tweaks are
+  mechanical — proceed and report.
 
-## Verify, Don't Trust
+## Verifying changes
 
-When producing an analysis or summarization of something gleaned from a
-resource (web page, MCP call, user-provided document), do not trust a memory
-or retained summary of that resource. Always retrieve the resource afresh
-and compare it to the summary or analysis you are preparing. When comparing,
-do so in an adversarial way: you are fact-checking work that you suspect at
-the start contains errors and hallucinations.
+This repo has no test suite or architectural layers to test against — Testing
+By Layer's underlying idea (different kinds of behavior need different kinds
+of proof) still applies, just mapped onto kinds of *changes* rather than
+architectural layers:
+
+- **Syntax**: `zsh -n` on zsh files, `shellcheck` on `linux/*.sh` — same checks
+  `.pre-commit-config.yaml` and `ci.yml` run.
+- **Runtime behavior for nvim plugin config**: launch the real deployed config
+  headlessly and query the plugin's own merged config to confirm an option
+  actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
+  the relevant `:Command` and reading back its Lua module state, not just that
+  the file parses.
+- **Claude Code config changes** (`claude/rules/*.md`, deploy symlinking):
+  check `/memory` in a real session lists the expected rules files loaded from
+  `$CLAUDE_CONFIG_DIR/rules`.
+- **Deploy script changes**: re-run `deploy.zsh`/`deploy.sh` and confirm it's
+  idempotent — a second run should be clean, not error or duplicate work.
 
 ## Commit style
+
+> Concrete realization of **git.md** (`claude/rules/tools/git.md`) for this repo:
+> scopes = `zsh, zellij, git, nvim, macos, theme`; version scheme = SemVer; branches =
+> `dev` (long-lived) → `main` (protected). It's baseline; the rules below win here and
+> are complete on their own.
 
 Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 Every commit:
@@ -119,6 +158,11 @@ sweeping commit. Propose the split and messages before committing.
 
 ## Local tooling (shift-left)
 
+> Concrete realization of two files: the shift-left-CI-mirroring and credential-scoping
+> guidance in **git.md** (`claude/rules/tools/git.md`), plus the GitHub-specific
+> instances of it — `act`, GitHub Actions workflow linting — in **github.md**
+> (`claude/rules/platform/github.md`).
+
 `.pre-commit-config.yaml` mirrors what CI enforces, run locally before push
 instead of after:
 - zsh syntax (`zsh -n`, same files `ci.yml` checks)
@@ -140,6 +184,13 @@ Two more tools worth reaching for by hand, not wired into any hook:
 
 ### Credentials: `.envrc` / `.envrc.local`
 
+Concrete realization of three files: the credential-scoping *principle* in
+**git.md** (`claude/rules/tools/git.md`), its GitHub-specific instance in
+**github.md** (`claude/rules/platform/github.md`) — routine `gh` usage in
+this repo never has admin rights to lose — and Security By Default's rule
+(`claude/rules/universal/engineering-practices.md`) that secrets live in
+an environment file, gitignored, never hardcoded.
+
 `gh` CLI defaults to a scoped-down fine-grained PAT (Contents/Pull
 requests/Actions read-write, no Administration) via `GH_TOKEN`, loaded by
 `direnv` from `.envrc.local` (gitignored — never commit a real token) rather
@@ -152,6 +203,13 @@ Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
 session (e.g. changing branch protection).
 
 ## Git workflow
+
+> Concrete realization of **git.md**'s Branch & PR model
+> (`claude/rules/tools/git.md`) for this repo: long-lived branch = `dev`,
+> protected branch = `main`, version scheme = SemVer. It's baseline;
+> the rules below win here and are complete on their own. The squash-merge
+> carrying the PR title into the commit message is GitHub's own behavior —
+> see `claude/rules/platform/github.md`.
 
 Branching model: **long-lived `dev` + protected `main`**, squash-merged.
 

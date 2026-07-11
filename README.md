@@ -65,7 +65,7 @@ This configuration is built on three core principles:
   Python, Go, Bash, JSON, YAML, and Markdown.
 - **Zellij**: Customized [configuration](zellij/config.kdl) with:
   - Vim-aware pane navigation via [vim-zellij-navigator][vzn]
-    (seamlessly switch between Neovim splits and Zellij panes)
+    (switch between Neovim splits and Zellij panes with the same keys)
   - Catppuccin Mocha status bar via [zjstatus][zjstatus] (session, tabs, time)
   - Prefix-less tab switching (`Alt-,`/`Alt-.`)
 - **Ghostty**: Minimal, borderless [configuration](ghostty/config) acting as a
