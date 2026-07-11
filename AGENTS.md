@@ -235,10 +235,14 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
 2. **One logical change per PR.** Never bundle unrelated changes into a single PR
    just to save a round trip.
 3. When ready and tested, **squash the branch to exactly one Conventional Commit**
-   (`git reset --soft origin/main && git commit`), then open a PR → `main`. CI gates
-   the PR on being exactly one commit (`single commit`) whose subject is a
-   Conventional Commit (`conventional commit`); once green, **rebase-merge** and your
-   single commit lands on `main` verbatim. The branch auto-deletes on merge.
+   (`git reset --soft origin/main && git commit`), then open a PR with `git pr`
+   (wraps `gh pr create`; refuses to run unless the branch is exactly one commit
+   ahead of `origin/main`, then amends that commit's subject to append `" (#N)"`
+   once the PR number is known — the text `cliff.toml` turns into a changelog
+   link, otherwise lost since rebase-merge doesn't rewrite the commit the way
+   squash-merge used to). CI gates the PR on commit count and subject format;
+   once green, **rebase-merge** and your single commit lands on `main`
+   verbatim. The branch auto-deletes on merge.
 4. `main` stays releasable, and cutting a release is automated — you decide
    _when_, the workflows do the busywork ([SemVer](https://semver.org) versions
    computed from the Conventional Commits by [git-cliff](https://git-cliff.org)):

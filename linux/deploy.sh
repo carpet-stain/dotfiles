@@ -296,6 +296,10 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/theme/delta/catppuccin.gitconfig" \
     "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
 
+  # Backs the `pr` alias above — must be on PATH as a bare command, not just
+  # reachable by relative path, since git/config is used from any repo.
+  ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
+
   ln -sf "$DOTFILES_DIR/ripgreprc" "$XDG_CONFIG_HOME/ripgrep/config"
   ln -sf "$DOTFILES_DIR/curlrc" "$XDG_CONFIG_HOME/curlrc"
   ln -sf "$DOTFILES_DIR/tealdeerconfig.toml" "$XDG_CONFIG_HOME/tealdeer/config.toml"
