@@ -123,6 +123,21 @@ source $ZDOTDIR/env.d/ls_colors.zsh
 # Shared flag set used by the ls alias and FZF_ALT_C_COMMAND below
 export EZACMD="eza --color=always --icons=always --group-directories-first -a --classify=auto --dereference"
 
+# +-----------+
+# | CLIPBOARD |
+# +-----------+
+
+# Clipboard command varies by platform: pbcopy on macOS, wl-copy under a
+# Wayland session, xclip on X11. Defined once here and reused by the fzf
+# Ctrl+Y binds below and the 'C' global alias in rc.d/aliases.zsh.
+if [[ $OSTYPE == darwin* ]]; then
+  export CLIPBOARD_COPY="pbcopy"
+elif [[ -n $WAYLAND_DISPLAY ]]; then
+  export CLIPBOARD_COPY="wl-copy"
+else
+  export CLIPBOARD_COPY="xclip -selection clipboard"
+fi
+
 # +-----+
 # | FZF |
 # +-----+
@@ -161,7 +176,7 @@ if [[ $OSTYPE == darwin* ]]; then
     --preview 'bat {}'
     --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
     --bind 'ctrl-o:become(open -R {})'
-    --bind 'ctrl-y:become(echo -n {} | pbcopy)'
+    --bind 'ctrl-y:become(echo -n {} | $CLIPBOARD_COPY)'
     --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
     --select-1 --exit-0"
 
@@ -169,14 +184,14 @@ if [[ $OSTYPE == darwin* ]]; then
     --border-label ' 󰱽 Command History '
     --preview 'echo {2..} | bat -l bash --plain --color always'
     --preview-window 'down:3:wrap:border-top'
-    --bind 'ctrl-y:become(echo -n {2..} | pbcopy)'
+    --bind 'ctrl-y:become(echo -n {2..} | $CLIPBOARD_COPY)'
     --header '⌃Y Copy'"
 else
   export FZF_CTRL_T_OPTS="
     --border-label ' 󰱽 File Search '
     --preview 'bat {}'
     --header '⌃Y to Copy | ⌃E to Edit'
-    --bind 'ctrl-y:become(echo -n {} | xclip -selection clipboard)'
+    --bind 'ctrl-y:become(echo -n {} | $CLIPBOARD_COPY)'
     --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
     --select-1 --exit-0"
 
@@ -184,7 +199,7 @@ else
     --border-label ' 󰱽 Command History '
     --preview 'echo {2..} | bat -l bash --plain --color always'
     --preview-window 'down:3:wrap:border-top'
-    --bind 'ctrl-y:become(echo -n {2..} | xclip -selection clipboard)'
+    --bind 'ctrl-y:become(echo -n {2..} | $CLIPBOARD_COPY)'
     --header '⌃Y Copy'"
 fi
 
