@@ -14,13 +14,16 @@ pre-commit:
       run: zsh -n {staged_files}
 
     - name: shellcheck
-      glob: "linux/*.sh"
+      glob:
+        - "linux/*.sh"
+        - "claude/skills/**/*.sh"
       run: shellcheck {staged_files}
 
     - name: shfmt
       glob:
         - "linux/*.sh"
         - "scripts/*.sh"
+        - "claude/skills/**/*.sh"
       run: shfmt -i 2 -ci -d {staged_files}
 
     - name: actionlint

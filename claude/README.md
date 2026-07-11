@@ -192,6 +192,10 @@ doesn't, there's nothing to self-gate against a repo's shape.
   directives that disagree) and sprawl (files over ~200 lines or spanning more than one topic).
   Propose-don't-apply, enforced structurally: it has no Write/Edit access, so it can only report
   findings, never act on them.
+- **`compose-agents`** — the opposite direction: drafts or updates a repo's `AGENTS.md` by
+  instantiating each applicable rule file's COMPOSE block with facts detected from the repo
+  (branch model, version scheme, scopes, pre-commit tooling). Propose-don't-create: it presents
+  a full draft or diff in chat and waits for approval before anything is written.
 
 ## Private files (work/internal platform files)
 
