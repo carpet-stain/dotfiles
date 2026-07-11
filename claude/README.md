@@ -185,10 +185,11 @@ export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
 ```
 
 and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/`
-tree** as one unit, plus the global `settings.json`:
+tree** as one unit, the **`agents/`** tree the same way, plus the global `settings.json`:
 
 ```
 claude/rules/                → $XDG_CONFIG_HOME/claude/rules/
+claude/agents/               → $XDG_CONFIG_HOME/claude/agents/
 claude/settings.json         → $XDG_CONFIG_HOME/claude/settings.json
 ```
 
@@ -205,6 +206,24 @@ here and symlinked the same way so it's version-controlled instead of a manual o
 
 > **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`,
 > for the dotfiles repo's *own* agent guidance) which is gitignored.
+
+## Subagents (`claude/agents/`)
+
+Alongside the always-loaded `rules/`, `claude/agents/` holds Claude Code **subagents** —
+specialized assistants the main agent delegates to for a bounded job, each with its own context,
+system prompt, tools, and model. `agents/` deploys exactly like `rules/`: one directory symlink
+to `$CLAUDE_CONFIG_DIR/agents/`, where Claude Code discovers every `*.md` recursively, with no
+per-agent wiring.
+
+- **`backlog-manager`** — a project-manager / ticket specialist that owns GitHub issue and
+  backlog work: writing, labeling, prioritizing, grooming, and driving issues. Repo-agnostic —
+  it reads each repo's labels and conventions at runtime rather than hardcoding them — and uses
+  project-scoped memory to retain a repo's backlog knowledge across sessions. Delegate by
+  mentioning issues/backlog, by name, or run a dedicated session with `claude --agent
+  backlog-manager`.
+
+Unlike `rules/`, a subagent is **not** always-on context — it loads only when delegated to, so it
+costs nothing until used.
 
 ## Private files (work/internal platform files)
 

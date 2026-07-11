@@ -86,6 +86,12 @@ link_configs() {
   rm -rf $XDG_CONFIG_HOME/claude/rules
   zf_ln -sfn $DOTFILES_DIR/claude/rules $XDG_CONFIG_HOME/claude/rules
 
+  # Claude Code subagents → $CLAUDE_CONFIG_DIR/agents. Same one-directory symlink as
+  # rules/ above — every *.md under agents/ is discovered recursively, no per-agent
+  # wiring. See claude/README.md § Subagents.
+  rm -rf $XDG_CONFIG_HOME/claude/agents
+  zf_ln -sfn $DOTFILES_DIR/claude/agents $XDG_CONFIG_HOME/claude/agents
+
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   zf_ln -sf $DOTFILES_DIR/claude/settings.json $XDG_CONFIG_HOME/claude/settings.json
 
