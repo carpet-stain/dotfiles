@@ -9,7 +9,6 @@
     "dua-cli": { "kind": "brew", "repo": "Byron/dua-cli", "last_checked_ref": "v2.37.1", "last_checked_at": "2026-07-06" },
     "eza": { "kind": "brew", "repo": "eza-community/eza", "last_checked_ref": "v0.23.4", "last_checked_at": "2026-07-06" },
     "fd": { "kind": "brew", "repo": "sharkdp/fd", "last_checked_ref": "v10.4.2", "last_checked_at": "2026-07-06" },
-    "forgit": { "kind": "brew", "repo": "wfxr/forgit", "last_checked_ref": "26.07.0", "last_checked_at": "2026-07-06" },
     "fzf": { "kind": "brew", "repo": "junegunn/fzf", "last_checked_ref": "v0.73.1", "last_checked_at": "2026-07-06" },
     "gh": { "kind": "brew", "repo": "cli/cli", "last_checked_ref": "v2.96.0", "last_checked_at": "2026-07-06" },
     "git": { "kind": "brew", "repo": "git/git", "last_checked_ref": null, "last_checked_at": "2026-07-06", "skip_reason": "release notes live on kernel.org/git-scm.com, not the GitHub mirror; not yet audited against git/config settings" },
