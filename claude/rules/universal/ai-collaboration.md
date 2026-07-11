@@ -48,6 +48,6 @@ irreversible or exceeds that scope, stop and involve a human.
 
 - **Propose & verify:** proposed and waited on judgment work; verified assumptions and state?
 - **Right model & security:** matched model/effort to risk; flagged visible risks unprompted?
-- **Simplicity & ownership:** simplest form; each unit one job; logic in the layer that owns it?
+- **Simplicity & ownership:** simplest form; each unit one job; logic living where it belongs?
 - **Tests & docs:** tests prove the right boundary; docs and the next reader's context updated?
 - **Communication:** said what looked wrong directly; nothing reads as generic AI or credits a tool?
