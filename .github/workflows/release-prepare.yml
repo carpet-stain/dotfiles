@@ -46,16 +46,13 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
 
-      # A dedicated release/vX.Y.Z branch (not dev directly) so dev never
-      # has to be "frozen" while this PR is pending — you can keep
-      # committing new work to dev without it silently becoming part of
-      # the release. release-publish.yml deletes this branch once merged
-      # (scoped to the release/v* prefix, never touches dev) and resets
-      # dev onto main so the version bump/changelog land there too.
+      # A dedicated release/vX.Y.Z branch keeps the version bump and changelog
+      # isolated in their own PR. release-publish.yml deletes this branch once
+      # merged (scoped to the release/v* prefix).
       #
       # gh pr create uses RELEASE_PAT, not the default GITHUB_TOKEN: a PR
       # opened via GITHUB_TOKEN has its pull_request-triggered workflows
-      # (ci.yml, pr-title.yml) land in an approval-required state instead
+      # (ci.yml, pr-guards.yml) land in an approval-required state instead
       # of running — deliberate GitHub behavior to prevent recursive
       # workflow runs, but it means every release PR would otherwise need
       # a human to manually approve/rerun its own required checks before

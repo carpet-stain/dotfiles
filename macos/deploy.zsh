@@ -161,9 +161,9 @@ install_brewfile() {
 }
 
 # Activate the git hooks in .pre-commit-config.yaml: pre-commit (zsh syntax,
-# shellcheck, actionlint — mirrors of what ci.yml/pr-title.yml enforce) and
-# pre-push (auto-rebase if dev has moved, e.g. via sync-dev.yml). A single
-# `pre-commit install` covers both hook types via default_install_hook_types.
+# shellcheck, actionlint — mirrors of what ci.yml/pr-guards.yml enforce) and
+# pre-push (the .envrc.local.example sync check). A single `pre-commit install`
+# covers both hook types via default_install_hook_types.
 install_pre_commit_hooks() {
   # pre-commit has no -C/--cwd equivalent; it discovers .git relative to the
   # working directory, so it has to actually run from inside the repo.
