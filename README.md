@@ -1,6 +1,7 @@
 # Dotfiles
 
 <!--toc:start-->
+
 - [Dotfiles](#dotfiles)
   - [License](#license)
   - [Philosophy & Stack](#philosophy--stack)
@@ -10,6 +11,7 @@
   - [Configuration](#configuration)
     - [Zsh configuration](#zsh-configuration)
     - [Dependencies](#dependencies)
+
 <!--toc:end-->
 
 ## License

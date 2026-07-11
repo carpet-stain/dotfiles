@@ -2,6 +2,7 @@
      What gets said and written, not how the agent operates (ai-collaboration.md). -->
 
 > ### GATE — applies always
+>
 > Applies everywhere; no placeholders, nothing to distill. Do NOT copy into repos.
 
 # Communication

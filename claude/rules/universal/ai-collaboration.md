@@ -4,6 +4,7 @@
      Rationale for the terse style: claude/README.md § Why the rule files are terse. -->
 
 > ### GATE — applies always
+>
 > Applies everywhere; no placeholders, nothing to distill. Do NOT copy into repos.
 
 # AI Collaboration
@@ -12,8 +13,8 @@
 
 Prefer explicit contracts, typed errors, named options, and documented behavior over implicit
 convention. When you learn something a future reader needs — a command, an environment fact, a
-gotcha, the meaning of an output — record it in a durable place, not chat memory. Record *why*,
-not just *what*: a decision without its reason gets re-litigated. If behavior is surprising, fix
+gotcha, the meaning of an output — record it in a durable place, not chat memory. Record _why_,
+not just _what_: a decision without its reason gets re-litigated. If behavior is surprising, fix
 it at the source (a clearer name, a typed error, a regression test), not with a mental note.
 
 ## Verify, Don't Trust

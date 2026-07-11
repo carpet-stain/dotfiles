@@ -23,13 +23,20 @@ brew 'hyperfine' # Command-line benchmarking
 brew 'jaq' # Fast jq alternative
 brew 'lefthook' # Manages the git hooks in lefthook.yml
 brew 'lesspipe'
+brew 'markdownlint-cli2' # Lint Markdown files
 brew 'neovim'
 brew 'node' # pyright/bash-language-server (nvim) are npm packages
 brew 'powerlevel10k' # zsh command prompt
+brew 'prettier' # Format Markdown files
 brew 'python' # Apple's bundled python3 is ancient (3.9) and not dev-grade
 brew 'ripgrep' # Faster ag written in Rust
+brew 'selene' # Lint Lua files
 brew 'shellcheck' # Lint shell scripts
+brew 'shfmt' # Format shell scripts
+brew 'stylua' # Format Lua files
+brew 'taplo' # Lint and format TOML files
 brew 'tealdeer' # tldr utility
+brew 'yamlfmt' # Format YAML files
 brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'

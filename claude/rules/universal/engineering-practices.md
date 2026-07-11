@@ -3,6 +3,7 @@
      shaped in the moment (design-principles.md). Rationale: claude/README.md. -->
 
 > ### GATE — applies always
+>
 > Applies everywhere; no placeholders, nothing to distill. Do NOT copy into repos.
 > A repo's own testing/security docs are the concrete expression; this is the source.
 

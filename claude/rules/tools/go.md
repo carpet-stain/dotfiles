@@ -10,14 +10,17 @@ paths:
      Rationale: claude/README.md. -->
 
 > ### GATE
+>
 > The `paths:` frontmatter is the gate — this file loads only when Claude reads a Go file
 > (`go.mod`/`*.go`), in any repo. No prose guard needed.
 
 > ### LOCAL-WINS
+>
 > If this repo has its own Go standards doc (e.g. docs/CODING.md), that doc is AUTHORITATIVE:
 > treat this as baseline and prefer the repo's doc on conflict.
 
 > ### COMPOSE — give a repo its own concrete Go doc
+>
 > Trigger: the human asks to scaffold, OR a Go repo lacks a standards doc and one is warranted.
 > PROPOSE, don't create. Steps: (1) read this as baseline; (2) write a repo-local doc (e.g.
 > docs/CODING.md) restating these with the repo's concrete nouns — its linters + config file,
@@ -27,7 +30,7 @@ paths:
 
 # Go Conventions
 
-Baseline is **Effective Go** (https://go.dev/doc/effective_go): gofmt formatting; short lower-case
+Baseline is [**Effective Go**](https://go.dev/doc/effective_go): gofmt formatting; short lower-case
 single-word package names; `MixedCaps`/`mixedCaps` for multiword names; getters without a `Get`
 prefix; `-er` names for one-method interfaces; short receiver names; early-return flow that omits
 the needless `else`; error strings that identify their origin (lower-case, no trailing

@@ -9,8 +9,8 @@ language-, platform-, and repo-specific detail stays scoped to where it actually
 A single monolithic `CLAUDE.md`/`AGENTS.md` per repo mixes three incompatible things:
 
 1. **Universal philosophy** — how I want code designed, tested, and shipped. True everywhere.
-2. **Language/platform conventions** — Go idioms, a hosting platform's mechanics. True for *some* repos.
-3. **Repo-specific facts** — commands, paths, branch names. True for *one* repo.
+2. **Language/platform conventions** — Go idioms, a hosting platform's mechanics. True for _some_ repos.
+3. **Repo-specific facts** — commands, paths, branch names. True for _one_ repo.
 
 Mixing them blocks reuse (you can't lift the philosophy into another repo without dragging repo
 facts along) and injects **wrong context** into the agent (Go rules in a Python repo, one
@@ -21,18 +21,18 @@ platform's commands in an unrelated repo). This setup keeps them apart.
 `claude/rules/` groups files by how broadly they apply — the directory name is the scope, nothing
 to cross-reference:
 
-| Directory | File | Applies to | Loading |
-|-----------|------|-----------|---------|
-| `rules/universal/` | `design-principles.md` | How code/tools are shaped | Always applies |
-| | `engineering-practices.md` | How work gets done (testing, docs, security) | Always applies |
-| | `ai-collaboration.md` | How the agent operates | Always applies |
-| | `communication.md` | What gets said/written | Always applies |
-| `rules/domain/` | `architecture.md` | Building a layered application | Self-gates on being a layered app |
-| `rules/tools/` | `git.md` | Any git repo, any host | Always applies (trivial gate) |
-| | `go.md` | Go repos only | Native `paths:` frontmatter — loads only on `go.mod`/`*.go` |
-| `rules/platform/` | `github.md` | GitHub-hosted repos only | Self-gates on github.com origin |
-| `rules/platform/` (private) | *(machine-local, gitignored)* | Repos on a given hosting platform | Self-gates on that platform's tooling |
-| *(in each repo)* | `AGENTS.md` + `docs/` | One repo only | Repo's own files |
+| Directory                   | File                          | Applies to                                   | Loading                                                     |
+| --------------------------- | ----------------------------- | -------------------------------------------- | ----------------------------------------------------------- |
+| `rules/universal/`          | `design-principles.md`        | How code/tools are shaped                    | Always applies                                              |
+|                             | `engineering-practices.md`    | How work gets done (testing, docs, security) | Always applies                                              |
+|                             | `ai-collaboration.md`         | How the agent operates                       | Always applies                                              |
+|                             | `communication.md`            | What gets said/written                       | Always applies                                              |
+| `rules/domain/`             | `architecture.md`             | Building a layered application               | Self-gates on being a layered app                           |
+| `rules/tools/`              | `git.md`                      | Any git repo, any host                       | Always applies (trivial gate)                               |
+|                             | `go.md`                       | Go repos only                                | Native `paths:` frontmatter — loads only on `go.mod`/`*.go` |
+| `rules/platform/`           | `github.md`                   | GitHub-hosted repos only                     | Self-gates on github.com origin                             |
+| `rules/platform/` (private) | _(machine-local, gitignored)_ | Repos on a given hosting platform            | Self-gates on that platform's tooling                       |
+| _(in each repo)_            | `AGENTS.md` + `docs/`         | One repo only                                | Repo's own files                                            |
 
 Roughly ordered by breadth: universal (every project) → domain (a class of codebase, e.g. a
 layered application) → tools (git/language) → platform (host) → repo (this one). A specificity
@@ -54,7 +54,7 @@ conduct, and prose. And separating `git.md` (branching philosophy true on any ho
 
 ## The model: load-all, then self-gate — except where a native gate exists
 
-Most files load in **every** project; scope is enforced *after* loading, by named blocks at the top
+Most files load in **every** project; scope is enforced _after_ loading, by named blocks at the top
 of each file the agent evaluates against the current repo — **GATE** (when the file applies),
 **LOCAL-WINS** (a repo's own doc beats it on overlap), and, for tools/platform files, **COMPOSE**
 (how to instantiate it). A file carries only the blocks it needs. The GATE conditions:
@@ -65,7 +65,7 @@ of each file the agent evaluates against the current repo — **GATE** (when the
 - `git.md` → if this repo uses git (nearly always — a rare-exception gate, not a real filter).
 - `github.md` → only if the repo's origin is GitHub; otherwise ignored.
 - a private platform file → only if that platform's tooling is present; otherwise ignored
-  (emphatically — its commands are *wrong* elsewhere, not merely unnecessary). Distinct platforms are
+  (emphatically — its commands are _wrong_ elsewhere, not merely unnecessary). Distinct platforms are
   mutually exclusive per repo, each gating on its own tooling.
 
 `go.md` is the exception: it uses Claude Code's native `paths:` frontmatter instead of a prose guard,
@@ -82,7 +82,7 @@ whitelist scales better then. Two honest caveats:
   still soft, and the file's bytes load either way. `go.md`'s `paths:` gate is the sturdier kind:
   structurally absent until Claude reads a Go file, then loaded for that session. Prefer a path gate
   wherever one fits; not every gate can be one.
-- **Cost is in length, not count.** Loading a handful of files every session is cheap; a *long* file
+- **Cost is in length, not count.** Loading a handful of files every session is cheap; a _long_ file
   is not — verbosity itself reduces adherence, so the files stay few and short. See
   [Why the rule files are terse](#why-the-rule-files-are-terse).
 
@@ -94,24 +94,25 @@ single soft instruction is load-bearing:
 1. Each file's LOCAL-WINS block says "if the repo has its own doc, prefer it; treat this as baseline."
 2. The repo's committed `AGENTS.md` independently claims authority for its `docs/`.
 3. (For composed repos) the COMPOSE step writes that precedence line into the repo.
-4. Natively, Claude Code loads user-level rules *before* a repo's own `CLAUDE.md`/`.claude/rules/`, so
-   the repo's files come later and carry higher priority — load-order backing for local-wins. Still
-   context, not hard enforcement (only a hook enforces), but the one reinforcement that isn't soft prose.
+4. Natively, Claude Code loads user-level rules _before_ a repo's own
+   `CLAUDE.md`/`.claude/rules/`, so the repo's files come later and carry higher
+   priority — load-order backing for local-wins. Still context, not hard
+   enforcement (only a hook enforces), but the one reinforcement that isn't soft prose.
 
-The `universal/` files are the exception: a repo never *overrides* them — a repo's `DESIGN.md`
-*illustrates* how the principles are realized there. Illustrate, don't replace.
+The `universal/` files are the exception: a repo never _overrides_ them — a repo's `DESIGN.md`
+_illustrates_ how the principles are realized there. Illustrate, don't replace.
 
 ## COMPOSE, and why the duplication is deliberate
 
 `git.md` and a platform file are **templates** with literal `<placeholders>` (scopes, branch names);
-`go.md` has softer abstractions ("your linter"). When a repo *lacks* a concrete doc for one, the
+`go.md` has softer abstractions ("your linter"). When a repo _lacks_ a concrete doc for one, the
 file's COMPOSE block tells the agent how to distill a repo-specific doc (e.g. `docs/CODING.md`, an
 `AGENTS.md` section) by filling in the real nouns, then wire the precedence line. Default is
 **propose-don't-create** — the agent suggests and waits before writing committed files. `github.md`
 has no `<placeholders>` and no COMPOSE block (`git.md` owns everything composable); the `universal/`
 files have none either — a standard is applied, not instantiated.
 
-The result **duplicates**: a composed repo's `AGENTS.md` is a *full instantiation* of the abstract —
+The result **duplicates**: a composed repo's `AGENTS.md` is a _full instantiation_ of the abstract —
 it restates the structure with the repo's nouns, so the abstract (always loaded) and the local
 restatement sit in context together. That's deliberate, for two reasons:
 
@@ -119,13 +120,13 @@ restatement sit in context together. That's deliberate, for two reasons:
   another contributor, CI, an agent on a different machine. A public repo's `AGENTS.md` can't assume
   `$CLAUDE_CONFIG_DIR` is loaded behind it, so it restates the generic structure rather than pointing
   at a file the reader may not have.
-- **Uncomposed repos.** The abstract earns its keep in repos that have *no* `AGENTS.md` yet — there
+- **Uncomposed repos.** The abstract earns its keep in repos that have _no_ `AGENTS.md` yet — there
   it's the whole guidance. Composed repos tolerate the overlap; that's the price of the abstract being
   universally present.
 
 Duplication's only real danger is divergence — two statements of the branch model drifting apart. The
-guard is *direction*: the abstract is the **source**, the local doc is **derived from it** by COMPOSE,
-and the abstract goes **inert** for that repo afterward (it was distilled *from* that repo and must
+guard is _direction_: the abstract is the **source**, the local doc is **derived from it** by COMPOSE,
+and the abstract goes **inert** for that repo afterward (it was distilled _from_ that repo and must
 not be fed back). Change a convention in one place — the abstract — and re-compose; never hand-edit
 the instantiated structure expecting it to flow back. One source, one derived artifact.
 
@@ -141,7 +142,7 @@ export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
 and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/` tree** and
 the **`agents/`** tree as units, plus the global `settings.json`:
 
-```
+```text
 claude/rules/                → $XDG_CONFIG_HOME/claude/rules/
 claude/agents/               → $XDG_CONFIG_HOME/claude/agents/
 claude/settings.json         → $XDG_CONFIG_HOME/claude/settings.json
@@ -158,7 +159,7 @@ already inside the symlinked tree.
 of a manual one-off edit.
 
 > **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`, for the
-> dotfiles repo's *own* agent guidance) which is gitignored.
+> dotfiles repo's _own_ agent guidance) which is gitignored.
 
 ## Subagents (`claude/agents/`)
 
@@ -198,13 +199,13 @@ needs one, drop the file in `private/`; no re-deploy, the directory symlink is a
 
 ## How it behaves per repo (worked examples)
 
-| Repo | universal | domain(arch) | go | git | github | private platform | Net effect |
-|------|-----------|--------------|----|----|--------|------------------|-----------|
-| Go + internal platform, rich docs | applies | gates on; DESIGN.md shows how | gates on, but CODING.md wins | applies, baseline | gates off (private platform) | gates on, but OPERATIONS.md wins | local docs authoritative; files baseline |
-| New Go µ-service on internal platform, no docs | applies | gates on, fully used | gates on, fully used | applies, fully used | gates off | gates on, fully used | files carry conventions from day one |
-| Python service on GitHub | applies | gates on (layered app) | gates off (no go.mod) | applies | gates on | gates off | universal + arch + git + GitHub, no Go leakage |
-| GitHub OSS (Go) | applies | gates on | gates on | applies | gates on | gates off (emphatic) | universal + arch + Go + git + GitHub, zero internal-platform leakage |
-| Dotfiles / config repo (this one) | applies | gates off (no layers) | gates off (no go.mod) | applies | gates on | gates off | universal + git + GitHub; no architecture or Go doctrine loaded |
+| Repo                                           | universal | domain(arch)                  | go                           | git                 | github                       | private platform                 | Net effect                                                           |
+| ---------------------------------------------- | --------- | ----------------------------- | ---------------------------- | ------------------- | ---------------------------- | -------------------------------- | -------------------------------------------------------------------- |
+| Go + internal platform, rich docs              | applies   | gates on; DESIGN.md shows how | gates on, but CODING.md wins | applies, baseline   | gates off (private platform) | gates on, but OPERATIONS.md wins | local docs authoritative; files baseline                             |
+| New Go µ-service on internal platform, no docs | applies   | gates on, fully used          | gates on, fully used         | applies, fully used | gates off                    | gates on, fully used             | files carry conventions from day one                                 |
+| Python service on GitHub                       | applies   | gates on (layered app)        | gates off (no go.mod)        | applies             | gates on                     | gates off                        | universal + arch + git + GitHub, no Go leakage                       |
+| GitHub OSS (Go)                                | applies   | gates on                      | gates on                     | applies             | gates on                     | gates off (emphatic)             | universal + arch + Go + git + GitHub, zero internal-platform leakage |
+| Dotfiles / config repo (this one)              | applies   | gates off (no layers)         | gates off (no go.mod)        | applies             | gates on                     | gates off                        | universal + git + GitHub; no architecture or Go doctrine loaded      |
 
 ## Authoring rules for these files
 
@@ -212,31 +213,33 @@ needs one, drop the file in `private/`; no re-deploy, the directory symlink is a
   names, service names. `domain/` is philosophy like `universal/` (illustrated, never overridden, no
   COMPOSE); `tools/` may name Go/git tools and idioms; a `platform/` file may name that platform's
   tools but keeps repo values as `<placeholders>`.
-- **References are one-directional**: a repo may point at a file here; a file here must never point at
-  a specific repo. A `platform/` file may point at its `tools/` baseline (`github.md` → `git.md`).
+- **References are one-directional**: a repo may point at a file here; a file
+  here must never point at a specific repo. A `platform/` file may point at
+  its `tools/` baseline (`github.md` → `git.md`).
 - **Never commit an internal/work platform file to a public repo** — keep it as a
   [private file](#private-files-workinternal-platform-files).
 
 ## Why the rule files are terse
 
 The `rules/` files are directives, not essays. They load into **every** session, and Claude Code's own
-guidance is blunt: files over ~200 lines cost context and *reduce* adherence — the more concise the
+guidance is blunt: files over ~200 lines cost context and _reduce_ adherence — the more concise the
 instruction, the more reliably it's followed. So the files hold themselves to `communication.md`'s own
 standard (terse, concrete, lead with the point) instead of exempting themselves from it.
 
 The split that keeps them lean:
 
-- **Directive vs. rationale.** The always-loaded file carries the *what*. The *why* lives here in the
-  README (which loads *never*) when a reader would need it, or is cut entirely when it's generic
+- **Directive vs. rationale.** The always-loaded file carries the _what_. The _why_ lives here in the
+  README (which loads _never_) when a reader would need it, or is cut entirely when it's generic
   engineering knowledge the model already has ("write the minimum code" doesn't need three sentences
-  defending it). Non-obvious *why* that changes behavior stays inline (e.g. force-push aborts if the
+  defending it). Non-obvious _why_ that changes behavior stays inline (e.g. force-push aborts if the
   remote moved).
-- **No restatement.** A closing "Before Finishing" checklist that re-lists the file's own principles is
-  pure duplication; it's compressed to a handful of cross-cutting checks in `ai-collaboration.md`, not
-  repeated per file.
+- **No restatement.** A closing "Before Finishing" checklist that re-lists the
+  file's own principles is pure duplication; it's compressed to a handful of
+  cross-cutting checks in `ai-collaboration.md`, not repeated per file.
 
-A pass in this spirit took the always-loaded set (universal + `git.md`) from ~390 to ~250 lines with no
-directive lost — proof that most of the length was justification, not instruction.
+A pass in this spirit took the always-loaded set (universal + `git.md`) from
+~390 to ~250 lines with no directive lost — proof that most of the length was
+justification, not instruction.
 
 ## Maintenance discipline (the removal test)
 
@@ -256,9 +259,10 @@ there just because it seemed like a good idea once.
 
 ## Verifying it works
 
-Run `/memory` in a fresh session inside any repo — it lists every loaded `CLAUDE.md` and rules file, so
-you can confirm the `universal/` files and the applicable `tools/`/`platform/` files loaded from
-`$CLAUDE_CONFIG_DIR/rules/`. Then ask the agent whether each file's GATE fired correctly and whether
+Run `/memory` in a fresh session inside any repo — it lists every loaded
+`CLAUDE.md` and rules file, so you can confirm the `universal/` files and the
+applicable `tools/`/`platform/` files loaded from `$CLAUDE_CONFIG_DIR/rules/`.
+Then ask the agent whether each file's GATE fired correctly and whether
 local docs win on overlap. For a precise trace of which files loaded, when, and why — the definitive
 check that `go.md`'s `paths:` gate fires only on Go files — enable Claude Code's `InstructionsLoaded`
 hook, which logs exactly that. The decisive negative test is a repo on none of the gated

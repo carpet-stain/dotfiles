@@ -13,7 +13,7 @@ Vendor-neutral; the root `CLAUDE.md` is a gitignored symlink to this file.
 If the agent supplies the generic global files (universal philosophy, Go, GitHub mechanics),
 this repo's own documents are **authoritative** where they overlap — treat any generic file
 as baseline and prefer this file and the sections below on conflict. The universal philosophy
-is not *overridden*; this repo illustrates how it is realized. A contributor without any
+is not _overridden_; this repo illustrates how it is realized. A contributor without any
 of the global files loses nothing — this guide is the full story.
 
 ## What this is
@@ -47,14 +47,14 @@ OrbStack VMs — and doesn't carry Ghostty or Homebrew.
 
 Entries that must stay in `$HOME` despite the XDG rule:
 
-| Path | Reason |
-|---|---|
-| `.zshenv` | zsh's fixed entry point — always read from `$HOME` |
-| `.ssh/` | Symlink → `~/.config/ssh/`; config tracked in `ssh/config`, keys gitignored |
-| `.claude.json` legacy path | Claude Code now honors `CLAUDE_CONFIG_DIR` → `$XDG_CONFIG_HOME/claude` (set in `.zshenv`); config is XDG. A stale `~/.claude*` may remain from before the switch. |
-| `.vscode-oss/`, `.vscode-oss-shared/` | Claude Code desktop app data — no XDG support |
-| `.CFUserTextEncoding`, `.DS_Store`, `.Trash` | macOS system — not configurable |
-| `.zsh_sessions/`, `.bash_sessions/` | Terminal.app session restore — suppressed via `SHELL_SESSIONS_DISABLE=1` |
+| Path                                         | Reason                                                                                                                                                            |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.zshenv`                                    | zsh's fixed entry point — always read from `$HOME`                                                                                                                |
+| `.ssh/`                                      | Symlink → `~/.config/ssh/`; config tracked in `ssh/config`, keys gitignored                                                                                       |
+| `.claude.json` legacy path                   | Claude Code now honors `CLAUDE_CONFIG_DIR` → `$XDG_CONFIG_HOME/claude` (set in `.zshenv`); config is XDG. A stale `~/.claude*` may remain from before the switch. |
+| `.vscode-oss/`, `.vscode-oss-shared/`        | Claude Code desktop app data — no XDG support                                                                                                                     |
+| `.CFUserTextEncoding`, `.DS_Store`, `.Trash` | macOS system — not configurable                                                                                                                                   |
+| `.zsh_sessions/`, `.bash_sessions/`          | Terminal.app session restore — suppressed via `SHELL_SESSIONS_DISABLE=1`                                                                                          |
 
 ## Structure & conventions
 
@@ -112,11 +112,12 @@ Entries that must stay in `$HOME` despite the XDG rule:
 
 This repo has no test suite or architectural layers to test against — Testing
 By Layer's underlying idea (different kinds of behavior need different kinds
-of proof) still applies, just mapped onto kinds of *changes* rather than
+of proof) still applies, just mapped onto kinds of _changes_ rather than
 architectural layers:
 
-- **Syntax**: `zsh -n` on zsh files, `shellcheck` on `linux/*.sh` — same checks
-  `lefthook.yml` and `ci.yml` run.
+- **Syntax/lint/format**: `lefthook run pre-commit --all-files` runs every
+  check listed under "Linters/formatters by file type" below — the same
+  checks `ci.yml`'s `lint` job runs.
 - **Runtime behavior for nvim plugin config**: launch the real deployed config
   headlessly and query the plugin's own merged config to confirm an option
   actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
@@ -147,7 +148,7 @@ Every commit:
    - Good: `fix(zsh): bind arrow keys via terminfo`
    - Bad: `fixed arrow keys` (no type, past tense, vague)
 2. **Blank line** between subject and body.
-3. **Body** (wrap at 72 chars): explain *what* and *why*, never *how* — the diff
+3. **Body** (wrap at 72 chars): explain _what_ and _why_, never _how_ — the diff
    shows how. Omit only for trivial, self-evident changes.
 4. **Trailers** (optional): add a `Co-authored-by: Name <email>` line for each
    human contributor, one blank line before the footer block. Do not add AI or
@@ -163,18 +164,37 @@ sweeping commit. Propose the split and messages before committing.
 > instances of it — `act`, GitHub Actions workflow linting — in **github.md**
 > (`claude/rules/platform/github.md`).
 
-`lefthook.yml` mirrors what CI enforces, run locally before push instead of
-after:
-- zsh syntax (`zsh -n`, same files `ci.yml` checks)
-- `shellcheck` on `linux/*.sh`
-- `actionlint` on `.github/workflows/*.yml`
-- `.envrc.local.example` never picks up a real credential and stays in
-  sync with `.envrc.local`
+`lefthook.yml` is the single source of truth for lint/format checks — run
+locally before push instead of after, and `ci.yml`'s `lint` job runs the exact
+same `lefthook run pre-commit --all-files` rather than re-implementing each
+check as a separate CI step, so CI can't drift from what a contributor's hook
+already runs.
 
 Installed automatically by `macos/deploy.zsh`'s `install_lefthook_hooks`
 step; run `lefthook run pre-commit --all-files` to check everything at once.
 
+### Linters/formatters by file type
+
+One tool per type, installed via `macos/Brewfile` and shared between
+`lefthook.yml`, `ci.yml`, and nvim's `conform`/`nvim-lint` — not a second
+Mason-managed copy. No silent gaps: every tracked file type is either covered
+below or explicitly called out as skipped.
+
+| Type             | Lint                | Format     | Notes                                                                |
+| ---------------- | ------------------- | ---------- | -------------------------------------------------------------------- |
+| lua              | `selene`            | `stylua`   | `nvim/selene.toml` + `nvim/vim.yml` define the `vim` global          |
+| zsh              | `zsh -n`            | —          | syntax-check only; no zsh formatter adopted                          |
+| sh / bash        | `shellcheck`        | `shfmt`    | `-i 2 -ci`; zsh is excluded from shellcheck (false positives)        |
+| toml             | `taplo`             | `taplo`    |                                                                      |
+| yaml (config)    | —                   | `yamlfmt`  | `.yamlfmt` sets `retain_line_breaks` to preserve blank-line grouping |
+| yaml (workflows) | `actionlint`        | —          | semantic checks, not styled by `yamlfmt`                             |
+| md               | `markdownlint-cli2` | `prettier` | `CHANGELOG.md` is excluded (git-cliff generated)                     |
+| json             | —                   | —          | out of scope — not in the original ask, only 3 files                 |
+| kdl              | —                   | —          | skipped — no mature tooling exists                                   |
+| js               | —                   | —          | skipped — one file, not worth a tool                                 |
+
 Two more tools worth reaching for by hand, not wired into any hook:
+
 - `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
   would compute, with zero side effects, before actually triggering it.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
@@ -182,7 +202,7 @@ Two more tools worth reaching for by hand, not wired into any hook:
 
 ### Credentials: `.envrc` / `.envrc.local`
 
-Concrete realization of three files: the credential-scoping *principle* in
+Concrete realization of three files: the credential-scoping _principle_ in
 **git.md** (`claude/rules/tools/git.md`), its GitHub-specific instance in
 **github.md** (`claude/rules/platform/github.md`) — routine `gh` usage in
 this repo never has admin rights to lose — and Security By Default's rule
@@ -220,12 +240,11 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
    Conventional Commit (`conventional commit`); once green, **rebase-merge** and your
    single commit lands on `main` verbatim. The branch auto-deletes on merge.
 4. `main` stays releasable, and cutting a release is automated — you decide
-   *when*, the workflows do the busywork ([SemVer](https://semver.org) versions
+   _when_, the workflows do the busywork ([SemVer](https://semver.org) versions
    computed from the Conventional Commits by [git-cliff](https://git-cliff.org)):
-   - **Dispatch `release-prepare.yml`** — `gh workflow run release-prepare.yml
-     -f bump=auto` (or the Actions UI; `auto` lets git-cliff pick the bump). It
-     computes the next version, regenerates `CHANGELOG.md`, and opens a
-     `release/vX.Y.Z` PR.
+   - **Dispatch `release-prepare.yml`** — `gh workflow run release-prepare.yml -f bump=auto`
+     (or the Actions UI; `auto` lets git-cliff pick the bump). It computes the
+     next version, regenerates `CHANGELOG.md`, and opens a `release/vX.Y.Z` PR.
    - **Review and rebase-merge that PR.** The merge triggers
      `release-publish.yml`, which tags `vX.Y.Z`, creates the GitHub release with
      notes, and deletes the release branch.
@@ -233,11 +252,11 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
      version) or `git cliff --unreleased --bump` (the changelog it will write).
 
    The two `.github/workflows/release-*.yml` files own the mechanism and the
-   *why* of each choice — read their comments; this section is just the
-   operator's procedure. They automate the equivalent by-hand steps (`git cliff
-   --tag vX.Y.Z -o CHANGELOG.md` → commit `chore(release): vX.Y.Z` → tag →
-   `gh release create`), so a release can still be cut manually if the automation
-   is ever unavailable.
+   _why_ of each choice — read their comments; this section is just the
+   operator's procedure. They automate the equivalent by-hand steps
+   (`git cliff --tag vX.Y.Z -o CHANGELOG.md` → commit `chore(release): vX.Y.Z`
+   → tag → `gh release create`), so a release can still be cut manually if the
+   automation is ever unavailable.
 
 `main` is never committed to directly (except one-time bootstraps). Merge method
 is **squash only**; rebase-merge stays disabled and is a deliberate, temporary

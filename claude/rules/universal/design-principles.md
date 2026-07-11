@@ -4,8 +4,9 @@
      domain-specific — see domain/architecture.md. Rationale: claude/README.md. -->
 
 > ### GATE — applies always
+>
 > Applies everywhere; no placeholders, nothing to distill. Do NOT copy into repos.
-> A repo's DESIGN.md/ADRs *illustrate* these, never override them — read them and stay
+> A repo's DESIGN.md/ADRs _illustrate_ these, never override them — read them and stay
 > consistent. This is the source; the repo doc is the concrete expression.
 
 # Design Principles
@@ -27,7 +28,7 @@ a reviewable diff, not an invisible change to a local environment.
 
 Make obvious what owns a piece of logic, what boundary is crossed, what's already been validated,
 and what failed when something breaks. Achieve it in order: good names, then clear structure, then
-comments only where they preserve intent code can't. Comments explain *why*, not *what* — don't
+comments only where they preserve intent code can't. Comments explain _why_, not _what_ — don't
 narrate mechanics a good name already conveys.
 
 ## Small, Composable Tools

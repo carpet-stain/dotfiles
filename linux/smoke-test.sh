@@ -12,7 +12,8 @@ set -uo pipefail
 failures=0
 
 check() {
-  local desc="$1"; shift
+  local desc="$1"
+  shift
   if "$@" >/dev/null 2>&1; then
     printf '  ok    %s\n' "$desc"
   else
@@ -27,7 +28,7 @@ for bin in zsh bat delta doggo dua curlie fd rg jaq tldr htop eza zoxide direnv 
 done
 
 echo "apt package state:"
-check "zsh installed (dpkg)"      bash -c "dpkg -l zsh | grep -q '^ii'"
+check "zsh installed (dpkg)" bash -c "dpkg -l zsh | grep -q '^ii'"
 check "tealdeer installed (dpkg)" bash -c "dpkg -l tealdeer | grep -q '^ii'"
 
 echo "bat theme:"

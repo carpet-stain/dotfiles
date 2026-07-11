@@ -9,10 +9,13 @@ return {
     "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        "pyright", "ruff", "gopls",
+        "pyright",
+        "ruff",
+        "gopls",
         "json-lsp",
         "yaml-language-server",
-        "marksman", "markdown-toc",
+        "marksman",
+        "markdown-toc",
       },
     },
   },
