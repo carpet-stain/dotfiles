@@ -4,7 +4,19 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Anchor to the main checkout's root via the shared .git dir, not wherever
+# this script physically lives. A linked worktree (e.g. Claude Code session
+# isolation) has its own directory that's deleted once its task is done —
+# symlinking live $HOME/$XDG config at that ephemeral copy leaves every
+# symlink dangling. --git-common-dir resolves to the main repo's .git
+# regardless of which worktree invokes it, so this is safe from any of them.
+GIT_COMMON_DIR="$(git -C "$SCRIPT_DIR" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+if [[ -n "$GIT_COMMON_DIR" ]]; then
+  DOTFILES_DIR="$(dirname "$GIT_COMMON_DIR")"
+else
+  DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+fi
 
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
