@@ -59,6 +59,12 @@ keybinds {
             }
         }
 
+        // Pane resizing deliberately stays on Zellij's own defaults (Resize
+        // mode via Ctrl-n, or the mode-less Alt-=/Alt-- non-directional
+        // shortcut) rather than a forwarded-to-Neovim Alt-hjkl — considered,
+        // and dropped as unnecessary complexity for a rarely-used feature.
+        // See KEYBINDINGS.md's "Design decisions" section.
+
         // Prefix-less tab switching (Alt-,/Alt-.)
         bind "Alt ," { GoToPreviousTab; }
         bind "Alt ." { GoToNextTab; }

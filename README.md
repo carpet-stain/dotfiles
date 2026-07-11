@@ -10,6 +10,7 @@
   - [Releases](#releases)
   - [Configuration](#configuration)
     - [Zsh configuration](#zsh-configuration)
+    - [Keybindings](#keybindings)
     - [Dependencies](#dependencies)
 
 <!--toc:end-->
@@ -160,6 +161,12 @@ develop).
 Zsh configuration skips every global configuration file except
 `/etc/zsh/zshenv`. The `env.d/` directory is sourced on all shell
 invocations; `rc.d/` is sourced in interactive sessions only.
+
+### Keybindings
+
+[KEYBINDINGS.md](KEYBINDINGS.md) documents the full Ghostty → Zellij → Neovim keystroke chain —
+which layer owns which key, and the conflicts found (and fixed) between them. Read it before
+adding a new `Ctrl`/`Alt`/`Cmd` binding anywhere in that chain.
 
 ### Dependencies
 
