@@ -290,3 +290,4 @@ local docs win on overlap. For a precise trace of which files loaded, when, and 
 check that `go.md`'s `paths:` gate fires only on Go files — enable Claude Code's `InstructionsLoaded`
 hook, which logs exactly that. The decisive negative test is a repo on none of the gated
 platforms/languages — only the `universal/` files should apply.
+
