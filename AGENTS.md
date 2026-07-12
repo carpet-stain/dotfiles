@@ -245,6 +245,13 @@ that and that the template hasn't drifted from `.envrc.local`'s structure).
 Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
 session (e.g. changing branch protection).
 
+This guarantee depends on `GH_TOKEN` actually being loaded — direnv's own
+hook only fires for interactive shells (`zsh/.zshrc`), so a non-interactive
+shell (a script, a cron job, an agent's tool shell) used to never load it and
+`gh` fell back to whatever broader keyring session `gh auth login` had set up
+(see #160). `zsh/.zshenv` now runs `direnv export` eagerly for every shell,
+interactive or not, so this section's claim holds there too.
+
 `git-cliff` reads its GitHub token from a differently-named env var
 (`GITHUB_TOKEN`, not `GH_TOKEN`) — `.envrc` aliases `GITHUB_TOKEN` to the same
 scoped `GH_TOKEN` automatically (no second credential to manage); see

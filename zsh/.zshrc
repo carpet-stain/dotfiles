@@ -30,8 +30,9 @@ fi
 # | P10K INSTANT PROMPT |
 # +---------------------+
 
+# .zshenv already ran direnv export before this file was sourced — satisfies
+# p10k's own requirement that it run above the instant prompt block:
 # https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
-emulate zsh -c "$(direnv export zsh)"
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
