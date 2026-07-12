@@ -296,9 +296,12 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/theme/delta/catppuccin.gitconfig" \
     "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
 
-  # Backs the `pr` alias above — must be on PATH as a bare command, not just
-  # reachable by relative path, since git/config is used from any repo.
+  # Backs the `pr`/`new`/`sync` aliases above — must be on PATH as bare
+  # commands, not just reachable by relative path, since git/config is used
+  # from any repo.
   ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
+  ln -sf "$DOTFILES_DIR/scripts/git-new.sh" "$LOCAL_BIN/git-new"
+  ln -sf "$DOTFILES_DIR/scripts/git-sync.sh" "$LOCAL_BIN/git-sync"
 
   ln -sf "$DOTFILES_DIR/ripgreprc" "$XDG_CONFIG_HOME/ripgrep/config"
   ln -sf "$DOTFILES_DIR/curlrc" "$XDG_CONFIG_HOME/curlrc"
@@ -377,6 +380,15 @@ sync_submodules() {
   git -C "$DOTFILES_DIR" submodule update --init --recursive
 }
 
+# Registers this repo for git's background maintenance (systemd/cron on
+# Linux), which prefetches origin so remote-tracking refs stay current with
+# zero effort — `git new`'s fetch becomes an instant no-op. Scoped to this
+# repo; run `git maintenance start` by hand in any other repo that wants the
+# same background freshness.
+enable_git_maintenance() {
+  git -C "$DOTFILES_DIR" maintenance start
+}
+
 download_gitstatusd() {
   # CI=1 skips .zshrc's zellij auto-attach block — without it, this
   # non-tty interactive shell hits `exec zellij attach` and hangs forever
@@ -450,6 +462,7 @@ required "Installing dua" install_tool dua dua
 required "Installing curlie" install_tool curlie curlie
 required "Installing jaq" install_tool jaq jaq
 required "Syncing submodules" sync_submodules
+optional "Enabling git maintenance" enable_git_maintenance
 required "Linking config files" link_configs
 required "Installing zsh plugins" install_zsh_plugins
 required "Setting zsh as default shell" set_default_shell

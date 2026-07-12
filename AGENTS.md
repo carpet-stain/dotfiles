@@ -79,7 +79,8 @@ Entries that must stay in `$HOME` despite the XDG rule:
   during a headless `deploy.zsh` run. `lazy-lock.json` is tracked and
   symlinked in `deploy.zsh`, matching LazyVim's own recommended practice.
 - `macos/deploy.zsh` — macOS bootstrap: creates XDG dirs, symlinks configs,
-  installs Homebrew + Brewfile, syncs submodules, builds caches/terminfo.
+  installs Homebrew + Brewfile, syncs submodules, enables git background
+  maintenance, builds caches/terminfo.
 - `linux/deploy.sh` — Debian bootstrap: same shape as `macos/deploy.zsh` but
   bash, apt (`linux/Aptfile`) instead of Homebrew, and GitHub release
   binaries for tools too old/missing in Debian's repos (neovim, git-delta,
@@ -240,8 +241,10 @@ scoped `GH_TOKEN` automatically (no second credential to manage); see
 Branching model: **short-lived feature branches + protected `main`**,
 rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrite it.
 
-1. Branch off `main` for each change: `git switch -c <name> origin/main`. Once
-   the first commit exists, open a **draft PR right away** with `git pr --draft`
+1. Branch off `main` for each change: `git new <name>` (fetches `origin/main`
+   fresh, then branches off it — starting from a stale base is structurally
+   impossible; see `git-new.sh`). Once the first commit exists, open a
+   **draft PR right away** with `git pr --draft`
    (errors loudly instead of guessing if a PR already exists for the branch —
    "did you mean to finalize? run: git pr"). Journal decisions, gotchas, and
    retractions as PR comments as work proceeds — the PR is the real-time
@@ -282,6 +285,12 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
    (`git cliff --tag vX.Y.Z -o CHANGELOG.md` → commit `chore(release): vX.Y.Z`
    → tag → `gh release create`), so a release can still be cut manually if the
    automation is ever unavailable.
+
+Local `main` is otherwise vestigial in this branch model — every change branches
+off `origin/main` directly via `git new`. Reach for `git sync` by hand
+(`git fetch --prune origin && git switch main && git merge --ff-only origin/main`;
+safe/loud under `merge.ff=only`; see `git-sync.sh`) when tooling or sanity wants a
+current local `main` — it's not part of the per-change flow.
 
 `main` is never committed to directly (except one-time bootstraps). Merge method
 is **rebase-merge only**, gated by `pr-guards.yml`'s single-commit and

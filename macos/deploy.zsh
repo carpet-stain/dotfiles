@@ -139,9 +139,12 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
   zf_ln -sf $DOTFILES_DIR/theme/delta/catppuccin.gitconfig $XDG_CONFIG_HOME/git/catppuccin.gitconfig
 
-  # Backs the `pr` alias above — must be on PATH as a bare command, not just
-  # reachable by relative path, since git/config is used from any repo.
+  # Backs the `pr`/`new`/`sync` aliases above — must be on PATH as bare
+  # commands, not just reachable by relative path, since git/config is used
+  # from any repo.
   zf_ln -sf $DOTFILES_DIR/scripts/git-pr-link.sh $HOME/.local/bin/git-pr-link
+  zf_ln -sf $DOTFILES_DIR/scripts/git-new.sh $HOME/.local/bin/git-new
+  zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync
 
   zf_ln -sf $DOTFILES_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
   zf_ln -sf $DOTFILES_DIR/curlrc $XDG_CONFIG_HOME/curlrc
@@ -217,6 +220,15 @@ sync_submodules() {
   setopt local_options err_exit
   git -C $DOTFILES_DIR submodule sync
   git -C $DOTFILES_DIR submodule update --init --recursive
+}
+
+# Registers this repo for git's background maintenance (launchd on macOS),
+# which prefetches origin so remote-tracking refs stay current with zero
+# effort — `git new`'s fetch becomes an instant no-op. Scoped to this repo;
+# run `git maintenance start` by hand in any other repo that wants the same
+# background freshness.
+enable_git_maintenance() {
+  git -C $DOTFILES_DIR maintenance start
 }
 
 # Trigger zsh run to download gitstatusd
@@ -295,6 +307,7 @@ required "Installing Brewfile packages"        install_brewfile
 optional "Installing lefthook hooks"           install_lefthook_hooks
 required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
+optional "Enabling git maintenance"            enable_git_maintenance
 optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
 optional "Setting fast-syntax-highlighting theme" set_fsh
