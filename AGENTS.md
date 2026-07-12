@@ -219,6 +219,11 @@ Three more tools worth reaching for by hand, not wired into any hook:
   the routine `GH_TOKEN` deliberately lacks — run with `env -u GH_TOKEN`.
   Never wired into CI or any hook; run manually after a repo's checks are
   wired up.
+- `scripts/apply-labels.sh` — idempotent label-taxonomy bootstrap
+  (`scripts/labels.json`), upsert-only. Needs Issues scope the routine
+  `GH_TOKEN` also lacks — run with `env -u GH_TOKEN`. Same one-time,
+  hand-invoked convention as the ruleset script above; see `git-flow/`'s
+  bootstrap runbook for how the two compose with the copier template.
 
 ### Credentials: `.envrc` / `.envrc.local`
 

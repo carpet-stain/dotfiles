@@ -53,14 +53,51 @@ uvx copier update --answers-file .copier-answers.git-flow.yml
   write) so its release PR triggers `pr-guards.yml` for real instead of
   landing in an approval-required state — see the workflow's own comments.
   Add it by hand: repo Settings → Secrets and variables → Actions.
-- **Labels.** Tracked separately — labels-as-code is its own #136 build item,
-  not yet built.
+- **Labels.** Tracked separately — see the Bootstrap runbook below.
 - **Global git config** (`committemplate`, `attributes`, `config`, `ignore`).
   Those are this machine's `$XDG_CONFIG_HOME/git/*`, deployed once by
   `macos/deploy.zsh` / `linux/deploy.sh` — already in effect for every repo
   on a machine with dotfiles installed, nothing to port per-project.
 - **A CI test/lint pipeline.** Language-specific; the Python starter template
   ships its own `ci.yml`.
+
+## Bootstrap runbook
+
+The full sequence from idea to a governed repo. Each step is independent
+and already idempotent — deliberately a documented sequence, not one fused
+script, so a future Terraform cutover (repos-as-code, tracked on #136) can
+replace steps 3–4 with `terraform apply` without touching 1–2, which
+Terraform can't do (it manages GitHub API-level resources, not git
+working-tree file content).
+
+1. **Create the empty repo** — `gh repo create` or the GitHub web UI. A
+   deliberate human step: picking the owner/org and visibility isn't
+   something to automate.
+2. **Scaffold the files** — `uvx copier copy ~/.config/dotfiles/git-flow
+   <dir>` (see Use, above). Layer a language template on top if applicable
+   (e.g. `../python`). Push this first commit to `main` directly — a repo
+   with zero commits has no `main` yet, and pushing any other branch name
+   first makes GitHub adopt *that* branch as the new default instead. If
+   you push a differently-named branch by mistake (e.g. via a PR flow),
+   fix it with a branch rename
+   (`gh api repos/{owner}/{repo}/branches/<branch>/rename -f new_name=main`),
+   not another push — renaming an already-pushed branch doesn't touch
+   content, so nothing needs re-review.
+3. **Apply labels** — from inside the generated repo's checkout:
+   `env -u GH_TOKEN ~/.config/dotfiles/scripts/apply-labels.sh`.
+4. **Apply branch protection** — same directory:
+   `env -u GH_TOKEN ~/.config/dotfiles/scripts/bootstrap-branch-protection.sh`.
+   Must come after step 2: it hardcodes `single commit` + `conventional
+commit` as required checks, which only exist once `pr-guards.yml` is in
+   the repo — running this first leaves required checks that never report,
+   permanently blocking merges. Also needs GitHub Pro or a public repo (the
+   script's own comments cover this gotcha).
+5. **Add the `RELEASE_PAT` secret** by hand, if release automation was
+   included in step 2 — see "What it deliberately doesn't produce," above.
+
+Steps 3 and 4 both need the elevated `env -u GH_TOKEN` session (routine
+`GH_TOKEN` deliberately lacks Issues/Administration scope) — see AGENTS.md's
+Credentials section.
 
 ## Known limitation
 
