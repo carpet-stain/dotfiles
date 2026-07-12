@@ -58,6 +58,17 @@ if [[ -d .github/workflows ]]; then
 fi
 echo "RELEASE_AUTOMATION=$release_automation"
 
+# Looks for a workflow file whose regex enforces a Conventional Commit
+# subject — reused below for two different purposes: BRANCH_MODEL's
+# heuristic (paired with a single-commit-count check) and
+# COMMIT_FORMAT_ENFORCEMENT (named on its own, regardless of branch model),
+# so compose-agents can point at the actual enforcing file instead of
+# restating the type list it defines.
+commit_format_file=""
+if [[ -d .github/workflows ]]; then
+  commit_format_file="$(grep -rlE '\(feat\|fix\|docs\|style\|refactor\|perf\|test\|build\|ci\|chore\)' .github/workflows/*.y*ml 2>/dev/null | head -1)"
+fi
+
 # Heuristic, not fact — flag as inferred to the caller. Looks for a workflow
 # that gates PRs on both a single-commit count and a Conventional Commit
 # subject, the signal this repo's own pr-guards.yml uses for its short-lived
@@ -65,12 +76,26 @@ echo "RELEASE_AUTOMATION=$release_automation"
 # documented default is the long-lived-working-branch + squash-merge model;
 # absent this signal, assume that default rather than guessing further.
 branch_model="long-lived-working-branch+squash-merge (git.md default — no override signal found)"
-if [[ -d .github/workflows ]] &&
-  grep -rlqE 'pull_request\.commits' .github/workflows/*.y*ml 2>/dev/null &&
-  grep -rlqE '\(feat\|fix\|docs\|style\|refactor\|perf\|test\|build\|ci\|chore\)' .github/workflows/*.y*ml 2>/dev/null; then
+if [[ -n "$commit_format_file" ]] &&
+  grep -rlqE 'pull_request\.commits' .github/workflows/*.y*ml 2>/dev/null; then
   branch_model="short-lived-feature-branch+squash-per-PR+rebase-merge (HEURISTIC — verify against the repo's actual docs)"
 fi
 echo "BRANCH_MODEL=$branch_model"
+
+# Whether a Conventional-Commit type list is mechanically enforced anywhere
+# in this repo, and whether that enforcement has a fast local mirror (a
+# commit-msg hook) or is CI-only (the agent may not reach it mid-session).
+# Empty means no enforcement was found — compose-agents falls back to
+# restating the type list in full, since there's nothing to point at.
+commit_format_enforcement=""
+if [[ -n "$commit_format_file" ]]; then
+  if grep -rlqE 'commit-msg' lefthook.y*ml .husky/commit-msg .commitlintrc* 2>/dev/null; then
+    commit_format_enforcement="$commit_format_file (has a local pre-commit mirror)"
+  else
+    commit_format_enforcement="$commit_format_file (CI-only, no local mirror found)"
+  fi
+fi
+echo "COMMIT_FORMAT_ENFORCEMENT=$commit_format_enforcement"
 
 protected_branch=""
 if $is_git_repo; then

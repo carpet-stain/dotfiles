@@ -77,6 +77,32 @@ Two traps, both real and both present in this repo's own `AGENTS.md`:
   model than git.md's default — you'll likely want to hand-write the Git workflow section, the
   way this pattern's own dotfiles repo does." Honesty about the gap beats a fabricated model.
 
+### Pointer-form for enforced specs
+
+AGENTS.md is the signpost, an enforcing config is the spec — don't let instantiation duplicate
+one into the other. This is "restate → point", not "enforced → delete": only the exact
+enumerable detail (a type list, a regex, a threshold) that a detected config already defines
+moves to pointer-form; the _why_ and the _workflow shape_ around it stay as prose regardless,
+since no config file can hold either.
+
+- When `COMMIT_FORMAT_ENFORCEMENT` is non-empty, instantiate git.md's Commits section's type
+  list as a pointer instead of enumerating it: `` `type` is a Conventional Commit type (enforced
+by `<file from COMMIT_FORMAT_ENFORCEMENT>`; see it for the exact list) `` — keep the rest of
+  that sentence (subject length, imperative mood, body wrap, `Co-authored-by`) as prose exactly
+  as git.md documents it, since nothing detected here confirms a config checks those specific
+  points too. When `COMMIT_FORMAT_ENFORCEMENT` is empty, fall back to the full literal type list
+  from git.md — there's nothing to point at, and per the "restate → point, not delete" rule an
+  unenforced repo still needs the spec written out somewhere.
+- Note whether the enforcement has a local mirror (`COMMIT_FORMAT_ENFORCEMENT`'s "local mirror"
+  vs "CI-only" suffix) in the pointer sentence — a CI-only gate is a slow, late loop, so say so
+  rather than implying a fast local check exists.
+- This same pointer-vs-restate judgment applies to any other COMPOSE-bearing content that
+  enumerates a config-defined value — the type list is the one concrete case detect.sh names
+  today, not the only one that could exist. Workflow _shape_ (step ordering, when to squash, when
+  to open a PR) is never a target for this — it stays prose even when a slow/CI-only gate
+  enforces it downstream, per git.md's own guidance, since no config teaches that shape ahead of
+  time.
+
 ## Step 5 — repo-domain TODO-skeleton (Draft mode)
 
 For sections with no abstract source — what this repo is, its philosophy, structure &
