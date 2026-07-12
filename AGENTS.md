@@ -240,21 +240,29 @@ scoped `GH_TOKEN` automatically (no second credential to manage); see
 Branching model: **short-lived feature branches + protected `main`**,
 rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrite it.
 
-1. Branch off `main` for each change: `git switch -c <name> origin/main`. Commit
-   freely while working — WIP commits needn't follow the commit style.
-2. **One logical change per PR.** Never bundle unrelated changes into a single PR
+1. Branch off `main` for each change: `git switch -c <name> origin/main`. Once
+   the first commit exists, open a **draft PR right away** with `git pr --draft`
+   (errors loudly instead of guessing if a PR already exists for the branch —
+   "did you mean to finalize? run: git pr"). Journal decisions, gotchas, and
+   retractions as PR comments as work proceeds — the PR is the real-time
+   record, not something written after the fact.
+2. Commit freely while working — WIP commits needn't follow the commit style.
+   `pr-guards.yml`'s commit-count and subject-format gates skip while the PR
+   is a draft, so WIP pushes stay quiet.
+3. **One logical change per PR.** Never bundle unrelated changes into a single PR
    just to save a round trip.
-3. When ready and tested, **squash the branch to exactly one Conventional Commit**
-   (`git reset --soft origin/main && git commit`), then open a PR with `git pr`
-   (wraps `gh pr create`; refuses to run unless the branch is exactly one commit
-   ahead of `origin/main`; no subject amend needed — `cliff.toml`'s
-   `[remote.github]` resolves each commit's PR link from GitHub's own
-   commit↔PR association at changelog-generation time instead, which survives
-   rebase-merge's SHA rewrite; see `claude/rules/platform/github.md`'s
-   "Changelog PR links" section). CI gates the PR on commit count and subject
-   format; once green, **rebase-merge** and your single commit lands on `main`
-   verbatim. The branch auto-deletes on merge.
-4. `main` stays releasable, and cutting a release is automated — you decide
+4. When ready and tested, **squash the branch to exactly one Conventional Commit**
+   (`git reset --soft origin/main && git commit`), then finalize with `git pr`
+   (marks the PR ready for review via `gh pr ready`; refuses to run unless the
+   branch is exactly one commit ahead of `origin/main`; no subject amend
+   needed — `cliff.toml`'s `[remote.github]` resolves each commit's PR link
+   from GitHub's own commit↔PR association at changelog-generation time
+   instead, which survives rebase-merge's SHA rewrite; see
+   `claude/rules/platform/github.md`'s "Changelog PR links" section).
+   Finalizing re-triggers CI, which gates the PR on commit count and subject
+   format for real; once green, **rebase-merge** and your single commit lands
+   on `main` verbatim. The branch auto-deletes on merge.
+5. `main` stays releasable, and cutting a release is automated — you decide
    _when_, the workflows do the busywork ([SemVer](https://semver.org) versions
    computed from the Conventional Commits by [git-cliff](https://git-cliff.org)):
    - **Dispatch `release-prepare.yml`** — `gh workflow run release-prepare.yml -f bump=auto`

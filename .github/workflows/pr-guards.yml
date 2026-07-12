@@ -7,7 +7,7 @@ name: PR guards
 # the commit itself is what must be valid, not the title.
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, ready_for_review]
     branches: [main]
 
 permissions:
@@ -21,6 +21,10 @@ jobs:
   single-commit:
     name: single commit
     runs-on: ubuntu-latest
+    # Draft PRs open early and take WIP pushes; a skipped-via-if job reads as
+    # passing to required-status-check branch protection, not failing, so
+    # this stays quiet until ready_for_review re-triggers it for real.
+    if: github.event.pull_request.draft == false
     steps:
       - name: Assert the PR is exactly one commit
         env:
@@ -35,6 +39,7 @@ jobs:
   conventional-commit:
     name: conventional commit
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
         with:
