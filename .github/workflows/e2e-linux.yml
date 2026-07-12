@@ -67,11 +67,42 @@ jobs:
               - 'zsh/**'
               - '**/*.zsh'
               - 'theme/**'
-              - 'claude/**'
               - 'nvim/**'
               - 'zellij/**'
               - 'git/**'
               - '.github/workflows/e2e-linux.yml'
+
+      # claude/** is split into its own filter, not folded into the list
+      # above, because it's the one watched dir with real markdown content
+      # in its diffs (agent rules) — deploy.sh only ever symlinks it
+      # (link_configs' `ln -sfn ".../claude/rules" ...`) wholesale, and
+      # smoke-test.sh only checks the symlink exists, never its content, so
+      # a .md-only change here can't move either outcome. The other watched
+      # dirs (zsh/, theme/) hold their markdown inside git submodules, whose
+      # own file changes never appear in this repo's diff (only the gitlink
+      # bump does) — so they don't need this same split. predicate-quantifier
+      # must be 'every' here: 'some' (this step's default) ORs patterns
+      # together, so a negated '!**/*.md' would be silently ignored — a file
+      # under claude/** always matches the first pattern too, so it'd stay
+      # "matched" regardless of the negation.
+      - id: filter-claude
+        uses: dorny/paths-filter@v3
+        with:
+          predicate-quantifier: 'every'
+          filters: |
+            claude:
+              - 'claude/**'
+              - '!claude/**/*.md'
+
+      # Single boolean the steps below gate on, instead of repeating both
+      # filter outputs' OR at every step — one place to combine them.
+      - id: relevant
+        run: |
+          if [[ "${{ steps.filter.outputs.linux }}" == 'true' || "${{ steps.filter-claude.outputs.claude }}" == 'true' ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # actions/checkout adds its own safe.directory exception, but only
       # inside a temporary HOME it overrides for its own internal git calls
@@ -81,7 +112,7 @@ jobs:
       # actually running this job on a real ubuntu-latest runner, not
       # something act's local emulation surfaced.
       - name: Fetch submodules
-        if: steps.filter.outputs.linux == 'true'
+        if: steps.relevant.outputs.run == 'true'
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git submodule sync
@@ -94,7 +125,7 @@ jobs:
       # $EUID != 0 guard below, losing coverage of the zellij-related logic
       # that guard exists to gate. Build the real target shape instead.
       - name: Install sudo, create deploy user
-        if: steps.filter.outputs.linux == 'true'
+        if: steps.relevant.outputs.run == 'true'
         run: |
           apt-get update -qq
           apt-get install -y --no-install-recommends sudo
@@ -104,7 +135,7 @@ jobs:
           chown -R deployuser:deployuser "$GITHUB_WORKSPACE"
 
       - name: Run linux/deploy.sh as deployuser
-        if: steps.filter.outputs.linux == 'true'
+        if: steps.relevant.outputs.run == 'true'
         run: su - deployuser -c "cd '$GITHUB_WORKSPACE' && bash linux/deploy.sh"
 
       # Stronger than zsh -n: actually executes .zshenv then .zshrc,
@@ -119,12 +150,12 @@ jobs:
       # mid-sourcing that a later eval silently swallows without
       # propagating to a nonzero exit.
       - name: Assert .zshenv/.zshrc source cleanly
-        if: steps.filter.outputs.linux == 'true'
+        if: steps.relevant.outputs.run == 'true'
         run: |
           output="$(su - deployuser -c 'CI=1 zsh -ic "echo ZSHRC_SOURCED_OK"' 2>&1)"
           echo "$output"
           grep -q ZSHRC_SOURCED_OK <<< "$output"
 
       - name: Run linux/smoke-test.sh
-        if: steps.filter.outputs.linux == 'true'
+        if: steps.relevant.outputs.run == 'true'
         run: su - deployuser -c "cd '$GITHUB_WORKSPACE' && bash linux/smoke-test.sh"
