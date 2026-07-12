@@ -1,0 +1,23 @@
+# Local shift-left mirror of what CI enforces (pr-guards.yml) — catches the
+# same issues before push instead of after. Install with `lefthook install`.
+#
+# This is the git-flow governance subset only: linting the workflow files
+# this template ships, and keeping the credential-scoping pattern honest.
+# A language overlay (e.g. the Python starter template) adds its own
+# per-language jobs here — merge them into this file by hand, copier can't
+# merge YAML across templates.
+pre-commit:
+  jobs:
+    - name: actionlint
+      glob:
+        - ".github/workflows/*.yml"
+        - ".github/workflows/*.yaml"
+      run: actionlint {staged_files}
+
+    - name: envrc-local-example-sync
+      run: scripts/check-envrc-local-example.sh
+
+pre-push:
+  jobs:
+    - name: envrc-local-example-sync
+      run: scripts/check-envrc-local-example.sh

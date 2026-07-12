@@ -1,0 +1,32 @@
+_subdirectory: template
+_answers_file: .copier-answers.git-flow.yml
+
+# GitHub Actions' own `${{ }}` expression syntax collides with Jinja's default
+# `{{ }}` delimiters, so every templated workflow file would need its
+# expressions escaped. Switch this template's delimiters to `[[ ]]` instead —
+# GH Actions syntax then passes through untouched, no raw-block escaping needed.
+_envops:
+  variable_start_string: "[["
+  variable_end_string: "]]"
+
+github_owner:
+  type: str
+  help: GitHub owner/org the repo lives under
+
+github_repo:
+  type: str
+  help: Repo name (as it appears in the GitHub URL)
+
+protected_branch:
+  type: str
+  help: Branch PRs merge into, protected from direct pushes
+  default: main
+
+include_release_automation:
+  type: bool
+  help: Include git-cliff release automation (release-prepare/publish.yml, cliff.toml)?
+  default: true
+
+_tasks:
+  - git init -q
+  - lefthook install

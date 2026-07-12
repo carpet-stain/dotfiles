@@ -1,0 +1,80 @@
+name: Prepare release
+
+# Manual trigger only — deciding *when* to cut a release stays a human call;
+# this automates the busywork around that decision (compute the next
+# version, regenerate CHANGELOG.md, open the PR) per the steps documented
+# in AGENTS.md's Git workflow section.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump (auto lets git-cliff decide from Conventional Commits)"
+        type: choice
+        default: auto
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    name: prepare release PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: [[ protected_branch ]]
+          fetch-depth: 0
+
+      # --bump (no --unreleased) renders the FULL changelog with the newly
+      # computed version applied at the top, matching this repo's
+      # `git cliff --tag vX.Y.Z -o CHANGELOG.md` convention — just with the
+      # version computed from Conventional Commits instead of typed by hand.
+      # GITHUB_TOKEN (read-only default token, not RELEASE_PAT) is enough
+      # here — cliff.toml's [remote.github] only needs to look up each
+      # commit's associated PR, not write anything.
+      - name: Compute next version and update changelog
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: >-
+            --bump
+            ${{ inputs.bump != 'auto' && inputs.bump || '' }}
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # A dedicated release/vX.Y.Z branch keeps the version bump and changelog
+      # isolated in their own PR. release-publish.yml deletes this branch once
+      # merged (scoped to the release/v* prefix).
+      #
+      # gh pr create uses RELEASE_PAT, not the default GITHUB_TOKEN: a PR
+      # opened via GITHUB_TOKEN has its pull_request-triggered workflows
+      # (ci.yml, pr-guards.yml) land in an approval-required state instead
+      # of running — deliberate GitHub behavior to prevent recursive
+      # workflow runs, but it means every release PR would otherwise need
+      # a human to manually approve/rerun its own required checks before
+      # branch protection would even allow merging it. RELEASE_PAT is a
+      # fine-grained PAT with Contents + Pull requests write, added as a
+      # repo secret — not covered by this template, see the README.
+      - name: Commit changelog on a release branch and open the PR
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+          VERSION: ${{ steps.cliff.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "release/${VERSION}"
+          git add CHANGELOG.md
+          git commit -m "chore(release): ${VERSION}"
+          git push origin "release/${VERSION}"
+          gh pr create \
+            --base [[ protected_branch ]] --head "release/${VERSION}" \
+            --title "chore(release): ${VERSION}" \
+            --body "Automated release prep via git-cliff (\`${{ inputs.bump }}\` bump). Review the changelog, then rebase-merge to cut the release — merging triggers tagging, the GitHub release, and deleting this branch (see release-publish.yml)."

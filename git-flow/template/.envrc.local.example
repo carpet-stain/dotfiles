@@ -1,0 +1,5 @@
+# Copy this file to .envrc.local and fill in your own token — a
+# fine-grained PAT with Contents/Pull requests/Actions read-write, NOT
+# Administration. Use `env -u GH_TOKEN gh ...` for anything that needs the
+# full-admin session instead (e.g. the branch-protection bootstrap script).
+export GH_TOKEN=
