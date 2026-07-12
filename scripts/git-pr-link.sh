@@ -48,7 +48,7 @@ git fetch origin main
 
 ahead=$(git rev-list --count origin/main..HEAD)
 if [[ "$ahead" != 1 ]]; then
-  echo "squash to 1 commit first (branch has $ahead vs origin/main): git reset --soft origin/main && git commit" >&2
+  echo "squash to 1 commit first (branch has $ahead vs origin/main): git squash" >&2
   exit 1
 fi
 
