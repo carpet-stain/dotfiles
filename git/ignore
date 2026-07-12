@@ -46,8 +46,6 @@ target/
 node_modules/
 
 ### *env ###
-# pyenv
-.python-version
 # rbenv
 .ruby-version
 # nodenv
