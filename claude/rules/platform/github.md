@@ -42,14 +42,12 @@ Each path asserts its own precondition — commit count ahead of the base — an
 specific message rather than branching on ambient state. Journal decisions, gotchas, and
 retractions as comments on the draft PR as work proceeds.
 
-`pr-guards.yml`'s `single-commit` and `conventional-commit` jobs gate on
-`github.event.pull_request.draft == false`, and `ready_for_review` is added to the `pull_request`
-trigger types alongside `opened`/`reopened`/`synchronize` — so WIP pushes to an early draft
-produce no red noise, and the gate evaluates for real at the moment `git pr` finalizes it. A job
-skipped via a job-level `if:` reads as passing to required-status-check branch protection, not
-failing (verified empirically against this repo's branch protection, not assumed from docs) — a
-workflow-level `if:` that skips the whole run is the sharp edge that can hang a required check
-instead, which this avoids by scoping the `if:` per job.
+`pr-guards.yml` (see its own inline comments for the exact gate) stays quiet on WIP pushes to an
+early draft and evaluates for real once `git pr` finalizes it — gated per job, not
+workflow-level, because a job skipped via a job-level `if:` reads as passing to
+required-status-check branch protection, not failing (verified empirically against this repo's
+branch protection, not assumed from docs), while a workflow-level `if:` that skips the whole run
+is the sharp edge that can hang a required check instead.
 
 ## Releases — gh
 

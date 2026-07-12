@@ -43,8 +43,8 @@ formatting/imports, `golangci-lint` for lintable rules (staticcheck, errcheck, e
 for naming/indent-error-flow and initialism casing, exported-identifier doc comments). Judgment
 parts — package purpose, comment quality, interface design — stay a matter of review.
 
-Keep files topical (`inventory.go`, `errors.go`), not dumping grounds (`utils.go`, `helpers.go`).
 Give every package a `doc.go` overview (what it owns, primary invariants, start-here files);
-co-locate a `README.md` for a deeper guide and point `doc.go` at it. For relational navigation —
-callers of a symbol, implementers of an interface, rename safety — prefer gopls over grep; grep is
-for text/config/log scans.
+co-locate a `README.md` for a deeper guide and point `doc.go` at it — design-principles.md's Naming
+& Files rule (no dumping-ground files) applies here too. For relational navigation — callers of a
+symbol, implementers of an interface, rename safety — prefer gopls over grep; grep is for
+text/config/log scans.
