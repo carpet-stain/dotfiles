@@ -50,17 +50,22 @@ commit; propose the split before committing.
 
 1. Fetch and check the remote <protected-branch> before branching — a stale base means painful
    divergence later. Branch off it per change; the branch is single-use and short-lived.
-2. Commit freely on the feature branch — WIP commits needn't follow the commit style, since only
+2. Open the PR/MR as soon as a branch and first commit exist, not after the final squash. Journal
+   decisions, gotchas, decision forks, and retractions as PR/MR comments while work proceeds — the
+   PR/MR becomes the real-time record, not a postmortem written at the end. Host-specific mechanics
+   for keeping checks quiet during this early/WIP window live in the platform file.
+3. Commit freely on the feature branch — WIP commits needn't follow the commit style, since only
    the final squashed commit reaches <protected-branch>.
-3. One logical change per PR. Never bundle unrelated changes to save a round trip.
-4. When ready and tested, squash the branch to exactly one Conventional Commit
-   (`git reset --soft origin/<protected-branch> && git commit`), then PR → <protected-branch>. CI
-   gates on the PR being exactly one commit with a Conventional-Commit subject — the two checks
-   rebase-merge relies on, since the host won't rewrite the message the way squash-merge would.
-5. Once green, **rebase-merge**: your single commit lands on <protected-branch> verbatim, and the
+4. One logical change per PR. Never bundle unrelated changes to save a round trip.
+5. When ready and tested, squash the branch to exactly one Conventional Commit
+   (`git reset --soft origin/<protected-branch> && git commit`), then finalize (mark ready for
+   review) — the commit reaches its final shape here, and CI gates on the PR being exactly one
+   commit with a Conventional-Commit subject — the two checks rebase-merge relies on, since the
+   host won't rewrite the message the way squash-merge would.
+6. Once green, **rebase-merge**: your single commit lands on <protected-branch> verbatim, and the
    branch auto-deletes. No branch reuse or reset step needed — the next change starts a fresh
    branch off <protected-branch>.
-6. <protected-branch> stays releasable, never committed to directly. Merge method is rebase-merge
+7. <protected-branch> stays releasable, never committed to directly. Merge method is rebase-merge
    only, enforced by the single-commit + Conventional-Commit checks.
 
 ## Working iteratively when you can't self-verify

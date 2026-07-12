@@ -32,6 +32,25 @@ Administration), not a full `gh auth login` session, so routine work can't touch
 branch protection — elevate explicitly (`env -u GH_TOKEN gh ...`) only for the one action that
 needs admin. `act` runs the Actions workflows locally via Docker, for testing without pushing.
 
+## Early draft PRs — `git pr` / `git pr --draft`
+
+Realizes `git.md`'s "open the PR/MR early, journal via comments" principle on GitHub: `git pr
+--draft` opens a draft PR as soon as a first commit exists (errors loudly instead of guessing if
+one already exists — "did you mean to finalize? run: git pr"); plain `git pr` either opens the
+finalized PR directly (no draft existed yet) or finalizes an already-open one via `gh pr ready`.
+Each path asserts its own precondition — commit count ahead of the base — and fails with a
+specific message rather than branching on ambient state. Journal decisions, gotchas, and
+retractions as comments on the draft PR as work proceeds.
+
+`pr-guards.yml`'s `single-commit` and `conventional-commit` jobs gate on
+`github.event.pull_request.draft == false`, and `ready_for_review` is added to the `pull_request`
+trigger types alongside `opened`/`reopened`/`synchronize` — so WIP pushes to an early draft
+produce no red noise, and the gate evaluates for real at the moment `git pr` finalizes it. A job
+skipped via a job-level `if:` reads as passing to required-status-check branch protection, not
+failing (verified empirically against this repo's branch protection, not assumed from docs) — a
+workflow-level `if:` that skips the whole run is the sharp edge that can hang a required check
+instead, which this avoids by scoping the `if:` per job.
+
 ## Releases — gh
 
 Publish notes from the same git-cliff source as `git.md`'s Releases:
