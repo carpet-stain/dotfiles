@@ -57,5 +57,14 @@ if ! git rebase origin/main; then
   exit 1
 fi
 
-git push --force-with-lease
+# Ready before push, not after: `ready_for_review` and the push's own
+# `synchronize` event land on the same head SHA within moments of each
+# other, and GitHub only evaluates pr-guards.yml's draft-gated jobs once
+# per SHA — whichever event's payload it processes first wins. Push-then-
+# ready let that first evaluation see draft:true (still skipping) and
+# never re-ran for real once ready flipped, so a required check could
+# stay permanently "skipped" (which reads as passing) for the merged
+# commit. Flipping ready first means the push's synchronize event is the
+# one GitHub evaluates, with draft already false.
 gh pr ready
+git push --force-with-lease
