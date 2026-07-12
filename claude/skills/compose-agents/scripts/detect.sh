@@ -69,16 +69,19 @@ if [[ -d .github/workflows ]]; then
   commit_format_file="$(grep -rlE '\(feat\|fix\|docs\|style\|refactor\|perf\|test\|build\|ci\|chore\)' .github/workflows/*.y*ml 2>/dev/null | head -1)"
 fi
 
-# Heuristic, not fact — flag as inferred to the caller. Looks for a workflow
-# that gates PRs on both a single-commit count and a Conventional Commit
-# subject, the signal this repo's own pr-guards.yml uses for its short-lived
-# -feature-branch + squash-per-PR + rebase-merge model. git.md's own
-# documented default is the long-lived-working-branch + squash-merge model;
-# absent this signal, assume that default rather than guessing further.
-branch_model="long-lived-working-branch+squash-merge (git.md default — no override signal found)"
+# Heuristic, not fact — flag as inferred to the caller. git.md documents
+# exactly one Branch & PR model (short-lived-feature-branch + rebase-merge;
+# #128 consolidated it off the older long-lived-working-branch + squash-merge
+# default). This looks for the CI signal this repo's own pr-guards.yml uses
+# to enforce it — a workflow gating PRs on both a single-commit count and a
+# Conventional Commit subject. Presence confirms enforcement is actually
+# wired up; absence doesn't mean a different model — git.md has no other
+# model to fall back to — it just means compose-agents can't confirm
+# enforcement from CI alone.
+branch_model="short-lived-feature-branch+squash-per-PR+rebase-merge (git.md's only documented model — no CI signal found to confirm enforcement)"
 if [[ -n "$commit_format_file" ]] &&
   grep -rlqE 'pull_request\.commits' .github/workflows/*.y*ml 2>/dev/null; then
-  branch_model="short-lived-feature-branch+squash-per-PR+rebase-merge (HEURISTIC — verify against the repo's actual docs)"
+  branch_model="short-lived-feature-branch+squash-per-PR+rebase-merge (confirmed by pr-guards-style CI signal)"
 fi
 echo "BRANCH_MODEL=$branch_model"
 

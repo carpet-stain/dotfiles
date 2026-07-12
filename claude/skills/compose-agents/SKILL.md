@@ -68,14 +68,17 @@ Two traps, both real and both present in this repo's own `AGENTS.md`:
   becoming a separate parallel "GitHub section" — this repo's own "Local tooling" and
   "Credentials" sections each cite both files under one blockquote. Don't emit a
   `github.md`-only section.
-- **A detected `BRANCH_MODEL` that diverges from git.md's own documented default is a case
-  git.md cannot fill mechanically.** `git.md` only documents one model (long-lived working
-  branch + protected main, squash-merged). If detect.sh's heuristic flags the alternate
-  short-lived-feature-branch signal, don't invent full prose for a model git.md never
-  describes — instantiate git.md's actual documented model as the mechanical baseline, and
-  separately flag to the user: "detected signals suggest this repo may use a different branch
-  model than git.md's default — you'll likely want to hand-write the Git workflow section, the
-  way this pattern's own dotfiles repo does." Honesty about the gap beats a fabricated model.
+- **`BRANCH_MODEL` no longer selects between two models — `git.md` documents exactly one.**
+  #128 consolidated `git.md` off its old long-lived-working-branch + squash-merge default onto
+  short-lived-feature-branch + rebase-merge; that's now its only Branch & PR model, fully
+  fillable via `<protected-branch>`. Always instantiate it mechanically regardless of what
+  `detect.sh`'s heuristic finds — the CI signal it looks for (`pr-guards.yml`'s pattern: gating
+  PRs on a single-commit count and a Conventional Commit subject) only affects _confidence_, not
+  which prose to emit. Signal found: the model is CI-enforced here — this repo's own `AGENTS.md`
+  is the worked example, citing `git.md`'s model directly with `pr-guards.yml` as the
+  confirmation. Signal absent: instantiate the same section, but flag to the user that no CI
+  signal confirms enforcement is actually wired up yet, so they should double-check it or wire
+  it up rather than assume the section describes something already enforced.
 
 ### Pointer-form for enforced specs
 
