@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Keeps the bundled workflow actions (checkout, git-cliff-action, etc.)
+  # current — applies to every repo that has .github/workflows, regardless
+  # of language. Language-specific ecosystems (npm, pip, ...) are a
+  # language overlay's concern, not this governance template's.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - "dependencies"
