@@ -23,6 +23,13 @@ Don't trust a memory or summary of a resource — retrieve it fresh and fact-che
 adversarially, assuming errors until proven otherwise. Same for local state: confirm a file,
 symbol, or config value still exists and looks as expected before acting on it.
 
+Before removing or simplifying code that's surprising, load-bearing but unexplained, or
+otherwise looks intentional, recover its intent before treating it as removable — a comment is
+the cheapest source; when that's not enough, the code's own history (blame → commit → PR/issue)
+often holds the _why_ a static read can't. Reach for it deliberately: the trigger is "about to
+delete or simplify something I can't explain," not a blanket habit. Treat it as a strong
+nudge, not a guarantee — no hook can force an agent to check history first.
+
 ## Propose Before Implementing
 
 For judgment work — wording, design, naming, anything encoding a subjective stance — analyze

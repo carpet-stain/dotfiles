@@ -104,6 +104,12 @@ Entries that must stay in `$HOME` despite the XDG rule:
 - Fix bugs found along the way, but call them out.
 - Summarize what changed and why — a short table beats prose.
 - Prefer the change that removes a setting over the one that adds one.
+- Before deleting or simplifying code that looks surprising or unexplained,
+  trace its provenance (Verify, Don't Trust's history-recovery guidance):
+  `git blame <file>` → `git show <sha>` → `gh pr view <n> --comments` →
+  `gh issue view <n>`. This repo's rebase-merge, the git-cliff PR-link
+  resolution, and the draft-PR journaling above keep that chain reliably
+  intact end to end, so the traversal is worth it here.
 - Concrete realization of Propose Before Implementing for this repo: editing
   `claude/rules/*.md`, `README.md`'s voice, or this file itself is opinion/judgment
   content — discuss before writing or committing. zsh/nvim/tool-config tweaks are
