@@ -61,6 +61,12 @@ jobs:
       - id: filter
         uses: dorny/paths-filter@v3
         with:
+          # TEMP for #131 live verification only — isolates the diff to
+          # this throwaway branch's own commits instead of the PR's real
+          # base, so this doesn't test against the not-yet-merged fix
+          # commit's own workflow-file diff. Removed before this branch
+          # is discarded; never lands on the real fix branch.
+          base: 570405cff1c7053dfd3a5fd78aed89ab057b6ac6
           filters: |
             linux:
               - 'linux/**'
@@ -88,6 +94,8 @@ jobs:
       - id: filter-claude
         uses: dorny/paths-filter@v3
         with:
+          # TEMP for #131 live verification only — see filter step above.
+          base: 570405cff1c7053dfd3a5fd78aed89ab057b6ac6
           predicate-quantifier: 'every'
           filters: |
             claude:
