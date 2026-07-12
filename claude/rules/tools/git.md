@@ -70,11 +70,15 @@ commit; propose the split before committing.
 
 ## Working iteratively when you can't self-verify
 
-For changes the agent can't confirm alone (GUI, TUI, rendering, keybindings): commit locally as
-checkpoints but hold off push/PR until confirmed — each round-trip is real overhead for something
-unvalidated. Once confirmed, squash to one commit for the final state and push → PR → merge once.
-Squash before any PR (`git reset --soft origin/<protected-branch> && git commit`) — a twenty-WIP
-PR is hard to review. Directly-verifiable work (syntax, dry run, CLI) skips this.
+Open-PR-early (step 2) still applies here — the draft PR opens at the first commit regardless of
+how verifiable the change is. What this section scopes is _finalizing_ (marking ready for
+review): for changes the agent can't confirm alone (GUI, TUI, rendering, keybindings), push
+checkpoints and journal decisions on the draft PR as work proceeds, but hold off finalizing until
+the change is confirmed working — each review round-trip on something unvalidated is real
+overhead. Once confirmed, squash to one commit (`git reset --soft origin/<protected-branch> &&
+git commit`) and finalize — a twenty-WIP-commit PR is hard to review, so the squash happens right
+before finalizing, not before the PR opens. Directly-verifiable work (syntax, dry run, CLI) skips
+the hold-off: squash and finalize as soon as it passes verification.
 
 ## Shift-left tooling and credential scope
 
