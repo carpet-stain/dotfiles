@@ -25,6 +25,10 @@
   # Fast-forward local main to match origin/main. Safe/loud under
   # merge.ff=only. See git-sync.sh.
   sync = "!git-sync"
+  # Rebase onto origin/main, then collapse to one commit — safe regardless
+  # of whether the local origin/main ref is stale or fresh going in. See
+  # git-squash.sh.
+  squash = "!git-squash"
 
 [include]
   path = ~/.config/git/catppuccin.gitconfig

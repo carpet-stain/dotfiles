@@ -29,7 +29,7 @@ jobs:
           COMMITS: ${{ github.event.pull_request.commits }}
         run: |
           if [ "$COMMITS" -ne 1 ]; then
-            echo "::error::PR has $COMMITS commits; squash to exactly one before merge (git reset --soft origin/[[ protected_branch ]] && git commit)."
+            echo "::error::PR has $COMMITS commits; squash to exactly one before merge (git rebase origin/[[ protected_branch ]] && git reset --soft origin/[[ protected_branch ]] && git commit)."
             exit 1
           fi
           echo "PR is a single commit."

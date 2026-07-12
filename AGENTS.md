@@ -274,16 +274,26 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
 3. **One logical change per PR.** Never bundle unrelated changes into a single PR
    just to save a round trip.
 4. When ready and tested, **squash the branch to exactly one Conventional Commit**
-   (`git reset --soft origin/main && git commit`), then finalize with `git pr`
-   (marks the PR ready for review via `gh pr ready`; refuses to run unless the
-   branch is exactly one commit ahead of `origin/main`; no subject amend
-   needed — `cliff.toml`'s `[remote.github]` resolves each commit's PR link
-   from GitHub's own commit↔PR association at changelog-generation time
-   instead, which survives rebase-merge's SHA rewrite; see
-   `claude/rules/platform/github.md`'s "Changelog PR links" section).
-   Finalizing re-triggers CI, which gates the PR on commit count and subject
-   format for real; once green, **rebase-merge** and your single commit lands
-   on `main` verbatim. The branch auto-deletes on merge.
+   with `git squash` — it rebases onto `origin/main` first, then runs
+   `git reset --soft origin/main && git commit`. Rebasing first matters:
+   resetting straight against a moved `origin/main` stages reverts of
+   whatever landed on `main` since the branch was cut, not just your own
+   commits (see `git-squash.sh`). Plain `git reset --soft origin/main &&
+git commit` is only safe if your local `origin/main` ref is still stale
+   at the commit you branched from — don't rely on that. Then finalize
+   with `git pr` (marks the PR ready for
+   review via `gh pr ready`, after fetching, rebasing onto `origin/main`
+   again, and force-pushing — finalize is where CI actually reads the base,
+   so this re-check catches a base that moved between your squash and now;
+   fails loud on a rebase conflict rather than pushing a silently-wrong
+   commit; see `git-pr-link.sh`). No subject amend needed — `cliff.toml`'s
+   `[remote.github]` resolves each commit's PR link from GitHub's own
+   commit↔PR association at changelog-generation time instead, which
+   survives rebase-merge's SHA rewrite; see `claude/rules/platform/github.md`'s
+   "Changelog PR links" section. Finalizing re-triggers CI, which gates the
+   PR on commit count and subject format for real; once green,
+   **rebase-merge** and your single commit lands on `main` verbatim. The
+   branch auto-deletes on merge.
 5. `main` stays releasable, and cutting a release is automated — you decide
    _when_, the workflows do the busywork ([SemVer](https://semver.org) versions
    computed from the Conventional Commits by [git-cliff](https://git-cliff.org)):
