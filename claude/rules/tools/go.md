@@ -48,3 +48,28 @@ co-locate a `README.md` for a deeper guide and point `doc.go` at it — design-p
 & Files rule (no dumping-ground files) applies here too. For relational navigation — callers of a
 symbol, implementers of an interface, rename safety — prefer gopls over grep; grep is for
 text/config/log scans.
+
+## Application structure (layered apps)
+
+Go-concrete realization of `architecture.md`'s layer-boundary principles, scoped to the
+services/CLIs its GATE covers — worked exemplar: Ben Johnson's WTF Dial
+(`github.com/benbjohnson/wtf`, gobeyond.dev's "Standard Package Layout" / "Packages as layers, not
+groups" / "Failure Is Your Domain"). Skip the ceremony for a small CLI with no real dependency
+boundary (design-principles.md: no abstraction without a real boundary).
+
+- **Root package is the domain**, importing nothing implementation-specific: types plus service
+  interfaces (`wtf.DialService`) defined where they're consumed, not where they're implemented —
+  Go's shape for Compose at the edge.
+- **Subpackages wrap one external dependency each**, not a technical layer — `http/`, `sqlite/`,
+  `mock/`, never `models/`/`controllers/`/`services/`. They import the domain package, never each
+  other — Go's shape for Organize by dependency, not technical layer.
+- **`cmd/<bin>/main.go` is the composition root**: a thin `main()` traps signals/exit; a `Main`
+  struct wires concrete implementations (e.g. `sqlite` + `http`) into the domain interfaces —
+  runtime selection at the top, per Compose at the edge. Separate binaries (`cmd/wtfd`, `cmd/wtf`)
+  wire different subsets of the same domain; `mock/` wires a fake subset for tests.
+- **Domain error type**: `Error{Code, Message}` with a sentinel `Code` set (`ENOTFOUND`,
+  `ECONFLICT`, `EINVALID`, `EINTERNAL`, ...) and `ErrorCode(err)`/`ErrorMessage(err)` helpers that
+  unwrap wrapped errors, falling back to `EINTERNAL`/a generic message outside the domain — a
+  transport layer translates `Code` to its own status, keeping that translation at the boundary
+  per Backend quirks stay at the boundary. Extends this file's error-checking guidance with error
+  _design_.

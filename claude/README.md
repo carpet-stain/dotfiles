@@ -176,6 +176,26 @@ always-on context — it loads only when delegated to, so it costs nothing until
   to retain a repo's backlog knowledge across sessions. Delegate by mentioning issues/backlog, by name,
   or run a dedicated session with `claude --agent backlog-manager`.
 
+### Subagent memory: tracked, and split by portability
+
+A subagent's project-scoped memory (`.claude/agent-memory/<name>/`) is tracked, not gitignored —
+it's the durable half of "write it down over memory," version-controlled like everything else the
+subagent's judgment shapes. The dividing line from the subagent's own definition
+(`claude/agents/<name>.md`) is portability: a rule that would hold for this subagent in _any_ repo
+belongs in the definition — hand-reviewed, symlinked everywhere the agent runs; a fact specific to
+_this_ repo (issue numbers, this repo's label scheme, this user's preferences) stays in memory.
+Within the memory tier, commit it whole — no further split between "doc-like" and "notes about the
+user" files, complexity a solo repo doesn't need.
+
+The subagent itself never commits memory — `backlog-manager` has no git access, and its lane stops
+at issues/labels/memory content, not repo mutation. Whoever's in the repo commits it
+opportunistically, batched at the end of a substantive session or after a grooming sweep, not
+per-tweak: one low-ceremony `chore(claude): sync <agent> memory` through the normal branch → draft
+PR → squash → rebase-merge flow — memory isn't code, but it's small enough that a dedicated
+lighter lane isn't worth the extra mechanism. Memory files are heredoc-authored working notes, not
+published prose, so `.claude/agent-memory/**` is excluded from the markdownlint/prettier hooks —
+same treatment as `CHANGELOG.md`.
+
 ## Skills (`claude/skills/`)
 
 A Skill is on-demand, not always-on: Claude Code invokes it by name (`/skill-name`) or

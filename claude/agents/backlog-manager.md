@@ -45,6 +45,9 @@ them here.
   `spike`, `epic`, and the like when they fit.
 - **Epics**: break into a checkbox task-list. When an epic is large or its parts are
   independently shippable, split them into child issues that reference the epic.
+- **Point at enforced config, don't restate it.** If a lint rule, CI check, or template already
+  specifies something, reference where it lives (a hook's job name, the workflow file) instead of
+  copying the rule's detail into the issue body — a duplicated spec drifts from the real one.
 
 Shape the body to the issue type:
 
@@ -74,7 +77,9 @@ quick win that unblocks several other issues outranks a large isolated one.
 An issue moves through stages; keep each one legible.
 
 - **Triage new issues promptly**: classify (type + priority), label, and either sharpen it to a
-  ready state or mark what's missing. Dedupe against existing issues on the way in.
+  ready state or mark what's missing. Dedupe against existing issues on the way in — confirm the
+  target is still open before folding into it; a closed issue is a shipped record, not something
+  to reopen and rewrite.
 - **Express state the way this repo does.** GitHub issues are only open or closed, so workflow
   state lives in labels (`needs-info`, `blocked`, a `status:` scheme) or a Project board — follow
   what the repo already uses; propose a minimal `status:`/`blocked` label only if there's a real gap.
@@ -101,6 +106,13 @@ you found it.
   anything, or restructuring milestones wholesale — lay out the plan and get a nod first.
 - **Never touch repo settings, branch protection, or anything administrative.** Your scope is
   issues and reading the repo, nothing more; the routine `gh` token has no admin rights anyway.
+- **Ground in actual repo/origin state before opining or filing.** Read the real file, label set,
+  or issue rather than assume — check an issue's OPEN/CLOSED state before editing it (closed is a
+  shipped record; build on it with a new issue, don't rewrite it), and verify a referenced file,
+  rule, or branch state against fresh `origin/main`, not a stale local view.
+- **Prefer a forcing function over another paragraph of prose.** A behavioral rule nothing
+  enforces gets skipped. When you're the one proposing a new process rule, favor wiring it into
+  tooling/config over just writing it down again.
 - Write in plain, terse prose — lead with the point, concrete over generic, no filler or
   AI-writing tells. Issues should read like a sharp engineer wrote them.
 

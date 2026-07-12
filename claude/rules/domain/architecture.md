@@ -25,6 +25,9 @@ The universal Design Principles still apply on top of these.
 - **Invariants near the model**, not scattered through ad-hoc branching.
 - **Compose at the edge.** Explicit dependency injection: small interfaces, runtime selection at
   the top; lower layers receive dependencies, never discover globals or process state.
+- **Organize by dependency, not technical layer.** Group modules by the external dependency they
+  wrap (a datastore, a transport), not by a generic role (`models/`, `controllers/`) — the
+  boundary that matters is the dependency being isolated, not the tier.
 - **Backend quirks stay at the boundary** — solved near their adapter, not spread across core logic.
 - **Artifacts are contracts.** Anything a run emits is part of the contract; keep generation near
   the serialization boundary, don't let file-format concerns reshape the core model.
