@@ -473,3 +473,5 @@ if [[ -t 1 ]]; then
   clear
   exec zsh
 fi
+
+# #131 live verification: linux/deploy.sh change should still run full deploy
