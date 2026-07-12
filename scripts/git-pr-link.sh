@@ -40,10 +40,22 @@ if [[ -z "$existing_pr" ]]; then
   exit 1
 fi
 
-# Finalize: a PR already exists for this branch.
+# Finalize: a PR already exists for this branch. Fetch + rebase onto
+# origin/main here (not just at `git new` start) — finalize is where CI
+# actually reads the base, so this is the forcing function that keeps a
+# stale-started or since-moved branch from landing a stale-base PR (#172).
+git fetch origin main
+
 ahead=$(git rev-list --count origin/main..HEAD)
 if [[ "$ahead" != 1 ]]; then
   echo "squash to 1 commit first (branch has $ahead vs origin/main): git reset --soft origin/main && git commit" >&2
   exit 1
 fi
+
+if ! git rebase origin/main; then
+  echo "rebase onto origin/main hit a conflict — resolve it, run: git rebase --continue, then re-run: git pr" >&2
+  exit 1
+fi
+
+git push --force-with-lease
 gh pr ready
