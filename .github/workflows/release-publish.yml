@@ -45,7 +45,9 @@ jobs:
           git push origin "${{ steps.version.outputs.version }}"
 
       # Mirrors this repo's documented manual step:
-      # `git cliff --tag vX.Y.Z --latest --strip all`
+      # `git cliff --tag vX.Y.Z --latest --strip all`. GITHUB_TOKEN is
+      # needed here too — cliff.toml's [remote.github] resolves this
+      # release's PR links via the API, same as release-prepare.yml.
       - name: Extract this release's notes
         uses: orhun/git-cliff-action@v4
         with:
@@ -53,6 +55,7 @@ jobs:
           args: --tag ${{ steps.version.outputs.version }} --latest --strip all
         env:
           OUTPUT: RELEASE_NOTES.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub release
         env:

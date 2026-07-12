@@ -196,7 +196,12 @@ below or explicitly called out as skipped.
 Two more tools worth reaching for by hand, not wired into any hook:
 
 - `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
-  would compute, with zero side effects, before actually triggering it.
+  would compute, with zero side effects (besides the network calls below),
+  before actually triggering it. `cliff.toml`'s `[remote.github]` resolves
+  each commit's PR link via the GitHub API (`GITHUB_TOKEN` is wired via
+  `.envrc`, see "Credentials" below), making this network-dependent by
+  default — pass `--offline` (or set `GIT_CLIFF_OFFLINE`) to skip PR-link
+  resolution when that matters.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
   for testing workflow changes without pushing and waiting on real CI.
 
@@ -220,6 +225,11 @@ that and that the template hasn't drifted from `.envrc.local`'s structure).
 Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
 session (e.g. changing branch protection).
 
+`git-cliff` reads its GitHub token from a differently-named env var
+(`GITHUB_TOKEN`, not `GH_TOKEN`) — `.envrc` aliases `GITHUB_TOKEN` to the same
+scoped `GH_TOKEN` automatically (no second credential to manage); see
+`claude/rules/platform/github.md`'s "Changelog PR links" section.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model
@@ -237,11 +247,12 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
 3. When ready and tested, **squash the branch to exactly one Conventional Commit**
    (`git reset --soft origin/main && git commit`), then open a PR with `git pr`
    (wraps `gh pr create`; refuses to run unless the branch is exactly one commit
-   ahead of `origin/main`, then amends that commit's subject to append `" (#N)"`
-   once the PR number is known — the text `cliff.toml` turns into a changelog
-   link, otherwise lost since rebase-merge doesn't rewrite the commit the way
-   squash-merge used to). CI gates the PR on commit count and subject format;
-   once green, **rebase-merge** and your single commit lands on `main`
+   ahead of `origin/main`; no subject amend needed — `cliff.toml`'s
+   `[remote.github]` resolves each commit's PR link from GitHub's own
+   commit↔PR association at changelog-generation time instead, which survives
+   rebase-merge's SHA rewrite; see `claude/rules/platform/github.md`'s
+   "Changelog PR links" section). CI gates the PR on commit count and subject
+   format; once green, **rebase-merge** and your single commit lands on `main`
    verbatim. The branch auto-deletes on merge.
 4. `main` stays releasable, and cutting a release is automated — you decide
    _when_, the workflows do the busywork ([SemVer](https://semver.org) versions
@@ -253,7 +264,9 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
      `release-publish.yml`, which tags `vX.Y.Z`, creates the GitHub release with
      notes, and deletes the release branch.
    - Preview with zero side effects first: `git cliff --bumped-version` (the next
-     version) or `git cliff --unreleased --bump` (the changelog it will write).
+     version) or `git cliff --unreleased --bump` (the changelog it will write —
+     needs `GITHUB_TOKEN` per the "Local tooling" note above, or `--offline` to
+     skip PR-link resolution).
 
    The two `.github/workflows/release-*.yml` files own the mechanism and the
    _why_ of each choice — read their comments; this section is just the

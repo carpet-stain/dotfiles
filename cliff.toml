@@ -18,6 +18,7 @@ body = """
         - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
             {% if commit.breaking %}[**breaking**] {% endif %}\
             {{ commit.message | upper_first }}\
+            {% if commit.remote.pr_number %} ([#{{ commit.remote.pr_number }}](<REPO>/pull/{{ commit.remote.pr_number }})){% endif %}\
     {% endfor %}
 {% endfor %}\n
 """
@@ -27,14 +28,26 @@ postprocessors = [
   { pattern = '<REPO>', replace = "https://github.com/carpet-stain/dotfiles" },
 ]
 
+# PR links are resolved live via GitHub's API (commit -> PR association is
+# tracked server-side and survives rebase-merge's SHA rewrite), not by
+# parsing "(#N)" out of the commit message. Needs a token for reasonable
+# rate limits: pass via GITHUB_TOKEN env var or --github-token, never in
+# this file (see AGENTS.md's Credentials/Releases sections).
+[remote.github]
+owner = "carpet-stain"
+repo = "dotfiles"
+
 [git]
 conventional_commits = true
 filter_unconventional = true
 require_conventional = false
 split_commits = false
 commit_preprocessors = [
-  # Turn "(#123)" into a link to the PR.
-  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](<REPO>/pull/${2}))" },
+  # Commits merged before this change (via git-pr-link.sh's old amend step)
+  # already carry a literal "(#N)" at the end of their subject; strip it so
+  # the link above — resolved via [remote.github], not this text — isn't
+  # duplicated on every historical entry.
+  { pattern = '(?m)\s*\((\w+\s)?#[0-9]+\)$', replace = "" },
 ]
 protect_breaking_commits = false
 commit_parsers = [

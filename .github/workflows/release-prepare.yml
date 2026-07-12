@@ -35,6 +35,9 @@ jobs:
       # computed version applied at the top, matching this repo's existing
       # `git cliff --tag vX.Y.Z -o CHANGELOG.md` convention — just with the
       # version computed from Conventional Commits instead of typed by hand.
+      # GITHUB_TOKEN (read-only default token, not RELEASE_PAT) is enough
+      # here — cliff.toml's [remote.github] only needs to look up each
+      # commit's associated PR, not write anything.
       - name: Compute next version and update changelog
         id: cliff
         uses: orhun/git-cliff-action@v4
@@ -45,6 +48,7 @@ jobs:
             ${{ inputs.bump != 'auto' && inputs.bump || '' }}
         env:
           OUTPUT: CHANGELOG.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # A dedicated release/vX.Y.Z branch keeps the version bump and changelog
       # isolated in their own PR. release-publish.yml deletes this branch once

@@ -14,10 +14,10 @@
   autoCorrect = 1
 
 [alias]
-  # Open a PR (only if the branch is exactly one commit ahead of origin/main —
-  # the local mirror of pr-guards.yml's `single commit` gate), then amend that
-  # commit's subject to append " (#N)" so it still lands on main with the PR
-  # reference rebase-merge no longer adds for you. See git-pr-link.sh.
+  # Open a PR, only if the branch is exactly one commit ahead of origin/main —
+  # the local mirror of pr-guards.yml's `single commit` gate. See
+  # git-pr-link.sh; cliff.toml resolves the PR's changelog link separately,
+  # via git-cliff's GitHub remote lookup, not anything done here.
   pr = "!git-pr-link"
 
 [include]
