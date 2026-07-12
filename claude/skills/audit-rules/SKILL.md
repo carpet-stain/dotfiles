@@ -57,6 +57,26 @@ Two independent signals, both worth checking on every file in scope:
   judgment from reading the content, not a heading-count metric — the precedent is
   `philosophy.md` splitting into the four `universal/` files once it outgrew a single topic.
 
+## Restated-enforcement check
+
+AGENTS.md (or a rules file) should point at a config that already enforces something, not
+restate the config's exact detail as prose — the same signpost-vs-spec distinction
+`compose-agents` now applies when instantiating (see its "Pointer-form for enforced specs"
+step). Flag prose in scope that enumerates an exact, mechanically-checkable value — a literal
+list of allowed values, a regex, a numeric threshold — that a config file present in the current
+repo already defines byte-for-byte. The Conventional-Commit type list restated in prose when a
+CI workflow's regex already enforces it (this repo's own `pr-guards.yml` is the worked example)
+is the shape to look for; a lint-rule-code list restated when a linter config already lists them
+is the same shape.
+
+Don't flag workflow _shape_ (step ordering, when to squash, when to open a PR) even when a slow
+or CI-only gate enforces it — that's guidance no config can teach ahead of time, not a duplicated
+spec, and removing it would just push discovery to the most expensive point. Only the enumerable
+detail itself is the target.
+
+Each finding quotes the restating prose and the enforcing config, and proposes the pointer-form
+rewrite — same format as the Contradictions check, this is not a new report shape.
+
 ## Report
 
 Emit one structured markdown report directly in this response:
@@ -71,6 +91,10 @@ No edits made — this is a proposal only.
 (ranked most-confident first, or "None found.")
 
 ## Sprawl
+
+(ranked, or "None found.")
+
+## Restated enforcement
 
 (ranked, or "None found.")
 
