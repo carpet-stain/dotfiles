@@ -73,17 +73,15 @@ commit; propose the split before committing.
 Open-PR-early (step 2) still applies here — the draft PR opens at the first commit regardless of
 how verifiable the change is, with no exception: always open it via the draft path (e.g.
 `git pr --draft`), never the plain/no-flag path, even when the change is already done and
-verified. What this section scopes is _finalizing_ (marking ready for review), not whether a
-draft opens at all: for changes the agent can't confirm alone (GUI, TUI, rendering, keybindings),
-push checkpoints and journal decisions on the draft PR as work proceeds, but hold off finalizing
-until the change is confirmed working — each review round-trip on something unvalidated is real
-overhead. Once confirmed, squash to one commit (`git reset --soft origin/<protected-branch> &&
-git commit`) and finalize — a twenty-WIP-commit PR is hard to review, so the squash happens right
-before finalizing, not before the PR opens. Directly-verifiable work (syntax, dry run, CLI) still
-opens as a draft first, exactly like anything else; it only skips the _hold-off before
-finalizing_: squash and finalize immediately once it passes verification, as a second, explicit
-step right after the draft opens — not a shortcut that skips opening as a draft in the first
-place.
+verified. What this section scopes is _finalizing_ (marking ready for review): draft means the
+agent is still working, ready-for-review means it's the human's turn — that handoff is itself the
+"your turn" signal, so squash to one commit (`git reset --soft origin/<protected-branch> && git
+commit`) and finalize at handoff for all work, verifiable or not. For changes the agent can't
+confirm alone (GUI, TUI, rendering, keybindings), the human's confirmation folds into reviewing
+the ready PR rather than gating the flip to ready — finalizing also triggers CI, so the human
+picks it up with checks already run. Staying in draft at handoff is the explicit exception, not
+the default: only when the agent specifically needs the human to test something _before_ code
+review can happen, and it says so in the handoff message.
 
 ## Shift-left tooling and credential scope
 
