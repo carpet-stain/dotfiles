@@ -194,7 +194,7 @@ below or explicitly called out as skipped.
 | kdl              | —                   | —          | skipped — no mature tooling exists                                   |
 | js               | —                   | —          | skipped — one file, not worth a tool                                 |
 
-Two more tools worth reaching for by hand, not wired into any hook:
+Three more tools worth reaching for by hand, not wired into any hook:
 
 - `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
   would compute, with zero side effects (besides the network calls below),
@@ -205,6 +205,12 @@ Two more tools worth reaching for by hand, not wired into any hook:
   resolution when that matters.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
   for testing workflow changes without pushing and waiting on real CI.
+- `scripts/bootstrap-branch-protection.sh` — idempotent branch-protection
+  ruleset bootstrap (`pull_request`/rebase-merge-only, `deletion`,
+  `non_fast_forward`, required status checks). Needs Administration scope
+  the routine `GH_TOKEN` deliberately lacks — run with `env -u GH_TOKEN`.
+  Never wired into CI or any hook; run manually after a repo's checks are
+  wired up.
 
 ### Credentials: `.envrc` / `.envrc.local`
 
