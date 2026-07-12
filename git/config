@@ -19,6 +19,12 @@
   # git-pr-link.sh; cliff.toml resolves the PR's changelog link separately,
   # via git-cliff's GitHub remote lookup, not anything done here.
   pr = "!git-pr-link"
+  # Fetch origin/main fresh, then branch off it — starting from a stale
+  # base is structurally impossible. See git-new.sh.
+  new = "!git-new"
+  # Fast-forward local main to match origin/main. Safe/loud under
+  # merge.ff=only. See git-sync.sh.
+  sync = "!git-sync"
 
 [include]
   path = ~/.config/git/catppuccin.gitconfig
