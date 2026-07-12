@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev
+          ref: main
           fetch-depth: 0
 
       # --bump (no --unreleased) renders the FULL changelog with the newly
@@ -75,4 +75,4 @@ jobs:
           gh pr create \
             --base main --head "release/${VERSION}" \
             --title "chore(release): ${VERSION}" \
-            --body "Automated release prep via git-cliff (\`${{ inputs.bump }}\` bump). Review the changelog, then squash-merge to cut the release — merging triggers tagging, the GitHub release, deleting this branch, and resetting \`dev\` onto \`main\` (see release-publish.yml)."
+            --body "Automated release prep via git-cliff (\`${{ inputs.bump }}\` bump). Review the changelog, then rebase-merge to cut the release — merging triggers tagging, the GitHub release, and deleting this branch (see release-publish.yml)."
