@@ -36,11 +36,13 @@ needs admin. `act` runs the Actions workflows locally via Docker, for testing wi
 
 Realizes `git.md`'s "open the PR/MR early, journal via comments" principle on GitHub: `git pr
 --draft` opens a draft PR as soon as a first commit exists (errors loudly instead of guessing if
-one already exists — "did you mean to finalize? run: git pr"); plain `git pr` either opens the
-finalized PR directly (no draft existed yet) or finalizes an already-open one via `gh pr ready`.
-Each path asserts its own precondition — commit count ahead of the base — and fails with a
-specific message rather than branching on ambient state. Journal decisions, gotchas, and
-retractions as comments on the draft PR as work proceeds.
+one already exists — "did you mean to finalize? run: git pr"); plain `git pr` finalizes an
+already-open draft via `gh pr ready`. There's no direct-to-ready path — `git pr` with no draft
+open yet errors, telling the operator to run `git pr --draft` first, matching git.md's rule that
+the draft step is never skipped, even for already-verified work. Each path asserts its own
+precondition — commit count ahead of the base, or draft existence — and fails with a specific
+message rather than branching on ambient state. Journal decisions, gotchas, and retractions as
+comments on the draft PR as work proceeds.
 
 `pr-guards.yml` (see its own inline comments for the exact gate) stays quiet on WIP pushes to an
 early draft and evaluates for real once `git pr` finalizes it — gated per job, not

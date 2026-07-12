@@ -3,10 +3,12 @@
 # from ambient repo state, so intent and actual behavior can't silently
 # diverge:
 #   git pr --draft   open a draft PR as soon as a first commit exists.
-#   git pr           open the finalized PR (if none exists yet for this
-#                    branch) or finalize an already-open one via
-#                    `gh pr ready` (if one does).
-# Each path asserts its own precondition and fails with a specific message.
+#   git pr           finalize an already-open draft via `gh pr ready`.
+# A draft must exist before `git pr` (no flag) can finalize it — there's no
+# direct-to-ready path, even for already-verified work: git.md's "Working
+# iteratively when you can't self-verify" section is explicit that the
+# draft step never gets skipped. Each path asserts its own precondition and
+# fails with a specific message.
 set -euo pipefail
 
 is_draft=false
@@ -34,13 +36,8 @@ if $is_draft; then
 fi
 
 if [[ -z "$existing_pr" ]]; then
-  ahead=$(git rev-list --count origin/main..HEAD)
-  if [[ "$ahead" != 1 ]]; then
-    echo "squash to 1 commit first (branch has $ahead vs origin/main): git reset --soft origin/main && git commit" >&2
-    exit 1
-  fi
-  gh pr create "$@"
-  exit 0
+  echo "no draft PR for this branch — run: git pr --draft first" >&2
+  exit 1
 fi
 
 # Finalize: a PR already exists for this branch.
