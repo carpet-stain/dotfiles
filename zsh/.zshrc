@@ -113,26 +113,21 @@ source $ZDOTDIR/rc.d/fzf-tab.zsh
 # Auto-closes/deletes matching brackets and quotes
 source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 
-# +------------------------------+
-# | ZSH-FAST-SYNTAX-HIGHLIGHTING |
-# +------------------------------+
+# +-------------+
+# | ZSH-PATINA  |
+# +-------------+
 
-# FSH clobbers the whatis builtin; skip it when fzf-tab's THEFD file descriptor is active
-# https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/27#issuecomment-1267278072
-function whatis() { if [[ -v THEFD ]]; then :; else command whatis "$@"; fi; }
-
-source $ZDOTDIR/plugins/fsh/fast-syntax-highlighting.plugin.zsh
-
-# `fast-theme` writes a compiled theme cache; deploy.zsh runs it once, so just
-# source the cache here instead of re-running the (much heavier) command on
-# every shell startup. Self-heals if the cache is missing (e.g. before deploy).
-FAST_THEME_CACHE=$XDG_CACHE_HOME/fast-syntax-highlighting/current_theme.zsh
-if [[ -r $FAST_THEME_CACHE ]]; then
-  source $FAST_THEME_CACHE
-else
-  fast-theme -q XDG:catppuccin-mocha
-fi
-unset FAST_THEME_CACHE
+# Rust/syntect-based syntax highlighting, replaces fast-syntax-highlighting
+# (see #92). Daemon-backed; theme comes from zsh-patinaconfig.toml
+# (built-in catppuccin-mocha, no fast-theme compile step or separate
+# Catppuccin submodule needed). Doesn't clobber the `whatis` builtin the
+# way fsh did, so fsh#27's workaround is gone too — nothing here wraps
+# `whatis`.
+#
+# Must come after compinit/bindkey (already satisfied — completions.zsh runs
+# compinit well above this point) or the highlighter has no effect until a
+# manual `source` — see zsh-patina's own troubleshooting docs.
+eval "$(zsh-patina activate)"
 
 # +---------------------+
 # | ZSH-AUTOSUGGESTIONS |

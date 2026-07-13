@@ -1,0 +1,4 @@
+[highlighting]
+# Catppuccin Mocha theme (built into zsh-patina — no separate theme submodule
+# or compile step needed, unlike fast-syntax-highlighting's fast-theme).
+theme = "catppuccin-mocha"

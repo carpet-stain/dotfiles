@@ -68,9 +68,9 @@ optional() {
 # Function to create required directories
 create_directories() {
   setopt local_options err_exit
-  zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
   zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
-  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,fast-syntax-highlighting,git-credential-cache}
+  zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,git-credential-cache}
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
@@ -115,7 +115,7 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/claude/settings.json $XDG_CONFIG_HOME/claude/settings.json
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
-  zf_ln -sf $DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini $XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini
+  zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig.toml $XDG_CONFIG_HOME/zsh-patina/config.toml
   zf_ln -sf $DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml $XDG_CONFIG_HOME/eza/theme.yml
 
   zf_ln -sf $DOTFILES_DIR/nvim/init.lua $XDG_CONFIG_HOME/nvim/init.lua
@@ -244,10 +244,6 @@ download_gitstatusd() {
   CI=1 $SHELL -is <<< ''
 }
 
-set_fsh() {
-  CI=1 $SHELL -is <<< 'fast-theme -q XDG:catppuccin-mocha'
-}
-
 # Generate completions for tools with no Homebrew-shipped zsh completion file
 generate_completions() {
   dua completions zsh > $XDG_CACHE_HOME/zsh/completions/_dua
@@ -315,7 +311,6 @@ required "Syncing submodules"                  sync_submodules
 optional "Enabling git maintenance"            enable_git_maintenance
 optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
-optional "Setting fast-syntax-highlighting theme" set_fsh
 optional "Generating dua/doggo completions"    generate_completions
 optional "Refreshing TLDR pages"               refresh_tldr
 optional "Installing Ghostty terminfo"         generate_ghostty_terminfo

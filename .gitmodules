@@ -4,12 +4,6 @@
 [submodule "theme/delta"]
 	path = theme/delta
 	url = https://github.com/catppuccin/delta.git
-[submodule "theme/zsh-fsh"]
-	path = theme/zsh-fsh
-	url = https://github.com/catppuccin/zsh-fsh.git
-[submodule "zsh/plugins/fsh"]
-	path = zsh/plugins/fsh
-	url = https://github.com/zdharma-continuum/fast-syntax-highlighting.git
 [submodule "theme/fzf"]
 	path = theme/fzf
 	url = https://github.com/catppuccin/fzf.git

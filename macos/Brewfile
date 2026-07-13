@@ -1,3 +1,5 @@
+tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
+
 brew 'act' # Run GitHub Actions workflows locally
 brew 'actionlint' # Lint GitHub Actions workflow files
 brew 'bat' # Better cat
@@ -45,6 +47,7 @@ brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-autopair'
 brew 'zsh-autosuggestions'
+brew 'zsh-patina' # Better syntax highlighting than fast-syntax-highlighting
 
 cask 'claude' # AI desktop app
 cask 'claude-code' # AI coding assistant CLI
