@@ -348,7 +348,7 @@ link_configs() {
 install_zsh_plugins() {
   local plugin_dir="$XDG_DATA_HOME/zsh/plugins"
   local name src
-  for name in powerlevel10k zsh-autopair zsh-autosuggestions zsh-completions; do
+  for name in powerlevel10k zsh-autopair zsh-completions; do
     src="$DOTFILES_DIR/zsh/plugins/$name"
     if [[ ! -e "$src" ]]; then
       printf '  Missing submodule %s at %s (run: git submodule update --init)\n' "$name" "$src" >&2
