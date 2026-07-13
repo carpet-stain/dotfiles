@@ -1,6 +1,70 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.5.0] - 2026-07-13
+
+### Features
+
+- *(linux)* Pin release binaries to checksummed versions ([#105](https://github.com/carpet-stain/dotfiles/pull/105))
+- *(claude)* Add audit-rules skill ([#113](https://github.com/carpet-stain/dotfiles/pull/113))
+- *(claude)* Add compose-agents skill ([#114](https://github.com/carpet-stain/dotfiles/pull/114))
+- *(python)* Add uv to Brewfile for project scaffolding ([#132](https://github.com/carpet-stain/dotfiles/pull/132))
+- *(python)* Prototype copier template for project starter ([#133](https://github.com/carpet-stain/dotfiles/pull/133))
+- *(git)* Open PRs early as drafts and journal decisions via comments ([#144](https://github.com/carpet-stain/dotfiles/pull/144))
+- *(claude)* Compose-agents/audit-rules — point at enforced config, don't restate it ([#146](https://github.com/carpet-stain/dotfiles/pull/146))
+- *(claude)* Run /audit-rules hook on AGENTS.md edits ([#155](https://github.com/carpet-stain/dotfiles/pull/155))
+- *(git)* Add git new/sync helpers + git maintenance ([#154](https://github.com/carpet-stain/dotfiles/pull/154))
+- *(git)* Add branch-protection ruleset bootstrap script ([#162](https://github.com/carpet-stain/dotfiles/pull/162))
+- *(claude)* Add provenance check before deleting code ([#166](https://github.com/carpet-stain/dotfiles/pull/166))
+- *(git)* Add git-flow copier template for portable governance bootstrap ([#167](https://github.com/carpet-stain/dotfiles/pull/167))
+- *(git)* Add labels-as-code bootstrap script ([#170](https://github.com/carpet-stain/dotfiles/pull/170))
+- *(claude)* Add go app-structure rules, track agent memory ([#179](https://github.com/carpet-stain/dotfiles/pull/179))
+- *(claude)* Flag AGENTS.md length in audit-rules sprawl check ([#180](https://github.com/carpet-stain/dotfiles/pull/180))
+- *(python)* Add py-new bootstrap command for the copier template ([#182](https://github.com/carpet-stain/dotfiles/pull/182))
+- *(macos)* Add on-demand colima Docker runtime for act ([#183](https://github.com/carpet-stain/dotfiles/pull/183))
+
+### Bug Fixes
+
+- Anchor deploy scripts to the shared .git dir, not their own path ([#120](https://github.com/carpet-stain/dotfiles/pull/120))
+- *(git)* Restore PR-number changelog links lost to rebase-merge ([#121](https://github.com/carpet-stain/dotfiles/pull/121))
+- *(claude)* Consolidate git.md layer onto rebase-merge model ([#128](https://github.com/carpet-stain/dotfiles/pull/128))
+- *(python)* Stop globally ignoring .python-version ([#135](https://github.com/carpet-stain/dotfiles/pull/135))
+- *(git)* Resolve changelog PR links via git-cliff GitHub remote ([#141](https://github.com/carpet-stain/dotfiles/pull/141))
+- *(git)* Reconcile can't-self-verify section with draft-PR-early ([#148](https://github.com/carpet-stain/dotfiles/pull/148))
+- *(ci)* Skip Linux e2e deploy for claude/-only markdown changes ([#149](https://github.com/carpet-stain/dotfiles/pull/149))
+- *(claude)* Reconcile compose-agents with git.md's model ([#161](https://github.com/carpet-stain/dotfiles/pull/161))
+- *(git)* Remove git-pr-link's direct-to-ready fallback ([#163](https://github.com/carpet-stain/dotfiles/pull/163))
+- *(ci)* Checkout main, not dev, in release-prepare.yml ([#168](https://github.com/carpet-stain/dotfiles/pull/168))
+- *(git)* Rebase onto origin/main at pr finalize, not just start ([#173](https://github.com/carpet-stain/dotfiles/pull/173))
+- *(git)* Add git squash alias, fix unsafe reset --soft recipe ([#174](https://github.com/carpet-stain/dotfiles/pull/174))
+- *(git)* Mark PR ready before pushing, not after ([#176](https://github.com/carpet-stain/dotfiles/pull/176))
+- *(zsh)* Load direnv env in non-interactive shells too ([#177](https://github.com/carpet-stain/dotfiles/pull/177))
+- *(claude)* Document ~/.claude XDG exception for daemon/telemetry ([#181](https://github.com/carpet-stain/dotfiles/pull/181))
+
+### Refactor
+
+- *(claude)* Trim rule files to terse directives ([#104](https://github.com/carpet-stain/dotfiles/pull/104))
+- *(claude)* De-dup restated specs in rules tree ([#156](https://github.com/carpet-stain/dotfiles/pull/156))
+- *(git)* Finalize PR to ready at handoff instead of holding draft ([#165](https://github.com/carpet-stain/dotfiles/pull/165))
+
+### Documentation
+
+- *(agents)* Make the release section automation-first ([#103](https://github.com/carpet-stain/dotfiles/pull/103))
+- *(claude)* Consolidate README and fix review findings ([#106](https://github.com/carpet-stain/dotfiles/pull/106))
+- Audit and document the keybinding chain ([#122](https://github.com/carpet-stain/dotfiles/pull/122))
+- *(git)* Point at pr-guards.yml instead of restating types ([#164](https://github.com/carpet-stain/dotfiles/pull/164))
+- *(git)* Add git-flow bootstrap runbook ([#171](https://github.com/carpet-stain/dotfiles/pull/171))
+
+### Build
+
+- Codify linters/formatters per file type ([#110](https://github.com/carpet-stain/dotfiles/pull/110))
+
+### CI
+
+- Adopt feature-branch rebase-merge workflow, retire dev ([#107](https://github.com/carpet-stain/dotfiles/pull/107))
+- Migrate pre-commit hooks to lefthook ([#109](https://github.com/carpet-stain/dotfiles/pull/109))
+- Add Linux e2e deploy + smoke-test workflow ([#117](https://github.com/carpet-stain/dotfiles/pull/117))
+
 ## [1.4.0] - 2026-07-11
 
 ### Features
@@ -36,13 +100,13 @@ All notable changes to this project, generated from Conventional Commits.
 
 ### Chore
 
-- Xdg home audit — gopath, npm, ssh symlink, session suppress
+- Xdg home audit — gopath, npm, ssh symlink, session suppress ([#66](https://github.com/carpet-stain/dotfiles/pull/66))
 
 ## [1.2.0] - 2026-07-06
 
 ### Chore
 
-- *(ci)* Path-filtered linting, dependabot submodules, zellij ci guard
+- *(ci)* Path-filtered linting, dependabot submodules, zellij ci guard ([#64](https://github.com/carpet-stain/dotfiles/pull/64))
 
 ## [1.1.0] - 2026-07-06
 
@@ -52,7 +116,7 @@ All notable changes to this project, generated from Conventional Commits.
 
 ### Chore
 
-- Update repo-watch state
+- Update repo-watch state ([#61](https://github.com/carpet-stain/dotfiles/pull/61))
 
 ## [1.0.0] - 2026-07-06
 
@@ -122,27 +186,27 @@ All notable changes to this project, generated from Conventional Commits.
 
 - Seed repo-watch state after manual preview run ([#29](https://github.com/carpet-stain/dotfiles/pull/29))
 - *(macos)* Reconcile Brewfile with actual installed casks ([#30](https://github.com/carpet-stain/dotfiles/pull/30))
-- *(git)* Add submodule diff and rebase/branch settings
+- *(git)* Add submodule diff and rebase/branch settings ([#31](https://github.com/carpet-stain/dotfiles/pull/31))
 - *(macos)* Track claude-code, mullvad-vpn; drop proton-mail-bridge ([#32](https://github.com/carpet-stain/dotfiles/pull/32))
 
 ## [0.2.0] - 2026-07-05
 
 ### Documentation
 
-- *(git)* Refine workflow policy ([#7](https://github.com/carpet-stain/dotfiles/pull/7))
-- *(git)* Drop AI attribution from commit policy ([#14](https://github.com/carpet-stain/dotfiles/pull/14))
+- *(git)* Refine workflow policy
+- *(git)* Drop AI attribution from commit policy
 
 ### Build
 
-- Add git-cliff for changelog generation ([#16](https://github.com/carpet-stain/dotfiles/pull/16))
+- Add git-cliff for changelog generation
 
 ### CI
 
-- Add zsh syntax-check workflow ([#13](https://github.com/carpet-stain/dotfiles/pull/13))
+- Add zsh syntax-check workflow
 
 ### Chore
 
-- *(git)* Use carpet-stain commit identity ([#17](https://github.com/carpet-stain/dotfiles/pull/17))
+- *(git)* Use carpet-stain commit identity
 
 ## [0.1.1] - 2026-07-05
 
@@ -160,5 +224,5 @@ All notable changes to this project, generated from Conventional Commits.
 
 ### Features
 
-- *(macos)* Migrate Alacritty to Ghostty ([#5](https://github.com/carpet-stain/dotfiles/pull/5))
+- *(macos)* Migrate Alacritty to Ghostty
 
