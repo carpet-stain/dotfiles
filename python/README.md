@@ -7,21 +7,25 @@ mechanism.
 ## Use
 
 ```sh
-uvx copier copy ~/.config/dotfiles/python <new-project-dir>
+py-new <new-project-dir>
 ```
 
-Answers project name, package name, description, and author, then a
-post-generation task pins the interpreter (`uv python pin`), syncs the lock
-(`uv sync`), and installs the git hooks (`lefthook install`).
+`py-new` (see `scripts/py-new.sh`) wraps `uvx copier copy --trust`. `--trust`
+isn't optional: it's what lets the post-generation task run at all (pins the
+interpreter via `uv python pin`, syncs the lock via `uv sync`, `git init`s,
+installs the git hooks via `lefthook install`) -- without it, copier silently
+skips every one of those and leaves a project with no lock file and no hooks.
+Answers project name, package name, description, and author along the way.
 
 ## Update an existing generated project
 
 ```sh
-uvx copier update
+uvx copier update --trust
 ```
 
 Run from inside the generated project (it reads `.copier-answers.yml`, which
-the initial `copier copy` writes automatically).
+the initial `copier copy` writes automatically). `--trust` applies here too --
+tasks re-run on update the same as on the initial copy.
 
 ## What it produces
 
