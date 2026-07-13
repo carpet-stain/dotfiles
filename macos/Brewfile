@@ -4,6 +4,7 @@ tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
 brew 'act' # Run GitHub Actions workflows locally
 brew 'actionlint' # Lint GitHub Actions workflow files
 brew 'bat' # Better cat
+brew 'choose-rust' # Better cut
 brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
 brew 'coreutils'
 brew 'curl'
@@ -13,6 +14,7 @@ brew 'direnv' # Loading .envrc files
 brew 'docker' # Docker CLI — talks to Colima's socket, no Docker Desktop
 brew 'doggo' # Better dig
 brew 'dua-cli' # Better du
+brew 'dysk' # Better df
 brew 'eza' # Better ls
 brew 'fd' # better find
 brew 'fzf' # Fuzzy finder
@@ -34,6 +36,7 @@ brew 'neovim'
 brew 'node' # pyright/bash-language-server (nvim) are npm packages
 brew 'powerlevel10k' # zsh command prompt
 brew 'prettier' # Format Markdown files
+brew 'procs' # Better ps
 brew 'python' # Apple's bundled python3 is ancient (3.9) and not dev-grade
 brew 'ripgrep' # Faster ag written in Rust
 brew 'selene' # Lint Lua files
@@ -43,6 +46,7 @@ brew 'stylua' # Format Lua files
 brew 'taplo' # Lint and format TOML files
 brew 'tealdeer' # tldr utility
 brew 'uv' # Python package/env manager for project scaffolding
+brew 'viddy' # Better watch
 brew 'yamlfmt' # Format YAML files
 brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd
