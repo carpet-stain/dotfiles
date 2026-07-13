@@ -283,6 +283,13 @@ A pass in this spirit took the always-loaded set (universal + `git.md`) from
 ~390 to ~250 lines with no directive lost — proof that most of the length was
 justification, not instruction.
 
+**AGENTS.md gets a different, higher threshold.** It's not a rules file — it's the composed
+per-repo guide, legitimately carrying domain sections (what-this-is, structure, verification)
+none of the files above have, so the ~200 cap would false-positive constantly. Its own signal:
+soft-warn past ~250 lines, firmly flag past ~300. Past that point the usual cause is the same
+sprawl the rules files fight — restated enforcement or unpruned topic overlap — so `audit-rules`
+treats a long AGENTS.md as a symptom pointing at those checks, not a bare "too long."
+
 ## Maintenance discipline (the removal test)
 
 These files should grow the same way any codebase should: additions earn their place, and nothing sits

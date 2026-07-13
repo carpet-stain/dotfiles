@@ -104,12 +104,11 @@ Entries that must stay in `$HOME` despite the XDG rule:
 - Fix bugs found along the way, but call them out.
 - Summarize what changed and why — a short table beats prose.
 - Prefer the change that removes a setting over the one that adds one.
-- Before deleting or simplifying code that looks surprising or unexplained,
-  trace its provenance (Verify, Don't Trust's history-recovery guidance):
-  `git blame <file>` → `git show <sha>` → `gh pr view <n> --comments` →
-  `gh issue view <n>`. This repo's rebase-merge, the git-cliff PR-link
-  resolution, and the draft-PR journaling above keep that chain reliably
-  intact end to end, so the traversal is worth it here.
+- Before deleting or simplifying surprising, unexplained code, trace its
+  provenance (Verify, Don't Trust's history-recovery guidance): `git blame`
+  → `git show <sha>` → `gh pr view <n> --comments` → `gh issue view <n>`.
+  Rebase-merge, git-cliff's PR-link resolution, and draft-PR journaling keep
+  that chain intact end to end here, so the traversal is worth it.
 - Concrete realization of Propose Before Implementing for this repo: editing
   `claude/rules/*.md`, `README.md`'s voice, or this file itself is opinion/judgment
   content — discuss before writing or committing. zsh/nvim/tool-config tweaks are
@@ -122,9 +121,8 @@ By Layer's underlying idea (different kinds of behavior need different kinds
 of proof) still applies, just mapped onto kinds of _changes_ rather than
 architectural layers:
 
-- **Syntax/lint/format**: `lefthook run pre-commit --all-files` runs every
-  check listed under "Linters/formatters by file type" below — the same
-  checks `ci.yml`'s `lint` job runs.
+- **Syntax/lint/format**: `lefthook run pre-commit --all-files` — see
+  "Local tooling" below for the tool list and why it mirrors CI.
 - **Runtime behavior for nvim plugin config**: launch the real deployed config
   headlessly and query the plugin's own merged config to confirm an option
   actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
@@ -173,57 +171,41 @@ sweeping commit. Propose the split and messages before committing.
 > instances of it — `act`, GitHub Actions workflow linting — in **github.md**
 > (`claude/rules/platform/github.md`).
 
-`lefthook.yml` is the single source of truth for lint/format checks — run
-locally before push instead of after, and `ci.yml`'s `lint` job runs the exact
-same `lefthook run pre-commit --all-files` rather than re-implementing each
-check as a separate CI step, so CI can't drift from what a contributor's hook
-already runs.
+`lefthook.yml` is the single source of truth for lint/format checks —
+`ci.yml`'s `lint` job runs the exact same `lefthook run pre-commit
+--all-files` rather than re-implementing each check, so CI can't drift from
+what a contributor's hook already runs.
 
 Installed automatically by `macos/deploy.zsh`'s `install_lefthook_hooks`
 step; run `lefthook run pre-commit --all-files` to check everything at once.
 
 ### Linters/formatters by file type
 
-One tool per type, installed via `macos/Brewfile` and shared between
-`lefthook.yml`, `ci.yml`, and nvim's `conform`/`nvim-lint` — not a second
-Mason-managed copy. No silent gaps: every tracked file type is either covered
-below or explicitly called out as skipped.
-
-| Type             | Lint                | Format     | Notes                                                                |
-| ---------------- | ------------------- | ---------- | -------------------------------------------------------------------- |
-| lua              | `selene`            | `stylua`   | `nvim/selene.toml` + `nvim/vim.yml` define the `vim` global          |
-| zsh              | `zsh -n`            | —          | syntax-check only; no zsh formatter adopted                          |
-| sh / bash        | `shellcheck`        | `shfmt`    | `-i 2 -ci`; zsh is excluded from shellcheck (false positives)        |
-| toml             | `taplo`             | `taplo`    |                                                                      |
-| yaml (config)    | —                   | `yamlfmt`  | `.yamlfmt` sets `retain_line_breaks` to preserve blank-line grouping |
-| yaml (workflows) | `actionlint`        | —          | semantic checks, not styled by `yamlfmt`                             |
-| md               | `markdownlint-cli2` | `prettier` | `CHANGELOG.md` is excluded (git-cliff generated)                     |
-| json             | —                   | —          | out of scope — not in the original ask, only 3 files                 |
-| kdl              | —                   | —          | skipped — no mature tooling exists                                   |
-| js               | —                   | —          | skipped — one file, not worth a tool                                 |
+`lefthook.yml` is the exact source for which tool lints/formats which file
+type — installed via `macos/Brewfile`, shared with `ci.yml`'s `lint` job and
+nvim's `conform`/`nvim-lint` (not a second Mason-managed copy). Worth calling
+out beyond what the config shows: zsh has no formatter, `zsh -n` is
+syntax-check only; shellcheck excludes zsh (false positives); markdownlint
+and prettier skip `CHANGELOG.md` (git-cliff generated); json (3 files),
+kdl, and js (one file) are deliberately unstyled — not enough surface to
+justify a tool.
 
 Three more tools worth reaching for by hand, not wired into any hook:
 
 - `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
-  would compute, with zero side effects (besides the network calls below),
-  before actually triggering it. `cliff.toml`'s `[remote.github]` resolves
-  each commit's PR link via the GitHub API (`GITHUB_TOKEN` is wired via
-  `.envrc`, see "Credentials" below), making this network-dependent by
-  default — pass `--offline` (or set `GIT_CLIFF_OFFLINE`) to skip PR-link
-  resolution when that matters.
+  would compute, zero side effects. Network-dependent by default (resolves
+  PR links via `cliff.toml`'s `[remote.github]`, using `GITHUB_TOKEN` — see
+  "Credentials" below); pass `--offline` to skip that.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
   for testing workflow changes without pushing and waiting on real CI.
 - `scripts/bootstrap-branch-protection.sh` — idempotent branch-protection
-  ruleset bootstrap (`pull_request`/rebase-merge-only, `deletion`,
-  `non_fast_forward`, required status checks). Needs Administration scope
-  the routine `GH_TOKEN` deliberately lacks — run with `env -u GH_TOKEN`.
-  Never wired into CI or any hook; run manually after a repo's checks are
-  wired up.
+  ruleset bootstrap. Needs Administration scope the routine `GH_TOKEN` lacks
+  — run with `env -u GH_TOKEN`. Not wired into CI; run manually once a
+  repo's checks are set up.
 - `scripts/apply-labels.sh` — idempotent label-taxonomy bootstrap
-  (`scripts/labels.json`), upsert-only. Needs Issues scope the routine
-  `GH_TOKEN` also lacks — run with `env -u GH_TOKEN`. Same one-time,
-  hand-invoked convention as the ruleset script above; see `git-flow/`'s
-  bootstrap runbook for how the two compose with the copier template.
+  (`scripts/labels.json`), upsert-only. Same `env -u GH_TOKEN`, manual,
+  one-time convention; see `git-flow/`'s bootstrap runbook for how the two
+  compose with the copier template.
 
 ### Credentials: `.envrc` / `.envrc.local`
 
@@ -245,12 +227,10 @@ that and that the template hasn't drifted from `.envrc.local`'s structure).
 Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
 session (e.g. changing branch protection).
 
-This guarantee depends on `GH_TOKEN` actually being loaded — direnv's own
-hook only fires for interactive shells (`zsh/.zshrc`), so a non-interactive
-shell (a script, a cron job, an agent's tool shell) used to never load it and
-`gh` fell back to whatever broader keyring session `gh auth login` had set up
-(see #160). `zsh/.zshenv` now runs `direnv export` eagerly for every shell,
-interactive or not, so this section's claim holds there too.
+This guarantee needs `GH_TOKEN` loaded — direnv only fires for interactive
+shells, so non-interactive ones (scripts, cron, an agent's tool shell) used
+to fall back to `gh auth login`'s broader session instead (#160).
+`zsh/.zshenv` now runs `direnv export` eagerly for every shell to fix that.
 
 `git-cliff` reads its GitHub token from a differently-named env var
 (`GITHUB_TOKEN`, not `GH_TOKEN`) — `.envrc` aliases `GITHUB_TOKEN` to the same
@@ -280,47 +260,31 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
    is a draft, so WIP pushes stay quiet.
 3. **One logical change per PR.** Never bundle unrelated changes into a single PR
    just to save a round trip.
-4. When ready and tested, **squash the branch to exactly one Conventional Commit**
-   with `git squash` — it rebases onto `origin/main` first, then runs
-   `git reset --soft origin/main && git commit`. Rebasing first matters:
-   resetting straight against a moved `origin/main` stages reverts of
-   whatever landed on `main` since the branch was cut, not just your own
-   commits (see `git-squash.sh`). Plain `git reset --soft origin/main &&
-git commit` is only safe if your local `origin/main` ref is still stale
-   at the commit you branched from — don't rely on that. Then finalize
-   with `git pr` (marks the PR ready for
-   review via `gh pr ready`, after fetching, rebasing onto `origin/main`
-   again, and force-pushing — finalize is where CI actually reads the base,
-   so this re-check catches a base that moved between your squash and now;
-   fails loud on a rebase conflict rather than pushing a silently-wrong
-   commit; see `git-pr-link.sh`). No subject amend needed — `cliff.toml`'s
-   `[remote.github]` resolves each commit's PR link from GitHub's own
-   commit↔PR association at changelog-generation time instead, which
-   survives rebase-merge's SHA rewrite; see `claude/rules/platform/github.md`'s
-   "Changelog PR links" section. Finalizing re-triggers CI, which gates the
-   PR on commit count and subject format for real; once green,
-   **rebase-merge** and your single commit lands on `main` verbatim. The
-   branch auto-deletes on merge.
-5. `main` stays releasable, and cutting a release is automated — you decide
-   _when_, the workflows do the busywork ([SemVer](https://semver.org) versions
-   computed from the Conventional Commits by [git-cliff](https://git-cliff.org)):
-   - **Dispatch `release-prepare.yml`** — `gh workflow run release-prepare.yml -f bump=auto`
-     (or the Actions UI; `auto` lets git-cliff pick the bump). It computes the
-     next version, regenerates `CHANGELOG.md`, and opens a `release/vX.Y.Z` PR.
-   - **Review and rebase-merge that PR.** The merge triggers
-     `release-publish.yml`, which tags `vX.Y.Z`, creates the GitHub release with
-     notes, and deletes the release branch.
-   - Preview with zero side effects first: `git cliff --bumped-version` (the next
-     version) or `git cliff --unreleased --bump` (the changelog it will write —
-     needs `GITHUB_TOKEN` per the "Local tooling" note above, or `--offline` to
-     skip PR-link resolution).
+4. When ready and tested, **squash to exactly one Conventional Commit**
+   with `git squash` (rebases onto `origin/main` before collapsing — see
+   `git-squash.sh` for why reset-before-rebase is unsafe), then finalize
+   with `git pr` (re-fetches, rebases, flips the PR ready, force-pushes —
+   see `git-pr-link.sh` for why finalize re-checks the base and fails loud
+   on conflict rather than pushing a stale commit). PR links in the
+   changelog resolve from GitHub's own commit↔PR association at generation
+   time (`github.md`'s "Changelog PR links"), so no subject amend is
+   needed. Once green, **rebase-merge** lands your single commit on `main`
+   verbatim; the branch auto-deletes.
+5. `main` stays releasable; cutting a release is automated
+   ([SemVer](https://semver.org) computed from Conventional Commits by
+   [git-cliff](https://git-cliff.org)):
+   - Preview free: `git cliff --bumped-version` / `--unreleased --bump`
+     (needs `GITHUB_TOKEN`, or `--offline` — see "Local tooling").
+   - **Dispatch `release-prepare.yml`** (`gh workflow run release-prepare.yml
+-f bump=auto`) — computes the version, regenerates `CHANGELOG.md`, opens
+     a `release/vX.Y.Z` PR.
+   - **Review, then rebase-merge that PR.** Triggers `release-publish.yml`:
+     tags, creates the GitHub release, deletes the release branch.
 
-   The two `.github/workflows/release-*.yml` files own the mechanism and the
-   _why_ of each choice — read their comments; this section is just the
-   operator's procedure. They automate the equivalent by-hand steps
-   (`git cliff --tag vX.Y.Z -o CHANGELOG.md` → commit `chore(release): vX.Y.Z`
-   → tag → `gh release create`), so a release can still be cut manually if the
-   automation is ever unavailable.
+   The `.github/workflows/release-*.yml` files own the mechanism and why —
+   read their comments. Equivalent by-hand steps exist if automation is ever
+   unavailable: `git cliff --tag vX.Y.Z -o CHANGELOG.md` → commit → tag →
+   `gh release create`.
 
 Local `main` is otherwise vestigial in this branch model — every change branches
 off `origin/main` directly via `git new`. Reach for `git sync` by hand

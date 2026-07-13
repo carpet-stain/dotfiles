@@ -28,7 +28,7 @@ If invoked with a path argument, scope the audit to that file or directory inste
 tree (useful mid-edit on a single file). Otherwise audit everything.
 
 Also read the current repo's own `AGENTS.md` and any `docs/*.md`, if present — needed for the
-local-doc contradiction check below.
+local-doc contradiction check below and the AGENTS.md length check under Sprawl.
 
 ## Contradiction check
 
@@ -48,7 +48,7 @@ sentence) and states plainly why they conflict.
 
 ## Sprawl check
 
-Two independent signals, both worth checking on every file in scope:
+**Rules tree** (`rules/**`) gets two independent signals:
 
 - **Length**: files over ~200 lines — the threshold `claude/README.md`'s own "Why the rule
   files are terse" section names. The Read tool's line-numbered output gives you the count for
@@ -56,6 +56,13 @@ Two independent signals, both worth checking on every file in scope:
 - **Topic span**: does the file cover more than one coherent topic? This is a qualitative
   judgment from reading the content, not a heading-count metric — the precedent is
   `philosophy.md` splitting into the four `universal/` files once it outgrew a single topic.
+
+**AGENTS.md and `docs/*.md`** get a length-only check, against the separate, higher threshold
+`claude/README.md`'s "Why the rule files are terse" section names for composed per-repo guides
+(soft-warn / firm-flag). Don't flag topic span there — spanning many topics is AGENTS.md's job.
+When a file crosses the threshold, don't just report "too long": check it against the
+Restated-enforcement check below and for unpruned topic overlap between its own sections, and
+point at whichever applies as the cause and the pointer-form/de-dup prune as the remedy.
 
 ## Restated-enforcement check
 
