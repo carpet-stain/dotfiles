@@ -206,9 +206,8 @@ install_lefthook_hooks() {
 link_zsh_plugins() {
   setopt local_options err_exit
   local -A plugin_srcs=(
-    powerlevel10k       $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k
-    zsh-autosuggestions $HOMEBREW_PREFIX/share/zsh-autosuggestions
-    zsh-autopair        $HOMEBREW_PREFIX/share/zsh-autopair
+    powerlevel10k $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k
+    zsh-autopair  $HOMEBREW_PREFIX/share/zsh-autopair
   )
   local name
   for name in ${(k)plugin_srcs}; do
@@ -242,6 +241,18 @@ download_gitstatusd() {
   # non-tty interactive shell hits `exec zellij attach` and hangs forever
   # instead of just running the p10k/gitstatusd bootstrap it's here for.
   CI=1 $SHELL -is <<< ''
+}
+
+# Seed deja's suggestion database from existing zsh history. `deja import`
+# is *not* idempotent — re-running it double-counts every command already in
+# the db (verified: re-importing the same history doubled row count) — so
+# skip it once the db exists. deja hardcodes ~/.local/share/deja regardless
+# of $XDG_DATA_HOME (verified: doesn't respond to the env var), so this
+# checks the real path, not the XDG one.
+import_deja_history() {
+  local db=$HOME/.local/share/deja/deja.db
+  [[ -f $db ]] && return
+  deja import
 }
 
 # Generate completions for tools with no Homebrew-shipped zsh completion file
@@ -311,6 +322,7 @@ required "Syncing submodules"                  sync_submodules
 optional "Enabling git maintenance"            enable_git_maintenance
 optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
+optional "Importing zsh history into deja"     import_deja_history
 optional "Generating dua/doggo completions"    generate_completions
 optional "Refreshing TLDR pages"               refresh_tldr
 optional "Installing Ghostty terminfo"         generate_ghostty_terminfo

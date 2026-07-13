@@ -129,12 +129,12 @@ source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 # manual `source` — see zsh-patina's own troubleshooting docs.
 eval "$(zsh-patina activate)"
 
-# +---------------------+
-# | ZSH-AUTOSUGGESTIONS |
-# +---------------------+
+# +------+
+# | DEJA |
+# +------+
 
-# Config must be set before sourcing the plugin
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste new-command _zsh-dot)
-
-source $XDG_DATA_HOME/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+# Fuzzy/directory/sequence-aware ghost-text suggestions — replaces
+# zsh-autosuggestions (see #92). Daemon-backed, async (zle -F), and stands
+# down on its own if zsh-autosuggestions is also loaded, so there's no
+# double-wrapped-widget risk during the swap.
+eval "$(deja init zsh)"

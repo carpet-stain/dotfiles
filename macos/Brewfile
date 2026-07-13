@@ -1,3 +1,4 @@
+tap 'Giammarco-Ferranti/deja' # deja isn't in homebrew-core
 tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
 
 brew 'act' # Run GitHub Actions workflows locally
@@ -7,6 +8,7 @@ brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
 brew 'coreutils'
 brew 'curl'
 brew 'curlie'
+brew 'deja' # Fuzzy/directory/sequence-aware autosuggestions, replaces zsh-autosuggestions
 brew 'direnv' # Loading .envrc files
 brew 'docker' # Docker CLI — talks to Colima's socket, no Docker Desktop
 brew 'doggo' # Better dig
@@ -46,7 +48,6 @@ brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-autopair'
-brew 'zsh-autosuggestions'
 brew 'zsh-patina' # Better syntax highlighting than fast-syntax-highlighting
 
 cask 'claude' # AI desktop app
