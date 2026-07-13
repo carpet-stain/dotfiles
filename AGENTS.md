@@ -86,6 +86,15 @@ Entries that must stay in `$HOME` despite the XDG rule:
   binaries for tools too old/missing in Debian's repos (neovim, git-delta,
   zellij, eza). Both scripts hand-maintain their own directory/runner
   logic — no shared lib between them; when one changes, check the other.
+- `python/` — copier template for bootstrapping a packaged, reproducibility-gated
+  Python 3 project (uv + hatchling + ruff + pyright + pytest + lefthook + CI;
+  decisions and rationale on #129). Run via `py-new <new-project-dir>`
+  (`scripts/py-new.sh`, symlinked to `~/.local/bin` by `macos/deploy.zsh` —
+  macOS only, since Linux doesn't carry `uv` yet). The wrapper always passes
+  copier's `--trust` flag: the template's post-gen tasks (`uv python pin`,
+  `uv sync`, `git init`, `lefthook install`) are what make the result actually
+  deployment-ready, and copier silently skips all of them without `--trust` —
+  no error, just a project missing its lock file and git hooks.
 - Both deploy scripts run every step through a `required()`/`optional()`
   wrapper: critical steps (creating dirs, symlinking configs) abort loud on
   failure; best-effort steps (a specific Brewfile package, a headless nvim
@@ -137,7 +146,7 @@ architectural layers:
 ## Commit style
 
 > Concrete realization of **git.md** (`claude/rules/tools/git.md`) for this repo:
-> scopes = `zsh, zellij, git, nvim, macos, theme`; version scheme = SemVer; branches =
+> scopes = `zsh, zellij, git, nvim, macos, theme, python`; version scheme = SemVer; branches =
 > short-lived feature branches → `main` (protected). It's baseline; the rules below
 > win here and are complete on their own.
 
@@ -148,7 +157,7 @@ Every commit:
    - `type` is a Conventional Commit type (enforced by
      `.github/workflows/pr-guards.yml`'s `conventional commit` check —
      CI-only, no local mirror; see it for the exact list)
-   - `scope` (optional): repo area — zsh, zellij, git, nvim, macos, theme
+   - `scope` (optional): repo area — zsh, zellij, git, nvim, macos, theme, python
    - `description`: imperative, lowercase, no trailing period; keep the whole
      line ≤50 chars where possible (hard limit 72)
    - Breaking change: `type!:` or a `BREAKING CHANGE:` footer
