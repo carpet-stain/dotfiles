@@ -206,7 +206,18 @@ Three more tools worth reaching for by hand, not wired into any hook:
   PR links via `cliff.toml`'s `[remote.github]`, using `GITHUB_TOKEN` — see
   "Credentials" below); pass `--offline` to skip that.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
-  for testing workflow changes without pushing and waiting on real CI.
+  for testing workflow changes without pushing and waiting on real CI. Needs
+  a Docker socket, which macOS gets from Colima (`COLIMA_HOME`, see
+  `.zshenv`), not Docker Desktop — a headless, license-free VM that stays
+  down unless something's using it. Run `scripts/act-run.sh <act args>`
+  rather than `act` directly: it starts Colima on demand, runs act, and
+  stops Colima again only if it was the one that started it, so repeated
+  runs don't re-pay the VM boot. `colima stop` tears it down explicitly when
+  you're done. `actrc` (repo root, symlinked to `$XDG_CONFIG_HOME/act/actrc`
+  by `deploy.zsh`) pins the runner image so act doesn't pull its own
+  multi-GB default. Linux (`linux/deploy.sh`) has no Colima — its disposable
+  OrbStack VMs are ephemeral dev environments, not a fit for nested
+  virtualization just to run act, so this is macOS-only.
 - `scripts/bootstrap-branch-protection.sh` — idempotent branch-protection
   ruleset bootstrap. Needs Administration scope the routine `GH_TOKEN` lacks
   — run with `env -u GH_TOKEN`. Not wired into CI; run manually once a

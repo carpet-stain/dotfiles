@@ -68,10 +68,10 @@ optional() {
 # Function to create required directories
 create_directories() {
   setopt local_options err_exit
-  zf_mkdir -p $XDG_CONFIG_HOME/{bat/themes,direnv,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza,git,htop,ghostty,ripgrep,tealdeer,fsh,homebrew,nvim}
   zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,fast-syntax-highlighting,git-credential-cache}
-  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,zsh/plugins}
+  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $XDG_CONFIG_HOME/claude
@@ -152,6 +152,8 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
   zf_ln -sf $DOTFILES_DIR/curlrc $XDG_CONFIG_HOME/curlrc
   zf_ln -sf $DOTFILES_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml
+  # Pins the runner image `act` uses — see actrc's own comment.
+  zf_ln -sf $DOTFILES_DIR/actrc $XDG_CONFIG_HOME/act/actrc
 
   zf_ln -sf $DEPLOY_DIR/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
   zf_ln -sf $DEPLOY_DIR/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
