@@ -64,6 +64,7 @@ export TERMINFO=$XDG_DATA_HOME/terminfo
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 export GOPATH=$XDG_DATA_HOME/go
 export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
+export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 # Suppress Terminal.app session restore files (~/.zsh_sessions, ~/.bash_sessions)
 export SHELL_SESSIONS_DISABLE=1
 # Claude Code honors CLAUDE_CONFIG_DIR; point it at XDG instead of ~/.claude so
@@ -86,6 +87,14 @@ if [[ $OSTYPE == darwin* ]]; then
   export HOMEBREW_CACHE=$XDG_CACHE_HOME/Homebrew
   export HOMEBREW_LOGS=$XDG_STATE_HOME/Homebrew/logs
   export HOMEBREW_TEMP=$XDG_RUNTIME_DIR/Homebrew
+
+  # Colima (Docker runtime for `act`) is macOS-only in this repo — see
+  # scripts/act-run.sh. COLIMA_HOME relocates its whole tree (config, VM
+  # disk, sockets, logs together — Lima's own maintainers deliberately don't
+  # split these, so XDG_CONFIG_HOME's narrower/buggier support isn't worth
+  # relying on). No separate LIMA_HOME: Colima nests Lima's home at
+  # $COLIMA_HOME/_lima on its own.
+  export COLIMA_HOME=$XDG_DATA_HOME/colima
 
   # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, HOMEBREW_REPOSITORY, PATH, MANPATH, INFOPATH
   eval $(/opt/homebrew/bin/brew shellenv)

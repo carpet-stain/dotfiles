@@ -1,0 +1,3 @@
+# Pin the runner image act uses for ubuntu-latest — without this, act
+# pulls its own multi-GB default image on first run.
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
