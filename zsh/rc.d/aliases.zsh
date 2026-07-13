@@ -50,13 +50,19 @@ alias jq="jaq"
 alias help="tldr"
 # Use 'htop' as a 'top' replacement
 alias top="htop"
+# Use 'choose' as a 'cut' replacement
+alias cut="choose"
+# Use 'dysk' as a 'df' replacement (dedupes noisy system volumes, no '-h' needed)
+alias df="dysk"
+# Use 'procs' as a 'ps' replacement
+alias ps="procs"
+# Use 'viddy' as a 'watch' replacement (macOS ships no 'watch' by default)
+alias watch="viddy"
 
 # +---------------------+
 # |  QoL & UTILITIES   |
 # +---------------------+
 
-# 'df -h' is for "human-readable" disk free space.
-alias df="df -h"
 # Make 'mount' output much cleaner by piping it to 'column -t'.
 alias mount="mount | column -t"
 
