@@ -31,6 +31,12 @@ and what failed when something breaks. Achieve it in order: good names, then cle
 comments only where they preserve intent code can't. Comments explain _why_, not _what_ — don't
 narrate mechanics a good name already conveys.
 
+When the why is recoverable elsewhere (an ADR, an issue, a PR), the comment can be a pointer —
+`# see ADR-0003` / `# see #142` — instead of restating that context inline. A pointer is not an
+omission: it leverages provenance without dropping intent. The load-bearing, non-obvious tripwire
+("removing this breaks X") still stays inline at the point of edit — a pointer supplements that,
+never replaces it.
+
 ## Small, Composable Tools
 
 One tool, one job, done well, composed through clean interfaces (stdin/stdout, exit codes, a small
