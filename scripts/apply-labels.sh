@@ -11,8 +11,10 @@
 # carry either. This is a one-time-per-repo bootstrap action, not routine
 # day-to-day work, so it runs under the same elevated fallback session as
 # bootstrap-branch-protection.sh rather than widening the routine token's
-# scope for a single script:
-#   env -u GH_TOKEN scripts/apply-labels.sh
+# scope for a single script (both vars must drop — `.envrc` aliases GITHUB_TOKEN
+# to the same scoped token and gh prefers it, so dropping GH_TOKEN alone is a
+# no-op, #213):
+#   env -u GH_TOKEN -u GITHUB_TOKEN scripts/apply-labels.sh
 #
 # Future direction: once repos-as-code work lands (Terraform, github
 # provider — not yet started), replace this with a `github_issue_label`
@@ -37,7 +39,7 @@ while read -r label; do
   else
     echo "$error" >&2
     echo "error: failed to upsert label '$name' — likely missing Issues scope." >&2
-    echo "retry with: env -u GH_TOKEN $0" >&2
+    echo "retry with: env -u GH_TOKEN -u GITHUB_TOKEN $0" >&2
     exit 1
   fi
 done < <(jq -c '.[]' "$MANIFEST")

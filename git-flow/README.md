@@ -45,7 +45,7 @@ uvx copier update --answers-file .copier-answers.git-flow.yml
 - **Branch protection.** Needs Administration-scope API access the routine
   `GH_TOKEN` deliberately lacks. Run
   `~/.config/dotfiles/scripts/bootstrap-branch-protection.sh` by hand with
-  `env -u GH_TOKEN` after generating the repo — see that script and #137's
+  `env -u GH_TOKEN -u GITHUB_TOKEN` after generating the repo — see that script and #137's
   decision comment on #136 for why this stays a separate, explicitly-elevated
   step instead of a copier post-gen task.
 - **The `RELEASE_PAT` secret.** `release-prepare.yml` needs a repo secret
@@ -84,9 +84,9 @@ working-tree file content).
    not another push — renaming an already-pushed branch doesn't touch
    content, so nothing needs re-review.
 3. **Apply labels** — from inside the generated repo's checkout:
-   `env -u GH_TOKEN ~/.config/dotfiles/scripts/apply-labels.sh`.
+   `env -u GH_TOKEN -u GITHUB_TOKEN ~/.config/dotfiles/scripts/apply-labels.sh`.
 4. **Apply branch protection** — same directory:
-   `env -u GH_TOKEN ~/.config/dotfiles/scripts/bootstrap-branch-protection.sh`.
+   `env -u GH_TOKEN -u GITHUB_TOKEN ~/.config/dotfiles/scripts/bootstrap-branch-protection.sh`.
    Must come after step 2: it hardcodes `single commit` + `conventional
 commit` as required checks, which only exist once `pr-guards.yml` is in
    the repo — running this first leaves required checks that never report,
@@ -95,9 +95,10 @@ commit` as required checks, which only exist once `pr-guards.yml` is in
 5. **Add the `RELEASE_PAT` secret** by hand, if release automation was
    included in step 2 — see "What it deliberately doesn't produce," above.
 
-Steps 3 and 4 both need the elevated `env -u GH_TOKEN` session (routine
-`GH_TOKEN` deliberately lacks Issues/Administration scope) — see AGENTS.md's
-Credentials section.
+Steps 3 and 4 both need the elevated `env -u GH_TOKEN -u GITHUB_TOKEN` session
+(routine `GH_TOKEN` deliberately lacks Issues/Administration scope; both vars
+drop because `.envrc` aliases `GITHUB_TOKEN` to the same scoped token) — see
+AGENTS.md's Credentials section.
 
 ## Known limitation
 

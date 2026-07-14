@@ -5,9 +5,12 @@
 # checks. Run from inside the target repo's checkout.
 #
 # Needs Administration scope, which the routine scoped GH_TOKEN deliberately
-# lacks — run with `env -u GH_TOKEN` so gh falls back to a full-admin
-# session. Never wire this into CI or a copier post-gen task: it must stay a
-# deliberate, human-invoked step, separate from the routine credential.
+# lacks — run with `env -u GH_TOKEN -u GITHUB_TOKEN` so gh falls back to a
+# full-admin session. Both vars must drop: `.envrc` aliases GITHUB_TOKEN to the
+# same scoped token (for git-cliff) and gh prefers GITHUB_TOKEN, so dropping
+# GH_TOKEN alone silently keeps the scoped token active (#213). Never wire this
+# into CI or a copier post-gen task: it must stay a deliberate, human-invoked
+# step, separate from the routine credential.
 #
 # usage: scripts/bootstrap-branch-protection.sh [branch] [extra-check ...]
 #   branch        protected branch (default: repo's default branch)
@@ -34,7 +37,7 @@ if [[ $# -ge 1 ]]; then
 else
   if ! BRANCH=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>&1); then
     echo "error: failed to detect the default branch — check gh auth." >&2
-    echo "retry with: env -u GH_TOKEN $0 [branch] [extra-check ...]" >&2
+    echo "retry with: env -u GH_TOKEN -u GITHUB_TOKEN $0 [branch] [extra-check ...]" >&2
     exit 1
   fi
 fi
@@ -44,7 +47,7 @@ RULESET_NAME="protect ${BRANCH}"
 
 if ! RULESETS_JSON=$(gh api "repos/{owner}/{repo}/rulesets" 2>&1); then
   echo "error: failed to list rulesets — likely missing Administration scope." >&2
-  echo "retry with: env -u GH_TOKEN $0 ${BRANCH} ${EXTRA_CHECKS[*]}" >&2
+  echo "retry with: env -u GH_TOKEN -u GITHUB_TOKEN $0 ${BRANCH} ${EXTRA_CHECKS[*]}" >&2
   exit 1
 fi
 
