@@ -125,9 +125,14 @@ if [[ $OSTYPE == darwin* ]]; then
   for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman(N); do manpath=($mandir $manpath); done
 fi
 
-# User-local binaries and scripts
-path+=$HOME/.local/bin
-path+=$GOPATH/bin
+# User-local binaries and scripts. Prepend (not append) so a user binary
+# shadows a same-named one from the inherited system PATH — matching the
+# Homebrew/gnubin prepend idiom above. Since these run last, they end up
+# ahead of the Homebrew block too: user ~/.local/bin now wins over Homebrew
+# for a same-named binary, an intentional side effect of "last prepend wins
+# the front" (see git history for #199's before/after verification).
+path=($HOME/.local/bin $path)
+path=($GOPATH/bin $path)
 
 # Custom zsh functions and completion definitions
 fpath+=$ZDOTDIR/fpath
