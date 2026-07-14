@@ -1,6 +1,48 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.6.0] - 2026-07-14
+
+### Features
+
+- *(zsh)* Replace fast-syntax-highlighting with zsh-patina ([#191](https://github.com/carpet-stain/dotfiles/pull/191))
+- *(zsh)* Replace zsh-autosuggestions with deja ([#190](https://github.com/carpet-stain/dotfiles/pull/190))
+- *(zsh)* Add choose/dysk/procs/viddy modern-replacement aliases ([#189](https://github.com/carpet-stain/dotfiles/pull/189))
+- *(claude)* Audit-rules — add cross-doc replication check ([#224](https://github.com/carpet-stain/dotfiles/pull/224))
+- *(claude)* Add sprawl reduction playbook to audit-rules ([#225](https://github.com/carpet-stain/dotfiles/pull/225))
+
+### Bug Fixes
+
+- *(ci)* Exempt draft PRs from ci.yml and e2e-linux.yml ([#211](https://github.com/carpet-stain/dotfiles/pull/211))
+- *(deploy)* Stream long-running deploy steps live ([#216](https://github.com/carpet-stain/dotfiles/pull/216))
+- *(zsh)* Relocate npm init-module under XDG_CONFIG_HOME ([#220](https://github.com/carpet-stain/dotfiles/pull/220))
+- *(macos)* Stop deja history seed from silently no-oping ([#212](https://github.com/carpet-stain/dotfiles/pull/212))
+- *(macos)* Symlink git-squash onto PATH ([#218](https://github.com/carpet-stain/dotfiles/pull/218))
+- *(linux)* Compile ghostty terminfo to default search path ([#221](https://github.com/carpet-stain/dotfiles/pull/221))
+- *(zsh)* Prepend user path dirs instead of appending ([#228](https://github.com/carpet-stain/dotfiles/pull/228))
+- *(theme)* Bump delta submodule for mocha contrast/decoration fixes ([#229](https://github.com/carpet-stain/dotfiles/pull/229))
+- *(zsh)* Skip zsh-defer without a controlling terminal ([#226](https://github.com/carpet-stain/dotfiles/pull/226))
+
+### Refactor
+
+- *(docs)* De-dup AGENTS.md and README.md overlap ([#222](https://github.com/carpet-stain/dotfiles/pull/222))
+- *(zsh)* Extract fzf config to env.d/fzf.zsh ([#227](https://github.com/carpet-stain/dotfiles/pull/227))
+
+### Documentation
+
+- *(zsh)* Note brew shellenv sets FPATH (site-functions) ([#217](https://github.com/carpet-stain/dotfiles/pull/217))
+- *(claude)* Adopt ADRs + a documentation home map ([#214](https://github.com/carpet-stain/dotfiles/pull/214))
+- *(claude)* Name comment-as-pointer form in comment guidance ([#219](https://github.com/carpet-stain/dotfiles/pull/219))
+
+### CI
+
+- Shellcheck .envrc* to match nvim ([#215](https://github.com/carpet-stain/dotfiles/pull/215))
+
+### Chore
+
+- Update repo-watch state ([#197](https://github.com/carpet-stain/dotfiles/pull/197))
+- *(claude)* Use ~/.claude for everything, drop XDG relocation ([#223](https://github.com/carpet-stain/dotfiles/pull/223))
+
 ## [1.5.0] - 2026-07-13
 
 ### Features
