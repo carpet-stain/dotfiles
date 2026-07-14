@@ -269,13 +269,19 @@ download_gitstatusd() {
 # Seed deja's suggestion database from existing zsh history. `deja import`
 # is *not* idempotent — re-running it double-counts every command already in
 # the db (verified: re-importing the same history doubled row count) — so
-# skip it once the db exists. deja hardcodes ~/.local/share/deja regardless
-# of $XDG_DATA_HOME (verified: doesn't respond to the env var), so this
-# checks the real path, not the XDG one.
+# this must only ever run once. Guarding on the db file's existence doesn't
+# work: `download_gitstatusd` (just above) spawns an interactive shell that
+# sources .zshrc, whose `deja init zsh` auto-starts deja's daemon, which
+# creates that same db file (empty) on startup — before this step runs.
+# A file-existence check would then always see the file already there and
+# skip the import, forever, so this uses a marker file this function alone
+# controls instead.
 import_deja_history() {
-  local db=$HOME/.local/share/deja/deja.db
-  [[ -f $db ]] && return
+  local marker=$XDG_STATE_HOME/deja/.imported
+  [[ -f $marker ]] && return
   deja import
+  zf_mkdir -p ${marker:h}
+  touch $marker
 }
 
 # Generate completions for tools with no Homebrew-shipped zsh completion file
