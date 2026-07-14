@@ -162,12 +162,13 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
   zf_ln -sf $DOTFILES_DIR/theme/delta/catppuccin.gitconfig $XDG_CONFIG_HOME/git/catppuccin.gitconfig
 
-  # Backs the `pr`/`new`/`sync` aliases above — must be on PATH as bare
-  # commands, not just reachable by relative path, since git/config is used
-  # from any repo.
+  # Backs the `pr`/`new`/`sync`/`squash` aliases above — must be on PATH as
+  # bare commands, not just reachable by relative path, since git/config is
+  # used from any repo.
   zf_ln -sf $DOTFILES_DIR/scripts/git-pr-link.sh $HOME/.local/bin/git-pr-link
   zf_ln -sf $DOTFILES_DIR/scripts/git-new.sh $HOME/.local/bin/git-new
   zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync
+  zf_ln -sf $DOTFILES_DIR/scripts/git-squash.sh $HOME/.local/bin/git-squash
 
   # Bootstraps a new Python project from python/ (#129). See py-new.sh.
   zf_ln -sf $DOTFILES_DIR/scripts/py-new.sh $HOME/.local/bin/py-new
