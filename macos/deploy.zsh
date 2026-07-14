@@ -97,7 +97,7 @@ create_directories() {
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
-  zf_mkdir -p $XDG_CONFIG_HOME/claude
+  zf_mkdir -p $HOME/.claude
   zf_mkdir -pm 700 $XDG_CONFIG_HOME/ssh
   zf_mkdir -p $HOME/.local/bin
 }
@@ -109,33 +109,36 @@ link_configs() {
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
 
-  # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
-  # Claude Code auto-discovers and loads every *.md under rules/ recursively and
-  # unconditionally — no loader file or @import wiring needed. See claude/README.md.
+  # Claude Code agent config → ~/.claude/rules. Claude Code doesn't fully honor
+  # CLAUDE_CONFIG_DIR (daemon/telemetry/auth subsystems hardcode ~/.claude
+  # regardless, #134) so config lives at its real default instead of a
+  # half-relocated XDG split. Claude Code auto-discovers and loads every *.md
+  # under rules/ recursively and unconditionally — no loader file or @import
+  # wiring needed. See claude/README.md.
   # Symlinked as one directory so universal/tools/platform (and any gitignored
   # private file dropped inside them) all come along with zero per-file wiring.
   # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
   # old loader design; a real claude/rules/ dir of individual symlinks from the
   # per-file-glob design) — safe since deploy fully owns all of these paths.
-  rm -f $XDG_CONFIG_HOME/claude/CLAUDE.md
-  rm -rf $XDG_CONFIG_HOME/claude/fragments
-  rm -rf $XDG_CONFIG_HOME/claude/rules
-  zf_ln -sfn $DOTFILES_DIR/claude/rules $XDG_CONFIG_HOME/claude/rules
+  rm -f $HOME/.claude/CLAUDE.md
+  rm -rf $HOME/.claude/fragments
+  rm -rf $HOME/.claude/rules
+  zf_ln -sfn $DOTFILES_DIR/claude/rules $HOME/.claude/rules
 
-  # Claude Code subagents → $CLAUDE_CONFIG_DIR/agents. Same one-directory symlink as
+  # Claude Code subagents → ~/.claude/agents. Same one-directory symlink as
   # rules/ above — every *.md under agents/ is discovered recursively, no per-agent
   # wiring. See claude/README.md § Subagents.
-  rm -rf $XDG_CONFIG_HOME/claude/agents
-  zf_ln -sfn $DOTFILES_DIR/claude/agents $XDG_CONFIG_HOME/claude/agents
+  rm -rf $HOME/.claude/agents
+  zf_ln -sfn $DOTFILES_DIR/claude/agents $HOME/.claude/agents
 
-  # Claude Code skills → $CLAUDE_CONFIG_DIR/skills. Same one-directory symlink as
+  # Claude Code skills → ~/.claude/skills. Same one-directory symlink as
   # rules/ and agents/ above — every skill's SKILL.md under skills/<name>/ is
   # discovered recursively, no per-skill wiring. See claude/README.md § Skills.
-  rm -rf $XDG_CONFIG_HOME/claude/skills
-  zf_ln -sfn $DOTFILES_DIR/claude/skills $XDG_CONFIG_HOME/claude/skills
+  rm -rf $HOME/.claude/skills
+  zf_ln -sfn $DOTFILES_DIR/claude/skills $HOME/.claude/skills
 
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
-  zf_ln -sf $DOTFILES_DIR/claude/settings.json $XDG_CONFIG_HOME/claude/settings.json
+  zf_ln -sf $DOTFILES_DIR/claude/settings.json $HOME/.claude/settings.json
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
   zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig.toml $XDG_CONFIG_HOME/zsh-patina/config.toml

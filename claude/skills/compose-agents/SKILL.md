@@ -2,7 +2,7 @@
 name: compose-agents
 description: >-
   Drafts or updates a repo's AGENTS.md by instantiating the global Claude Code rules tree
-  ($CLAUDE_CONFIG_DIR/rules) with this repo's detected facts (branch model, version scheme,
+  (~/.claude/rules) with this repo's detected facts (branch model, version scheme,
   scopes, pre-commit tooling, credential pattern), following each rule file's COMPOSE block.
   Use when asked to scaffold AGENTS.md, set up agent config for this repo, compose or
   instantiate the rules into a repo doc, or check whether an existing AGENTS.md has drifted

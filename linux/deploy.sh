@@ -120,7 +120,7 @@ create_directories() {
     "$XDG_STATE_HOME/less" \
     "$XDG_STATE_HOME/zsh" \
     "$LOCAL_BIN"
-  mkdir -p "$XDG_CONFIG_HOME/claude"
+  mkdir -p "$HOME/.claude"
   mkdir -p "$XDG_CONFIG_HOME/ssh" && chmod 700 "$XDG_CONFIG_HOME/ssh"
 }
 
@@ -265,33 +265,36 @@ install_neovim() {
 link_configs() {
   ln -sf "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 
-  # Claude Code agent config → $CLAUDE_CONFIG_DIR/rules ($XDG_CONFIG_HOME/claude/rules).
-  # Claude Code auto-discovers and loads every *.md under rules/ recursively and
-  # unconditionally — no loader file or @import wiring needed. See claude/README.md.
+  # Claude Code agent config → ~/.claude/rules. Claude Code doesn't fully honor
+  # CLAUDE_CONFIG_DIR (daemon/telemetry/auth subsystems hardcode ~/.claude
+  # regardless, #134) so config lives at its real default instead of a
+  # half-relocated XDG split. Claude Code auto-discovers and loads every *.md
+  # under rules/ recursively and unconditionally — no loader file or @import
+  # wiring needed. See claude/README.md.
   # Symlinked as one directory so universal/tools/platform (and any gitignored
   # private file dropped inside them) all come along with zero per-file wiring.
   # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
   # old loader design; a real claude/rules/ dir of individual symlinks from the
   # per-file-glob design) — safe since deploy fully owns all of these paths.
-  rm -f "$XDG_CONFIG_HOME/claude/CLAUDE.md"
-  rm -rf "$XDG_CONFIG_HOME/claude/fragments"
-  rm -rf "$XDG_CONFIG_HOME/claude/rules"
-  ln -sfn "$DOTFILES_DIR/claude/rules" "$XDG_CONFIG_HOME/claude/rules"
+  rm -f "$HOME/.claude/CLAUDE.md"
+  rm -rf "$HOME/.claude/fragments"
+  rm -rf "$HOME/.claude/rules"
+  ln -sfn "$DOTFILES_DIR/claude/rules" "$HOME/.claude/rules"
 
-  # Claude Code subagents → $CLAUDE_CONFIG_DIR/agents. Same one-directory symlink as
+  # Claude Code subagents → ~/.claude/agents. Same one-directory symlink as
   # rules/ above — every *.md under agents/ is discovered recursively, no per-agent
   # wiring. See claude/README.md § Subagents.
-  rm -rf "$XDG_CONFIG_HOME/claude/agents"
-  ln -sfn "$DOTFILES_DIR/claude/agents" "$XDG_CONFIG_HOME/claude/agents"
+  rm -rf "$HOME/.claude/agents"
+  ln -sfn "$DOTFILES_DIR/claude/agents" "$HOME/.claude/agents"
 
-  # Claude Code skills → $CLAUDE_CONFIG_DIR/skills. Same one-directory symlink as
+  # Claude Code skills → ~/.claude/skills. Same one-directory symlink as
   # rules/ and agents/ above — every skill's SKILL.md under skills/<name>/ is
   # discovered recursively, no per-skill wiring. See claude/README.md § Skills.
-  rm -rf "$XDG_CONFIG_HOME/claude/skills"
-  ln -sfn "$DOTFILES_DIR/claude/skills" "$XDG_CONFIG_HOME/claude/skills"
+  rm -rf "$HOME/.claude/skills"
+  ln -sfn "$DOTFILES_DIR/claude/skills" "$HOME/.claude/skills"
 
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
-  ln -sf "$DOTFILES_DIR/claude/settings.json" "$XDG_CONFIG_HOME/claude/settings.json"
+  ln -sf "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
   ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \
     "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"
