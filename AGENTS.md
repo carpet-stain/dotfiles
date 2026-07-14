@@ -232,10 +232,10 @@ Three more tools worth reaching for by hand, not wired into any hook:
   virtualization just to run act, so this is macOS-only.
 - `scripts/bootstrap-branch-protection.sh` — idempotent branch-protection
   ruleset bootstrap. Needs Administration scope the routine `GH_TOKEN` lacks
-  — run with `env -u GH_TOKEN`. Not wired into CI; run manually once a
-  repo's checks are set up.
+  — run with `env -u GH_TOKEN -u GITHUB_TOKEN`. Not wired into CI; run manually
+  once a repo's checks are set up.
 - `scripts/apply-labels.sh` — idempotent label-taxonomy bootstrap
-  (`scripts/labels.json`), upsert-only. Same `env -u GH_TOKEN`, manual,
+  (`scripts/labels.json`), upsert-only. Same `env -u GH_TOKEN -u GITHUB_TOKEN`, manual,
   one-time convention; see `git-flow/`'s bootstrap runbook for how the two
   compose with the copier template.
 
@@ -256,8 +256,12 @@ can't accidentally touch repo settings. `.envrc.local.example` is the tracked
 template — copy it to `.envrc.local` and fill in a real token (every export
 line in the template itself must stay empty; a pre-commit hook enforces both
 that and that the template hasn't drifted from `.envrc.local`'s structure).
-Use `env -u GH_TOKEN gh ...` for anything that actually needs the full-admin
-session (e.g. changing branch protection).
+Use `env -u GH_TOKEN -u GITHUB_TOKEN gh ...` for anything that actually needs
+the full-admin session (e.g. changing branch protection). Both vars must drop:
+`.envrc` aliases `GITHUB_TOKEN` to the same scoped `GH_TOKEN` (for `git-cliff`,
+below) and gh prefers `GITHUB_TOKEN`, so dropping `GH_TOKEN` alone silently
+keeps the scoped token active — the elevation is a no-op (#213). Don't "fix"
+this by dropping the alias — that just breaks `git-cliff`'s token.
 
 This guarantee needs `GH_TOKEN` loaded — direnv only fires for interactive
 shells, so non-interactive ones (scripts, cron, an agent's tool shell) used

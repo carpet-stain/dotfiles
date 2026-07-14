@@ -29,8 +29,10 @@ checks. "PR" is GitHub's review/merge request.
 
 `gh` defaults to a scoped-down fine-grained PAT (contents/PRs/actions read-write, no
 Administration), not a full `gh auth login` session, so routine work can't touch repo settings or
-branch protection — elevate explicitly (`env -u GH_TOKEN gh ...`) only for the one action that
-needs admin. `act` runs the Actions workflows locally via Docker, for testing without pushing.
+branch protection — elevate explicitly (`env -u GH_TOKEN -u GITHUB_TOKEN gh ...` — both vars, since
+a repo aliasing `GITHUB_TOKEN` to the same scoped token means dropping `GH_TOKEN` alone is a no-op)
+only for the one action that needs admin. `act` runs the Actions workflows locally via Docker, for
+testing without pushing.
 
 ## Early draft PRs — `git pr` / `git pr --draft`
 
