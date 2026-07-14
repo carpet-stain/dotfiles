@@ -53,8 +53,11 @@ echo "Shell:"
 check "zsh is the default login shell" bash -c '[[ "$(getent passwd "$(id -un)" | cut -d: -f7)" == "$(command -v zsh)" ]]'
 
 echo "Ghostty terminfo:"
-# shellcheck disable=SC2016
-check "xterm-ghostty registered" bash -c 'TERMINFO="$XDG_DATA_HOME/terminfo" infocmp xterm-ghostty'
+# No TERMINFO override here on purpose: the entry is compiled to
+# $HOME/.terminfo (ncurses' default search path), so it must resolve with a
+# bare environment — this is the exact case that broke before #202's fix,
+# and a $TERMINFO override here would mask a regression back to that bug.
+check "xterm-ghostty registered" infocmp xterm-ghostty
 
 echo
 if [[ $failures -eq 0 ]]; then
