@@ -41,7 +41,7 @@ documents itself as "assuming X" (`github.md` assumes `git.md`) is a trusted rel
 mechanically checked one.
 
 There is no loader file. The whole `rules/` tree deploys as a single symlink into Claude Code's own
-`$CLAUDE_CONFIG_DIR/rules/`, which it auto-discovers and loads recursively in every project. Drop a
+`~/.claude/rules/`, which it auto-discovers and loads recursively in every project. Drop a
 file into the right directory and it loads — nothing to wire. Private or work-internal platform
 files are deliberately **not committed** here — see [Private files](#private-files-workinternal-platform-files).
 
@@ -118,7 +118,7 @@ restatement sit in context together. That's deliberate, for two reasons:
 
 - **Self-containment.** The local doc must be correct for a reader with none of these global files —
   another contributor, CI, an agent on a different machine. A public repo's `AGENTS.md` can't assume
-  `$CLAUDE_CONFIG_DIR` is loaded behind it, so it restates the generic structure rather than pointing
+  `~/.claude` is loaded behind it, so it restates the generic structure rather than pointing
   at a file the reader may not have.
 - **Uncomposed repos.** The abstract earns its keep in repos that have _no_ `AGENTS.md` yet — there
   it's the whole guidance. Composed repos tolerate the overlap; that's the price of the abstract being
@@ -130,26 +130,27 @@ and the abstract goes **inert** for that repo afterward (it was distilled _from_
 not be fed back). Change a convention in one place — the abstract — and re-compose; never hand-edit
 the instantiated structure expecting it to flow back. One source, one derived artifact.
 
-## Deployment (Strict XDG)
+## Deployment (`~/.claude`, a documented XDG exception)
 
-Claude Code defaults to `~/.claude`, which violates this repo's Zero-Home-Presence rule. Instead,
-`zsh/.zshenv` exports:
+Claude Code defaults to `~/.claude`, which would normally violate this repo's Zero-Home-Presence
+rule. This repo used to fight that by exporting `CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude` to
+relocate it — but Claude Code's daemon, telemetry, and auth subsystems hardcode or fail to inherit
+`CLAUDE_CONFIG_DIR` in spawned subprocesses (#134, upstream, as of 2.1.197), so the relocation only
+ever half-worked: CLI config under `$XDG_CONFIG_HOME/claude`, daemon/telemetry state under
+`~/.claude` regardless. `~/.claude` is now the accepted, documented home for everything — see
+AGENTS.md's XDG-exceptions table.
 
-```sh
-export CLAUDE_CONFIG_DIR=$XDG_CONFIG_HOME/claude
-```
-
-and the deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/` tree**,
+The deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/` tree**,
 the **`agents/`** tree, and the **`skills/`** tree as units, plus the global `settings.json`:
 
 ```text
-claude/rules/                → $XDG_CONFIG_HOME/claude/rules/
-claude/agents/               → $XDG_CONFIG_HOME/claude/agents/
-claude/skills/               → $XDG_CONFIG_HOME/claude/skills/
-claude/settings.json         → $XDG_CONFIG_HOME/claude/settings.json
+claude/rules/                → ~/.claude/rules/
+claude/agents/               → ~/.claude/agents/
+claude/skills/               → ~/.claude/skills/
+claude/settings.json         → ~/.claude/settings.json
 ```
 
-Claude Code reads `$CLAUDE_CONFIG_DIR/rules/` recursively — every `*.md` under it loads at launch with
+Claude Code reads `~/.claude/rules/` recursively — every `*.md` under it loads at launch with
 no index file and nothing to keep in sync when a file is added, renamed, or moved. Edit a source file
 here → the symlink reflects it → every project inherits the change, with nothing copied. Adding a whole
 new directory (the `domain/` scope was added exactly this way) needs no deploy-script edit — it's
@@ -167,7 +168,7 @@ of a manual one-off edit.
 Alongside the always-loaded `rules/`, `claude/agents/` holds Claude Code **subagents** — specialized
 assistants the main agent delegates to for a bounded job, each with its own context, system prompt,
 tools, and model. `agents/` deploys exactly like `rules/`: one directory symlink to
-`$CLAUDE_CONFIG_DIR/agents/`, discovered recursively, with no per-agent wiring. A subagent is **not**
+`~/.claude/agents/`, discovered recursively, with no per-agent wiring. A subagent is **not**
 always-on context — it loads only when delegated to, so it costs nothing until used.
 
 - **`backlog-manager`** — a project-manager / ticket specialist that owns GitHub issue and backlog
@@ -203,12 +204,12 @@ auto-invokes it when its `description` matches the request, and it costs nothing
 That's the deciding difference from a subagent — a subagent earns its place only when
 persistent memory, repeated delegation, _and_ context isolation all apply together; a one-shot
 analysis with none of those is a skill, not a subagent. `skills/` deploys exactly like `rules/`
-and `agents/`: one directory symlink to `$CLAUDE_CONFIG_DIR/skills/`, with each skill's
+and `agents/`: one directory symlink to `~/.claude/skills/`, with each skill's
 `SKILL.md` living at `skills/<name>/SKILL.md`, discovered recursively, no per-skill wiring.
 Skills are repo-agnostic and don't GATE the way rules do — a skill either fires on request or it
 doesn't, there's nothing to self-gate against a repo's shape.
 
-- **`audit-rules`** — reads `$CLAUDE_CONFIG_DIR/rules/` and reports contradictions (two
+- **`audit-rules`** — reads `~/.claude/rules/` and reports contradictions (two
   directives that disagree) and sprawl (files over ~200 lines or spanning more than one topic).
   Propose-don't-apply, enforced structurally: it has no Write/Edit access, so it can only report
   findings, never act on them.
@@ -228,7 +229,7 @@ enough, with no per-file `.gitignore` edit to remember and get wrong.
    blocks, exactly like a committed platform file.
 2. **Nothing else.** The directory is gitignored as a whole, so the file can't be committed by
    accident. `rules/` is already symlinked as one tree and discovered recursively, so the file loads
-   into `$CLAUDE_CONFIG_DIR/rules/` with no deploy-script or gitignore wiring.
+   into `~/.claude/rules/` with no deploy-script or gitignore wiring.
 
 **Why a whole ignored directory, not a per-file ignore line:** naming each private file in
 `.gitignore` means one forgotten line leaks internal tooling into a public repo — the exact disaster
@@ -311,7 +312,7 @@ there just because it seemed like a good idea once.
 
 Run `/memory` in a fresh session inside any repo — it lists every loaded
 `CLAUDE.md` and rules file, so you can confirm the `universal/` files and the
-applicable `tools/`/`platform/` files loaded from `$CLAUDE_CONFIG_DIR/rules/`.
+applicable `tools/`/`platform/` files loaded from `~/.claude/rules/`.
 Then ask the agent whether each file's GATE fired correctly and whether
 local docs win on overlap. For a precise trace of which files loaded, when, and why — the definitive
 check that `go.md`'s `paths:` gate fires only on Go files — enable Claude Code's `InstructionsLoaded`

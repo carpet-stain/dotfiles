@@ -18,6 +18,6 @@ ssh/config.local
 # no per-file gitignore edit to forget, and no internal platform name spelled
 # out in this public file. The whole claude/rules/ tree deploys as one symlink
 # and Claude Code discovers .md files recursively, so private/ still loads into
-# $CLAUDE_CONFIG_DIR/rules. A fresh clone simply lacks the dir's contents.
+# ~/.claude/rules. A fresh clone simply lacks the dir's contents.
 # See claude/README.md § Private files.
 claude/rules/platform/private/

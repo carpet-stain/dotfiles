@@ -1,7 +1,7 @@
 ---
 name: audit-rules
 description: >-
-  Audits the global Claude Code agent-config rules tree ($CLAUDE_CONFIG_DIR/rules) for
+  Audits the global Claude Code agent-config rules tree (~/.claude/rules) for
   contradictions and topic/length sprawl, and checks AGENTS.md/README.md/docs for content
   substantially duplicated across them, reporting proposed fixes without editing anything.
   Use when asked to audit, review, or check claude/rules for contradictions, conflicting
@@ -24,9 +24,8 @@ structurally; treat that as a guarantee, not just a reminder.
 
 ## Scope
 
-Read target: `$CLAUDE_CONFIG_DIR/rules/**/*.md`, falling back to `~/.claude/rules` if the env
-var is unset. Never hardcode a specific repo's path (e.g. a dotfiles checkout) — this must work
-from any repo where the rules are deployed.
+Read target: `~/.claude/rules/**/*.md`. Never hardcode a specific repo's path (e.g. a
+dotfiles checkout) — this must work from any repo where the rules are deployed.
 
 If invoked with a path argument, scope the audit to that file or directory instead of the whole
 tree (useful mid-edit on a single file). Otherwise audit everything.
