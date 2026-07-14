@@ -46,7 +46,7 @@ check ".zshenv linked" bash -c '[[ -L $HOME/.zshenv && -e $HOME/.zshenv ]]'
 # shellcheck disable=SC2016
 check "nvim init.lua linked" bash -c '[[ -L $XDG_CONFIG_HOME/nvim/init.lua && -e $XDG_CONFIG_HOME/nvim/init.lua ]]'
 # shellcheck disable=SC2016
-check "claude/rules linked" bash -c '[[ -L $XDG_CONFIG_HOME/claude/rules && -e $XDG_CONFIG_HOME/claude/rules ]]'
+check "claude/rules linked" bash -c '[[ -L $HOME/.claude/rules && -e $HOME/.claude/rules ]]'
 
 echo "Shell:"
 # shellcheck disable=SC2016
