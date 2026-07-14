@@ -76,7 +76,7 @@ README states the XDG principle; these are the entries that must stay in
   logic — no shared lib between them; when one changes, check the other.
 - `python/` — copier template for bootstrapping a packaged, reproducibility-gated
   Python 3 project (uv + hatchling + ruff + pyright + pytest + lefthook + CI;
-  decisions and rationale on #129). Run via `py-new <new-project-dir>`
+  decisions and rationale in ADR-0014). Run via `py-new <new-project-dir>`
   (`scripts/py-new.sh`, symlinked to `~/.local/bin` by `macos/deploy.zsh` —
   macOS only, since Linux doesn't carry `uv` yet). The wrapper always passes
   copier's `--trust` flag: the template's post-gen tasks (`uv python pin`,
@@ -123,17 +123,14 @@ The universal rule's ownership table applies as-is. This repo's binding: **ADRs 
 ### ADRs (`docs/adr/`)
 
 An Architecture Decision Record captures one significant decision: what we chose,
-what we considered and rejected, and why. Use `docs/adr/0000-template.md`;
-number new ones sequentially (`0001-title.md`, `0002-title.md`, …).
+what we considered and rejected, and why. Write one when a decision is
+architecturally significant, cross-cutting, long-lived, or expensive to reverse —
+the branching model, the rules-tree load-all-then-gate design, adopting rulesets
+over classic branch protection. Don't write one for a small, local,
+easily-reversed choice; that's a PR description or a code comment, not an ADR.
 
-Write one when a decision is architecturally significant, cross-cutting,
-long-lived, or expensive to reverse — the branching model, the rules-tree
-load-all-then-gate design, adopting rulesets over classic branch protection.
-Don't write one for a small, local, easily-reversed choice; that's a PR
-description or a code comment, not an ADR. When a later decision replaces an
-earlier one, mark the old ADR's Status `superseded by NNNN` rather than
-editing it to match the new reality — the rejected path staying visible is
-the point.
+See [`docs/adr/README.md`](docs/adr/README.md) for how to create one (adr-tools,
+template, numbering, superseding).
 
 ## Verifying changes
 

@@ -3,6 +3,7 @@ tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
 
 brew 'act' # Run GitHub Actions workflows locally
 brew 'actionlint' # Lint GitHub Actions workflow files
+brew 'adr-tools' # Create/manage Architecture Decision Records (docs/adr/)
 brew 'bat' # Better cat
 brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
 brew 'coreutils'
