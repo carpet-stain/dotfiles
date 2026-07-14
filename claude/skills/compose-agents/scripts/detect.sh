@@ -36,10 +36,24 @@ if [[ -f go.mod ]] || find . -maxdepth 3 -name '*.go' -print -quit 2>/dev/null |
 fi
 echo "IS_GO_REPO=$is_go_repo"
 
+# Commit scopes come from commit history, not the filesystem: the type(scope):
+# subjects a repo actually uses are its real scope vocabulary. A top-level dir
+# list both over-counts (dirs that never receive scoped commits) and
+# under-counts (a scope like `release` or `ci` that maps to no dir). Emit them
+# most-used first, so the low-count tail reads as the prune candidate for
+# compose-agents' confirm step. Fall back to top-level dirs only when there's
+# no Conventional-Commit history to learn from (a fresh repo) — a coarse guess
+# beats an empty field.
 scopes=""
 if $is_git_repo; then
-  scopes="$(find . -maxdepth 1 -mindepth 1 -type d -not -path '*/.*' -exec basename {} \; |
-    sort | paste -sd, -)"
+  scopes="$(git log --format=%s 2>/dev/null |
+    grep -oE '^[a-z]+\([a-z0-9._-]+\)!?:' |
+    sed -E 's/^[a-z]+\(([^)]+)\)!?:.*/\1/' |
+    sort | uniq -c | sort -rn | awk '{print $2}' | paste -sd, -)"
+  if [[ -z "$scopes" ]]; then
+    scopes="$(find . -maxdepth 1 -mindepth 1 -type d -not -path '*/.*' -exec basename {} \; |
+      sort | paste -sd, -)"
+  fi
 fi
 echo "SCOPES=$scopes"
 
@@ -141,8 +155,15 @@ has_agents_md=""
 [[ -f AGENTS.md ]] && has_agents_md="AGENTS.md"
 echo "HAS_AGENTS_MD=$has_agents_md"
 
-has_claude_md_symlink=""
+# Distinguish the three CLAUDE.md states the compose modes turn on: absent
+# (Draft), a symlink to AGENTS.md (Update — the expected companion), or a real
+# file with no AGENTS.md (Migrate — a legacy/non-Claude layout to move onto
+# AGENTS.md). A bare `-L` test can't tell a real file from absent, which would
+# collapse Migrate into Draft.
+has_claude_md=""
 if [[ -L CLAUDE.md ]]; then
-  has_claude_md_symlink="$(readlink CLAUDE.md)"
+  has_claude_md="symlink:$(readlink CLAUDE.md)"
+elif [[ -f CLAUDE.md ]]; then
+  has_claude_md="file"
 fi
-echo "HAS_CLAUDE_MD_SYMLINK=$has_claude_md_symlink"
+echo "HAS_CLAUDE_MD=$has_claude_md"

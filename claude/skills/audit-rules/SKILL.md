@@ -33,7 +33,9 @@ tree (useful mid-edit on a single file). Otherwise audit everything.
 Also read the current repo's own `AGENTS.md`, `README.md`, and any top-level `docs/*.md`
 (not nested subdirectories — see Cross-doc replication check's scope note), if present — needed
 for the local-doc contradiction check below, the AGENTS.md length check under Sprawl, and the
-Cross-doc replication check.
+Cross-doc replication check. If the repo uses a _real_ `CLAUDE.md` (not a symlink to `AGENTS.md`)
+as its canonical agent doc, read that too and treat it as the subject wherever these checks say
+`AGENTS.md` — a `CLAUDE.md` symlink resolves to `AGENTS.md`, so read it once, not twice.
 
 ## Contradiction check
 
@@ -43,10 +45,14 @@ Read every file in scope fully, then look for:
   token cost" contradiction in this repo is the worked example of this shape.
 - **Cross-file**: two rules files disagreeing — e.g. a `universal/` file and a `tools/` file
   recommending opposite defaults.
-- **Local-doc drift**: the repo's own `AGENTS.md`/`docs/` disagreeing with a rules file. This is
-  _expected and fine_ under LOCAL-WINS when the local doc clearly overrides the point on
-  purpose — only flag it when it reads like accidental drift instead of a deliberate override
-  (e.g. the local doc doesn't acknowledge it's overriding anything, it just quietly contradicts).
+- **Local-doc drift**: the repo's own `AGENTS.md` (or a real `CLAUDE.md`) / `docs/` disagreeing
+  with a rules file. Under LOCAL-WINS a contradiction is _allowed_ — the repo wins — so the target
+  is _accidental drift_, not deliberate override, and the signal is a marker, not tone. A section
+  carrying `> Overrides **<rule>.md** § … — reason: …` (the marker `compose-agents` writes when a
+  human confirms an override) is a settled departure: skip it. Flag an _unmarked_ contradiction,
+  and propose the resolution — either adopt the rule's semantics, or record the override by adding
+  that marker so it stops reading as accidental and both this check and `compose-agents` stop
+  re-flagging it.
 
 Report most-confident first. Each finding quotes both locations (file path + the specific
 sentence) and states plainly why they conflict.

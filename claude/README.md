@@ -16,6 +16,28 @@ Mixing them blocks reuse (you can't lift the philosophy into another repo withou
 facts along) and injects **wrong context** into the agent (Go rules in a Python repo, one
 platform's commands in an unrelated repo). This setup keeps them apart.
 
+## Claude Code authors it; `AGENTS.md` is what any agent reads
+
+This machinery is **Claude Code-specific**: the `~/.claude/rules/` tree, `paths:` gating, the
+GATE/LOCAL-WINS/COMPOSE blocks the agent evaluates, the skills, the subagents. No other tool
+reads `~/.claude/rules/` or honors that structure — it's built on how Claude Code discovers and
+loads rules.
+
+What it _produces per repo_ is deliberately not. `compose-agents` instantiates these Claude Code
+rules into a repo's **`AGENTS.md`** — the emerging cross-tool convention other agents (Cursor,
+Codex, and the rest) read — as a self-contained doc with **zero dependency on `~/.claude` behind
+it**. That's the [self-containment](#compose-and-why-the-duplication-is-deliberate) COMPOSE
+already demands, pushed one step further: the local doc must be correct not just for a
+contributor without my global files, but for a _different model entirely_.
+
+The bridge is a symlink. Claude Code looks for `CLAUDE.md`; the vendor-neutral file is
+`AGENTS.md`. Each composed repo carries a gitignored **`CLAUDE.md → AGENTS.md`** symlink, so
+Claude Code reads the exact file every other agent reads as `AGENTS.md` — one source of truth,
+two names. `compose-agents` proposes this symlink (its Step 7); this repo's own root `CLAUDE.md`
+_is_ one (see the [Deployment gitignore note](#deployment-claude-a-documented-xdg-exception)).
+So: **Claude Code-specific authoring here → vendor-neutral consumption per repo.** The philosophy
+is written once against Claude Code and emitted in a form no model is locked out of.
+
 ## How the files are organized
 
 `claude/rules/` groups files by how broadly they apply — the directory name is the scope, nothing
@@ -217,6 +239,49 @@ doesn't, there's nothing to self-gate against a repo's shape.
   instantiating each applicable rule file's COMPOSE block with facts detected from the repo
   (branch model, version scheme, scopes, pre-commit tooling). Propose-don't-create: it presents
   a full draft or diff in chat and waits for approval before anything is written.
+
+## Lifecycle: running the skills over a repo's life
+
+`compose-agents` and `audit-rules`, plus Claude Code's built-in `/init` and `/doctor`, all touch
+a repo's `AGENTS.md` — but they were built separately, so the order that works depends on where
+the repo starts.
+
+**Fresh repo (no `AGENTS.md`/`CLAUDE.md`).**
+
+1. **`compose-agents`** (Draft mode) — drafts `AGENTS.md`: instantiated rule sections (each with a
+   `> Concrete realization of …` lineage line) plus `<!-- TODO -->` skeletons for the
+   codebase-domain sections. Approve, it writes.
+2. **Fill the TODO sections** — have the main agent analyze the codebase into them. _Not_
+   `/init`: it writes `CLAUDE.md`, not `AGENTS.md` (see the friction note), so here it drafts the
+   wrong file.
+3. **`audit-rules`** — QA the result: `AGENTS.md`↔`README` replication, restated enforcement,
+   sprawl.
+4. **Add the gitignored `CLAUDE.md → AGENTS.md` symlink** last, as final wiring.
+
+**Repo whose doc contradicts a rule.** A contradiction is _allowed_ — under LOCAL-WINS the repo
+wins — so the job is to separate a deliberate override from accidental drift. `compose-agents`
+(Update mode, or Migrate mode for a real `CLAUDE.md`) reads the doc, and where a hand-authored
+section contradicts a rule it _surfaces the choice_ rather than overwriting: adopt the rule's
+semantics, or keep the override and record it with a marker —
+`> Overrides **<rule>.md** § … — reason: …`. `audit-rules` reads that same marker: a marked
+section is a settled departure it skips; an _unmarked_ contradiction is what it flags, proposing
+either adoption or the marker. Deliberate overrides go quiet once marked; only accidental drift
+keeps surfacing.
+
+**Repo with an `AGENTS.md` silent on the rules' topics.** `compose-agents` Update mode _augments_
+it: for every rule that gates on for the repo but has no section in the doc, it proposes adding
+the instantiation, leaving existing prose untouched. A doc that predates the rules gets offered
+exactly what it's missing instead of being left alone.
+
+**Two frictions with the built-ins:**
+
+- **`/init` targets `CLAUDE.md`.** This setup is `AGENTS.md`-canonical (`CLAUDE.md` is a symlink
+  to it), so running `/init` blind produces a second, competing file. Use it only if you redirect
+  its output into `AGENTS.md`, or skip it and let the main agent fill the TODO sections.
+- **`/doctor` trims files over 200 lines.** `AGENTS.md` has a deliberately higher threshold
+  (soft-warn ~250, firm-flag ~300 — see [Why the rule files are
+  terse](#why-the-rule-files-are-terse)), so don't let `/doctor` cut a legitimately long one.
+  It's install-health, not part of this lifecycle.
 
 ## Private files (work/internal platform files)
 
