@@ -65,6 +65,29 @@ optional() {
   fi
 }
 
+# Same contract as required(), but for long-running steps (brew bundle, the
+# Homebrew installer) where command substitution's full buffering leaves the
+# terminal silent for minutes with no way to tell "working" from "stuck".
+# Streams "$@"'s output live instead of capturing it, while still tee-ing to
+# a logfile so a FAILED step leaves something concrete behind, and still
+# exits on failure like required() does. $pipestatus[1] is "$@"'s own exit
+# code, not tee's — checking it explicitly means no shell option needs to
+# change just to make a failing piped command detectable.
+stream() {
+  local desc=$1; shift
+  print "$desc..."
+  local logfile=$(mktemp)
+  "$@" 2>&1 | tee "$logfile"
+  local exit_code=$pipestatus[1]
+  if (( exit_code == 0 )); then
+    print "  ...done"
+    rm -f "$logfile"
+  else
+    print "  FAILED (exit $exit_code) — log: $logfile"
+    exit 1
+  fi
+}
+
 # Function to create required directories
 create_directories() {
   setopt local_options err_exit
@@ -314,8 +337,8 @@ set_neovim() {
 
 required "Creating required directory tree"    create_directories
 required "Linking config files"                link_configs
-required "Checking for Homebrew"                install_homebrew
-required "Installing Brewfile packages"        install_brewfile
+stream   "Checking for Homebrew"               install_homebrew
+stream   "Installing Brewfile packages"        install_brewfile
 optional "Installing lefthook hooks"           install_lefthook_hooks
 required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
