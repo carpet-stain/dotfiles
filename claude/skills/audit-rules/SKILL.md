@@ -70,6 +70,44 @@ When a file crosses the threshold, don't just report "too long": check it agains
 Restated-enforcement check below and for unpruned topic overlap between its own sections, and
 point at whichever applies as the cause and the pointer-form/de-dup prune as the remedy.
 
+### Sprawl reduction playbook (AGENTS.md over threshold)
+
+"Too long" alone re-derives the same menu every run. Once a cause above applies, propose cuts
+in this order — each is a strategy that actually shrank a doc in this repo's own history,
+highest-confidence first:
+
+1. **Signpost + link.** A section re-explaining content another doc owns collapses to a 1-3
+   line essence plus a pointer (`see README.md § ...`, or this repo's doc-home-map if one
+   exists). Verify the target doc actually covers it before cutting toward it — pointing at a
+   doc that doesn't hold the material loses the content, it doesn't relocate it. De-duping
+   AGENTS.md against README this way (philosophy list, XDG principle, structure blurb, each
+   folded to a pointer) took one repo's copy 318 → 305 lines in a single pass.
+2. **Drop restated-enforcement.** Prose spelling out an exact value a config already enforces
+   (a CI regex's allowed-type list, a linter's rule codes) is the Restated-enforcement check's
+   target — cut it there, not just here. The same instinct, applied across this repo's whole
+   rules tree, was the largest single trim on record: 574 → 360 lines (-37%), no directive lost.
+3. **Cut restated-principle sections.** A repo-local section that just re-lists an
+   always-loaded `rules/universal/*` principle is pure duplication — the universal rule applies
+   every session regardless of whether AGENTS.md repeats it. Keep only the repo-specific slice
+   (e.g. which doc owns which fact); drop the generic restatement.
+4. **Collapse intra-file overlap.** Two sections echoing the same point (a checklist repeated
+   in two places, a rule stated once under "editing" and again under "git workflow") merge into
+   one, cross-referenced from where the other used to be.
+5. **Titles over prose.** For an enumerated list, keep the scannable numbered heading plus one
+   pointer to the doc that owns the reasoning; cut the per-item explanatory paragraph. Merging
+   redundant "why" sections this way took this repo's own `claude/README.md` from 326 → 265
+   lines with no content lost.
+6. **Merge duplicate command blocks.** Near-identical fenced command examples collapse to one.
+7. **Fix source-of-truth direction.** If AGENTS.md holds mechanics another doc should own, move
+   the mechanics there and have AGENTS.md point — don't just trim in place. Watch for the
+   circular-pointer trap: the two docs must not each say "see the other."
+
+**The honest floor.** After exhausting 1-7, the remainder is legitimate unique agent content
+(layer map, source-of-truth map, failure-stage semantics) already at essence-plus-pointer —
+don't force it thinner by externalizing high-value content behind an extra hop just to clear
+the firm-flag. Report "restatement and overlap eliminated; residual N lines are unique
+content," not "still over threshold, keep cutting."
+
 ## Restated-enforcement check
 
 AGENTS.md (or a rules file) should point at a config that already enforces something, not
