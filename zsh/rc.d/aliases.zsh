@@ -50,8 +50,6 @@ alias jq="jaq"
 alias help="tldr"
 # Use 'htop' as a 'top' replacement
 alias top="htop"
-# Use 'choose' as a 'cut' replacement
-alias cut="choose"
 # Use 'dysk' as a 'df' replacement (dedupes noisy system volumes, no '-h' needed)
 alias df="dysk"
 # Use 'procs' as a 'ps' replacement
