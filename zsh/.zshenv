@@ -96,7 +96,11 @@ if [[ $OSTYPE == darwin* ]]; then
   # $COLIMA_HOME/_lima on its own.
   export COLIMA_HOME=$XDG_DATA_HOME/colima
 
-  # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, HOMEBREW_REPOSITORY, PATH, MANPATH, INFOPATH
+  # Sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, HOMEBREW_REPOSITORY, PATH, MANPATH,
+  # INFOPATH, and (guarded, recent Homebrew versions) prepends
+  # $HOMEBREW_PREFIX/share/zsh/site-functions to FPATH — formula-shipped zsh
+  # completions (git, gh, etc.) reach compinit via this line, not an explicit
+  # fpath+= in rc.d/completions.zsh.
   eval $(/opt/homebrew/bin/brew shellenv)
 
   # Remaining Homebrew opt package binaries and man pages. (N) glob qualifier
