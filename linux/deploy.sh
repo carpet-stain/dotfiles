@@ -64,6 +64,31 @@ optional() {
   fi
 }
 
+# Same contract as required(), but for long-running steps (apt installing the
+# full package set, extracting neovim) where command substitution's full
+# buffering leaves the terminal silent for minutes with no way to tell
+# "working" from "stuck". Streams "$@"'s output live instead of capturing it,
+# while still tee-ing to a logfile so a FAILED step leaves something concrete
+# behind, and still exits on failure like required() does. The script's
+# top-level `set -o pipefail` already makes a pipeline report "$@"'s exit
+# code rather than tee's; the `if` around the pipeline keeps `set -e` from
+# short-circuiting past the FAILED branch on a nonzero status.
+stream() {
+  local desc="$1"
+  shift
+  printf '%s...\n' "$desc"
+  local logfile
+  logfile="$(mktemp)"
+  if "$@" 2>&1 | tee "$logfile"; then
+    printf '  ...done\n'
+    rm -f "$logfile"
+  else
+    local exit_code=$?
+    printf '  FAILED (exit %s) — log: %s\n' "$exit_code" "$logfile"
+    exit 1
+  fi
+}
+
 # +----------------+
 # | XDG DIRS       |
 # +----------------+
@@ -452,8 +477,8 @@ generate_ghostty_terminfo() {
 required "Creating directory tree" create_directories
 required "Bootstrapping apt" bootstrap_apt
 required "Adding custom apt repositories" add_apt_repos
-required "Installing apt packages" install_apt_packages
-required "Installing Neovim" install_neovim
+stream "Installing apt packages" install_apt_packages
+stream "Installing Neovim" install_neovim
 required "Installing git-delta" install_tool delta delta
 required "Installing zellij" install_tool zellij zellij
 required "Installing eza" install_tool eza eza
