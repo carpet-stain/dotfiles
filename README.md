@@ -24,13 +24,16 @@
 Battle-tested on macOS. Designed for both personal workstations and minimal
 server environments.
 
-This configuration is built on three core principles:
+This configuration is built on five core principles (see
+[AGENTS.md](AGENTS.md#philosophy) for how each maps to a universal design
+principle, if you're an agent working on this repo rather than reading it):
 
 1. **Zero Home Presence (Strict XDG):** Every configuration, cache, and state
    file lives under `~/.config`, `~/.cache`, or `~/.local/share` — even for
    tools like Homebrew, `wget`, and `less` that don't support it natively. Only
    `.zshenv` lives in `$HOME` (zsh's fixed entry point). See the
-   [XDG Base Directory Specification][xdg-spec].
+   [XDG Base Directory Specification][xdg-spec]; documented exceptions live in
+   [AGENTS.md](AGENTS.md#xdg-exceptions).
 
 2. **Modern Replacements:** Legacy Unix utilities are replaced with modern,
    faster (often Rust-based) alternatives.
@@ -46,6 +49,14 @@ This configuration is built on three core principles:
    - **Workflow:** A "Zellij-First" approach where the terminal emulator
      (Ghostty) is merely a canvas. Window management, scrolling, and clipboard
      integration are handled explicitly by Zellij.
+
+4. **Homebrew-first:** Packages install via Homebrew; only when Homebrew
+   lacks one does it become a git submodule (Powerlevel10k is the sole
+   exception). Linux has no Homebrew — `linux/deploy.sh` uses `apt` where
+   possible and falls back to git-cloning zsh plugins directly.
+
+5. **Portable, quick to install:** A fresh machine reaches a working setup by
+   cloning this repo and running the deploy script — see Installation below.
 
 [xdg-spec]: http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 [catppuccin]: https://github.com/catppuccin/catppuccin
@@ -129,7 +140,9 @@ client, it also compiles the `xterm-ghostty` terminfo that Debian lacks.
 Tagged releases (`vX.Y.Z`) mark known-good checkpoints — see
 [CHANGELOG.md](CHANGELOG.md) for what changed in each. Useful for rolling
 back after something breaks, or for setting up a new machine on a specific
-version rather than whatever `main` happens to be.
+version rather than whatever `main` happens to be. (Cutting a new release is
+covered in [AGENTS.md](AGENTS.md#git-workflow) — this section is about
+consuming one.)
 
 **Roll back an existing clone:**
 
@@ -159,8 +172,8 @@ develop).
 ### Zsh configuration
 
 Zsh configuration skips every global configuration file except
-`/etc/zsh/zshenv`. The `env.d/` directory is sourced on all shell
-invocations; `rc.d/` is sourced in interactive sessions only.
+`/etc/zsh/zshenv`. See [AGENTS.md](AGENTS.md#structure--conventions) for how
+`env.d/` and `rc.d/` are organized and sourced.
 
 ### Keybindings
 
