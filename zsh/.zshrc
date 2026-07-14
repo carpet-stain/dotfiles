@@ -96,8 +96,14 @@ eval "$(fzf --zsh)"
 # | ZSH-DEFER |
 # +-----------+
 
-# Lets non-critical plugins load after the first prompt instead of blocking startup
-source $ZDOTDIR/plugins/zsh-defer/zsh-defer.plugin.zsh
+# Lets non-critical plugins load after the first prompt instead of blocking
+# startup. zsh-defer's whole job is deferring work until zle goes idle, so it
+# needs a real controlling terminal — without one (e.g. `zsh -is` in
+# linux/deploy.sh, or an SSH session without -tt) its `zle -N`/`zle -F` calls
+# print "can't change option: zle" to stderr (see #96). Load it only when
+# stdout is a tty; rc.d/fzf-tab.zsh falls back to an eager `source` when the
+# `zsh-defer` function isn't defined.
+[[ -t 1 ]] && source $ZDOTDIR/plugins/zsh-defer/zsh-defer.plugin.zsh
 
 # +---------+
 # | FZF-TAB |
