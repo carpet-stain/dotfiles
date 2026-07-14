@@ -165,7 +165,7 @@ source $ZDOTDIR/env.d/ls_colors.zsh
 # | EZA |
 # +-----+
 
-# Shared flag set used by the ls alias and FZF_ALT_C_COMMAND below
+# Shared flag set used by the ls alias and FZF_ALT_C_COMMAND in env.d/fzf.zsh
 export EZACMD="eza --color=always --icons=always --group-directories-first -a --classify=auto --dereference"
 
 # +-----------+
@@ -174,7 +174,7 @@ export EZACMD="eza --color=always --icons=always --group-directories-first -a --
 
 # Clipboard command varies by platform: pbcopy on macOS, wl-copy under a
 # Wayland session, xclip on X11. Defined once here and reused by the fzf
-# Ctrl+Y binds below and the 'C' global alias in rc.d/aliases.zsh.
+# Ctrl+Y binds in env.d/fzf.zsh and the 'C' global alias in rc.d/aliases.zsh.
 if [[ $OSTYPE == darwin* ]]; then
   export CLIPBOARD_COPY="pbcopy"
 elif [[ -n $WAYLAND_DISPLAY ]]; then
@@ -187,69 +187,4 @@ fi
 # | FZF |
 # +-----+
 
-export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
-
-# Colors from the catppuccin/fzf submodule (sets FZF_DEFAULT_OPTS)
-source $DOTFILES/theme/fzf/themes/catppuccin-fzf-mocha.sh
-
-# Append layout and behavior on top of the theme's colors
-FZF_DEFAULT_OPTS+="
-  --color header:italic
-  --scrollbar '▋'
-  --layout reverse
-  --info right
-  --prompt ' : '
-  --pointer ''
-  --marker '✓'
-  --preview-window 'right:65%'
-  --ansi"
-
-# --popup, --highlight-line, and --input-border need a newer fzf than Debian's
-# apt package ships — Homebrew always tracks latest, so darwin-only.
-if [[ $OSTYPE == darwin* ]]; then
-  FZF_DEFAULT_OPTS+="
-  --popup=90%
-  --highlight-line
-  --input-border"
-fi
-
-# Ctrl+T — file search
-export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
-if [[ $OSTYPE == darwin* ]]; then
-  export FZF_CTRL_T_OPTS="
-    --border-label ' 󰱽 File Search '
-    --preview 'bat {}'
-    --header '📌 ⌃O to Open | ⌃Y to Copy | ⌃E to Edit'
-    --bind 'ctrl-o:become(open -R {})'
-    --bind 'ctrl-y:become(echo -n {} | $CLIPBOARD_COPY)'
-    --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
-    --select-1 --exit-0"
-
-  export FZF_CTRL_R_OPTS="
-    --border-label ' 󰱽 Command History '
-    --preview 'echo {2..} | bat -l bash --plain --color always'
-    --preview-window 'down:3:wrap:border-top'
-    --bind 'ctrl-y:become(echo -n {2..} | $CLIPBOARD_COPY)'
-    --header '⌃Y Copy'"
-else
-  export FZF_CTRL_T_OPTS="
-    --border-label ' 󰱽 File Search '
-    --preview 'bat {}'
-    --header '⌃Y to Copy | ⌃E to Edit'
-    --bind 'ctrl-y:become(echo -n {} | $CLIPBOARD_COPY)'
-    --bind 'ctrl-e:become(zellij action new-tab -- $EDITOR {+} >/dev/null)'
-    --select-1 --exit-0"
-
-  export FZF_CTRL_R_OPTS="
-    --border-label ' 󰱽 Command History '
-    --preview 'echo {2..} | bat -l bash --plain --color always'
-    --preview-window 'down:3:wrap:border-top'
-    --bind 'ctrl-y:become(echo -n {2..} | $CLIPBOARD_COPY)'
-    --header '⌃Y Copy'"
-fi
-
-# Alt+C — directory jump
-export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git"
-export FZF_ALT_C_OPTS="
-  --border-label ' 󰱽 Directory Explorer '
-  --preview '$EZACMD --tree --level=2 {}'"
+source $ZDOTDIR/env.d/fzf.zsh
