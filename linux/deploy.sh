@@ -115,7 +115,6 @@ create_directories() {
     "$XDG_DATA_HOME/direnv" \
     "$XDG_DATA_HOME/go" \
     "$XDG_DATA_HOME/nvim" \
-    "$XDG_DATA_HOME/terminfo" \
     "$XDG_DATA_HOME/zoxide" \
     "$XDG_DATA_HOME/zsh/plugins" \
     "$XDG_STATE_HOME/less" \
@@ -466,8 +465,18 @@ set_neovim() {
 # hosts are SSH'd into from a local Ghostty but don't have Ghostty installed,
 # so the entry $TERM points at has to be compiled in from the repo. macOS
 # installs the same entry from the Ghostty.app bundle instead.
+#
+# Compiled to $HOME/.terminfo, not $XDG_DATA_HOME/terminfo: ncurses' default
+# search path covers ~/.terminfo plus the system dirs, not the XDG data dir —
+# this repo only makes the XDG location resolvable by exporting
+# TERMINFO=$XDG_DATA_HOME/terminfo in zsh/.zshenv. This script is bash and
+# doesn't source .zshenv, and neither does any other non-zsh context on the
+# box afterward (a bash login, sudo, cron, tooling that shells out), so
+# compiling there left xterm-ghostty unresolvable everywhere but an
+# interactive zsh. ~/.terminfo resolves with no environment variable needed,
+# in any shell — see AGENTS.md's XDG exceptions table.
 generate_ghostty_terminfo() {
-  tic -x -o "$XDG_DATA_HOME/terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
+  tic -x -o "$HOME/.terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
 }
 
 # +--------------------+
@@ -491,7 +500,7 @@ optional "Enabling git maintenance" enable_git_maintenance
 required "Linking config files" link_configs
 required "Installing zsh plugins" install_zsh_plugins
 required "Setting zsh as default shell" set_default_shell
-optional "Installing Ghostty terminfo" generate_ghostty_terminfo
+required "Installing Ghostty terminfo" generate_ghostty_terminfo
 optional "Building bat theme cache" build_bat_cache
 optional "Downloading gitstatusd for p10k" download_gitstatusd
 optional "Setting fast-syntax-highlighting theme" set_fsh
