@@ -8,6 +8,7 @@ name: Linux e2e
 # the harness on first.
 on:
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
     branches: [main]
 
 permissions:
@@ -21,6 +22,13 @@ jobs:
   deploy-smoke:
     name: deploy + smoke-test
     runs-on: ubuntu-latest
+    # Draft PRs open early and take WIP pushes; a skipped-via-if job reads as
+    # passing to required-status-check branch protection, not failing, so
+    # this stays quiet until ready_for_review re-triggers it for real. Same
+    # shape as pr-guards.yml (job-level, not workflow-level — see #208). This
+    # job is also the expensive one (full container build + deploy), so
+    # skipping it on drafts is the whole point of this fix.
+    if: github.event.pull_request.draft == false
     container:
       image: debian:12
     # container: jobs default run: steps to sh (dash on Debian), not bash —

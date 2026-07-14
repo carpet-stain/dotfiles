@@ -4,6 +4,7 @@ name: CI
 # to the PR's branch too).
 on:
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
     branches: [main]
 
 permissions:
@@ -18,6 +19,11 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
+    # Draft PRs open early and take WIP pushes; a skipped-via-if job reads as
+    # passing to required-status-check branch protection, not failing, so
+    # this stays quiet until ready_for_review re-triggers it for real. Same
+    # shape as pr-guards.yml (job-level, not workflow-level — see #208).
+    if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
 
