@@ -113,29 +113,12 @@ README states the XDG principle; these are the entries that must stay in
 
 ## Documentation: one home per fact, everything else points
 
-Concrete realization of Documentation Is Part Of The Change
-(`claude/rules/universal/engineering-practices.md`)'s "read the recorded
-decisions… supersede explicitly" for this repo — ADRs are that recorded-decisions
-artifact, given a place to live.
+> Concrete realization of **documentation.md** (`claude/rules/universal/documentation.md`) for this
+> repo — the universal rule owns the home-per-fact taxonomy (which artifact owns which fact); this
+> section only binds the repo-specific slots.
 
-Each kind of documentation owns one job. A fact lives in exactly one of these;
-everywhere else points at it instead of restating it:
-
-| Artifact                | Owns                                                                                                                   |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Issue                   | The problem, design exploration, spikes, acceptance — the plan, before/around the work.                                |
-| PR                      | The real-time journal: decisions, gotchas, retractions, forks as they happen.                                          |
-| **ADR** (`docs/adr/`)   | The distilled, durable record of a _major_ decision: what was chosen, what was rejected and why, and the consequences. |
-| `CLAUDE.md`/`AGENTS.md` | How to work here; points at ADRs for the why behind a convention instead of re-arguing it.                             |
-| `README.md`             | What this is, install, use — the front door for a human reader.                                                        |
-| Code comments           | The tripwire why at the point of edit, plus a pointer if more context exists.                                          |
-| Configs                 | The enforced spec — self-speaking; docs point at the config, not restate it.                                           |
-
-Once a decision has an ADR, later docs cite it (`see docs/adr/0003-...md`) rather
-than re-explaining it — and never point back the other way (an ADR never says
-"see the AGENTS.md section for why"; that's the circular-pointer trap). Cover
-every fact's home in as few words as it takes; over-documenting is better than
-leaving a decision unrecorded, but don't let restatement creep back in.
+The universal rule's ownership table applies as-is. This repo's binding: **ADRs live in `docs/adr/`**
+— the "ADR" row's concrete location, template, and numbering (below).
 
 ### ADRs (`docs/adr/`)
 

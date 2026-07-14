@@ -27,16 +27,3 @@ without a real boundary, hidden sequencing, or splits that obscure ownership.
 Flag common vulnerability classes (injection, unsafe deserialization, path traversal, secrets in
 code) even when not asked — don't wait to be prompted about a risk visible in the diff. Secrets
 live in an environment file or secret manager, gitignored, never hardcoded or committed.
-
-## Documentation Is Part Of The Change
-
-Update docs when behavior or architecture changes. Before a structural change, read the recorded
-decisions and stay consistent; if one must change, supersede it explicitly rather than letting
-code and intent drift. For a repo with real multi-session or multi-contributor handoff, keep a
-committed status/next-task file current — a judgment call, not a mandate.
-
-A major, cross-cutting, or expensive-to-reverse decision is "recorded" in an ADR — the
-decision plus what was considered and rejected, not just the outcome — so it stays
-walkable later instead of requiring an excavation of closed issues/PRs. A repo's own
-docs define where that ADR lives and its exact template; this principle only says the
-artifact belongs somewhere durable, not buried in ephemeral history.

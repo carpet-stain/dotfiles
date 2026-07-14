@@ -43,18 +43,19 @@ is written once against Claude Code and emitted in a form no model is locked out
 `claude/rules/` groups files by how broadly they apply — the directory name is the scope, nothing
 to cross-reference:
 
-| Directory                   | File                          | Applies to                                   | Loading                                                     |
-| --------------------------- | ----------------------------- | -------------------------------------------- | ----------------------------------------------------------- |
-| `rules/universal/`          | `design-principles.md`        | How code/tools are shaped                    | Always applies                                              |
-|                             | `engineering-practices.md`    | How work gets done (testing, docs, security) | Always applies                                              |
-|                             | `ai-collaboration.md`         | How the agent operates                       | Always applies                                              |
-|                             | `communication.md`            | What gets said/written                       | Always applies                                              |
-| `rules/domain/`             | `architecture.md`             | Building a layered application               | Self-gates on being a layered app                           |
-| `rules/tools/`              | `git.md`                      | Any git repo, any host                       | Always applies (trivial gate)                               |
-|                             | `go.md`                       | Go repos only                                | Native `paths:` frontmatter — loads only on `go.mod`/`*.go` |
-| `rules/platform/`           | `github.md`                   | GitHub-hosted repos only                     | Self-gates on github.com origin                             |
-| `rules/platform/` (private) | _(machine-local, gitignored)_ | Repos on a given hosting platform            | Self-gates on that platform's tooling                       |
-| _(in each repo)_            | `AGENTS.md` + `docs/`         | One repo only                                | Repo's own files                                            |
+| Directory                   | File                          | Applies to                             | Loading                                                     |
+| --------------------------- | ----------------------------- | -------------------------------------- | ----------------------------------------------------------- |
+| `rules/universal/`          | `design-principles.md`        | How code/tools are shaped              | Always applies                                              |
+|                             | `engineering-practices.md`    | How work gets done (testing, security) | Always applies                                              |
+|                             | `documentation.md`            | Documentation ownership & currency     | Always applies                                              |
+|                             | `ai-collaboration.md`         | How the agent operates                 | Always applies                                              |
+|                             | `communication.md`            | What gets said/written                 | Always applies                                              |
+| `rules/domain/`             | `architecture.md`             | Building a layered application         | Self-gates on being a layered app                           |
+| `rules/tools/`              | `git.md`                      | Any git repo, any host                 | Always applies (trivial gate)                               |
+|                             | `go.md`                       | Go repos only                          | Native `paths:` frontmatter — loads only on `go.mod`/`*.go` |
+| `rules/platform/`           | `github.md`                   | GitHub-hosted repos only               | Self-gates on github.com origin                             |
+| `rules/platform/` (private) | _(machine-local, gitignored)_ | Repos on a given hosting platform      | Self-gates on that platform's tooling                       |
+| _(in each repo)_            | `AGENTS.md` + `docs/`         | One repo only                          | Repo's own files                                            |
 
 Roughly ordered by breadth: universal (every project) → domain (a class of codebase, e.g. a
 layered application) → tools (git/language) → platform (host) → repo (this one). A specificity
@@ -370,7 +371,7 @@ there just because it seemed like a good idea once.
   (and length/topic sprawl) — it doesn't replace the judgment calls below, only the sweep.
 - **Longer files weaken adherence** — if a file is growing, look for what it's earned the right to keep;
   if it's growing because it covers more than one topic, split it, the way `philosophy.md` split into
-  the four `universal/` files. The same test applies to this README: rationale lives here, but it earns
+  the `universal/` files. The same test applies to this README: rationale lives here, but it earns
   its place too.
 
 ## Verifying it works
