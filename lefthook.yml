@@ -18,6 +18,8 @@ pre-commit:
         - "linux/*.sh"
         - "scripts/*.sh"
         - "claude/skills/**/*.sh"
+        - ".envrc"
+        - ".envrc.local.example"
       run: shellcheck {staged_files}
 
     - name: shfmt

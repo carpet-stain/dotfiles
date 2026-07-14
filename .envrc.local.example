@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Copy this file to .envrc.local and fill in your own token — see
 # AGENTS.md's "Local tooling" section for how to create it (a fine-grained
 # PAT with Contents/Pull requests/Actions read-write, NOT Administration).
