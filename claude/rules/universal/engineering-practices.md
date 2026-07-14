@@ -34,3 +34,9 @@ Update docs when behavior or architecture changes. Before a structural change, r
 decisions and stay consistent; if one must change, supersede it explicitly rather than letting
 code and intent drift. For a repo with real multi-session or multi-contributor handoff, keep a
 committed status/next-task file current — a judgment call, not a mandate.
+
+A major, cross-cutting, or expensive-to-reverse decision is "recorded" in an ADR — the
+decision plus what was considered and rejected, not just the outcome — so it stays
+walkable later instead of requiring an excavation of closed issues/PRs. A repo's own
+docs define where that ADR lives and its exact template; this principle only says the
+artifact belongs somewhere durable, not buried in ephemeral history.
