@@ -124,6 +124,47 @@ Entries that must stay in `$HOME` despite the XDG rule:
   content — discuss before writing or committing. zsh/nvim/tool-config tweaks are
   mechanical — proceed and report.
 
+## Documentation: one home per fact, everything else points
+
+Concrete realization of Documentation Is Part Of The Change
+(`claude/rules/universal/engineering-practices.md`)'s "read the recorded
+decisions… supersede explicitly" for this repo — ADRs are that recorded-decisions
+artifact, given a place to live.
+
+Each kind of documentation owns one job. A fact lives in exactly one of these;
+everywhere else points at it instead of restating it:
+
+| Artifact                | Owns                                                                                                                   |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Issue                   | The problem, design exploration, spikes, acceptance — the plan, before/around the work.                                |
+| PR                      | The real-time journal: decisions, gotchas, retractions, forks as they happen.                                          |
+| **ADR** (`docs/adr/`)   | The distilled, durable record of a _major_ decision: what was chosen, what was rejected and why, and the consequences. |
+| `CLAUDE.md`/`AGENTS.md` | How to work here; points at ADRs for the why behind a convention instead of re-arguing it.                             |
+| `README.md`             | What this is, install, use — the front door for a human reader.                                                        |
+| Code comments           | The tripwire why at the point of edit, plus a pointer if more context exists.                                          |
+| Configs                 | The enforced spec — self-speaking; docs point at the config, not restate it.                                           |
+
+Once a decision has an ADR, later docs cite it (`see docs/adr/0003-...md`) rather
+than re-explaining it — and never point back the other way (an ADR never says
+"see the AGENTS.md section for why"; that's the circular-pointer trap). Cover
+every fact's home in as few words as it takes; over-documenting is better than
+leaving a decision unrecorded, but don't let restatement creep back in.
+
+### ADRs (`docs/adr/`)
+
+An Architecture Decision Record captures one significant decision: what we chose,
+what we considered and rejected, and why. Use `docs/adr/0000-template.md`;
+number new ones sequentially (`0001-title.md`, `0002-title.md`, …).
+
+Write one when a decision is architecturally significant, cross-cutting,
+long-lived, or expensive to reverse — the branching model, the rules-tree
+load-all-then-gate design, adopting rulesets over classic branch protection.
+Don't write one for a small, local, easily-reversed choice; that's a PR
+description or a code comment, not an ADR. When a later decision replaces an
+earlier one, mark the old ADR's Status `superseded by NNNN` rather than
+editing it to match the new reality — the rejected path staying visible is
+the point.
+
 ## Verifying changes
 
 This repo has no test suite or architectural layers to test against — Testing
