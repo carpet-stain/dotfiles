@@ -64,6 +64,13 @@ export TERMINFO=$XDG_DATA_HOME/terminfo
 export _ZO_DATA_DIR=$XDG_DATA_HOME/zoxide
 export GOPATH=$XDG_DATA_HOME/go
 export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
+# npm resolves logs-dir and its update-notifier stamp relative to cache by
+# default (verified: both land under NPM_CONFIG_CACHE, not ~/.npm), so cache
+# alone relocates everything npm writes on ordinary use. init-module is the
+# one leftover: only touched by the rare `npm init` prompt, and it's a
+# config template a user might edit, so it goes under XDG_CONFIG_HOME rather
+# than cache.
+export NPM_CONFIG_INIT_MODULE=$XDG_CONFIG_HOME/npm/init.js
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 # Suppress Terminal.app session restore files (~/.zsh_sessions, ~/.bash_sessions)
 export SHELL_SESSIONS_DISABLE=1
