@@ -1,6 +1,10 @@
-# NNNN. Title
+# NUMBER. TITLE
 
-Status: proposed | accepted | superseded by [NNNN](NNNN-title.md)
+Date: DATE
+
+## Status
+
+STATUS
 
 ## Context
 
