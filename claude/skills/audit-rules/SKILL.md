@@ -2,10 +2,12 @@
 name: audit-rules
 description: >-
   Audits the global Claude Code agent-config rules tree ($CLAUDE_CONFIG_DIR/rules) for
-  contradictions and topic/length sprawl, reporting proposed fixes without editing anything.
+  contradictions and topic/length sprawl, and checks AGENTS.md/README.md/docs for content
+  substantially duplicated across them, reporting proposed fixes without editing anything.
   Use when asked to audit, review, or check claude/rules for contradictions, conflicting
-  directives, or files that have grown too long or cover more than one topic. Read-only —
-  never invoke this to apply a fix, only to find issues.
+  directives, files that have grown too long or cover more than one topic, or repo docs
+  that restate the same content in more than one place. Read-only — never invoke this to
+  apply a fix, only to find issues.
 argument-hint: "[path]"
 allowed-tools: Read, Glob, Grep
 disallowed-tools: Write, Edit
@@ -14,9 +16,11 @@ disallowed-tools: Write, Edit
 # Audit Rules
 
 Read-only audit of the global agent-config rules tree for the two maintenance issues the
-removal test cares about: contradictions and sprawl. Report findings and proposed fixes —
-never edit anything yourself. `disallowed-tools` already blocks Write/Edit structurally; treat
-that as a guarantee, not just a reminder.
+removal test cares about: contradictions and sprawl. Also checks this repo's own docs
+(AGENTS.md/README.md/docs) for content replicated across them — a doc↔doc instance of the same
+single-source-of-truth problem, and a named cause of sprawl. Report findings and proposed
+fixes — never edit anything yourself. `disallowed-tools` already blocks Write/Edit
+structurally; treat that as a guarantee, not just a reminder.
 
 ## Scope
 
@@ -27,8 +31,10 @@ from any repo where the rules are deployed.
 If invoked with a path argument, scope the audit to that file or directory instead of the whole
 tree (useful mid-edit on a single file). Otherwise audit everything.
 
-Also read the current repo's own `AGENTS.md` and any `docs/*.md`, if present — needed for the
-local-doc contradiction check below and the AGENTS.md length check under Sprawl.
+Also read the current repo's own `AGENTS.md`, `README.md`, and any top-level `docs/*.md`
+(not nested subdirectories — see Cross-doc replication check's scope note), if present — needed
+for the local-doc contradiction check below, the AGENTS.md length check under Sprawl, and the
+Cross-doc replication check.
 
 ## Contradiction check
 
@@ -84,6 +90,40 @@ detail itself is the target.
 Each finding quotes the restating prose and the enforcing config, and proposes the pointer-form
 rewrite — same format as the Contradictions check, this is not a new report shape.
 
+## Cross-doc replication check
+
+Issue #140's restated-enforcement check is doc↔config: prose restating a spec a config already
+enforces. This check is the doc↔doc sibling — same single-source-of-truth violation, different
+pair: substantial content restated across AGENTS.md, README.md, and top-level `docs/*.md`
+instead of living in exactly one and being pointed at from the others. Unpruned replication
+between these is a named top cause of AGENTS.md's length problem (#178) — this check names
+which content to cut, length only measures the symptom.
+
+**Substantial** means a full sentence, list item, or table row making the same claim with the
+same specifics (not just both docs mentioning "XDG" or "Homebrew") — near-verbatim wording isn't
+required, same claim/same specifics is what makes it substantial. A shared proper noun, tool
+name, or one-line cross-reference is not substantial; don't flag those. If in doubt whether a
+match clears the bar, don't report it — this check should stay quiet on noise, not cry wolf on
+every shared word.
+
+For each substantial match:
+
+- Quote both locations (file + the specific passage) side by side.
+- Propose which doc should own it and which should point instead of restate. Use this repo's own
+  ownership split if a "one home per fact" doc-home-map exists (check for it — AGENTS.md may
+  define one); absent that, default to the shape both README.md and AGENTS.md already state for
+  themselves in this repo: README is the front door (what this is, why, install, use), AGENTS.md
+  is how to work here. Don't invent or restate that split yourself if the repo already states it
+  somewhere — point at wherever it's defined instead of re-deriving it inline in the report.
+- Suggest the pointer-form replacement in the doc that should stop restating (a one-line
+  cross-reference), not a full rewrite — same "propose, don't diff" limit as the other checks.
+
+Scope stays to the docs an agent relies on for context — AGENTS.md, README.md, top-level
+`docs/*.md` — not general repo-doc linting. Don't descend into `docs/` subdirectories (e.g. an
+`adr/` archive of point-in-time decisions is expected to reference or echo AGENTS.md/README
+content by nature, not drift by accident) and don't extend this check to CHANGELOG.md,
+per-tool READMEs, or code comments.
+
 ## Report
 
 Emit one structured markdown report directly in this response:
@@ -102,6 +142,10 @@ No edits made — this is a proposal only.
 (ranked, or "None found.")
 
 ## Restated enforcement
+
+(ranked, or "None found.")
+
+## Cross-doc replication
 
 (ranked, or "None found.")
 
