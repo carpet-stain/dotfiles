@@ -18,34 +18,21 @@ of the global files loses nothing — this guide is the full story.
 
 ## What this is
 
-Personal macOS dotfiles: Ghostty + Zellij + zsh + Neovim, themed Catppuccin
-Mocha throughout, XDG-compliant. Primary target is macOS on Apple Silicon.
-Debian (`linux/deploy.sh`) is a secondary target — mainly used in disposable
-OrbStack VMs — and doesn't carry Ghostty or Homebrew.
+Personal macOS dotfiles (Ghostty + Zellij + zsh + Neovim, Debian secondary
+target) — see [README.md](README.md) for the full pitch and stack.
 
 ## Philosophy
 
-- **Best tool for the job.** Prefer purpose-built modern tools (fd, rg, eza, bat,
-  delta, zoxide, fzf) over defaults — this repo's concrete realization of the
-  universal Small, Composable Tools principle.
-- **No bloat.** Every setting earns its place — Simplicity First's "no
-  speculative additions" applied to config. Delete dead config instead of
-  letting it accumulate, the same discipline Refactoring asks of code.
-- **Homebrew-first.** Install packages via Homebrew. Only when Homebrew lacks a
-  package does it become a git submodule. No dotfile manager or framework —
-  Powerlevel10k is the sole exception. On Linux, where there's no Homebrew,
-  `linux/deploy.sh` installs via apt where possible and falls back to
-  git-cloning zsh plugins straight to `$XDG_DATA_HOME/zsh/plugins` (no
-  submodules — that dir's not tracked in this repo).
-- **XDG discipline.** Keep `$HOME` clean: only `.zshenv` lives there, everything
-  else goes under `$XDG_{CONFIG,CACHE,DATA,STATE}_HOME`. Respect the distinction —
-  config vs cache vs data vs state. Documented exceptions below.
-- **Portable, extendable, quick to install.** A fresh machine should reach a
-  working setup by cloning and running the deploy script.
+See [README.md](README.md#philosophy--stack) for the full list. Each point
+there is this repo's concrete realization of a universal design principle:
+Modern Replacements → Small, Composable Tools; Zero Home Presence (XDG) →
+Configuration Is Code, Not Ambient State; no speculative/dead config →
+Simplicity First / Refactoring.
 
 ### XDG exceptions
 
-Entries that must stay in `$HOME` despite the XDG rule:
+README states the XDG principle; these are the entries that must stay in
+`$HOME` despite it:
 
 | Path                                         | Reason                                                                                                                                                                                                                                                                                                                                                               |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
