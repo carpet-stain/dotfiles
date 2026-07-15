@@ -323,9 +323,9 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/theme/delta/catppuccin.gitconfig" \
     "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
 
-  # Backs the `pr`/`new`/`sync` aliases above — must be on PATH as bare
-  # commands, not just reachable by relative path, since git/config is used
-  # from any repo.
+  # Backs the `pr`/`new`/`sync` git aliases (git/config) — must be on PATH
+  # as bare commands, not just reachable by relative path, since git/config
+  # is used from any repo.
   ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
   ln -sf "$DOTFILES_DIR/scripts/git-new.sh" "$LOCAL_BIN/git-new"
   ln -sf "$DOTFILES_DIR/scripts/git-sync.sh" "$LOCAL_BIN/git-sync"
