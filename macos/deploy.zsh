@@ -179,8 +179,11 @@ link_configs() {
   # Pins the runner image `act` uses — see actrc's own comment.
   zf_ln -sf $DOTFILES_DIR/actrc $XDG_CONFIG_HOME/act/actrc
 
-  zf_ln -sf $DEPLOY_DIR/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
-  zf_ln -sf $DEPLOY_DIR/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
+  # $DOTFILES_DIR, not $DEPLOY_DIR — a worktree-invoked deploy would
+  # otherwise leave these two links pointing at the ephemeral worktree copy
+  # (observed for real; see the DOTFILES_DIR anchor comment up top).
+  zf_ln -sf $DOTFILES_DIR/macos/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
+  zf_ln -sf $DOTFILES_DIR/macos/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
 
   zf_ln -sf $DOTFILES_DIR/ssh/config $XDG_CONFIG_HOME/ssh/config
 
