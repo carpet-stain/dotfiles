@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 
-# Source the fzf-tab plugin from its submodule location
 source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
 
 # Registers preview zstyles for 200+ commands; not needed until the first Tab
