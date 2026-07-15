@@ -4,6 +4,14 @@
 # rebase-merge, plus `deletion`/`non_fast_forward`, plus required status
 # checks. Run from inside the target repo's checkout.
 #
+# Also asserts the legacy classic branch-protection rule absent: GitHub
+# enforces classic protection AND rulesets together, taking the most
+# restrictive of the two, so a lingering legacy rule silently overrides the
+# ruleset (a legacy strict:true beats the ruleset's strict:false, forcing every
+# green PR to "Update branch" and re-run CI before merge — #185). Deleting it
+# here makes the ruleset the single source of truth and stops the drift
+# recurring.
+#
 # Needs Administration scope, which the routine scoped GH_TOKEN deliberately
 # lacks — run with `env -u GH_TOKEN -u GITHUB_TOKEN` so gh falls back to a
 # full-admin session. Both vars must drop: `.envrc` aliases GITHUB_TOKEN to the
@@ -100,6 +108,18 @@ if [[ -n "$EXISTING_ID" ]]; then
 else
   echo "ruleset '$RULESET_NAME' not found — creating."
   echo "$PAYLOAD" | gh api "repos/{owner}/{repo}/rulesets" -X POST --input - >/dev/null
+fi
+
+# Clear the legacy classic branch-protection rule now that the ruleset above is
+# in place — do it after, so `$BRANCH` is never left with neither system
+# protecting it. GET distinguishes "protection exists" (200) from "not
+# protected" (404) reliably; DELETE on an unprotected branch 403s, so gate on
+# the GET rather than swallowing a blind DELETE's error. Ruleset-only from here.
+if gh api "repos/{owner}/{repo}/branches/${BRANCH}/protection" >/dev/null 2>&1; then
+  echo "legacy classic protection present on '${BRANCH}' — deleting (ruleset is source of truth)."
+  gh api --method DELETE "repos/{owner}/{repo}/branches/${BRANCH}/protection" >/dev/null
+else
+  echo "no legacy classic protection on '${BRANCH}' — ruleset is sole source of truth."
 fi
 
 echo "done: $RULESET_NAME"
