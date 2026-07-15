@@ -18,7 +18,8 @@
 #                 (e.g. "lint" — CI job names vary per repo/language;
 #                 "single commit" and "conventional commit" are always
 #                 required since they come from the pr-guards.yml template
-#                 verbatim)
+#                 verbatim, and "adr guard" is added automatically when
+#                 .github/workflows/adr-guard.yml is present)
 #
 # Free-tier gotcha: GitHub rulesets need GitHub Pro or a public repo — a
 # private repo 403s until upgraded or made public.
@@ -53,7 +54,17 @@ fi
 
 EXISTING_ID=$(echo "$RULESETS_JSON" | jq -r --arg name "$RULESET_NAME" '.[] | select(.name == $name) | .id')
 
-CHECKS_JSON=$(printf '%s\n' "single commit" "conventional commit" "${EXTRA_CHECKS[@]}" |
+# pr-guards.yml ships in every template repo, so its two checks are always
+# required. adr-guard.yml's check is required too — but only where the guard
+# actually ships: gate on the file so re-running this on a repo that opts out
+# (dotfiles itself, per #241's Deferral) doesn't pin a required check that
+# never reports and would block every PR.
+REQUIRED_CHECKS=("single commit" "conventional commit")
+if [[ -f .github/workflows/adr-guard.yml ]]; then
+  REQUIRED_CHECKS+=("adr guard")
+fi
+
+CHECKS_JSON=$(printf '%s\n' "${REQUIRED_CHECKS[@]}" "${EXTRA_CHECKS[@]}" |
   jq -R '{context: .}' | jq -s '.')
 
 PAYLOAD=$(jq -n --arg name "$RULESET_NAME" --argjson checks "$CHECKS_JSON" '{

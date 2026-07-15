@@ -31,6 +31,15 @@ uvx copier update --answers-file .copier-answers.git-flow.yml
 
 - `.github/workflows/pr-guards.yml` — one-commit-per-PR + Conventional
   Commit subject, gated on `draft == false`
+- `.github/workflows/adr-guard.yml` — a PR labeled `architecture` must
+  add/modify a `docs/adr/` file, else fail; unlabeled PRs report success, so
+  it's safe as a required check. `bootstrap-branch-protection.sh` (step 4
+  below) makes it a required check automatically because the guard ships
+  here. See the ADR scaffolding below for what a labeled PR must produce.
+- `docs/adr/` scaffolding — `README.md` (what an ADR is, when to write one),
+  `templates/template.md` (the Nygard template adr-tools fills), `.adr-dir`
+  (points `adr` at `docs/adr/`), and a seed `0001-record-architecture-decisions.md`
+  so the directory exists in a fresh checkout
 - `.github/workflows/release-prepare.yml` / `release-publish.yml` +
   `cliff.toml` (if release automation is included) — manual-dispatch version
   bump via git-cliff, a release PR, tag + GitHub release on merge
@@ -91,7 +100,8 @@ working-tree file content).
 commit` as required checks, which only exist once `pr-guards.yml` is in
    the repo — running this first leaves required checks that never report,
    permanently blocking merges. Also needs GitHub Pro or a public repo (the
-   script's own comments cover this gotcha).
+   script's own comments cover this gotcha). It requires `adr guard`
+   automatically too, since this template ships `adr-guard.yml`.
 5. **Add the `RELEASE_PAT` secret** by hand, if release automation was
    included in step 2 — see "What it deliberately doesn't produce," above.
 
