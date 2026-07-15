@@ -24,9 +24,7 @@
 Battle-tested on macOS. Designed for both personal workstations and minimal
 server environments.
 
-This configuration is built on five core principles (see
-[AGENTS.md](AGENTS.md#philosophy) for how each maps to a universal design
-principle, if you're an agent working on this repo rather than reading it):
+This configuration is built on five core principles:
 
 1. **Zero Home Presence (Strict XDG):** Every configuration, cache, and state
    file lives under `~/.config`, `~/.cache`, or `~/.local/share` — even for
