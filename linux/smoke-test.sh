@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Lightweight smoke test for deploy.sh — run on the VM after deploying,
-# e.g. `make smoke-test`. Checks the cheap, high-signal stuff (binaries
+# e.g. `just smoke-test`. Checks the cheap, high-signal stuff (binaries
 # present, expected packages/themes registered) rather than trying to
 # assert interactive/visual behavior (prompt rendering, keybindings,
 # zellij TUI rendering). Those don't test reliably over a non-interactive

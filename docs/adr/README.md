@@ -9,16 +9,18 @@ doesn't have to be excavated from closed issues and PRs. See
 
 ADRs are created with [adr-tools](https://github.com/npryce/adr-tools)
 (installed via `macos/Brewfile`), which numbers files sequentially and fills
-[`templates/template.md`](templates/template.md):
+[`templates/template.md`](templates/template.md). The `just adr` recipe wraps
+it:
 
 ```sh
-VISUAL=true adr new "Short decision title"       # next-numbered ADR from the template
-VISUAL=true ADR_DATE=2026-07-11 adr new "Title"  # stamp a specific date (backfilling)
-VISUAL=true adr new -s 12 "Title"                # supersede ADR 12, linking both
+just adr "Short decision title"          # next-numbered ADR from the template
+ADR_DATE=2026-07-11 just adr "Title"     # stamp a specific date (backfilling)
+just adr -s 12 "Title"                   # supersede ADR 12, linking both
 ```
 
-- `VISUAL=true` is required — `adr new` otherwise opens `$EDITOR` and hangs
-  when run non-interactively.
+- The recipe sets `VISUAL=true` so `adr new` writes the file without opening
+  `$EDITOR` (which otherwise hangs non-interactively) — then edit the generated
+  file to fill in the sections.
 - `.adr-dir` (repo root) points `adr` at this directory, so the commands work
   from any subdirectory.
 - adr-tools is macOS-only here — no Debian apt package. Install it by hand on
