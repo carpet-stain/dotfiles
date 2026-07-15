@@ -201,7 +201,19 @@ fetch_verified() {
   url="$(cut -f4 <<<"$row")"
   sha="$(cut -f5 <<<"$row")"
   dest="$(mktemp)"
-  if ! curl -fsSL "$url" -o "$dest"; then
+
+  # Optional download cache, keyed by the pinned sha256 (used by CI to reuse
+  # tarballs across runs — see .github/workflows/e2e-linux.yml; off by default
+  # so a normal deploy leaves no cache behind). A bump in binaries.lock changes
+  # the sha, so a stale asset can never be served under a new pin. The sha is
+  # re-verified below on every path, so a cache hit is exactly as trustworthy
+  # as a fresh download, and this still returns a fresh temp file so the
+  # install logic (extract, symlink) runs unchanged.
+  local cached=""
+  [[ -n "${BINARIES_CACHE_DIR:-}" ]] && cached="$BINARIES_CACHE_DIR/$sha"
+  if [[ -n "$cached" && -f "$cached" ]]; then
+    cp "$cached" "$dest"
+  elif ! curl -fsSL "$url" -o "$dest"; then
     printf 'download failed: %s\n' "$url" >&2
     rm -f "$dest"
     return 1
@@ -210,6 +222,11 @@ fetch_verified() {
     printf 'sha256 mismatch for %s (%s) — expected %s\n' "$tool" "$ARCH" "$sha" >&2
     rm -f "$dest"
     return 1
+  fi
+  # Populate the cache on a miss so the next run hits it.
+  if [[ -n "$cached" && ! -f "$cached" ]]; then
+    mkdir -p "$BINARIES_CACHE_DIR"
+    cp "$dest" "$cached"
   fi
   printf '%s' "$dest"
 }

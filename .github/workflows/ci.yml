@@ -34,6 +34,30 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
+      # setup-homebrew caches Ruby gems only, not installed bottles, so the
+      # 11-formula install re-downloads/-links from scratch every run (~48s,
+      # ~77% of this job — see #124). Resolve the Cellar + bottle-download
+      # paths at runtime rather than hardcoding the linuxbrew layout.
+      - name: Resolve Homebrew cache paths
+        id: brew-paths
+        run: |
+          echo "cellar=$(brew --cellar)" >> "$GITHUB_OUTPUT"
+          echo "cache=$(brew --cache)" >> "$GITHUB_OUTPUT"
+
+      # Keyed on ci.yml (which holds the formula list): a tool add/bump edits
+      # this file, changes the key, and forces a correct fresh download —
+      # self-invalidating. On a hit, the brew install below relinks the
+      # already-present Cellar instead of downloading.
+      - name: Cache Homebrew Cellar and bottles
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.brew-paths.outputs.cellar }}
+            ${{ steps.brew-paths.outputs.cache }}
+          key: brew-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            brew-${{ runner.os }}-
+
       - name: Install lint/format tools
         run: |
           brew install just lefthook zsh shellcheck actionlint shfmt stylua \
