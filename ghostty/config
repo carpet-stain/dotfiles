@@ -52,3 +52,15 @@ mouse-hide-while-typing = false
 
 # Copy selections straight to the system clipboard
 copy-on-select = clipboard
+
+# +-----+
+# | SSH |
+# +-----+
+
+# TERM=xterm-ghostty has no terminfo entry on remote hosts, so plain SSH lands
+# in a broken terminal (backspace inserts a space, apps log "terminal is
+# broken"). ssh-terminfo installs Ghostty's terminfo on first connect;
+# ssh-env falls back to TERM=xterm-256color where the install can't run. Both
+# are off by default (no-ssh-env,no-ssh-terminfo) — the rest of this list is
+# Ghostty's default feature set, restated so enabling these two doesn't drop it.
+shell-integration-features = cursor,no-sudo,title,ssh-env,ssh-terminfo,path
