@@ -4,10 +4,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-#
-# The above will handle all files NOT found below
-#
-
 # Treat all Go files in this repo as binary, with no git magic updating
 # line endings. Windows users contributing to Go will need to use a
 # modern version of git and editors capable of LF line endings.
@@ -61,7 +57,6 @@
 *.adoc     text
 *.textile  text
 *.mustache text
-# *.csv text eol=crlf # REMOVED: Rely on global text=auto for consistency
 *.tab      text
 *.tsv      text
 *.txt      text
@@ -76,18 +71,13 @@
 *.tif      binary
 *.tiff     binary
 *.ico      binary
-# SVG treated as text by default.
 *.svg      text
-# If you want to treat it as binary,
-# use the following line instead.
-# *.svg    binary
 *.eps      binary
 
 # Scripts
 *.bash     text eol=lf
 *.fish     text eol=lf
 *.sh       text eol=lf
-# ENHANCEMENT: Add zsh diff driver for better highlighting
 *.zsh      text eol=lf diff=zsh
 # These are explicitly windows files and should use crlf
 *.bat      text eol=crlf
@@ -111,9 +101,5 @@
 # Text files where line endings should be preserved
 *.patch    -text
 
-#
-# Exclude files from exporting (Only keep necessary ones)
-#
-
-# .gitattributes and .gitignore are excluded by default.
+# Exclude from `git archive` exports
 .gitkeep       export-ignore

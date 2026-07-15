@@ -8,7 +8,7 @@
 [commit]
   template = ~/.config/git/committemplate
   verbose = true
-  # gpgsign = true # Uncomment this line to enable GPG signing
+  # gpgsign = true
 
 [help]
   autoCorrect = 1
@@ -66,9 +66,6 @@
 
 [diff]
   colorMoved = default
-  # Add specific diff drivers (if not already handled by delta)
-  # This makes the config explicit about what diff logic is used for file types.
-  # This relies on .gitattributes file.
   ignoreSubmodules = dirty # ignore untracked cruft inside submodules in status/diff
   submodule = log # show submodule commit summaries in diffs, not just the SHA bump
   mnemonicPrefix = true # a/b/i/w/c prefixes instead of always a/b
