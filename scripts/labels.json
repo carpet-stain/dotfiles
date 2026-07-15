@@ -15,6 +15,11 @@
   { "name": "wontfix", "color": "ffffff", "description": "This will not be worked on" },
   { "name": "epic", "color": "5319E7", "description": "Large multi-part effort" },
   { "name": "spike", "color": "0E8A16", "description": "Time-boxed research/decision" },
+  {
+    "name": "architecture",
+    "color": "1D76DB",
+    "description": "Architecturally significant — requires an ADR"
+  },
   { "name": "priority: high", "color": "B60205", "description": "Groom/act on soon" },
   { "name": "priority: medium", "color": "FBCA04", "description": "Normal queue" },
   { "name": "priority: low", "color": "C5DEF5", "description": "Someday / low urgency" }
