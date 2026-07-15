@@ -54,6 +54,7 @@ brew 'zoxide' # Smart cd
 brew 'zsh-completions'
 brew 'zsh-autopair'
 brew 'zsh-patina' # Better syntax highlighting than fast-syntax-highlighting
+brew 'zsh-you-should-use' # Reminds you when a typed command has a shorter alias
 
 cask 'claude' # AI desktop app
 cask 'claude-code' # AI coding assistant CLI
