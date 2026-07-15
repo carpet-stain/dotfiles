@@ -467,7 +467,8 @@ set_neovim() {
 # Install Ghostty's xterm-ghostty terminfo from the vendored source. Debian
 # hosts are SSH'd into from a local Ghostty but don't have Ghostty installed,
 # so the entry $TERM points at has to be compiled in from the repo. macOS
-# installs the same entry from the Ghostty.app bundle instead.
+# compiles the same vendored file (macos/deploy.zsh), just to the XDG dir —
+# its shells are always zsh, which exports TERMINFO from .zshenv.
 #
 # Compiled to $HOME/.terminfo, not $XDG_DATA_HOME/terminfo: ncurses' default
 # search path covers ~/.terminfo plus the system dirs, not the XDG data dir —
