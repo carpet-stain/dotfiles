@@ -204,11 +204,38 @@ link_configs() {
 # | Homebrew |
 # +----------+
 
+# Resolve the brew binary across the prefixes this repo supports: an
+# env-provided HOMEBREW_PREFIX, a no-sudo install at $HOME/homebrew (#206),
+# then the Apple Silicon default. Same probe order as zsh/.zshenv — keep
+# the two in sync.
+brew_bin() {
+  local b
+  for b in ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin/brew} $HOME/homebrew/bin/brew /opt/homebrew/bin/brew; do
+    if [[ -x $b ]]; then
+      print -r -- $b
+      return 0
+    fi
+  done
+  command -v brew
+}
+
+# Check for Homebrew; install it if missing. An admin user gets the official
+# installer (it sudos into /opt/homebrew). A standard (non-admin) user can't
+# run that, so it gets the documented untar-anywhere install at
+# $HOME/homebrew instead (#206). The tradeoff: bottles are built for
+# /opt/homebrew, so at $HOME/homebrew the cellar-locked formulae (git,
+# neovim, node, python, …) compile from source — slow, and it needs the
+# Xcode Command Line Tools already present.
 install_homebrew() {
-  setopt local_options err_exit
-  if [[ -z $(command -v brew) ]]; then
+  setopt local_options err_exit pipe_fail
+  if [[ -n $(brew_bin) ]]; then
+    return 0
+  fi
+  if dseditgroup -o checkmember -m $USER admin >/dev/null; then
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+  else
+    zf_mkdir -p $HOME/homebrew
+    curl -fsSL https://github.com/Homebrew/brew/tarball/master | tar xz --strip-components 1 -C $HOME/homebrew
   fi
 }
 
@@ -348,6 +375,27 @@ set_neovim() {
 required "Creating required directory tree"    create_directories
 required "Linking config files"                link_configs
 stream   "Checking for Homebrew"               install_homebrew
+
+# The runners execute their step in a subshell (command substitution or a
+# pipeline), so install_homebrew can't export brew's environment upward —
+# shellenv has to be evaluated here, in the script's own context, for every
+# step below that calls brew or reads HOMEBREW_PREFIX. Fails loud rather
+# than let those steps hit an empty prefix one by one.
+BREW_BIN=$(brew_bin) || { print "brew not found after install step" >&2; exit 1 }
+eval "$($BREW_BIN shellenv)"
+
+# A non-default prefix means a no-sudo machine (#206): default casks to the
+# user-writable ~/Applications. A pre-set HOMEBREW_CASK_OPTS wins — export
+# it before deploying to pick another writable dir (e.g.
+# --appdir="/Applications/Corporate Apps"). Only drag-install
+# (.app/binary/font) casks work without sudo — pkg-based casks (mullvad-vpn
+# is the Brewfile's only one) still need an admin. Same conditional as
+# zsh/.zshenv — keep in sync; it's repeated here because a first deploy
+# runs before .zshenv is linked.
+if [[ $HOMEBREW_PREFIX != /opt/homebrew && -z $HOMEBREW_CASK_OPTS ]]; then
+  export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
+fi
+
 stream   "Installing Brewfile packages"        install_brewfile
 optional "Installing lefthook hooks"           install_lefthook_hooks
 required "Linking zsh plugins"                 link_zsh_plugins

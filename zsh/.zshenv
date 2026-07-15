@@ -104,7 +104,29 @@ if [[ $OSTYPE == darwin* ]]; then
   # $HOMEBREW_PREFIX/share/zsh/site-functions to FPATH — formula-shipped zsh
   # completions (git, gh, etc.) reach compinit via this line, not an explicit
   # fpath+= in rc.d/completions.zsh.
-  eval $(/opt/homebrew/bin/brew shellenv)
+  # Probe the prefixes this repo supports — an env-provided HOMEBREW_PREFIX,
+  # a no-sudo install at $HOME/homebrew (#206), then the Apple Silicon
+  # default. Same order as macos/deploy.zsh's brew_bin — keep the two in
+  # sync. No brew found is fine (fresh machine): the loop just falls
+  # through, silently, where the old hardcoded eval printed an error.
+  for _brew in ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin/brew} $HOME/homebrew/bin/brew /opt/homebrew/bin/brew; do
+    if [[ -x $_brew ]]; then
+      eval $($_brew shellenv)
+      break
+    fi
+  done
+  unset _brew
+
+  # A non-default prefix means a no-sudo machine (#206): default casks to
+  # the user-writable ~/Applications. A pre-set HOMEBREW_CASK_OPTS wins —
+  # set it in the environment to pick another writable dir (e.g.
+  # --appdir="/Applications/Corporate Apps"). Only drag-install
+  # (.app/binary/font) casks work without sudo — pkg-based casks
+  # (mullvad-vpn is the Brewfile's only one) still need an admin. Same
+  # conditional as macos/deploy.zsh — keep the two in sync.
+  if [[ -n $HOMEBREW_PREFIX && $HOMEBREW_PREFIX != /opt/homebrew && -z $HOMEBREW_CASK_OPTS ]]; then
+    export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
+  fi
 
   # Remaining Homebrew opt package binaries and man pages. (N) glob qualifier
   # enables null_glob for just this pattern — NULL_GLOB isn't set yet this early
