@@ -126,6 +126,22 @@ jobs:
           git submodule sync
           git submodule update --init --recursive
 
+      # Cache the pinned GitHub-release tarballs deploy.sh's fetch_verified
+      # downloads (~60% of the deploy step is that network fetch — see #124).
+      # Keyed on binaries.lock: it pins every asset by version *and* sha256, so
+      # a bump changes the key and forces a fresh verified download. This
+      # caches only the downloaded tarballs (via BINARIES_CACHE_DIR below), not
+      # the installed result, so deploy.sh still runs its extract/symlink logic
+      # every run — the fresh-install coverage this job exists for is intact.
+      # Restored before the chown below so deployuser can read hits and write
+      # misses into it.
+      - name: Cache pinned release tarballs
+        if: steps.relevant.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: .cache/dotfiles-binaries
+          key: linux-binaries-${{ hashFiles('linux/binaries.lock') }}
+
       # deploy.sh assumes "a regular user with passwordless sudo (the
       # default on OrbStack VMs)" — running it as root instead would be a
       # shortcut that skips the code path it's actually written for (every
@@ -144,7 +160,9 @@ jobs:
 
       - name: Run linux/deploy.sh as deployuser
         if: steps.relevant.outputs.run == 'true'
-        run: su - deployuser -c "cd '$GITHUB_WORKSPACE' && bash linux/deploy.sh"
+        # BINARIES_CACHE_DIR opts fetch_verified into the tarball cache above;
+        # su - resets the environment, so it's set inside the invoked command.
+        run: su - deployuser -c "cd '$GITHUB_WORKSPACE' && BINARIES_CACHE_DIR='$GITHUB_WORKSPACE/.cache/dotfiles-binaries' bash linux/deploy.sh"
 
       # Stronger than zsh -n: actually executes .zshenv then .zshrc,
       # surfacing undefined vars / missing runtime files, not just parse
