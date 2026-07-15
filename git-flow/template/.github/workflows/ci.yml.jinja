@@ -1,0 +1,45 @@
+name: CI
+
+# The base git-flow CI: run the language-agnostic linters on every PR. A
+# language overlay adds its own build/test jobs to this same file by hand
+# (copier can't merge YAML across templates) — the base owns `ci.yml` and its
+# `lint` job; overlays extend it. See git-flow/README.md's "What it produces".
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: ["[[ protected_branch ]]"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    # Draft PRs open early and take WIP pushes; a skipped-via-if job reads as
+    # passing to required-status-check branch protection, not failing, so this
+    # stays quiet until ready_for_review re-triggers it — same job-level gate
+    # as pr-guards.yml.
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+
+      # Homebrew installs the exact tools a contributor runs locally, one list,
+      # no second apt/npm re-declaration. Interim: Homebrew-on-Linux is a
+      # macOS-ism to redo the portable way (setup-node + pinned binaries) —
+      # tracked in the follow-up issue #276.
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install lint/format tools
+        run: brew install just lefthook actionlint markdownlint-cli2 prettier yamlfmt
+
+      # `just lint` wraps `lefthook run pre-commit --all-files`, the same entry
+      # point contributors run — CI and local share one command and can't
+      # drift. --no-tty passes through the recipe for CI.
+      - name: Run lint/format checks
+        run: just lint --no-tty

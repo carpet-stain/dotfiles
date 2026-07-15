@@ -17,26 +17,23 @@ _is_ architectural stays human — it's applied by adding the label.
 
 ## Creating one
 
-ADRs are created with [adr-tools](https://github.com/npryce/adr-tools), which
-numbers files sequentially and fills [`templates/template.md`](templates/template.md):
+Create ADRs with the shipped tool — never hand-number or hand-format them.
+`scripts/new-adr.sh` stamps the next sequential number and fills
+[`templates/template.md`](templates/template.md); the `just adr` recipe wraps it:
 
 ```sh
-VISUAL=true adr new "Short decision title"       # next-numbered ADR from the template
-VISUAL=true adr new -s 12 "Title"                # supersede ADR 12, linking both
+just adr "Short decision title"       # next-numbered ADR from the template
 ```
 
-- `VISUAL=true` is required — `adr new` otherwise opens `$EDITOR` and hangs when
-  run non-interactively.
-- `.adr-dir` (repo root) points `adr` at this directory, so the commands work
-  from any subdirectory.
-
-Then edit the generated file and fill in the sections. The **Alternatives
-considered** section — each rejected option and _why_ — is the point: it's what
-makes the design history walkable.
+It's a plain, runner-agnostic script rather than adr-tools (which has no Debian
+package), so it works on any machine the repo runs on. Then edit the generated
+file and fill in the sections. The **Alternatives considered** section — each
+rejected option and _why_ — is the point: it's what makes the design history
+walkable.
 
 ## Superseding
 
-When a later decision replaces an earlier one, `adr new -s <old>` creates the new
-ADR, marks the old one superseded, and links both — rather than editing the old
-ADR to match the new reality. The rejected path staying visible is the point.
-(adr-tools writes its own `Superceded by` spelling.)
+When a later decision replaces an earlier one, create the new ADR, then set the
+old one's Status to `Superseded by NNNN` (and the new one's to `Supersedes NNNN`)
+rather than editing the old ADR to match the new reality. The rejected path
+staying visible is the point.

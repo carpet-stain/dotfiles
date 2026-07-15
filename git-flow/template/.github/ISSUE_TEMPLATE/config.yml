@@ -1,0 +1,3 @@
+# Keep the free-form "blank issue" option alongside the structured forms — not
+# every report fits bug/feature/spike.
+blank_issues_enabled: true
