@@ -1,0 +1,17 @@
+# Repo task runner — one entry point for the dev verbs. Run `just` with no
+# args for the recipe list. `lint` is the same command CI's lint job calls
+# (it wraps `lefthook run pre-commit --all-files`), so local and CI share one
+# entry point and can't drift. A language overlay extends this file by hand —
+# copier can't merge it across templates, same as lefthook.yml/.gitignore.
+
+# List recipes when invoked with no arguments.
+_default:
+    @just --list
+
+# Run every pre-commit check (the entry point CI's lint job calls too).
+lint *args:
+    lefthook run pre-commit --all-files {{ args }}
+
+# Create a numbered ADR from the template: `just adr "Short decision title"`.
+adr *args:
+    scripts/new-adr.sh {{ args }}

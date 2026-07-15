@@ -1,0 +1,25 @@
+name: Bug report
+description: Something isn't working as expected.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected versus what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The minimal steps that trigger it.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Environment / context
+      description: Versions, OS, config — anything relevant to the failure.
+    validations:
+      required: false

@@ -36,15 +36,31 @@ uvx copier update --answers-file .copier-answers.git-flow.yml
   it's safe as a required check. `bootstrap-branch-protection.sh` (step 4
   below) makes it a required check automatically because the guard ships
   here. See the ADR scaffolding below for what a labeled PR must produce.
+- `.github/workflows/ci.yml` — the base CI: a `lint` job that runs the
+  language-agnostic linters via `just lint`, gated on `draft == false`. The
+  base owns `ci.yml`; a language overlay hand-merges its build/test jobs into
+  the same file (copier can't merge YAML across templates — see "Known
+  limitation")
 - `docs/adr/` scaffolding — `README.md` (what an ADR is, when to write one),
-  `templates/template.md` (the Nygard template adr-tools fills), `.adr-dir`
-  (points `adr` at `docs/adr/`), and a seed `0001-record-architecture-decisions.md`
-  so the directory exists in a fresh checkout
+  `templates/template.md` (the Nygard template), `scripts/new-adr.sh` (stamps
+  the next-numbered ADR from it — run via `just adr`, no adr-tools dependency),
+  `.adr-dir`, and a seed `0001-record-architecture-decisions.md` so the
+  directory exists in a fresh checkout
 - `.github/workflows/release-prepare.yml` / `release-publish.yml` +
   `cliff.toml` (if release automation is included) — manual-dispatch version
   bump via git-cliff, a release PR, tag + GitHub release on merge
-- `lefthook.yml` — `actionlint` on the bundled workflow files,
-  `check-envrc-local-example.sh` on commit and push
+- `.github/pull_request_template.md` — the Conventional-Commit title reminder
+  plus the doc-ownership checklist (decisions journal, ADR-when, supersede)
+- `.github/ISSUE_TEMPLATE/` — bug / feature / spike forms whose default labels
+  match the `apply-labels.sh` taxonomy
+- `justfile` — `just lint` (wraps `lefthook run pre-commit --all-files`, the
+  entry point CI shares) and `just adr`
+- `lefthook.yml` — `actionlint`, `markdownlint-cli2`, `prettier`, and `yamlfmt`
+  on the files each owns, plus `check-envrc-local-example.sh` on commit and push
+- `.editorconfig`, `.markdownlint-cli2.yaml`, `.prettierrc.json`, `.yamlfmt` —
+  the language-agnostic formatting baseline the lefthook jobs and CI enforce
+- `README.md` — a starter front door filled from the copier answers, pointing
+  at `docs/adr/` and `just lint` rather than restating them
 - `.envrc` + `.envrc.local.example` — aliases `GH_TOKEN` to `GITHUB_TOKEN`
   for git-cliff's GitHub API lookups
 - `.github/dependabot.yml` — weekly `github-actions` ecosystem updates
@@ -67,8 +83,10 @@ uvx copier update --answers-file .copier-answers.git-flow.yml
   Those are this machine's `$XDG_CONFIG_HOME/git/*`, deployed once by
   `macos/deploy.zsh` / `linux/deploy.sh` — already in effect for every repo
   on a machine with dotfiles installed, nothing to port per-project.
-- **A CI test/lint pipeline.** Language-specific; the Python starter template
-  ships its own `ci.yml`.
+- **A language build/test pipeline.** The base ships a `ci.yml` `lint` job for
+  the language-agnostic linters (above), but building and testing are
+  language-specific — a language overlay (e.g. the Python starter) adds those
+  jobs to the base `ci.yml` by hand.
 
 ## Bootstrap runbook
 
@@ -112,7 +130,10 @@ AGENTS.md's Credentials section.
 
 ## Known limitation
 
-`lefthook.yml` and `.gitignore` are plain files, not merged across
-templates — combining this with a language overlay that ships its own
-copies needs a one-time hand-merge, the same class of limitation the Python
-starter's `pyproject.toml` has.
+Files the base and a language overlay both ship — `ci.yml`, `lefthook.yml`,
+`justfile`, `.gitignore`, `.editorconfig` — are plain text, not merged across
+templates. Combining this base with an overlay that ships its own copies needs
+a one-time hand-merge, the same class of limitation the Python starter's
+`pyproject.toml` has. For `ci.yml` the merge is one-directional by design: the
+base owns the file and its `lint` job, and the overlay folds its build/test
+jobs in.

@@ -1,0 +1,25 @@
+name: Spike
+description: Time-boxed research or a decision to settle.
+labels: ["spike"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: The decision or unknown to resolve.
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      description: How much time this is worth before deciding.
+    validations:
+      required: false
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      description: The artifact that ends the spike — an ADR, a comment, a follow-up issue.
+    validations:
+      required: false
