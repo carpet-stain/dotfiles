@@ -301,12 +301,16 @@ refresh_tldr() {
 
 # Install Ghostty's xterm-ghostty terminfo into the XDG terminfo dir.
 # Needed because TERMINFO points at $XDG_DATA_HOME/terminfo and macOS's system
-# terminfo predates Ghostty, so the bundled entry must be compiled in here.
+# terminfo predates Ghostty. Compiled from the vendored source, same as
+# linux/deploy.sh — not extracted from Ghostty.app: the app's location stops
+# being predictable once casks may install outside /Applications (#206), and
+# the vendored file works before (or without) the cask being installed.
+# Tradeoff: the vendored file can lag a newer Ghostty — refresh it when
+# Ghostty's terminfo changes. Bare tic, no brewed-ncurses path: macOS's
+# system tic compiles this entry identically to brewed tic (verified
+# byte-identical via infocmp), so no Homebrew dependency is needed here.
 generate_ghostty_terminfo() {
-  local ghostty_ti="/Applications/Ghostty.app/Contents/Resources/terminfo"
-  [[ -d $ghostty_ti ]] || return 0
-  $HOMEBREW_PREFIX/opt/ncurses/bin/infocmp -x -A $ghostty_ti xterm-ghostty \
-    | $HOMEBREW_PREFIX/opt/ncurses/bin/tic -x -o "$XDG_DATA_HOME/terminfo" -
+  tic -x -o "$XDG_DATA_HOME/terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
 }
 
 # bat only ships Catppuccin as a built-in theme in fairly recent releases;
@@ -358,6 +362,6 @@ optional "Downloading gitstatusd for p10k"     download_gitstatusd
 optional "Importing zsh history into deja"     import_deja_history
 optional "Generating dua/doggo completions"    generate_completions
 optional "Refreshing TLDR pages"               refresh_tldr
-optional "Installing Ghostty terminfo"         generate_ghostty_terminfo
+required "Installing Ghostty terminfo"         generate_ghostty_terminfo
 optional "Granting zellij plugin permissions"  grant_zellij_permissions
 optional "Setting up Neovim plugins/LSPs"      set_neovim
