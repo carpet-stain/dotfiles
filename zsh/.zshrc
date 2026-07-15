@@ -140,3 +140,19 @@ eval "$(zsh-patina activate)"
 # zsh-autosuggestions — swap rationale: see #92. Stands down on its own if
 # zsh-autosuggestions is also loaded, so both can coexist safely.
 eval "$(deja init zsh)"
+
+# +-----------------+
+# | YOU-SHOULD-USE  |
+# +-----------------+
+
+# Reminds you when a command you just typed has a shorter alias (see #90).
+# The regular command-replacement aliases (cat→bat, ls→eza, …) and git
+# aliases are where the nudge helps; the global shorthands in aliases.zsh
+# (NUL, F, C, J, --help) are deliberate keystroke-savers whose *values*
+# (`>/dev/null 2>&1`, `| fzf`, …) are common substrings that would fire on
+# nearly every line, so they're silenced. YSU_MODE defaults to BESTMATCH
+# (one hint, not every match); "after" prints the hint below the command
+# output instead of before it.
+export YSU_MESSAGE_POSITION="after"
+export YSU_IGNORED_GLOBAL_ALIASES=('--help' J C F NUL)
+source $XDG_DATA_HOME/zsh/plugins/zsh-you-should-use/you-should-use.plugin.zsh
