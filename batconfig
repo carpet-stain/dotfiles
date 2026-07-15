@@ -7,35 +7,26 @@
 # A cat(1) clone with wings.
 # https://github.com/sharkdp/bat
 
-# This file defines the default behavior for `bat`.
-# Your `cat` alias (bat -p) will override these as needed.
+# Defaults for bare `bat`; the `cat` alias (bat -p) strips them back off.
 
-# Enable italics
 --italic-text=always
 
-# Default style for `bat`: Show line numbers, git changes, header, and grid.
+# "full" = line numbers, git changes, header, and grid
 --style="full"
 
-# Always use colors, even when piping.
+# Color even when piping
 --color=always
 
-# Set the theme to match the rest of the stack.
 --theme="Catppuccin Mocha"
 
 # --- Custom Syntax Mappings ---
-# Tell bat to always use Zsh syntax for these files.
+# For files whose names bat can't sniff a syntax from.
 --map-syntax="*.zshenv:Zsh"
 --map-syntax="*.zshrc:Zsh"
-
-# Map all custom fpath functions to Zsh syntax
 --map-syntax="zsh/fpath/*:Zsh"
-
-# Map all gitconfig files (including your theme) to Git Config syntax
 --map-syntax="*gitconfig:Git Config"
 --map-syntax="git/config:Git Config"
 --map-syntax="git/ignore:Git Ignore"
 --map-syntax="git/attributes:Git Attributes"
-
-# Map your Homebrew files
 --map-syntax="*Brewfile:Brewfile"
 --map-syntax="*.env:Bourne Again Shell (bash)"
