@@ -66,9 +66,9 @@ README states the XDG principle; these are the entries that must stay in
   auto-install via `nvim-lspconfig`'s `servers` table doesn't reliably fire
   during a headless `deploy.zsh` run. `lazy-lock.json` is tracked and
   symlinked in `deploy.zsh`, matching LazyVim's own recommended practice.
-- `macos/deploy.zsh` — macOS bootstrap: creates XDG dirs, symlinks configs,
-  installs Homebrew + Brewfile, syncs submodules, enables git background
-  maintenance, builds caches/terminfo.
+- `macos/deploy.zsh` — macOS bootstrap; the deploy steps live in
+  [README's Installation section](README.md#installation). Beyond those, it
+  syncs theme submodules and enables git background maintenance.
 - `linux/deploy.sh` — Debian bootstrap: same shape as `macos/deploy.zsh` but
   bash, apt (`linux/Aptfile`) instead of Homebrew, and GitHub release
   binaries for tools too old/missing in Debian's repos (neovim, git-delta,
