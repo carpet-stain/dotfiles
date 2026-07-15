@@ -7,7 +7,6 @@ zmodload -m -F zsh/files b:zf_ln b:zf_mkdir
 # | XDG COMPLIANCE |
 # +----------------+
 
-# Get the current script directory
 DEPLOY_DIR=$(dirname $(realpath $0))
 
 # Anchor to the main checkout's root via the shared .git dir, not wherever
@@ -88,7 +87,6 @@ stream() {
   fi
 }
 
-# Function to create required directories
 create_directories() {
   setopt local_options err_exit
   zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
@@ -102,7 +100,6 @@ create_directories() {
   zf_mkdir -p $HOME/.local/bin
 }
 
-# Symlink config files
 link_configs() {
   setopt local_options err_exit
   # AGENTS.md is the source of truth; CLAUDE.md is a gitignored symlink so Claude
@@ -165,9 +162,9 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
   zf_ln -sf $DOTFILES_DIR/theme/delta/catppuccin.gitconfig $XDG_CONFIG_HOME/git/catppuccin.gitconfig
 
-  # Backs the `pr`/`new`/`sync`/`squash` aliases above — must be on PATH as
-  # bare commands, not just reachable by relative path, since git/config is
-  # used from any repo.
+  # Backs the `pr`/`new`/`sync`/`squash` git aliases (git/config) — must be
+  # on PATH as bare commands, not just reachable by relative path, since
+  # git/config is used from any repo.
   zf_ln -sf $DOTFILES_DIR/scripts/git-pr-link.sh $HOME/.local/bin/git-pr-link
   zf_ln -sf $DOTFILES_DIR/scripts/git-new.sh $HOME/.local/bin/git-new
   zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync
@@ -204,7 +201,6 @@ link_configs() {
 # | Homebrew |
 # +----------+
 
-# Check for Homebrew
 install_homebrew() {
   setopt local_options err_exit
   if [[ -z $(command -v brew) ]]; then
@@ -213,7 +209,6 @@ install_homebrew() {
   fi
 }
 
-# Install Brewfile packages
 install_brewfile() {
   brew bundle --file=$DEPLOY_DIR/Brewfile
 }
@@ -246,7 +241,6 @@ link_zsh_plugins() {
   done
 }
 
-# Sync Git submodules
 sync_submodules() {
   setopt local_options err_exit
   git -C $DOTFILES_DIR submodule sync
@@ -294,7 +288,6 @@ generate_completions() {
   doggo completions zsh > $XDG_CACHE_HOME/zsh/completions/_doggo
 }
 
-# Refresh TLDR pages
 refresh_tldr() {
   tldr -u
 }
