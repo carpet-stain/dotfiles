@@ -36,11 +36,12 @@ jobs:
 
       - name: Install lint/format tools
         run: |
-          brew install lefthook zsh shellcheck actionlint shfmt stylua \
+          brew install just lefthook zsh shellcheck actionlint shfmt stylua \
             selene taplo yamlfmt markdownlint-cli2 prettier
 
-      # lefthook.yml is the single source of truth for these checks — CI runs
-      # it directly instead of re-implementing each one as a separate job, so
-      # CI can't drift from what a contributor's pre-commit hook already runs.
+      # `just lint` is the same entry point contributors run (it wraps
+      # `lefthook run pre-commit --all-files`), so CI and local share one
+      # command and can't drift. lefthook.yml stays the source of truth for
+      # which checks run; --no-tty passes through the recipe for CI.
       - name: Run lint/format checks
-        run: lefthook run pre-commit --all-files --no-tty
+        run: just lint --no-tty

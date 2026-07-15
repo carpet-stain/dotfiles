@@ -191,3 +191,9 @@ handles the installation of:
 - Language Toolchains: `go`, `node`, `python` — needed for Neovim's LSP
   tooling (`gopls`, `pyright`/`ruff`, `bash-language-server`), not just
   their own development
+
+## Development
+
+Repo dev tasks — lint, the Linux VM e2e test, local CI via `act`, changelog
+preview — run through [`just`](https://just.systems). Run `just --list` for the
+full set.

@@ -139,8 +139,9 @@ By Layer's underlying idea (different kinds of behavior need different kinds
 of proof) still applies, just mapped onto kinds of _changes_ rather than
 architectural layers:
 
-- **Syntax/lint/format**: `lefthook run pre-commit --all-files` — see
-  "Local tooling" below for the tool list and why it mirrors CI.
+- **Syntax/lint/format**: `just lint` (wraps `lefthook run pre-commit
+--all-files`) — see "Local tooling" below for the tool list and why it
+  mirrors CI.
 - **Runtime behavior for nvim plugin config**: launch the real deployed config
   headlessly and query the plugin's own merged config to confirm an option
   actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
@@ -189,13 +190,17 @@ sweeping commit. Propose the split and messages before committing.
 > instances of it — `act`, GitHub Actions workflow linting — in **github.md**
 > (`claude/rules/platform/github.md`).
 
-`lefthook.yml` is the single source of truth for lint/format checks —
-`ci.yml`'s `lint` job runs the exact same `lefthook run pre-commit
---all-files` rather than re-implementing each check, so CI can't drift from
-what a contributor's hook already runs.
+Dev verbs live in the root `justfile` — run `just --list` for the full set.
+The recipes are the canonical invocation; this section explains the _why_
+behind the non-obvious ones, not the commands. Elevated-credential scripts
+(below) deliberately stay out of the justfile.
+
+`lefthook.yml` is the single source of truth for lint/format checks — both
+`just lint` (what you run) and `ci.yml`'s `lint` job call it, so CI and local
+share one entry point and can't drift from each other.
 
 Installed automatically by `macos/deploy.zsh`'s `install_lefthook_hooks`
-step; run `lefthook run pre-commit --all-files` to check everything at once.
+step; run `just lint` to check everything at once.
 
 ### Linters/formatters by file type
 
@@ -210,16 +215,17 @@ justify a tool.
 
 Three more tools worth reaching for by hand, not wired into any hook:
 
-- `git cliff --bump` — preview the exact version/changelog `release-prepare.yml`
-  would compute, zero side effects. Network-dependent by default (resolves
-  PR links via `cliff.toml`'s `[remote.github]`, using `GITHUB_TOKEN` — see
-  "Credentials" below); pass `--offline` to skip that.
+- `just cliff-preview` (wraps `git cliff --bump`) — preview the exact
+  version/changelog `release-prepare.yml` would compute, zero side effects.
+  Network-dependent by default (resolves PR links via `cliff.toml`'s
+  `[remote.github]`, using `GITHUB_TOKEN` — see "Credentials" below); pass
+  `--offline` (as `just cliff-preview --offline`) to skip that.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
   for testing workflow changes without pushing and waiting on real CI. Needs
   a Docker socket, which macOS gets from Colima (`COLIMA_HOME`, see
   `.zshenv`), not Docker Desktop — a headless, license-free VM that stays
-  down unless something's using it. Run `scripts/act-run.sh <act args>`
-  rather than `act` directly: it starts Colima on demand, runs act, and
+  down unless something's using it. Run `just act <args>` (wraps
+  `scripts/act-run.sh`) rather than `act` directly: it starts Colima on demand, runs act, and
   stops Colima again only if it was the one that started it, so repeated
   runs don't re-pay the VM boot. `colima stop` tears it down explicitly when
   you're done. `actrc` (repo root, symlinked to `$XDG_CONFIG_HOME/act/actrc`

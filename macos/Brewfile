@@ -29,6 +29,7 @@ brew 'grep' # aliased to rg interactively, but scripts/subprocesses call grep di
 brew 'htop'
 brew 'hyperfine' # Command-line benchmarking
 brew 'jaq' # Fast jq alternative
+brew 'just' # Task runner (justfile) for repo dev verbs — see ADR-0019
 brew 'lefthook' # Manages the git hooks in lefthook.yml
 brew 'lesspipe'
 brew 'markdownlint-cli2' # Lint Markdown files
