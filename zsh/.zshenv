@@ -10,7 +10,6 @@
 local homezshenv=$HOME/.zshenv
 export ZDOTDIR=$homezshenv:A:h
 
-# DOTFILES is the parent of ZDOTDIR
 export DOTFILES=$ZDOTDIR:h
 
 # Prevent zsh from sourcing /etc/zprofile, /etc/zshrc, etc.
@@ -138,14 +137,11 @@ fpath+=$ZDOTDIR/fpath
 # | DIRENV |
 # +--------+
 
-# direnv's own hook (zsh/.zshrc) only fires for interactive shells, so a
-# non-interactive shell — a script, a cron job, an agent's tool shell — never
-# loads .envrc / .envrc.local (e.g. GH_TOKEN) and any `gh` call there silently
-# falls back to a broader keyring session. .zshenv runs for every shell, so
-# load it here too; for the non-interactive case, redirect direnv's own
-# stderr (each call is a fresh process, so it logs "loading ~/.envrc" on
-# every single invocation, not just once) — .zshrc's interactive hook below
-# still logs normally on cd.
+# direnv's own hook (zsh/.zshrc) only fires for interactive shells — without
+# this, a script/cron/agent shell never loads .envrc's GH_TOKEN and `gh`
+# silently falls back to a broader keyring session (#160). Non-interactive
+# shells get stderr silenced: each is a fresh process, so direnv would log
+# "loading ~/.envrc" on every single invocation.
 if (( ${+commands[direnv]} )); then
   if [[ -o interactive ]]; then
     emulate zsh -c "$(direnv export zsh)"

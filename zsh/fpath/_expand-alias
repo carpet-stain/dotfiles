@@ -2,7 +2,8 @@
 
 _expand-alias () {
     zle _expand_alias
-    # Remove the leading backslash if present
+    # A leading backslash suppresses expansion (see keybindings.zsh) —
+    # strip it so the command runs clean
     [[ $LBUFFER == "\\"* ]] && LBUFFER=${LBUFFER:1}
     zle self-insert
 }

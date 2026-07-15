@@ -123,24 +123,20 @@ source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 # | ZSH-PATINA  |
 # +-------------+
 
-# Rust/syntect-based syntax highlighting, replaces fast-syntax-highlighting
-# (see #92). Daemon-backed; theme comes from zsh-patinaconfig.toml
-# (built-in catppuccin-mocha, no fast-theme compile step or separate
-# Catppuccin submodule needed). Doesn't clobber the `whatis` builtin the
-# way fsh did, so fsh#27's workaround is gone too — nothing here wraps
-# `whatis`.
+# Syntax highlighting; replaced fast-syntax-highlighting — swap rationale
+# and fsh's retired fsh#27 `whatis` workaround: see #92. Theme comes from
+# zsh-patinaconfig.toml (built-in catppuccin-mocha, no compile step).
 #
-# Must come after compinit/bindkey (already satisfied — completions.zsh runs
-# compinit well above this point) or the highlighter has no effect until a
-# manual `source` — see zsh-patina's own troubleshooting docs.
+# Must come after compinit/bindkey (completions.zsh runs compinit above) or
+# the highlighter has no effect until a manual `source` — see zsh-patina's
+# own troubleshooting docs.
 eval "$(zsh-patina activate)"
 
 # +------+
 # | DEJA |
 # +------+
 
-# Fuzzy/directory/sequence-aware ghost-text suggestions — replaces
-# zsh-autosuggestions (see #92). Daemon-backed, async (zle -F), and stands
-# down on its own if zsh-autosuggestions is also loaded, so there's no
-# double-wrapped-widget risk during the swap.
+# Ghost-text suggestions (fuzzy/directory/sequence-aware); replaced
+# zsh-autosuggestions — swap rationale: see #92. Stands down on its own if
+# zsh-autosuggestions is also loaded, so both can coexist safely.
 eval "$(deja init zsh)"

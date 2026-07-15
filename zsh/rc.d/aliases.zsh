@@ -29,32 +29,25 @@ alias mkdir="mkdir -pv"
 alias cat="bat -p"
 # Use 'delta' for 'diff'. (Configured in gitconfig)
 alias diff="delta"
-# Use 'doggo' as a 'dig' replacement.
 alias dig="doggo"
-# Use 'dua' as a 'du' replacement.
 alias du="dua"
 alias dui="dua interactive"
-# Use 'curlie' as a 'curl' replacement (easier for JSON/headers).
+# curlie: curl with easier JSON/headers
 alias curl="curlie"
-# Use 'fd' as a 'find' replacement.
 alias find="fd"
 # Use the '$EZACMD' variable (defined in .zshenv) for 'ls'.
 alias ls="$EZACMD"
-# Re-use '$EZACMD' to create a 'tree' alias.
 alias tree="$EZACMD --tree --level=2 -I .git"
-# Replace grep with ripgrep (rg)
 alias grep="rg"
-# Use 'jaq' as a faster 'jq' replacement
+# jaq: faster jq
 alias jq="jaq"
-# Get "help" from tldr (tealdeer)
+# tldr is tealdeer's binary name
 alias help="tldr"
-# Use 'htop' as a 'top' replacement
 alias top="htop"
-# Use 'dysk' as a 'df' replacement (dedupes noisy system volumes, no '-h' needed)
+# dysk: df that dedupes noisy system volumes, no '-h' needed
 alias df="dysk"
-# Use 'procs' as a 'ps' replacement
 alias ps="procs"
-# Use 'viddy' as a 'watch' replacement (macOS ships no 'watch' by default)
+# viddy: watch replacement (macOS ships no 'watch' by default)
 alias watch="viddy"
 
 # +---------------------+
@@ -93,15 +86,9 @@ alias zln="zmv -L"   # link-mode:  batch hard-link by pattern
 # |  GLOBAL ALIASES |
 # +-----------------+
 
-# These are "global aliases" ('-g'), which work anywhere on the command line,
-# not just at the start.
-#
-# `2>&1 | bat ...` is the core:
-#   '2>&1' -> Redirects stderr (where help is often printed) to stdout.
-#   '| bat' -> Pipes the combined output to 'bat' for syntax highlighting.
-#
-# The result: Any command ending in ' --help'
-# (e.g., `curl --help`) will be automatically colorized.
+# Global aliases ('-g') expand anywhere on the line — that's what lets a
+# trailing ' --help' rewrite itself to pipe through bat. '2>&1' folds in
+# stderr, where many tools print their help.
 alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 
 # Pipe/redirect shorthands. Uppercase to avoid clashing with real commands,

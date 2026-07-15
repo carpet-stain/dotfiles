@@ -1,11 +1,9 @@
 #!/usr/bin/env zsh
 
-# A clearer "smart dot" widget
+# Smart dot: each '.' typed after '..' appends '/..', climbing one directory
 _zsh-dot() {
-  # If the buffer ends with "..", expand it to "../.."
   if [[ $LBUFFER == *.. ]]; then
     LBUFFER+=/..
-  # Otherwise, just insert the dot
   else
     LBUFFER+="."
   fi

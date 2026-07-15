@@ -18,7 +18,7 @@ setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event i
 setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
 setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
 setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
-setopt HIST_NO_STORE             # Don't store commands starting with a space in the history file
+setopt HIST_NO_STORE             # Don't store the `history` command itself
 setopt HIST_REDUCE_BLANKS        # trim multiple insignificant blanks in history
 setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
 
