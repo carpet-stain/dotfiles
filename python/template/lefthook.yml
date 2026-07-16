@@ -1,13 +1,57 @@
+# Local shift-left mirror of what CI enforces (ci.yml) — catches the same issues
+# before push. Install with `lefthook install`.
+#
+# Superset of the git-flow base lefthook (its jobs replayed here) plus the Python
+# jobs: this overlay's file replaces the base's on layering, so it carries the
+# base governance forward by hand — the base-vs-overlay merge limitation
+# git-flow/README.md documents. `ci.yml`'s lint job runs `just lint`, which runs
+# this file, so local and CI share one source.
 pre-commit:
-  commands:
-    ruff-check:
+  jobs:
+    - name: actionlint
+      glob:
+        - ".github/workflows/*.yml"
+        - ".github/workflows/*.yaml"
+      run: actionlint {staged_files}
+
+    - name: markdownlint
+      glob:
+        - "*.md"
+        - "**/*.md"
+      exclude:
+        - "CHANGELOG.md"
+      run: markdownlint-cli2 {staged_files}
+
+    - name: md-format
+      glob:
+        - "*.md"
+        - "**/*.md"
+      exclude:
+        - "CHANGELOG.md"
+      run: prettier --check {staged_files}
+
+    - name: yaml-format
+      glob:
+        - ".github/dependabot.yml"
+        - ".markdownlint-cli2.yaml"
+        - "lefthook.yml"
+      run: yamlfmt -lint {staged_files}
+
+    - name: ruff-check
       glob: "*.py"
       run: uv run ruff check {staged_files}
-    ruff-format:
+
+    - name: ruff-format
       glob: "*.py"
       run: uv run ruff format --check {staged_files}
 
+    - name: envrc-local-example-sync
+      run: scripts/check-envrc-local-example.sh
+
 pre-push:
-  commands:
-    pyright:
+  jobs:
+    - name: pyright
       run: uv run pyright
+
+    - name: envrc-local-example-sync
+      run: scripts/check-envrc-local-example.sh

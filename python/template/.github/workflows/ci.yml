@@ -1,20 +1,58 @@
 name: CI
 
+# Combined base-lint + Python-test CI. This overlay's ci.yml replaces the
+# git-flow base's on layering (copier can't merge YAML across templates), so it
+# carries the base `lint` job forward and adds a `test` job. Single-source rule:
+# CI runs `just lint`, which runs the shared lefthook — now including the ruff
+# jobs — so the lint job installs uv too. Protected branch hardcoded to `main`
+# (the base default; a repo on another branch edits the two `branches:` below).
 on:
-  push:
-    branches: [main]
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  lint:
+    name: lint
     runs-on: ubuntu-latest
+    # Draft PRs open early and take WIP pushes; a skipped-via-if job reads as
+    # passing to required-status-check branch protection, not failing, so this
+    # stays quiet until ready_for_review re-triggers it.
+    if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Install lint/format tools
+        run: brew install just lefthook actionlint markdownlint-cli2 prettier yamlfmt
+      # ruff runs via the lefthook ruff-check/ruff-format jobs `just lint`
+      # invokes, so its deps must be present in this job too.
+      - name: Sync Python deps
+        run: uv sync --locked
+      - name: Run lint/format checks
+        run: just lint --no-tty
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
       - run: uv sync --locked
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
       - run: uv run pyright
       - run: uv run pytest
