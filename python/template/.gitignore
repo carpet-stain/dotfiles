@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# git-flow base: direnv local overrides (credential scoping). Kept here because
+# this overlay's .gitignore replaces the base's on layering — copier can't merge
+# text files across templates.
+.envrc.local

@@ -1,0 +1,27 @@
+# Repo task runner. `just lint` is the shared entry point CI calls (it wraps
+# `lefthook run pre-commit --all-files`), so local and CI can't drift. Superset
+# of the git-flow base justfile (lint, adr) plus the Python verbs.
+
+# List recipes when invoked with no arguments.
+_default:
+    @just --list
+
+# Run every pre-commit check (base linters + ruff, the entry point CI calls too).
+lint *args:
+    lefthook run pre-commit --all-files {{ args }}
+
+# Run the test suite.
+test *args:
+    uv run pytest {{ args }}
+
+# Type-check the project.
+typecheck:
+    uv run pyright
+
+# Format Python sources with ruff.
+format *args:
+    uv run ruff format {{ args }}
+
+# Create a numbered ADR from the template: `just adr "Short decision title"`.
+adr *args:
+    scripts/new-adr.sh {{ args }}
