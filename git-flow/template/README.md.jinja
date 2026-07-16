@@ -8,14 +8,12 @@
 
 ## Use
 
-<!-- The common commands or entry points. -->
+<!-- How to run it — the common commands or entry points. -->
 
-## Development
+## Contributing
 
-- `just lint` runs every pre-commit check — the same entry point CI's `lint`
-  job uses, so local and CI can't drift.
-- Every change branches off `[[ protected_branch ]]`, squashes to one
-  [Conventional Commit](https://www.conventionalcommits.org/), and rebase-merges
-  back. The PR template's checklist covers doc ownership.
-- Architecture decisions live in [`docs/adr/`](docs/adr/README.md) — create one
-  with `just adr "Title"`; that README says when a change warrants an ADR.
+The contributor guide — workflow, commit rules, tooling, credentials — lives in
+`AGENTS.md` (composed from your agent-config rules; generate it if it isn't
+present yet). Architecture decisions live in
+[`docs/adr/`](docs/adr/README.md). This README is the human front door and
+points at those homes rather than restating them.
