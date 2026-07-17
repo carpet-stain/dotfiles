@@ -46,8 +46,7 @@ jobs:
 
       # Keyed on ci.yml (which holds the formula list): a tool add/bump edits
       # this file, changes the key, and forces a correct fresh download —
-      # self-invalidating. On a hit, the brew install below relinks the
-      # already-present Cellar instead of downloading.
+      # self-invalidating.
       - name: Cache Homebrew Cellar and bottles
         uses: actions/cache@v4
         with:
@@ -58,10 +57,17 @@ jobs:
           restore-keys: |
             brew-${{ runner.os }}-
 
+      # The cache restores the Cellar but not the bin/ symlinks, and `brew
+      # install` only WARNS on a present-but-unlinked keg instead of relinking
+      # it — an exact-key cache hit therefore left every tool off PATH
+      # (`just: command not found`). Relink explicitly; on a fresh install the
+      # links already exist and --overwrite is a no-op.
       - name: Install lint/format tools
         run: |
           brew install just lefthook zsh shellcheck actionlint shfmt stylua \
             selene taplo yamlfmt markdownlint-cli2 prettier
+          brew link --overwrite just lefthook zsh shellcheck actionlint shfmt \
+            stylua selene taplo yamlfmt markdownlint-cli2 prettier
 
       # `just lint` is the same entry point contributors run (it wraps
       # `lefthook run pre-commit --all-files`), so CI and local share one
