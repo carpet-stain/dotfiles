@@ -34,40 +34,17 @@ jobs:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
-      # setup-homebrew caches Ruby gems only, not installed bottles, so the
-      # 11-formula install re-downloads/-links from scratch every run (~48s,
-      # ~77% of this job — see #124). Resolve the Cellar + bottle-download
-      # paths at runtime rather than hardcoding the linuxbrew layout.
-      - name: Resolve Homebrew cache paths
-        id: brew-paths
-        run: |
-          echo "cellar=$(brew --cellar)" >> "$GITHUB_OUTPUT"
-          echo "cache=$(brew --cache)" >> "$GITHUB_OUTPUT"
-
-      # Keyed on ci.yml (which holds the formula list): a tool add/bump edits
-      # this file, changes the key, and forces a correct fresh download —
-      # self-invalidating.
-      - name: Cache Homebrew Cellar and bottles
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.brew-paths.outputs.cellar }}
-            ${{ steps.brew-paths.outputs.cache }}
-          key: brew-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: |
-            brew-${{ runner.os }}-
-
-      # The cache restores the Cellar but not the bin/ symlinks, and `brew
-      # install` only WARNS on a present-but-unlinked keg instead of relinking
-      # it — an exact-key cache hit therefore left every tool off PATH
-      # (`just: command not found`). Relink explicitly; on a fresh install the
-      # links already exist and --overwrite is a no-op.
+      # No bottle cache. Linuxbrew binaries reference a patched ELF loader under
+      # the .linuxbrew prefix, which lives outside the Cellar; caching just the
+      # Cellar (as we did) restores binaries whose interpreter is missing —
+      # `just: cannot execute: required file not found`, exit 127. Two prior
+      # patches (#285 relink, #286 image-scoped key) treated symptoms; a fresh
+      # install is the only reliable form and links correctly on its own. It's
+      # ~48s (#124), the cost #276's Homebrew-free rewrite removes for good.
       - name: Install lint/format tools
         run: |
           brew install just lefthook zsh shellcheck actionlint shfmt stylua \
             selene taplo yamlfmt markdownlint-cli2 prettier
-          brew link --overwrite just lefthook zsh shellcheck actionlint shfmt \
-            stylua selene taplo yamlfmt markdownlint-cli2 prettier
 
       # `just lint` is the same entry point contributors run (it wraps
       # `lefthook run pre-commit --all-files`), so CI and local share one
