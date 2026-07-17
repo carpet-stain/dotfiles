@@ -29,15 +29,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Homebrew installs the exact tools a contributor runs locally, one list,
-      # no second apt/npm re-declaration. Interim: Homebrew-on-Linux is a
-      # macOS-ism to redo the portable way (setup-node + pinned binaries) —
-      # tracked in the follow-up issue #276.
-      - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+      # Portable toolchain, no Homebrew (#276): a bootstrapped repo has no
+      # Homebrew tie, so install each linter its native way. markdownlint-cli2,
+      # prettier, and lefthook itself are npm packages; just and the Go tools
+      # (actionlint, yamlfmt) come from a setup action and pinned release
+      # binaries. `just lint` still drives the shared lefthook, so CI and local
+      # can't drift.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install Node lint tools
+        run: npm install --global lefthook markdownlint-cli2 prettier
 
-      - name: Install lint/format tools
-        run: brew install just lefthook actionlint markdownlint-cli2 prettier yamlfmt
+      - uses: extractions/setup-just@v3
+
+      - name: Install actionlint and yamlfmt
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          YAMLFMT_VERSION: "0.21.0"
+        run: |
+          curl -fsSL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin actionlint
+          curl -fsSL "https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VERSION}/yamlfmt_${YAMLFMT_VERSION}_Linux_x86_64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin yamlfmt
 
       # `just lint` wraps `lefthook run pre-commit --all-files` — the same
       # entry point contributors run, here scoped to the base-owned jobs via
