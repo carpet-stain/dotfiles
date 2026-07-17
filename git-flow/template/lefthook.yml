@@ -1,48 +1,9 @@
-# Local shift-left mirror of what CI enforces (ci.yml, pr-guards.yml) — catches
-# the same issues before push instead of after. Install with `lefthook install`.
-#
-# This is the git-flow governance base: linting the workflow files this template
-# ships plus the language-agnostic docs/config linters (Markdown, prettier,
-# YAML) every repo needs regardless of language. `ci.yml`'s lint job calls
-# `just lint`, which runs this file — one source, so CI and local can't drift.
-# A language overlay (e.g. the Python starter) adds its own per-language jobs
-# here — merge them into this file by hand, copier can't merge YAML across
-# templates.
-pre-commit:
-  jobs:
-    - name: actionlint
-      glob:
-        - ".github/workflows/*.yml"
-        - ".github/workflows/*.yaml"
-      run: actionlint {staged_files}
-
-    - name: markdownlint
-      glob:
-        - "*.md"
-        - "**/*.md"
-      exclude:
-        - "CHANGELOG.md"
-      run: markdownlint-cli2 {staged_files}
-
-    - name: md-format
-      glob:
-        - "*.md"
-        - "**/*.md"
-      exclude:
-        - "CHANGELOG.md"
-      run: prettier --check {staged_files}
-
-    - name: yaml-format
-      glob:
-        - ".github/dependabot.yml"
-        - ".markdownlint-cli2.yaml"
-        - "lefthook.yml"
-      run: yamlfmt -lint {staged_files}
-
-    - name: envrc-local-example-sync
-      run: scripts/check-envrc-local-example.sh
-
-pre-push:
-  jobs:
-    - name: envrc-local-example-sync
-      run: scripts/check-envrc-local-example.sh
+# Composition root — base-owned, never edited by an overlay (ADR-0020 in the
+# template's source repo). Base jobs live in lefthook-base.yml (tagged
+# `base`); lefthook-lang.yml ships here as an empty stub a language overlay
+# overwrites with its jobs (tagged `lang`). Locally every layer's jobs run on
+# commit/push; each CI workflow runs only its own tag slice. Install with
+# `lefthook install`.
+extends:
+  - lefthook-base.yml
+  - lefthook-lang.yml

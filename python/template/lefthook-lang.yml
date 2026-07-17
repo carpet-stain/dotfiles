@@ -1,0 +1,21 @@
+# Python overlay lefthook jobs — overwrites the base's empty lefthook-lang.yml
+# stub; picked up by the base-owned lefthook.yml's `extends`. The `lang` tag is
+# what test.yml's CI job selects; keep it on every job here. Base jobs live in
+# lefthook-base.yml — never add them here.
+pre-commit:
+  jobs:
+    - name: ruff-check
+      tags: [lang]
+      glob: "*.py"
+      run: uv run ruff check {staged_files}
+
+    - name: ruff-format
+      tags: [lang]
+      glob: "*.py"
+      run: uv run ruff format --check {staged_files}
+
+pre-push:
+  jobs:
+    - name: pyright
+      tags: [lang]
+      run: uv run pyright

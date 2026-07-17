@@ -6,11 +6,13 @@ mechanism.
 
 This is a **language overlay on the git-flow governance base** (`../git-flow`),
 not a standalone template — `py-new` applies git-flow first, then layers this on
-top. The overlay's `ci.yml`, `lefthook.yml`, and `justfile` supersede the base's
-colliding copies, carrying the base governance forward and adding the Python
-jobs; its `.gitignore` and `README.md` likewise replace the base's copies.
-Everything else the base ships — PR guards, ADR guard, the PR template,
-`docs/adr/` scaffolding, the credential pattern — comes through untouched.
+top. The layers own disjoint files (ADR-0020 in this repo's `docs/adr/`): the
+overlay ships its own CI workflow (`test.yml`), its lefthook jobs
+(`lefthook-lang.yml`, overwriting the base's empty stub), and its just verbs
+(`justfile.lang`, picked up by the base justfile's `import?`). Everything the
+base ships — `lint.yml`, PR guards, ADR guard, the PR template, `docs/adr/`
+scaffolding, the credential pattern — comes through untouched; only
+`.gitignore` and the pointer-pure `README.md` replace the base's copies.
 
 ## Use
 
@@ -44,10 +46,11 @@ tasks re-run on update the same as on the initial copy.
   `[tool.ruff]` and `[tool.pytest.ini_options]`
 - `.python-version` pinned to the latest stable interpreter uv resolves at
   generation time; `requires-python` patched to match
-- `lefthook.yml`: superset of the base's jobs (actionlint, markdownlint,
-  prettier, yamlfmt, envrc-sync) plus `ruff check` + `ruff format --check` on
-  commit and `pyright` on push — the ruff/pyright jobs run via `uv run`, so tool
-  versions come from `uv.lock`
-- `.github/workflows/ci.yml`: a `lint` job (base linters + ruff via
-  `just lint`) and a `test` job (`uv sync --locked`, then pyright + pytest)
-- `justfile`: base `lint`/`adr` verbs plus `test`, `typecheck`, `format`
+- `lefthook-lang.yml`: `ruff check` + `ruff format --check` on commit and
+  `pyright` on push, tagged `lang` — via `uv run`, so tool versions come from
+  `uv.lock`. Merged with the base's jobs by the base lefthook.yml's `extends`
+- `.github/workflows/test.yml`: `uv sync --locked`, the `lang` lefthook slice
+  (`uvx lefthook run pre-commit --all-files --tag lang` — no Homebrew), then
+  pyright + pytest. The base's `lint.yml` runs the base slice separately
+- `justfile.lang`: `test`, `typecheck`, `format` — the base's `import?` picks
+  it up next to `lint`/`adr`

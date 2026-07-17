@@ -1,9 +1,10 @@
-name: CI
+name: Lint
 
-# The base git-flow CI: run the language-agnostic linters on every PR. A
-# language overlay adds its own build/test jobs to this same file by hand
-# (copier can't merge YAML across templates) — the base owns `ci.yml` and its
-# `lint` job; overlays extend it. See git-flow/README.md's "What it produces".
+# The base lint workflow: language-agnostic linters only, selected via the
+# lefthook `base` tag. A language overlay never touches this file — it ships
+# its own workflow (e.g. test.yml) running its own tag slice with its own
+# toolchain. Disjoint file ownership by design; see ADR-0020 in the template's
+# source repo.
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -13,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: lint-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -38,8 +39,9 @@ jobs:
       - name: Install lint/format tools
         run: brew install just lefthook actionlint markdownlint-cli2 prettier yamlfmt
 
-      # `just lint` wraps `lefthook run pre-commit --all-files`, the same entry
-      # point contributors run — CI and local share one command and can't
-      # drift. --no-tty passes through the recipe for CI.
+      # `just lint` wraps `lefthook run pre-commit --all-files` — the same
+      # entry point contributors run, here scoped to the base-owned jobs via
+      # their lefthook tag. Locally (no tag filter) the full union runs on
+      # every commit.
       - name: Run lint/format checks
-        run: just lint --no-tty
+        run: just lint --tag base --no-tty

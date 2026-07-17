@@ -1,20 +1,17 @@
-# Local shift-left mirror of what CI enforces (ci.yml) — catches the same issues
-# before push. Install with `lefthook install`.
-#
-# Superset of the git-flow base lefthook (its jobs replayed here) plus the Python
-# jobs: this overlay's file replaces the base's on layering, so it carries the
-# base governance forward by hand — the base-vs-overlay merge limitation
-# git-flow/README.md documents. `ci.yml`'s lint job runs `just lint`, which runs
-# this file, so local and CI share one source.
+# Base lefthook jobs — owned by the git-flow template; a language overlay
+# never edits this file (its jobs live in lefthook-lang.yml). The `base` tag
+# is what lint.yml's CI job selects; keep it on every job here.
 pre-commit:
   jobs:
     - name: actionlint
+      tags: [base]
       glob:
         - ".github/workflows/*.yml"
         - ".github/workflows/*.yaml"
       run: actionlint {staged_files}
 
     - name: markdownlint
+      tags: [base]
       glob:
         - "*.md"
         - "**/*.md"
@@ -23,6 +20,7 @@ pre-commit:
       run: markdownlint-cli2 {staged_files}
 
     - name: md-format
+      tags: [base]
       glob:
         - "*.md"
         - "**/*.md"
@@ -31,27 +29,21 @@ pre-commit:
       run: prettier --check {staged_files}
 
     - name: yaml-format
+      tags: [base]
       glob:
         - ".github/dependabot.yml"
         - ".markdownlint-cli2.yaml"
         - "lefthook.yml"
+        - "lefthook-base.yml"
+        - "lefthook-lang.yml"
       run: yamlfmt -lint {staged_files}
 
-    - name: ruff-check
-      glob: "*.py"
-      run: uv run ruff check {staged_files}
-
-    - name: ruff-format
-      glob: "*.py"
-      run: uv run ruff format --check {staged_files}
-
     - name: envrc-local-example-sync
+      tags: [base]
       run: scripts/check-envrc-local-example.sh
 
 pre-push:
   jobs:
-    - name: pyright
-      run: uv run pyright
-
     - name: envrc-local-example-sync
+      tags: [base]
       run: scripts/check-envrc-local-example.sh

@@ -54,11 +54,10 @@ no collisions.
   it's safe as a required check. `bootstrap-branch-protection.sh` (step 4
   below) makes it a required check automatically because the guard ships
   here. See the ADR scaffolding below for what a labeled PR must produce.
-- `.github/workflows/ci.yml` — the base CI: a `lint` job that runs the
-  language-agnostic linters via `just lint`, gated on `draft == false`. The
-  base owns `ci.yml`; a language overlay hand-merges its build/test jobs into
-  the same file (copier can't merge YAML across templates — see "Known
-  limitation")
+- `.github/workflows/lint.yml` — the base CI: a `lint` job running the
+  language-agnostic linters via `just lint --tag base`, gated on
+  `draft == false`. A language overlay never touches it — it ships its own
+  workflow (e.g. `test.yml`) running its own lefthook tag slice (ADR-0020)
 - `docs/adr/` scaffolding — `README.md` (what an ADR is, when to write one),
   `templates/template.md` (the Nygard template), `scripts/new-adr.sh` (stamps
   the next-numbered ADR from it — run via `just adr`, no adr-tools dependency),
@@ -71,10 +70,14 @@ no collisions.
   plus the doc-ownership checklist (decisions journal, ADR-when, supersede)
 - `.github/ISSUE_TEMPLATE/` — bug / feature / spike forms whose default labels
   match the `apply-labels.sh` taxonomy
-- `justfile` — `just lint` (wraps `lefthook run pre-commit --all-files`, the
-  entry point CI shares) and `just adr`
-- `lefthook.yml` — `actionlint`, `markdownlint-cli2`, `prettier`, and `yamlfmt`
-  on the files each owns, plus `check-envrc-local-example.sh` on commit and push
+- `justfile` + `justfile.base` — the composition root (`import
+'justfile.base'`, `import? 'justfile.lang'`) and the base verbs: `just lint`
+  (wraps `lefthook run pre-commit --all-files`, the entry point CI shares) and
+  `just adr`. An overlay drops its verbs in `justfile.lang`
+- `lefthook.yml` + `lefthook-base.yml` + `lefthook-lang.yml` — the composition
+  root (`extends` both), the base jobs tagged `base` (`actionlint`,
+  `markdownlint-cli2`, `prettier`, `yamlfmt`, `check-envrc-local-example.sh`),
+  and an empty stub an overlay overwrites with its `lang`-tagged jobs
 - `.editorconfig`, `.markdownlint-cli2.yaml`, `.prettierrc.json`, `.yamlfmt` —
   the language-agnostic formatting baseline the lefthook jobs and CI enforce
 - `README.md` — a starter front door filled from the copier answers, pointing
@@ -101,10 +104,10 @@ no collisions.
   Those are this machine's `$XDG_CONFIG_HOME/git/*`, deployed once by
   `macos/deploy.zsh` / `linux/deploy.sh` — already in effect for every repo
   on a machine with dotfiles installed, nothing to port per-project.
-- **A language build/test pipeline.** The base ships a `ci.yml` `lint` job for
-  the language-agnostic linters (above), but building and testing are
-  language-specific — a language overlay (e.g. the Python starter) adds those
-  jobs to the base `ci.yml` by hand.
+- **A language build/test pipeline.** The base ships `lint.yml` for the
+  language-agnostic linters (above), but building and testing are
+  language-specific — a language overlay (e.g. the Python starter) ships its
+  own workflow alongside it, plus its `lefthook-lang.yml` and `justfile.lang`.
 
 ## Bootstrap runbook
 
@@ -148,10 +151,12 @@ AGENTS.md's Credentials section.
 
 ## Known limitation
 
-Files the base and a language overlay both ship — `ci.yml`, `lefthook.yml`,
-`justfile`, `.gitignore`, `.editorconfig` — are plain text, not merged across
-templates. Combining this base with an overlay that ships its own copies needs
-a one-time hand-merge, the same class of limitation the Python starter's
-`pyproject.toml` has. For `ci.yml` the merge is one-directional by design: the
-base owns the file and its `lint` job, and the overlay folds its build/test
-jobs in.
+A generated repo is this base plus **at most one** language overlay — never
+more (ADR-0020). The layers own disjoint files, composed natively: separate
+workflow files for CI, `import?` for the justfile, `extends` + an
+overwritable stub for lefthook, with `base`/`lang` lefthook tags splitting
+the CI slices. Copier's inability to merge files across templates therefore
+only bites the two files both layers still ship: `.gitignore` (the overlay
+replays the base's single `.envrc.local` entry — git has no include
+mechanism for tracked ignores) and the seeded `README.md` (pointer-pure and
+structurally identical, so the overwrite is harmless).
