@@ -27,6 +27,24 @@ include release automation, then a post-generation task runs `git init` and
 uvx copier update --answers-file .copier-answers.git-flow.yml
 ```
 
+## Retrofit an existing, never-templated repo
+
+```sh
+~/.config/dotfiles/scripts/retrofit-governance.sh [--python] <repo-dir>
+```
+
+`copier copy` can't do this safely — `--overwrite` replaces colliding files
+(deleting the repo's real README), and the plain path prompts per file. The
+script (#282) generates the template output into a temp tree and **git-merges**
+it in as an unrelated history, which is the additive semantics wanted: an
+absent file is created, an existing one becomes an `add/add` conflict with both
+contents kept under markers for the operator to resolve, and nothing is ever
+deleted. Answers are derived from the repo (origin URL, default branch, git
+user); `--python` layers the Python overlay too. The merge source keeps the
+`.copier-answers*.yml` files, so `copier update` (above) works from then on.
+Greenfield repos don't need it — `copier copy`/`py-new` onto an empty dir has
+no collisions.
+
 ## What it produces
 
 - `.github/workflows/pr-guards.yml` — one-commit-per-PR + Conventional
