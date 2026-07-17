@@ -7,9 +7,12 @@ spike #137; this is the mechanism.
 
 Language-agnostic base under a language overlay (e.g. the Python starter at
 `../python`): apply this template first, then layer a language template on
-top. Each template keeps its own namespaced answers file
-(`.copier-answers.git-flow.yml` here) so `copier update` can track them
-independently.
+top.
+
+The templates write **no `.copier-answers` file**, so there is no `copier
+update` path — a repo is scaffolded once and evolved directly from then on
+(ADR-0020, ADR-0021 in this repo's `docs/adr/`). Later template conventions
+reach an existing repo by editing it, or by re-running the retrofit below.
 
 ## Use
 
@@ -20,12 +23,6 @@ uvx copier copy ~/.config/dotfiles/git-flow <new-project-dir>
 Answers the GitHub owner/repo, the protected branch name, and whether to
 include release automation, then a post-generation task runs `git init` and
 `lefthook install`.
-
-## Update an existing generated project
-
-```sh
-uvx copier update --answers-file .copier-answers.git-flow.yml
-```
 
 ## Retrofit an existing, never-templated repo
 
@@ -40,10 +37,10 @@ it in as an unrelated history, which is the additive semantics wanted: an
 absent file is created, an existing one becomes an `add/add` conflict with both
 contents kept under markers for the operator to resolve, and nothing is ever
 deleted. Answers are derived from the repo (origin URL, default branch, git
-user); `--python` layers the Python overlay too. The merge source keeps the
-`.copier-answers*.yml` files, so `copier update` (above) works from then on.
-Greenfield repos don't need it — `copier copy`/`py-new` onto an empty dir has
-no collisions.
+user); `--python` layers the Python overlay too. Re-run it later to pull a
+wholesale template refresh (shared files re-conflict for you to resolve);
+smaller changes are usually quicker to hand-apply. Greenfield repos don't need
+it — `copier copy`/`py-new` onto an empty dir has no collisions.
 
 ## What it produces
 

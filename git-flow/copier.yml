@@ -1,5 +1,4 @@
 _subdirectory: template
-_answers_file: .copier-answers.git-flow.yml
 
 # GitHub Actions' own `${{ }}` expression syntax collides with Jinja's default
 # `{{ }}` delimiters, so every templated workflow file would need its
