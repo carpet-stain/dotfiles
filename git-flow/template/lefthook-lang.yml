@@ -1,0 +1,3 @@
+# Language-overlay socket — intentionally empty in the base. A language
+# overlay overwrites this file with its jobs (tagged `lang`); lefthook.yml's
+# `extends` picks it up either way. Never put base jobs here.
