@@ -29,15 +29,9 @@ leaves a project with no lock file and no hooks. You answer the base's questions
 (owner, repo, protected branch, release automation) first, then this overlay's
 (project name, package name, description, author).
 
-## Update an existing generated project
-
-```sh
-uvx copier update --trust
-```
-
-Run from inside the generated project (it reads `.copier-answers.yml`, which
-the initial `copier copy` writes automatically). `--trust` applies here too --
-tasks re-run on update the same as on the initial copy.
+The templates write no `.copier-answers` file, so there is no `copier update`
+path — scaffold once, then evolve the repo directly (ADR-0021 in this repo's
+`docs/adr/`).
 
 ## What it produces
 

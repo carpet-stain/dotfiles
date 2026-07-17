@@ -62,8 +62,8 @@ trap 'rm -rf "$T"' EXIT
 
 # --skip-tasks: post-gen tasks (git init, lefthook install, uv sync) make a
 # live repo work; a merge source doesn't need them, and skipping keeps
-# generated artifacts like uv.lock out of the merge. The answers files stay
-# in, so `copier update` works from then on.
+# generated artifacts like uv.lock out of the merge. The templates write no
+# copier-answers file (ADR-0021), so there's nothing update-related to carry.
 uvx copier copy --trust --skip-tasks --defaults \
   -d github_owner="$owner" -d github_repo="$repo" -d protected_branch="$branch" \
   "$dotfiles_dir/git-flow" "$T"
