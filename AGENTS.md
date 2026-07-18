@@ -142,11 +142,10 @@ architectural layers:
 - **Syntax/lint/format**: `just lint` (wraps `lefthook run pre-commit
 --all-files`) — see "Local tooling" below for the tool list and why it
   mirrors CI.
-- **Runtime behavior for nvim plugin config**: launch the real deployed config
-  headlessly and query the plugin's own merged config to confirm an option
-  actually took effect, e.g. `nvim --headless -c "luafile <script>"` invoking
-  the relevant `:Command` and reading back its Lua module state, not just that
-  the file parses.
+- **Runtime behavior for nvim plugin config**: verify via the
+  `verify-nvim-config` skill — it launches the deployed config headless and
+  reads back the plugin's merged module state to confirm an option took effect,
+  not just that the file parses.
 - **Claude Code config changes** (`claude/rules/*.md`, deploy symlinking):
   check `/memory` in a real session lists the expected rules files loaded from
   `~/.claude/rules`.
