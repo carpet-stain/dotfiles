@@ -1,4 +1,0 @@
-# git-flow governance template — see README for what this covers.
-# A language overlay's own .gitignore needs hand-merging with this one;
-# copier can't merge text files across templates.
-.envrc.local

@@ -74,15 +74,6 @@ README states the XDG principle; these are the entries that must stay in
   binaries for tools too old/missing in Debian's repos (neovim, git-delta,
   zellij, eza). Both scripts hand-maintain their own directory/runner
   logic — no shared lib between them; when one changes, check the other.
-- `python/` — copier template for bootstrapping a packaged, reproducibility-gated
-  Python 3 project (uv + hatchling + ruff + pyright + pytest + lefthook + CI;
-  decisions and rationale in ADR-0014). Run via `py-new <new-project-dir>`
-  (`scripts/py-new.sh`, symlinked to `~/.local/bin` by `macos/deploy.zsh` —
-  macOS only, since Linux doesn't carry `uv` yet). The wrapper always passes
-  copier's `--trust` flag: the template's post-gen tasks (`uv python pin`,
-  `uv sync`, `git init`, `lefthook install`) are what make the result actually
-  deployment-ready, and copier silently skips all of them without `--trust` —
-  no error, just a project missing its lock file and git hooks.
 - Both deploy scripts run every step through a `required()`/`optional()`
   wrapper: critical steps (creating dirs, symlinking configs) abort loud on
   failure; best-effort steps (a specific Brewfile package, a headless nvim
@@ -155,9 +146,9 @@ architectural layers:
 ## Commit style
 
 > Concrete realization of **git.md** (`claude/rules/tools/git.md`) for this repo:
-> scopes = `zsh, zellij, git, nvim, macos, theme, python`; version scheme = SemVer; branches =
-> short-lived feature branches → `main` (protected). It's baseline; the rules below
-> win here and are complete on their own.
+> scopes = `claude, git, zsh, macos, github, ci, theme, release, adr, nvim, linux, docs, deploy,
+ghostty`; version scheme = SemVer; branches = short-lived feature branches → `main` (protected).
+> It's baseline; the rules below win here and are complete on their own.
 
 Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 Every commit:
@@ -166,7 +157,8 @@ Every commit:
    - `type` is a Conventional Commit type (enforced by
      `.github/workflows/pr-guards.yml`'s `conventional commit` check —
      CI-only, no local mirror; see it for the exact list)
-   - `scope` (optional): repo area — zsh, zellij, git, nvim, macos, theme, python
+   - `scope` (optional): repo area — claude, git, zsh, macos, github, ci, theme, release, adr,
+     nvim, linux, docs, deploy, ghostty
    - `description`: imperative, lowercase, no trailing period; keep the whole
      line ≤50 chars where possible (hard limit 72)
    - Breaking change: `type!:` or a `BREAKING CHANGE:` footer
@@ -238,8 +230,10 @@ Three more tools worth reaching for by hand, not wired into any hook:
   once a repo's checks are set up.
 - `scripts/apply-labels.sh` — idempotent label-taxonomy bootstrap
   (`scripts/labels.json`), upsert-only. Same `env -u GH_TOKEN -u GITHUB_TOKEN`, manual,
-  one-time convention; see `git-flow/`'s bootstrap runbook for how the two
-  compose with the copier template.
+  one-time convention; see `carpet-stain/project-starter-template`'s
+  `git-flow/README.md` bootstrap runbook for how the two compose with the
+  copier template (the templates and this script's counterpart moved there;
+  see ADR-0028).
 
 ### Credentials: `.envrc` / `.envrc.local`
 

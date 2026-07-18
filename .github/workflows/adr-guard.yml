@@ -7,7 +7,8 @@ name: ADR guard
 # labeled PR touches docs/adr/. See docs/adr/README.md for what an ADR is.
 #
 # Ported verbatim (static, protected branch = main) from the git-flow template's
-# adr-guard.yml.jinja so this repo — the template's origin — holds itself to the
+# adr-guard.yml.jinja so this repo — where the template originated, now hosted
+# at carpet-stain/project-starter-template (ADR-0028) — holds itself to the
 # label→ADR standard it ships (#266).
 on:
   pull_request:

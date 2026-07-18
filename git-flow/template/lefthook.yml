@@ -1,9 +1,0 @@
-# Composition root — base-owned, never edited by an overlay (ADR-0020 in the
-# template's source repo). Base jobs live in lefthook-base.yml (tagged
-# `base`); lefthook-lang.yml ships here as an empty stub a language overlay
-# overwrites with its jobs (tagged `lang`). Locally every layer's jobs run on
-# commit/push; each CI workflow runs only its own tag slice. Install with
-# `lefthook install`.
-extends:
-  - lefthook-base.yml
-  - lefthook-lang.yml

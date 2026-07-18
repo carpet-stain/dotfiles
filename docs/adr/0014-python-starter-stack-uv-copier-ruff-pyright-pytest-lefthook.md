@@ -6,6 +6,11 @@ Date: 2026-07-12
 
 Accepted
 
+The `python/` template this decision concerns now lives in
+[`carpet-stain/project-starter-template`](https://github.com/carpet-stain/project-starter-template)
+(ADR-0028); the stack decision below is unchanged, just relocated. `py-new`
+(referenced below) no longer exists in this repo.
+
 ## Context
 
 Every new Python 3 project re-paid the reproducibility layer by hand (#129).

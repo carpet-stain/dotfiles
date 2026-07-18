@@ -22,7 +22,8 @@
 #   ci        CI configuration
 #   chore     maintenance, tooling
 #
-# scope (optional):  zsh  zellij  git  nvim  macos  theme
+# scope (optional):  claude  git  zsh  macos  github  ci  theme  release  adr
+#                     nvim  linux  docs  deploy  ghostty
 # breaking change:   append ! after type/scope  ->  feat(zsh)!: ...
 #
 # e.g.  fix(zsh): bind arrow keys via terminfo
