@@ -46,6 +46,7 @@ brew 'shfmt' # Format shell scripts
 brew 'stylua' # Format Lua files
 brew 'taplo' # Lint and format TOML files
 brew 'tealdeer' # tldr utility
+brew 'tenv' # OpenTofu/Terraform version manager — resolves required_version (terraform/)
 brew 'uv' # Python package/env manager for project scaffolding
 brew 'viddy' # Better watch
 brew 'yamlfmt' # Format YAML files
