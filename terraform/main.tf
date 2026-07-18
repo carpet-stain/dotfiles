@@ -3,6 +3,9 @@
 # this boundary is the epic's, recorded in ADR-0022. For managed repos this
 # supersedes scripts/apply-labels.sh + scripts/bootstrap-branch-protection.sh.
 
+# Visibility is deliberate per-repo data (dotfiles is public on purpose),
+# so trivy's blanket repos-should-be-private check doesn't apply.
+#trivy:ignore:GIT-0001
 resource "github_repository" "this" {
   for_each = local.repos
 
@@ -35,6 +38,10 @@ resource "github_repository" "this" {
   squash_merge_commit_message = "PR_BODY"
 
   web_commit_signoff_required = false
+
+  # Security by default for every managed repo (trivy GIT-0003 surfaced
+  # this off on dotfiles).
+  vulnerability_alerts = true
 
   # Destroying a managed repo archives it instead of deleting it — removal
   # from the map must never be able to destroy history.

@@ -84,6 +84,23 @@ pre-commit:
         - ".claude/agent-memory/**"
       run: prettier --check {staged_files}
 
+    - name: tofu-format
+      glob:
+        - "terraform/*.tf"
+      # cd, not paths: tenv resolves the runtime from required_version in
+      # the cwd (same reason as the justfile recipes).
+      run: cd terraform && tofu fmt -check
+
+    - name: tofu-lint
+      glob:
+        - "terraform/*.tf"
+      run: tflint --chdir=terraform
+
+    - name: tofu-scan
+      glob:
+        - "terraform/*.tf"
+      run: trivy config --exit-code 1 --quiet terraform
+
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
 
