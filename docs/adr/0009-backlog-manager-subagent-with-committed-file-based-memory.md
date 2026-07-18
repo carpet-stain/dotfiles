@@ -100,3 +100,13 @@ memory grows enough to justify a per-file split or a lighter commit lane, or
 this goes multi-repo (the split line and deployment change). Unrelated:
 `~/.claude` clutter is upstream #134, not caused by this subagent
 (env_claude_paths.md).
+
+**Amended by ADR-0027 (2026-07-18):** both revisit triggers above have now
+happened — the human-commit-gate was already silently failing across repos
+(#332), not just theoretical. ADR-0027 gives backlog-manager a narrow,
+scoped git-write path (`git memory-pr`), but keeps this ADR's actual safety
+rationale intact: a human still reads the diff before it lands, just as a
+draft-PR review instead of a raw commit. The "have the subagent commit its
+own memory" alternative rejected above is partially reversed, not
+discarded — see ADR-0027 for the mechanism and why the human checkpoint
+stays convention, not platform enforcement.
