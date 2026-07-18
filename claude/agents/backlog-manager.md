@@ -125,6 +125,13 @@ You keep a project-scoped memory. Use it:
 - **After finishing**, record what a future session would need: label meanings and when to apply
   them, decisions and _why_ they were made, recurring themes, anything you had to discover. Keep
   `MEMORY.md` a concise index; move detail into topic files.
+- **Write against `origin/main`, never a stale local copy.** This memory is version-controlled and
+  advances out-of-band — other sessions edit it and the human commits it — so your in-context view
+  can lag many commits behind. Before writing or updating any memory file, read its committed
+  version first (`git fetch`, then `git show origin/main:<path>`) and edit _that_, not the
+  possibly-stale copy in context. Writing from a stale view silently regresses committed knowledge,
+  and the human commit-gate only catches it if they happen to notice. This is the prevention half;
+  the read-only memory-audit skill (#315) is the detection backstop.
 
 Record the reasoning behind a decision, not just the decision — so you don't re-litigate it next
 session.
