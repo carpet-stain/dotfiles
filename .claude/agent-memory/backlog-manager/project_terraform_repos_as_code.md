@@ -1,13 +1,15 @@
 ---
 name: project-terraform-repos-as-code
-description: Epic #273 (OPEN) — move repo creation/governance to OpenTofu as a language overlay; Phase 0 spike + conventions rule DONE (ADR-0022), Phase 1 MVP is #294
+description: Epic #273 (OPEN) — repos-as-code with OpenTofu; Phases 0-1 DONE, overlay SCRAPPED but the move to an own TF-created repo RETAINED (ADR-0024)
 metadata:
   type: project
 ---
 
 **Epic #273 (OPEN, priority low, milestone New-repo bootstrap)** — manage repo creation + GitHub
-governance as code with OpenTofu. A **new language overlay** on the git-flow base, same pattern as the
-Python starter [[project-gitflow-starter]] (#129).
+governance as code with OpenTofu, in dotfiles' `terraform/` until the planned move to a dedicated
+TF-created repo. The original "language overlay like the Python starter
+[[project-gitflow-starter]]" framing was **descoped 2026-07-17 (ADR-0024)** — no fleet of TF repos
+is coming; the one-off infra repo bootstraps via terraform.md's COMPOSE flow instead.
 
 **Why / origin:** user wants repos-as-code; hadn't used Terraform in ~5 years, liked the Terragrunt
 "model in one repo, config in another" model and asked if it's still best (answer: no, at this scale).
@@ -25,16 +27,26 @@ GitHub **API-level** resources only — `github_repository`, `github_repository_
   validated the whole loop end to end — evidence + gotchas in PR #292's journal comment.
 - **Conventions rule #291: DONE.** Closed by merged PR #293 — `claude/rules/tools/terraform.md`
   (paths-gated, aligns with ADR-0022; `tenv` as version manager, write-`.tf`-not-`.tofu` caveat).
-- **Phase 1 — MVP, TF inside dotfiles, one real repo end to end: #294 (OPEN, next up).** Done =
-  `tofu apply` manages the repo cleanly — import-adopted, no spurious drift, plan converges to zero
-  changes. Carried-forward edges live on the issue (see below).
-- **Phase 2 — TF overlay tooling.** Copy the Python overlay's structure for TF: `tofu fmt -check`,
-  `tflint`, a security scan, wired into lefthook + CI. **Old hard dependency now satisfied** — the
-  Python overlay #129 and its refinement #236 are both CLOSED, so Phase 2 is unblocked structurally.
-  **Still holds one TBD: the scanner pick** (trivy vs checkov) — input to that call is trivy's
-  Feb–Mar 2026 supply-chain incident (GHSA-69fq-xp46-6x23). Not yet filed as an issue.
-- **Phase 3 — move TF to its own repo,** created by that same TF (dogfood loop; keeps admin creds off
-  dotfiles, preserving its scoped-token guarantee). Not yet filed.
+- **Phase 1 — MVP: DONE.** #294 closed by merged PR #295 — `terraform/` manages the dotfiles repo
+  (settings + 21 labels + protect-main ruleset), import-adopted, plan converges to zero. R2 backend +
+  enforced client-side encryption live; env derived in `.envrc` from four `.envrc.local` secrets;
+  tenv (Brewfile) pins the runtime from `required_version`; `just tofu` / `just tofu-apply` split
+  scoped plan from elevated apply.
+- **TF lint hygiene: PR #296** — `tofu-format`/`tofu-lint`(tflint)/`tofu-scan`(trivy) lefthook jobs +
+  CI installs + Brewfile. **Scanner decided: trivy over checkov (ADR-0023)** — bake-off on the live
+  config (trivy caught GIT-0003, checkov missed it, 3× faster); Homebrew-only consumption because of
+  GHSA-69fq-xp46-6x23. tflint installs from `terraform-linters/tap` (left homebrew-core May 2026,
+  license change).
+- **Phase 2 (copier overlay): SCRAPPED — ADR-0024** (2026-07-17; epic comment preserves the mapped
+  design for revival). Operator won't mint more TF repos; a template with no second consumer is
+  maintenance without a user.
+- **Phase 3 (move TF to its own repo): RETAINED — the remaining epic milestone.** TF creates the new
+  repo (dogfood), then config + lefthook jobs + `.envrc` TF wiring migrate out of dotfiles (which
+  drops its TF Brewfile/CI entries); state stays in R2 untouched. Repo can be private (its map
+  describes private repos' governance). Bootstrap via terraform.md COMPOSE, not copier. Not yet
+  filed as an issue.
+- **Other remaining scope (incremental):** adopt more repos into the `repos.tf` map; manage
+  `github_actions_secret`/RELEASE_PAT (fourth boundary resource) for release-automated repos.
 
 ## Decisions — SETTLED in ADR-0022 (were "leans", now chosen)
 
