@@ -48,7 +48,6 @@ brew 'stylua' # Format Lua files
 brew 'taplo' # Lint and format TOML files
 brew 'tealdeer' # tldr utility
 brew 'tenv' # OpenTofu/Terraform version manager — resolves required_version (infra repo)
-brew 'tflint' # Terraform linter for the infra repo (from terraform-linters/tap)
 brew 'trivy' # IaC misconfiguration scanner for the infra repo (tfsec successor)
 brew 'uv' # Python package/env manager for project scaffolding
 brew 'viddy' # Better watch
@@ -65,6 +64,7 @@ cask 'claude-code' # AI coding assistant CLI
 cask 'font-jetbrains-mono-nerd-font'
 cask 'ghostty' # GPU-accelerated terminal
 cask 'rectangle'
+cask 'tflint' # Terraform linter for the infra repo — cask-only in terraform-linters/tap, no core formula
 
 # Personal
 cask 'bitwarden'
