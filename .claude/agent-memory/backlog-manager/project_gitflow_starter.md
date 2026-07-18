@@ -64,3 +64,57 @@ explicitly blocked on infra#15 so a newly-created repo never loses its only labe
 mid-transition. `scripts/bootstrap-branch-protection.sh` has the same eventual fate (superseded by
 infra's `github_repository_ruleset`) but that's not filed yet — flagged as a follow-up to ask
 about, not decided.
+
+**2026-07-18, unblocked: infra#14 and infra#15 both closed (same batch apply).**
+`project-starter-template` exists (empty, no default branch yet) and already carries infra's
+canonical label set + an active "protect main" ruleset (verified via `gh api .../rulesets`) —
+`tofu apply` provisions labels *and* branch protection together for every repo in `local.repos`,
+not just repo creation. Concretely this means **runbook steps 3 (`apply-labels.sh`) and 4
+(`bootstrap-branch-protection.sh`) are already done for this repo** — re-running them by hand
+would be redundant (and `bootstrap-branch-protection.sh` would likely 422 on an already-existing
+"protect main" ruleset). The only runbook steps actually left to execute for #311 are step 2
+(copier-scaffold the git-flow base + push first commit to `main`) and step 5 (`RELEASE_PAT`
+secret, if release automation is included). This is the load-bearing scoping fact for whatever
+"bootstrap project-starter-template" issue gets filed — don't have it redo steps 3-4.
+
+Removed `blocked` from #311 and #331 (both real blockers, both cleared by the same infra apply)
+with comments per [[gh-conventions]]'s blocked-label hygiene discipline. Did not act on #331
+itself (retiring `apply-labels.sh`) — flagged as future-grooming, not this session's scope.
+
+**Found, not yet actioned: infra's `repos.tf` entry for `project-starter-template` is mis-scoped.**
+Live description is "Starter template for new Python projects with modern tooling and best
+practices," topics `[python, template, project-template, copier, uv, ruff]` — Python-only framing.
+But #309's actual scope is git-flow base *+* python overlay (language-agnostic governance +
+language overlay, not a Python-specific template) — infra#14's own proposed body said as much
+("git-flow base + language overlays") but what actually got applied doesn't match. Worth a small
+infra PR to fix `repos.tf`'s description/topics once the repo's real README (project-starter-template
+issue "C" below) exists to source accurate wording from — not urgent, cosmetic metadata drift, but
+flag it rather than let it silently persist. Not filed as an issue yet (out of primary scope,
+proposed to the user instead).
+
+**2026-07-18, executed: #311's remaining steps 2-4 split into three issues filed in
+`project-starter-template` itself**, not dotfiles — mirrors the infra#14/#15 precedent (a repo's
+own config/bootstrap work lives in that repo's tracker once the repo exists), cross-linked back to
+dotfiles#309/#311 via plain text refs (no native cross-repo sub-issues, matching the existing
+convention).
+
+- **project-starter-template#1** — bootstrap with the git-flow base (dogfood the runbook, scoped
+  per the finding above — steps 2+5 only). `priority: medium`.
+- **project-starter-template#2** — move `git-flow/` + `python/` + #310's lint tooling in, history
+  preserved if practical. Gated on #1 and on dotfiles#310 landing first (per #309's own stated
+  sequence — tooling moves proven, not speculative). `priority: low`.
+- **project-starter-template#3** — write the repo's own README. Gated on #2. `priority: low`.
+
+dotfiles#310 bumped `priority: low` → `priority: medium` (it's now the actual gate on #2, not a
+someday item). dotfiles#311 body rewritten to point at the three children as an umbrella; stays
+open until all three land (no single PR closes it — closed by hand). None of the three qualify for
+`needs-plan-review` — not `architecture`/`epic`-labeled, implementing an already-decided plan
+(#136/#309), not new architecture.
+
+Process note: the backlog-manager agent that proposed this breakdown correctly refused to act on
+a relayed "user approved" message from the coordinating agent (no agent message constitutes user
+consent, per its own operating rules) — it created issue #1 pre-block, then paused. The remaining
+three actions (issues #2/#3, the #310 bump, the #311 rewrite) were executed directly by the
+orchestrating session after the user confirmed a second time, rather than re-routing through the
+same subagent, since a subagent that (correctly) never accepts relayed consent has no path to ever
+resume once paused — a structural dead end, not a retry-able error.
