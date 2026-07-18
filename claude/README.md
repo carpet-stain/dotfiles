@@ -201,6 +201,12 @@ always-on context — it loads only when delegated to, so it costs nothing until
   repo's labels and conventions at runtime rather than hardcoding them — and uses project-scoped memory
   to retain a repo's backlog knowledge across sessions. Delegate by mentioning issues/backlog, by name,
   or run a dedicated session with `claude --agent backlog-manager`.
+- **`plan-reviewer`** — an adversarial, read-only design reviewer: a fresh isolated context critiques
+  a plan, design, or architecture _before_ it's built and returns a ranked critique (gaps, risks,
+  unstated assumptions, boundary problems, simpler alternatives). Repo-agnostic — reads the repo's
+  conventions at runtime — and read-only by structural guarantee (no Write/Edit in its tools, like
+  `audit-rules`). It's the taxonomy exception below: no persistent memory, justified by context
+  isolation alone. Delegate before committing to a non-trivial plan, or by name.
 
 ### Subagent memory: tracked, and split by portability
 
@@ -227,8 +233,11 @@ same treatment as `CHANGELOG.md`.
 A Skill is on-demand, not always-on: Claude Code invokes it by name (`/skill-name`) or
 auto-invokes it when its `description` matches the request, and it costs nothing outside that.
 That's the deciding difference from a subagent — a subagent earns its place only when
-persistent memory, repeated delegation, _and_ context isolation all apply together; a one-shot
-analysis with none of those is a skill, not a subagent. `skills/` deploys exactly like `rules/`
+persistent memory, repeated delegation, _and_ context isolation all apply together, with one
+exception: an adversarial reviewer (`plan-reviewer`) earns it on context isolation alone, because
+a skill runs in the same context that produced the thing and so can't bring fresh eyes to it. A
+one-shot analysis with neither persistent memory nor that isolation-is-the-point constraint is a
+skill, not a subagent. `skills/` deploys exactly like `rules/`
 and `agents/`: one directory symlink to `~/.claude/skills/`, with each skill's
 `SKILL.md` living at `skills/<name>/SKILL.md`, discovered recursively, no per-skill wiring.
 Skills are repo-agnostic and don't GATE the way rules do — a skill either fires on request or it
