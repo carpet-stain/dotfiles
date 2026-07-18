@@ -243,6 +243,14 @@ doesn't, there's nothing to self-gate against a repo's shape.
   (branch model, version scheme, scopes, pre-commit tooling). Propose-don't-create: it presents
   a full draft or diff in chat and waits for approval before anything is written.
 
+**Authoring convention — keep a `SKILL.md` lean.** Intent, triggers, and a map of what's
+available belong in the entry file; target one screen, with ~500 lines the ceiling, not a goal.
+Depth that only some runs need — long checklists, worked examples, per-case detail — lives in
+`resources/*.md` beside it, loaded on demand. A skill's cost is the length it pulls into context,
+not the count of skills, so a skill that outgrows a screen offloads depth to resource files
+instead of inlining it. The two skills above sit near 200 lines with nothing split out yet; reach
+for the pattern when a skill grows (likely #280's nvim skill or a future terraform one), not before.
+
 ## Lifecycle: running the skills over a repo's life
 
 `compose-agents` and `audit-rules`, plus Claude Code's built-in `/init` and `/doctor`, all touch
