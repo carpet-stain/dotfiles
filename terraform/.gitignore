@@ -1,0 +1,8 @@
+# Never commit state (secrets land in it — ADR-0022), plans, or the
+# provider cache. The lockfile (.terraform.lock.hcl) IS committed.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log

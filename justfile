@@ -53,6 +53,17 @@ cliff-preview *args:
 adr *args:
     VISUAL=true adr new {{ args }}
 
+# OpenTofu against terraform/ under the routine scoped token (init, plan, ...).
+# Backend/encryption env comes from direnv, so run from inside the repo. cd,
+# not -chdir: tenv resolves the runtime from required_version in the cwd.
+tofu *args:
+    cd terraform && tofu {{ args }}
+
+# Apply under the elevated session token — mutations need Administration
+# scope, which the routine GH_TOKEN deliberately lacks (ADR-0007/ADR-0022).
+tofu-apply *args:
+    cd terraform && GITHUB_TOKEN=$(env -u GH_TOKEN -u GITHUB_TOKEN gh auth token) tofu apply {{ args }}
+
 # +--------------------------------------------------------------------------+
 # | Linux VM (OrbStack) — exercise linux/deploy.sh                           |
 # +--------------------------------------------------------------------------+
