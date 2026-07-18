@@ -30,10 +30,11 @@ dotfiles checkout) — this must work from any repo where the rules are deployed
 If invoked with a path argument, scope the audit to that file or directory instead of the whole
 tree (useful mid-edit on a single file). Otherwise audit everything.
 
-Also read the current repo's own `AGENTS.md`, `README.md`, and any top-level `docs/*.md`
-(not nested subdirectories — see Cross-doc replication check's scope note), if present — needed
-for the local-doc contradiction check below, the AGENTS.md length check under Sprawl, and the
-Cross-doc replication check. If the repo uses a _real_ `CLAUDE.md` (not a symlink to `AGENTS.md`)
+Always read the current repo's own `AGENTS.md` and `README.md` when they exist, plus any
+top-level `docs/*.md` (not nested subdirectories — see Cross-doc replication check's scope note).
+These aren't optional context: the local-doc contradiction check below, the AGENTS.md length
+check under Sprawl, and the Cross-doc replication check all depend on them, and none may silently
+skip `README.md` when it's present. If the repo uses a _real_ `CLAUDE.md` (not a symlink to `AGENTS.md`)
 as its canonical agent doc, read that too and treat it as the subject wherever these checks say
 `AGENTS.md` — a `CLAUDE.md` symlink resolves to `AGENTS.md`, so read it once, not twice.
 
@@ -160,6 +161,21 @@ For each substantial match:
   somewhere — point at wherever it's defined instead of re-deriving it inline in the report.
 - Suggest the pointer-form replacement in the doc that should stop restating (a one-line
   cross-reference), not a full rewrite — same "propose, don't diff" limit as the other checks.
+
+**Circular pointers are a first-class finding here, independent of length.** Two docs that each
+say "see the other" for the same fact — so it lives in neither — are the doc↔doc dual of the
+duplication above; flag them the same way, quoting both pointers. The Sprawl playbook names this
+trap too (step 7), but only inside the AGENTS.md-over-threshold path, so a circular pointer
+between two _short_ docs would otherwise slip through. It's just as broken at any length, so it's
+caught here regardless of either doc's size.
+
+**Stale issue-ref an ADR now owns.** Once a decision has an ADR (`docs/adr/NNNN-*.md`), later
+docs should cite the ADR (`see docs/adr/0003-…md`), not the originating issue — the doc-home
+map's rule as ADRs accumulate. Flag a `#N` pointer used to _justify a settled decision_ when an
+ADR covering that decision exists, and propose repointing it at the ADR. Stay conservative: a
+`#N` referencing live or tracking work (an open issue, a follow-up, a bug still in flight) is
+fine and must not be flagged — only a decision's why-pointer that an ADR now owns is the target,
+same "quiet on noise" bar as the duplication check. These report under Cross-doc replication too.
 
 Scope stays to the docs an agent relies on for context — AGENTS.md, README.md, top-level
 `docs/*.md` — not general repo-doc linting. Don't descend into `docs/` subdirectories (e.g. an
