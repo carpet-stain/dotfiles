@@ -1,0 +1,56 @@
+name: PR code review (advisory)
+
+# Advisory code review of the PR diff by a NON-Anthropic model — a different
+# model's eyes than the Claude that planned and implemented the change (see
+# docs/adr/0025). Deliberately NOT a required status check: an LLM reviewer
+# false-positives, and a rate-limit or outage must never block a merge, so
+# human approval stays the gate. Scoped to `architecture`-labeled PRs to
+# bound cost.
+#
+# Inert until an `OPENAI_API_KEY` repo secret exists — provision it with the
+# elevated session, same pattern as RELEASE_PAT. Without it the job skips
+# cleanly (green), it doesn't fail. The reviewer action is SHA-pinned (it
+# holds the key and reads the diff); swap the `uses:` line for a different
+# provider/action, or a DIY OpenAI call, if preferred. Set MODEL to a
+# current model of your choice.
+#
+# Note: this action batches comments per file, so the prompt's `suggestion`
+# blocks post as copy-pasteable code, not GitHub's one-click-applyable
+# suggestions (those need exact per-line anchoring). A DIY step posting
+# per-line review comments via the API is the upgrade for agent-consumable,
+# one-click suggestions — see the PR discussion for #304.
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    if: contains(github.event.pull_request.labels.*.name, 'architecture')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for the OpenAI key
+        id: guard
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY not set — advisory review skipped." >&2
+            echo "enabled=false" >>"$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >>"$GITHUB_OUTPUT"
+          fi
+      - name: Advisory review
+        if: steps.guard.outputs.enabled == 'true'
+        uses: anc95/ChatGPT-CodeReview@1af98686be7c2079f7be2f16ae887c8c023cc506 # v1.0.24
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MODEL: gpt-4o-mini
+          LANGUAGE: English
+          PROMPT: >-
+            You are an independent code reviewer looking at one file's changes in a pull request — a different model than the one that wrote them, so bring genuinely independent eyes. For each issue: tag its severity (blocking / nit / pre-existing), name the line it's on, say what's wrong and why in a sentence or two, and when the fix is mechanical add a ```suggestion block with the exact replacement code. Most severe first. Be terse, skip praise, and say nothing when the changes are fine. You are advisory — a human approves the merge.
