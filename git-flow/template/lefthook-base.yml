@@ -17,6 +17,7 @@ pre-commit:
         - "**/*.md"
       exclude:
         - "CHANGELOG.md"
+        - ".claude/agent-memory/**"
       run: markdownlint-cli2 {staged_files}
 
     - name: md-format
@@ -26,6 +27,7 @@ pre-commit:
         - "**/*.md"
       exclude:
         - "CHANGELOG.md"
+        - ".claude/agent-memory/**"
       run: prettier --check {staged_files}
 
     - name: yaml-format
