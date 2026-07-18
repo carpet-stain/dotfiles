@@ -1,0 +1,4 @@
+# Free-form `gh` filing (and the backlog-manager's read-and-fill) stay the
+# primary path — the templates are structure, not a gate. Keep the blank
+# "open a regular issue" option available alongside the picker.
+blank_issues_enabled: true
