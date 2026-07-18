@@ -40,11 +40,15 @@ GitHub **API-level** resources only — `github_repository`, `github_repository_
 - **Phase 2 (copier overlay): SCRAPPED — ADR-0024** (2026-07-17; epic comment preserves the mapped
   design for revival). Operator won't mint more TF repos; a template with no second consumer is
   maintenance without a user.
-- **Phase 3 (move TF to its own repo): RETAINED — the remaining epic milestone.** TF creates the new
-  repo (dogfood), then config + lefthook jobs + `.envrc` TF wiring migrate out of dotfiles (which
-  drops its TF Brewfile/CI entries); state stays in R2 untouched. Repo can be private (its map
-  describes private repos' governance). Bootstrap via terraform.md COMPOSE, not copier. Not yet
-  filed as an issue.
+- **Phase 3 (move TF to its own repo): DONE 2026-07-18.** `carpet-stain/infra` (public — free plan
+  means private repos get no rulesets, and dotfiles' governance data was already public) was created
+  BY the TF config (dotfiles PR #306), bootstrapped with the git-flow base only, then the config
+  migrated there (infra PR #4): root-level *.tf, labels + protect-main ruleset generalized to all
+  managed repos via `moved` blocks, hand-filled overlay seams (justfile.lang, lefthook-lang.yml
+  `lang` jobs, pinned-binary tofu.yml workflow), founding ADR-0002 restating the stack. dotfiles
+  removal PR strips terraform/ + hooks + CI installs + `.envrc` wiring (Brewfile keeps
+  tenv/tflint/trivy as machine tools). Gotchas recorded in infra's README: fresh repos are seeded
+  with GitHub default labels (6 collide → temp import blocks; 3 strays deleted by hand).
 - **Other remaining scope (incremental):** adopt more repos into the `repos.tf` map; manage
   `github_actions_secret`/RELEASE_PAT (fourth boundary resource) for release-automated repos.
 

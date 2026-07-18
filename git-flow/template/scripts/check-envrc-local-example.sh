@@ -14,9 +14,12 @@ real_file=".envrc.local"
 
 # Strip the value from any `export VAR=...` line, keeping the `export VAR=`
 # prefix so variable-name/comment drift is still caught.
-strip_values() { sed -E 's/^(export [A-Z_]+=).*/\1/' "$1"; }
+# [A-Z0-9_], not [A-Z_]: a digit in a var name (R2_...) must not exempt its
+# value from stripping — the drift diff below prints to stderr, so an
+# unstripped line would leak the credential it holds.
+strip_values() { sed -E 's/^(export [A-Z0-9_]+=).*/\1/' "$1"; }
 
-if grep -E '^export [A-Z_]+=.+' "$example_file" >/dev/null; then
+if grep -E '^export [A-Z0-9_]+=.+' "$example_file" >/dev/null; then
   echo "error: $example_file has a non-empty export value — replace it with 'export VAR=' (empty)" >&2
   exit 1
 fi
