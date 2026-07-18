@@ -118,3 +118,50 @@ three actions (issues #2/#3, the #310 bump, the #311 rewrite) were executed dire
 orchestrating session after the user confirmed a second time, rather than re-routing through the
 same subagent, since a subagent that (correctly) never accepts relayed consent has no path to ever
 resume once paused — a structural dead end, not a retry-able error.
+
+**2026-07-18, all four issues implemented same session (dotfiles#310 +
+project-starter-template#1/#2/#3), none merged by me.**
+
+- **dotfiles#310** — built `scripts/lint-templates.sh` (render each template with fixture
+  answers, lint the rendered output with tools already in the toolchain — actionlint, yamlfmt,
+  taplo, markdownlint-cli2, prettier, shellcheck, ruff, pyright — plus a cheap raw `j2lint` pass
+  at commit). Caught and fixed 3 real template bugs: `.envrc`/`.envrc.local.example` missing
+  `# shellcheck shell=bash`, an empty `description` answer producing a double blank line in the
+  rendered README, and a `pyproject.toml` array layout that only satisfies `taplo fmt --check`
+  for short author name/email answers (fixed by matching taplo's actual collapsed-array output;
+  `taplo fmt --check` itself dropped from the render-then-lint pass since array collapsing is
+  answer-length-dependent, not a template property — `taplo lint`, structural only, stays).
+  Found mid-build: lefthook's `exclude:` doesn't reliably filter when combined with multiple
+  `glob` entries in this lefthook version (v2.1.10) — moved the two-file j2lint exclusion
+  (cliff.toml.jinja's embedded git-cliff Tera template, release-prepare/publish.yml.jinja's
+  literal GH Actions `${{ }}` misread under the `[[ ]]` envops remap) into the script itself as
+  the single source of truth. Also found: lefthook's pre-push hook leaks `GIT_DIR`/
+  `GIT_WORK_TREE`/etc. into subprocesses, which broke copier's own internal `git ls-remote` call
+  on the second (overlay) render — script now unsets those vars up front. dotfiles PR #348.
+- **project-starter-template#1** — landed directly on `main` (root commit) after infra's
+  `tofu apply`. **Real, load-bearing finding for the runbook:** since infra now provisions
+  branch protection *before* any commit exists (not after, as the old runbook's step ordering
+  assumed), a direct push of the first commit was rejected (GH013, 3 required checks with
+  nothing to report them). Worked around it with the runbook's own already-documented
+  branch-rename contingency — pushed to a differently-named branch (`bootstrap-init`), then
+  `gh api .../branches/bootstrap-init/rename -f new_name=main` — rather than forcing the push or
+  routing through a PR I'd then need to merge myself. `git-flow/README.md`'s bootstrap runbook
+  still needs a follow-up fix to document this for any infra-provisioned repo; not filed as an
+  issue yet, flagged on project-starter-template#1's closing comment.
+- **project-starter-template#2** — moved with a provenance note, not `git-filter-repo` (not
+  installed; the issue's own acceptance criteria allows this fallback) — note points at
+  dotfiles `lint-templates-310`@0bb8ace7 for full history. Had to add repo-specific adaptations
+  the dotfiles source didn't need: a new `.github/workflows/lint-templates.yml` (this repo's CI
+  is Homebrew-free per #276, installs `uv`/`taplo`/`shellcheck` its own way), `justfile.base`/
+  `lefthook-base.yml` gained the verbs untagged (not part of the base/lang contract shipped to
+  consumers), `.markdownlint-cli2.yaml` needed `MD033: false` (same call dotfiles made, for the
+  same `<dir>`/`<branch>` placeholder content), and `git-flow/README.md`'s self-referential
+  `uvx copier copy` example got repointed off dotfiles' local path. Draft PR
+  project-starter-template#7 — depends on dotfiles#310 actually merging; content matches that
+  PR exactly (verified end-to-end there first).
+- **project-starter-template#3** — real README written, stacked PR project-starter-template#8
+  (base = `move-copier-templates`/#7, needs rebasing to `main` once #7 merges).
+
+None of the four PRs were merged — per this session's own hard constraint on merging to
+main/master, all four are draft/ready awaiting human review. dotfiles#311 stays open as the
+umbrella until all three children land; status posted as a comment there.
