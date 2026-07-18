@@ -1,5 +1,6 @@
 tap 'Giammarco-Ferranti/deja' # deja isn't in homebrew-core
 tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
+tap 'terraform-linters/tap' # tflint left homebrew-core (license change, 2026)
 
 brew 'act' # Run GitHub Actions workflows locally
 brew 'actionlint' # Lint GitHub Actions workflow files
@@ -47,6 +48,8 @@ brew 'stylua' # Format Lua files
 brew 'taplo' # Lint and format TOML files
 brew 'tealdeer' # tldr utility
 brew 'tenv' # OpenTofu/Terraform version manager — resolves required_version (terraform/)
+brew 'tflint' # Terraform linter (from terraform-linters/tap)
+brew 'trivy' # IaC misconfiguration scanner for terraform/ (tfsec successor)
 brew 'uv' # Python package/env manager for project scaffolding
 brew 'viddy' # Better watch
 brew 'yamlfmt' # Format YAML files

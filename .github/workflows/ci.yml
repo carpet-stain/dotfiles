@@ -44,7 +44,8 @@ jobs:
       - name: Install lint/format tools
         run: |
           brew install just lefthook zsh shellcheck actionlint shfmt stylua \
-            selene taplo yamlfmt markdownlint-cli2 prettier
+            selene taplo yamlfmt markdownlint-cli2 prettier \
+            tenv terraform-linters/tap/tflint trivy
 
       # `just lint` is the same entry point contributors run (it wraps
       # `lefthook run pre-commit --all-files`), so CI and local share one
@@ -52,3 +53,7 @@ jobs:
       # which checks run; --no-tty passes through the recipe for CI.
       - name: Run lint/format checks
         run: just lint --no-tty
+        env:
+          # The tofu-format hook installs the required_version runtime on
+          # demand via tenv, same as .envrc does locally.
+          TENV_AUTO_INSTALL: "true"
