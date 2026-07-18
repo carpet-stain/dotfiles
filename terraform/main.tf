@@ -32,11 +32,6 @@ resource "github_repository" "this" {
   delete_branch_on_merge = true
   allow_update_branch    = false
 
-  # Inert while squash-merge is off; pinned to the live values because the
-  # provider's defaults differ and would show as perpetual drift.
-  squash_merge_commit_title   = "PR_TITLE"
-  squash_merge_commit_message = "PR_BODY"
-
   web_commit_signoff_required = false
 
   # Security by default for every managed repo (trivy GIT-0003 surfaced
@@ -46,6 +41,16 @@ resource "github_repository" "this" {
   # Destroying a managed repo archives it instead of deleting it — removal
   # from the map must never be able to destroy history.
   archive_on_destroy = true
+
+  lifecycle {
+    # Inert while squash-merge is off, and GitHub's create API stores its
+    # own defaults for them regardless of what's sent — pinning them makes
+    # every fresh repo drift once. Unmanaged on purpose.
+    ignore_changes = [
+      squash_merge_commit_title,
+      squash_merge_commit_message,
+    ]
+  }
 }
 
 resource "github_issue_label" "this" {

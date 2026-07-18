@@ -28,6 +28,21 @@ locals {
         "zsh",
       ]
     }
+
+    infra = {
+      description      = "GitHub account governance as code — repos, labels, rulesets (OpenTofu)"
+      visibility       = "public"
+      has_issues       = true
+      has_projects     = false
+      has_wiki         = false
+      has_discussions  = false
+      allow_auto_merge = true
+      topics = [
+        "opentofu",
+        "infrastructure-as-code",
+        "repos-as-code",
+      ]
+    }
   }
 
   labels = {

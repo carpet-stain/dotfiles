@@ -28,7 +28,16 @@ State is client-side encrypted before it reaches the R2 bucket; losing
 
 ## Adding a repo
 
-Add an entry to `local.repos` (and, if it already exists on GitHub, it's
-adopted by the `import` blocks in `imports.tf` on the next apply). Labels
-apply per-repo; the ruleset resource currently covers `dotfiles` only —
-generalize both when the second repo joins the map.
+Two flows, depending on whether the repo exists yet:
+
+- **Create new**: add an entry to `local.repos` — the next apply creates
+  it. No import anything; an import block for a not-yet-existing repo
+  fails the plan, which is why the original adoption sweep was removed
+  once everything it covered reached state.
+- **Adopt existing**: add the map entry plus a temporary `import` block
+  (`id` = repo name; labels `repo:label`, rulesets `repo:ruleset_id`),
+  apply, then delete the block — it's spent once state holds the
+  resource.
+
+Labels and the ruleset resource currently cover `dotfiles` only —
+generalize them as managed repos accumulate.
