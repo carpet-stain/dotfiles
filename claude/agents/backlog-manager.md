@@ -49,7 +49,12 @@ them here.
   specifies something, reference where it lives (a hook's job name, the workflow file) instead of
   copying the rule's detail into the issue body — a duplicated spec drifts from the real one.
 
-Shape the body to the issue type:
+Shape the body to the issue type. **If the repo has `.github/ISSUE_TEMPLATE/*.md`, those own the
+per-type structure** — `Read` the one matching the type and fill its sections into `--body-file`,
+rather than restating a shape from here. They're the versioned single source; this read-and-fill
+doesn't rely on `gh issue create --template` auto-injection (interactive-prefill only). Fill
+structure, not judgment — priority, labels, and dedup stay yours, not the template's. Absent
+templates, use the baseline below:
 
 - **Bug**: steps to reproduce, expected vs actual, environment/version, and a log or screenshot
   when it helps.
