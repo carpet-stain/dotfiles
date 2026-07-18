@@ -1,14 +1,14 @@
 ---
 name: project-agent-config-adoption
-description: Epic #298 — agent-config mechanisms borrowed from the diet103 infra showcase; what we adopted and what we deliberately rejected
+description: Epic #298 (CLOSED 2026-07-18) — agent-config mechanisms borrowed from the diet103 infra showcase; all three children shipped, what we adopted and what we deliberately rejected
 metadata:
   type: project
 ---
 
-**Epic #298 (OPEN, priority low)** — adopt three *mechanisms* from `diet103/claude-code-infrastructure-showcase`'s `.claude` setup, filtered through this repo's philosophy. Children:
-- **#299** (docs, low) — progressive-disclosure + 500-line rule as a documented skill-authoring convention.
-- **#300** (feat, medium — the standout) — a repo-agnostic, read-only plan/architecture-reviewer subagent (adversarial fresh-context review; the one showcase "agent" that can't be a skill because isolation is the point).
-- **#301** (spike, low) — evaluate a *minimal* skill-activation nudge hook (trigger map + UserPromptSubmit reminder); shares #280's "is skill machinery worth it" lens.
+**Epic #298 (CLOSED 2026-07-18, was priority low)** — adopted three *mechanisms* from `diet103/claude-code-infrastructure-showcase`'s `.claude` setup, filtered through this repo's philosophy. All three children shipped, closing the epic:
+- **#299** (docs, low, CLOSED) — progressive-disclosure + 500-line rule as a documented skill-authoring convention.
+- **#300** (feat, medium, CLOSED — the standout) — a repo-agnostic, read-only plan/architecture-reviewer subagent (adversarial fresh-context review; the one showcase "agent" that can't be a skill because isolation is the point).
+- **#301** (spike, low, CLOSED) — evaluated a *minimal* skill-activation nudge hook (trigger map + UserPromptSubmit reminder); shared #280's "is skill machinery worth it" lens.
 
 **Deliberately REJECTED (don't re-litigate):** the showcase's heavy hook infra — vector embeddings, multi-LLM providers (gemini/openai/ollama), session-doc indexing, metrics, PreToolUse blocking guard. Too many moving parts for a solo machine-global setup, violates simplicity-first/minimal-infra, and the showcase itself ships skill-activation `disabled` by default. Also skipped: its app-specific backend/frontend dev-guideline skills (TS/Node/Prisma/Sentry — not portable), TS build hooks, and 6 of its 8 "agents" that are one-shot analyses our subagent bar keeps as skills.
 

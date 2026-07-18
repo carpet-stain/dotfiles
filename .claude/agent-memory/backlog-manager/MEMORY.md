@@ -10,12 +10,13 @@ here — this tier holds only what's specific to this repo/user.
 
 ## Backlog mechanics
 - [gh conventions](gh_conventions.md) — labels, theme/priority/milestone axes, epic sub-issue gh gotchas, worktree-Write guard
+- [carpet-stain/infra](reference_infra_repo.md) — sibling GitHub-governance repo with its own backlog-manager memory; cross-repo dependency web to dotfiles #309/#311/#331
 
 ## Initiatives (decision records — live status lives on the issue)
 - [Python starter #129](project_python_starter.md) — reproducible py3 starter (uv+ruff+pyright+pytest+lefthook+CI) via copier; nvim-compat constraint
-- [Git-flow governance #136](project_gitflow_starter.md) — portable git workflow/branch-protection/labels; compose-agents ports prose only; sibling of #129
-- [Terraform repos-as-code #273](project_terraform_repos_as_code.md) — OpenTofu overlay; Phase 0 spike + rule DONE (ADR-0022), Phase 1 MVP is #294, Phase 2 scanner TBD
-- [Agent-config adoption #298](project_agent_config_adoption.md) — adopt repo-agnostic mechanisms from the diet103 showcase (reviewer subagent #300, disclosure skill #299, activation-hook spike #301); rejected heavy hook infra; CI-review automation spun to #302
+- [Git-flow governance #136](project_gitflow_starter.md) — portable git workflow/branch-protection/labels; compose-agents ports prose only; sibling of #129; follow-on extraction epic #309 (git-flow+python only, not terraform); #311 now blocked on infra#14, label-taxonomy drift being closed via infra#15 + dotfiles#331
+- [Terraform repos-as-code #273](project_terraform_repos_as_code.md) — CLOSED 2026-07-18; OpenTofu repos-as-code moved to sibling repo carpet-stain/infra, which now owns continuation
+- [Agent-config adoption #298](project_agent_config_adoption.md) — CLOSED 2026-07-18; all three children shipped (reviewer subagent #300, disclosure skill #299, activation-hook spike #301); CI-review automation lives on in #302
 
 ## Environment
 - [Claude Code paths & ~/.claude leak](env_claude_paths.md) — where CC writes; the daemon/telemetry leak is upstream (#134), not the subagent

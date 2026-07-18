@@ -36,3 +36,31 @@ git.md/github.md — judgment/rules-content work, propose before writing.
 
 **detect.sh already models the porting facts** (branch_model, version_scheme, release automation,
 pre_commit_tool, credential_pattern) — good foundation for the scaffolder's placeholders.
+
+**Follow-on epic #309** (feat(git), OPEN) extracts the git-flow base + Python overlay out of
+dotfiles into a new `project-starter-template` repo, so dotfiles becomes config-only. Scope is
+**git-flow + python only, NOT terraform** — corrected 2026-07-18 after [[project-terraform-repos-as-code]]
+(#273) closed: TF left dotfiles directly for the sibling repo `carpet-stain/infra`, never routing
+through `project-starter-template`. #309's children: #310 (template lint/format tooling), #311
+(stand up the new repo), #312 (remove the templates from dotfiles, also resolves the commit-scope
+drift in #262).
+
+**#311's step 1 dependency shape changed 2026-07-18.** Repo creation for every managed repo now
+routes through `carpet-stain/infra`'s `repos.tf` `locals.repos` map, not a manual `gh repo
+create` — #311's original step 1 text was stale the moment #273 closed. Filed
+**carpet-stain/infra#14** (adds the `project-starter-template` entry) as the real unblock, edited
+#311 to point at it, and applied dotfiles' `blocked` label to #311 with a comment explaining why
+(real current blocker, not speculative — remove once infra#14 is applied and the repo exists).
+
+**Label drift found + fixed the same session:** dotfiles' live `needs-plan-review` /
+`plan-approved` labels (applied manually via `scripts/apply-labels.sh` after infra's `repos.tf`
+was last written) were never captured in infra's `local.labels` — filed
+**carpet-stain/infra#15** to sync them in, with the import-blocks gotcha documented on the issue
+(they exist live on dotfiles already, so a bare `tofu apply` after adding them to `local.labels`
+would try to create-and-409 on the dotfiles side; needs `import` blocks for those two instances
+first). Filed **dotfiles#331** to retire `scripts/labels.json` + `scripts/apply-labels.sh`
+(AGENTS.md + `git-flow/README.md`'s bootstrap runbook both reference it) once infra#15 lands —
+explicitly blocked on infra#15 so a newly-created repo never loses its only label-bootstrap path
+mid-transition. `scripts/bootstrap-branch-protection.sh` has the same eventual fate (superseded by
+infra's `github_repository_ruleset`) but that's not filed yet — flagged as a follow-up to ask
+about, not decided.
