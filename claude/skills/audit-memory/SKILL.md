@@ -3,10 +3,12 @@ name: audit-memory
 description: >-
   Read-only audit of a repo's subagent project-memory (`.claude/agent-memory/<name>/`) for
   staleness against live GitHub state, one-home duplication of issue content, a drifted MEMORY.md
-  index, and sprawl — reporting proposed fixes without editing anything. Use when asked to audit,
-  review, or check agent/backlog-manager memory for stale pointers, restated issue status,
-  orphaned or dangling memory files, or files that have grown too long. The detection backstop to
-  the write-time discipline in `backlog-manager.md`. Read-only — never invoke it to apply a fix.
+  index, sprawl, and durable content that belongs in README/AGENTS.md/docs instead — reporting
+  proposed fixes without editing anything. Use when asked to audit, review, or check
+  agent/backlog-manager memory for stale pointers, restated issue status, orphaned or dangling
+  memory files, files that have grown too long, or memory content that should live in repo docs
+  instead. The detection backstop to the write-time discipline in `backlog-manager.md`. Read-only
+  — never invoke it to apply a fix.
 allowed-tools: Read, Glob, Grep, Bash(gh issue view:*), Bash(gh issue list:*), Bash(gh search issues:*), Bash(gh label list:*)
 disallowed-tools: Write, Edit
 ---
@@ -46,6 +48,12 @@ Bound the glob carefully — the tree has decoys that will corrupt the checks if
 If the repo has no `.claude/agent-memory/` (the skill deploys globally; the memory only exists
 where a subagent has actually run), say so and stop — "no agent memory in this repo," not a pile
 of empty findings.
+
+Also read this repo's `README.md`, `AGENTS.md` (or the `CLAUDE.md` it's symlinked from), and
+top-level `docs/*.md` when they exist — comparison targets for the Misplaced durable content check
+below, not optional context. Not recursive into `docs/` subdirectories (an `adr/` archive of
+point-in-time decisions is expected to reference or echo doc content by nature, not drift by
+accident) — same scope `audit-rules`' Cross-doc replication check uses; don't re-derive it here.
 
 ## Staleness vs live GitHub state
 
@@ -99,6 +107,32 @@ Same shapes as `audit-rules`, calibrated for memory:
 - **Contradiction** — two memory files (or two sections) asserting opposite facts, the way
   `audit-rules` checks the rules tree. Quote both, say which looks current.
 
+## Misplaced durable content
+
+The doc↔memory sibling of `audit-rules`' Cross-doc replication check: content sitting in memory
+that's actually general repo documentation, not backlog-manager-audience material, and isn't
+already stated in README.md/AGENTS.md/docs.
+
+**Scope**: `project`- and `reference`-type entries only — check each file's `metadata: type:`
+frontmatter. Skip `user`- and `feedback`-type entries outright; they're about how to work with the
+maintainer, not repo-documentation material, by nature — never flag them here.
+
+**What counts as misplaced**: a passage in scope whose content would inform any future contributor
+or coding session, not just a triage/grooming session, and isn't already stated in
+README.md/AGENTS.md/docs. Durability alone doesn't make something misplaced — audience does: a
+decision's priority weighting, a labeling/grooming convention, or a cross-repo dependency web is
+backlog-manager-audience by nature and stays put even though it's durable. An architecture
+rationale, an XDG exception, or a convention any coding session would need is the target.
+
+For each finding: quote the memory passage, name which doc should own it — reuse this repo's own
+doc-home split if one exists (README = front door, AGENTS.md = how to work here, an ADR = a major
+decision with rejected alternatives considered), exactly as `audit-rules`' Cross-doc replication
+check already does; don't re-derive the split inline — and propose shrinking the memory passage to
+a pointer once promoted, matching the signpost pattern used everywhere else in this repo's docs.
+
+Stay conservative, the same "quiet on noise" bar as every other check here: don't flag a claim just
+because it's durable — it has to be general-audience _and_ absent from README/AGENTS.md/docs.
+
 ## Report
 
 Emit one structured markdown report directly in this response:
@@ -121,6 +155,10 @@ No edits made — this is a proposal only.
 (ranked, or "None found.")
 
 ## Sprawl & contradiction
+
+(ranked, or "None found.")
+
+## Misplaced durable content
 
 (ranked, or "None found.")
 
