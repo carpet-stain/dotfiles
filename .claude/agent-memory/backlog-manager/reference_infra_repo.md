@@ -8,8 +8,8 @@ metadata:
 `carpet-stain/infra` (`~/code/infra`, public) manages GitHub account governance via OpenTofu:
 repo settings, the canonical label set (`repos.tf`'s `local.labels`, shared with dotfiles via
 `setproduct(local.repos, local.labels)`), and branch-protection rulesets for every repo in
-`local.repos` (today: `dotfiles`, `infra`; `project-starter-template` pending infra#14). Labels
-are terraform-governed there — never `gh label create` directly, propose via `repos.tf`.
+`local.repos` (`dotfiles`, `infra`, `project-starter-template`). Labels are terraform-governed
+there — never `gh label create` directly, propose via `repos.tf`.
 
 **It keeps its own project-scoped backlog-manager memory**, at
 `~/code/infra/.claude/agent-memory/backlog-manager/` (repo_overview.md, label_taxonomy.md,
@@ -18,13 +18,12 @@ infra, don't assume dotfiles' conventions transfer (infra has no milestones, no 
 xdg-hygiene`-style dotfiles-only themes, and epics use native sub-issues with zero markdown
 checklist duplication).
 
-**Cross-repo dependency web (verified consistent 2026-07-18):** dotfiles#309 (epic: extract
-copier templates to `project-starter-template`) → #311 (stand up the repo, blocked on
-infra#14) → #312 (reconcile dotfiles after). dotfiles#331 (retire `apply-labels.sh`) blocked on
-infra#15 (sync `needs-plan-review`/`plan-approved` into `local.labels`). All four cross-links
-verified bidirectional and non-stale via `gh issue list --search` on both repos — no dangling or
-conflicting references found. Both infra#14 and infra#15 correctly reference back to their
-dotfiles counterparts in their own bodies.
+**Cross-repo dependency web — CLOSED out 2026-07-18.** dotfiles#309 (epic: extract copier
+templates to `project-starter-template`) → #310/#311 → #312 all shipped and closed; durable
+record is dotfiles' ADR-0028. infra#14 (added `project-starter-template` to `local.repos`) and
+infra#15 (synced `needs-plan-review`/`plan-approved` into `local.labels`) both closed the same
+`tofu apply`. **Still open:** dotfiles#331 (retire `scripts/apply-labels.sh`, now that infra#15
+landed) — no longer blocked, just not yet actioned.
 
 **Risk found, not mine to fix (flagged to the user):** infra's `.claude/agent-memory/` dir is
 **untracked** — never committed to `origin/main` (`git log --all -- .claude` is empty), unlike
@@ -43,7 +42,7 @@ check live state first (`gh api repos/<repo>/rulesets`, `gh label list --repo <r
 recommending those scripts; see [[project-gitflow-starter]] for the concrete case
 (`project-starter-template`) and the runbook-step implications.
 
-Also found live: `repos.tf`'s `project-starter-template` entry describes it as Python-only
-("Starter template for new Python projects...", topics without `git-flow`), mismatched with
-dotfiles#309's actual git-flow-base+python-overlay scope. Flagged to the user, not filed — small
-infra PR to fix description/topics once the real README exists.
+`repos.tf`'s `project-starter-template` entry was found mis-scoped (described it as Python-only,
+topics without `git-flow`) — filed as **infra#20**, gated on
+`carpet-stain/project-starter-template#3` (the real README) landing first as the accurate
+wording source. #3 has since merged; infra#20 is actionable now.
