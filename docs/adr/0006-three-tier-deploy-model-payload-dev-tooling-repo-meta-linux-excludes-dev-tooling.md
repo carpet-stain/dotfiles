@@ -6,6 +6,11 @@ Date: 2026-07-09
 
 Accepted
 
+The repo-meta tier's example list below (Decision) names the `python/`+
+`git-flow/` templates, which have since moved to
+[`carpet-stain/project-starter-template`](https://github.com/carpet-stain/project-starter-template)
+(ADR-0028) — the tier concept and the rest of its examples are unaffected.
+
 ## Context
 
 The repo deploys to two targets: macOS (the primary dev machine) and

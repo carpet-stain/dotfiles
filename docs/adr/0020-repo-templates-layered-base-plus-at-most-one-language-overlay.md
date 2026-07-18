@@ -6,6 +6,11 @@ Date: 2026-07-17
 
 Accepted
 
+`git-flow/` and `python/`, the templates this decision concerns, now live in
+[`carpet-stain/project-starter-template`](https://github.com/carpet-stain/project-starter-template)
+(ADR-0028); the layering/composition decision below is unchanged, just
+relocated.
+
 ## Context
 
 The repo-bootstrap tooling is two copier templates: `git-flow/` (the

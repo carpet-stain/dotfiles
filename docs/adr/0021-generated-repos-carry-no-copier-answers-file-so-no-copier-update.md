@@ -8,7 +8,11 @@ Accepted
 
 Amends the copier-update consequence of
 [20. Repo templates: layered base plus at most one language overlay](0020-repo-templates-layered-base-plus-at-most-one-language-overlay.md);
-that ADR's disjoint-file decision stands unchanged.
+that ADR's disjoint-file decision stands unchanged. The templates this
+decision concerns now live in
+[`carpet-stain/project-starter-template`](https://github.com/carpet-stain/project-starter-template)
+(ADR-0028); `retrofit-governance.sh` (referenced below) no longer exists in
+this repo.
 
 ## Context
 
