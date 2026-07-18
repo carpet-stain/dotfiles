@@ -1,15 +1,18 @@
 ---
 name: project-terraform-repos-as-code
-description: Epic #273 (OPEN) — repos-as-code with OpenTofu; Phases 0-1 DONE, overlay SCRAPPED but the move to an own TF-created repo RETAINED (ADR-0024)
+description: Epic #273 (CLOSED 2026-07-18) — repos-as-code with OpenTofu; all phases done, terraform/ moved to sibling repo carpet-stain/infra, which now owns continuation
 metadata:
   type: project
 ---
 
-**Epic #273 (OPEN, priority low, milestone New-repo bootstrap)** — manage repo creation + GitHub
-governance as code with OpenTofu, in dotfiles' `terraform/` until the planned move to a dedicated
-TF-created repo. The original "language overlay like the Python starter
-[[project-gitflow-starter]]" framing was **descoped 2026-07-17 (ADR-0024)** — no fleet of TF repos
-is coming; the one-off infra repo bootstraps via terraform.md's COMPOSE flow instead.
+**Epic #273 (CLOSED 2026-07-18, was priority low, milestone New-repo bootstrap)** — managed repo
+creation + GitHub governance as code with OpenTofu, in dotfiles' `terraform/` until Phase 3 moved it
+out. The original "language overlay like the Python starter [[project-gitflow-starter]]" framing was
+**descoped 2026-07-17 (ADR-0024)** — no fleet of TF repos is coming; the one-off infra repo bootstraps
+via terraform.md's COMPOSE flow instead. **All further repos-as-code work now happens in
+`carpet-stain/infra`'s own backlog** (epic #6 cloudflare-as-code, epic #11 CI/CD apply pipeline, and
+others as of 2026-07-18) — don't file new TF work against dotfiles issues; dotfiles has no
+`terraform/` directory anymore.
 
 **Why / origin:** user wants repos-as-code; hadn't used Terraform in ~5 years, liked the Terragrunt
 "model in one repo, config in another" model and asked if it's still best (answer: no, at this scale).
