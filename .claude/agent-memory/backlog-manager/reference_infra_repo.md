@@ -33,3 +33,17 @@ it silently. Also, infra's local checkout was on a stale `migrate-terraform` bra
 gone (already merged/deleted) as of 2026-07-18 — `gh issue`/`gh api` calls are unaffected (they
 hit the API, not local files), but anyone editing infra's tracked files locally should
 `git fetch && git switch main` first.
+
+**2026-07-18: infra#14 + infra#15 closed same session (batch `tofu apply`).** Confirmed via
+`repos.tf` that `github_repository_ruleset.this` and `github_issue_label.this` are both
+`for_each = local.repos` — a single apply provisions repo creation, the full label set, *and*
+branch protection together for every managed repo, not just creation. Don't assume a freshly
+`local.repos`-added repo still needs manual `apply-labels.sh`/`bootstrap-branch-protection.sh` —
+check live state first (`gh api repos/<repo>/rulesets`, `gh label list --repo <repo>`) before
+recommending those scripts; see [[project-gitflow-starter]] for the concrete case
+(`project-starter-template`) and the runbook-step implications.
+
+Also found live: `repos.tf`'s `project-starter-template` entry describes it as Python-only
+("Starter template for new Python projects...", topics without `git-flow`), mismatched with
+dotfiles#309's actual git-flow-base+python-overlay scope. Flagged to the user, not filed — small
+infra PR to fix description/topics once the real README exists.
