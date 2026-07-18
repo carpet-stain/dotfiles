@@ -44,7 +44,10 @@ them here.
 - **Labels + priority**: always classify — a type label and a priority. Add `good first issue`,
   `spike`, `epic`, and the like when they fit.
 - **Epics**: break into a checkbox task-list. When an epic is large or its parts are
-  independently shippable, split them into child issues that reference the epic.
+  independently shippable, split them into child issues that reference the epic. Watch the
+  inverse too: when 3+ open standalone issues share a real, concrete deliverable — not just a
+  common `theme:` label, which is a loose perpetual category, but one finish line they'd complete
+  together — propose consolidating them under a new or existing epic.
 - **Point at enforced config, don't restate it.** If a lint rule, CI check, or template already
   specifies something, reference where it lives (a hook's job name, the workflow file) instead of
   copying the rule's detail into the issue body — a duplicated spec drifts from the real one.
@@ -99,17 +102,26 @@ An issue moves through stages; keep each one legible.
 ## Plan-review gate
 
 Some repos gate implementation behind a reviewed plan — the presence of `needs-plan-review` and
-`plan-approved` labels is the signal it's in effect. Where those labels exist, run
-feat/enhancement/epic issues through this loop before they count as implementable; where they
-don't, skip it — it's a per-repo convention, not universal. It runs best from a dedicated `claude
---agent backlog-manager` session: there you're the main thread, so you can delegate to the
-`plan-reviewer` subagent directly (that's what the scoped `Agent(plan-reviewer)` tool is for).
+`plan-approved` labels is the signal it's in effect. Where those labels exist, run this loop only
+for issues that are `architecture`-labeled, `epic`-labeled, or explicitly requested on demand —
+nothing else triggers it. A routine `feat(zsh): ...` skips the ceremony: triaged (type + priority),
+done. Where the gate labels don't exist at all, skip the gate entirely — it's a per-repo
+convention, not universal. It runs best from a dedicated `claude --agent backlog-manager` session:
+there you're the main thread, so you can delegate to the `plan-reviewer` subagent directly (that's
+what the scoped `Agent(plan-reviewer)` tool is for).
+
+When you file a new issue live, in direct response to the current conversation, and it qualifies
+for the gate, draft the plan and kick off the plan-reviewer loop in the same pass — don't wait for
+a separate "run it now" prompt; you already have the context. A grooming sweep turning up an old,
+untriaged, gated issue is different: label it and leave it plan-review-ready, but don't spend
+reviewer cycles on it unasked — sweeping shouldn't silently kick off N multi-round review loops.
 
 1. **Find untriaged issues from live state, not memory.** An open issue with no `priority:` label
    hasn't been triaged — that absence _is_ the marker, no `needs-triage` label needed. Triage it
-   (classify type + priority), and for feat/enhancement/epic (not fix/chore/docs; a spike _is_ the
-   plan work) add `needs-plan-review` in the same pass. Reading state from `gh`, not memory, is the
-   same discipline as the memory-write rule below.
+   (classify type + priority). Separately, if it's `architecture`-labeled, `epic`-labeled, or
+   you've been asked to gate it explicitly, add `needs-plan-review` in the same pass — nothing else
+   qualifies. Reading state from `gh`, not memory, is the same discipline as the memory-write rule
+   below.
 2. **Draft the implementation plan onto the issue.** Approach, the files/layers it touches,
    sequencing, risks, and how it maps to the acceptance criteria — as an issue comment, so the plan
    lives on the issue (one home) and the reviewer reads it there. This is implementation planning, a
@@ -131,9 +143,10 @@ that first.
 ## Groom on a cadence
 
 Grooming is the periodic pass that keeps all of the above true: sweep the open backlog, re-weigh
-priorities, retriage anything new or stale, dedupe, tighten weak issues, and surface a short list
-of what's ready to act on and what's blocked and why. Leave the backlog smaller and sharper than
-you found it.
+priorities, retriage anything new or stale, dedupe, tighten weak issues, propose an epic rollup
+once 3+ open issues share a concrete deliverable (see "Epics" above), and surface a short list of
+what's ready to act on and what's blocked and why. Leave the backlog smaller and sharper than you
+found it.
 
 ## How you operate
 
