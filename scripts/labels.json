@@ -27,5 +27,15 @@
   },
   { "name": "priority: high", "color": "B60205", "description": "Groom/act on soon" },
   { "name": "priority: medium", "color": "FBCA04", "description": "Normal queue" },
-  { "name": "priority: low", "color": "C5DEF5", "description": "Someday / low urgency" }
+  { "name": "priority: low", "color": "C5DEF5", "description": "Someday / low urgency" },
+  {
+    "name": "needs-plan-review",
+    "color": "FEF2C0",
+    "description": "Feat+ issue with a drafted plan awaiting plan-reviewer approval before implementation"
+  },
+  {
+    "name": "plan-approved",
+    "color": "C2E0C6",
+    "description": "Plan reviewed and approved — ready to implement"
+  }
 ]
