@@ -24,6 +24,11 @@ author_email:
 
 _tasks:
   - |
+    #!/usr/bin/env bash
+    # `pipefail` is a bash extension; copier runs a shebang-less task via
+    # /bin/sh, which is dash (no pipefail) on Linux and happens to be
+    # bash-backed on macOS — the shebang pins the interpreter so this task
+    # behaves the same on both instead of only working by accident locally.
     set -euo pipefail
     latest=$(uv python list | awk '{print $1}' | grep -E '^cpython-[0-9]+\.[0-9]+\.[0-9]+-' | grep -vE '(a|b|rc)[0-9]+-' | head -1 | cut -d- -f2)
     uv python pin "$(cut -d. -f1,2 <<<"$latest")"
