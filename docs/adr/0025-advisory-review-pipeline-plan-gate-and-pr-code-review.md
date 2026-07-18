@@ -202,3 +202,29 @@ the `needs-plan-review` → `plan-approved` labels.
 - Revisit if: the chosen review Action's model or pricing changes,
   cross-model diversity proves not worth the extra key, or a Kimi-via-cmux
   plan reviewer is worth trialling.
+
+**Amendment, 2026-07-18 (extends this model, not superseding it — ADR-0007's
+precedent for a Consequences-section fix):** the implementer's Haiku 4.5 pin
+doesn't hold as written. Confirmed directly in Claude Code 2.1.205's
+interactive TUI: the permission-mode picker offers plan / accept-edits /
+manual for Haiku, no auto — and auto mode is how an implementer session
+actually runs under this gate. This is recorded as an observed interactive-TUI
+limitation on that version, not an asserted permanent property of the model —
+the auto-mode safety classifier itself carries no model-specific gating, and a
+headless `claude -p --model haiku --permission-mode auto` completed cleanly,
+which is weak evidence either way: a benign prompt doesn't exercise gating
+regardless of model. The implementer now runs on **Sonnet** (`claude-sonnet-5`)
+instead. Repo-wide grep confirms Haiku was never pinned anywhere but this
+ADR's own prose, so this is a documentation-only correction, not a config
+change — and `claude/settings.json` carries no repo-wide `model` default as of
+this writing, so the fix names `claude-sonnet-5` explicitly here rather than
+leaning on an ambient default that doesn't (yet) exist. The Decision section's
+original Haiku rationale stays as written above — the rejected path, not this
+amendment.
+
+Consequence: this collapses two of the three named tiers — drafting and
+execution both now run Sonnet — leaving only the plan-reviewer (Opus)
+differentiated. "Cheap under governance" still holds relative to Opus; it no
+longer holds relative to the drafting stage itself. Revisit if Claude Code's
+TUI later supports auto mode for Haiku, or a cheaper model becomes viable for
+the implementer tier.
