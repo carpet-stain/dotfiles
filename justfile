@@ -40,6 +40,11 @@ _default:
 lint *args:
     lefthook run pre-commit --all-files {{ args }}
 
+# Render-then-lint the copier templates (git-flow/python) — see #310 and
+# scripts/lint-templates.sh's own header for the strategy.
+lint-templates:
+    scripts/lint-templates.sh
+
 # Run the GitHub Actions workflows locally via act (Colima-backed); args pass through.
 act *args:
     scripts/act-run.sh {{ args }}

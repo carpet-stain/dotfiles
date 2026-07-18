@@ -3,9 +3,7 @@ name = "{{ project_name.lower().replace('_', '-').replace(' ', '-') }}"
 version = "0.1.0"
 description = "{{ description }}"
 readme = "README.md"
-authors = [
-    { name = "{{ author_name }}", email = "{{ author_email }}" },
-]
+authors = [{ name = "{{ author_name }}", email = "{{ author_email }}" }]
 requires-python = ">=3.12"
 dependencies = []
 
@@ -20,11 +18,7 @@ build-backend = "hatchling.build"
 packages = ["src/{{ package_name }}"]
 
 [dependency-groups]
-dev = [
-    "pyright>=1.1",
-    "pytest>=8.0",
-    "ruff>=0.8",
-]
+dev = ["pyright>=1.1", "pytest>=8.0", "ruff>=0.8"]
 
 [tool.ruff]
 # target-version is inferred from requires-python above.

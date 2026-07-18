@@ -52,3 +52,28 @@ jobs:
       # which checks run; --no-tty passes through the recipe for CI.
       - name: Run lint/format checks
         run: just lint --no-tty
+
+  lint-templates:
+    name: lint-templates
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      # `uv` (not just/lefthook's other tools) is the one addition over the
+      # `lint` job above — it provides `uvx`, which renders the templates
+      # (copier) and runs the raw jinja check (j2lint) the same way a
+      # contributor's local `just lint-templates` does; the Python overlay
+      # render's own ruff/pyright come from its `uv sync`, not a brew formula.
+      - name: Install lint/format tools
+        run: |
+          brew install just shellcheck actionlint taplo yamlfmt markdownlint-cli2 prettier uv
+
+      # Same entry point as local (scripts/lint-templates.sh via `just
+      # lint-templates`) — see that script's header for the render-then-lint
+      # strategy (#310).
+      - name: Run copier-template lint/format checks
+        run: just lint-templates

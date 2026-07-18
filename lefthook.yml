@@ -87,7 +87,30 @@ pre-commit:
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
 
+    # Raw jinja syntax check — cheap, catches broken jinja before render.
+    # Filtering (by .jinja extension, and excluding two known
+    # j2lint-false-positive files) lives in the script, not lefthook's own
+    # `exclude:` — this lefthook version doesn't apply `exclude` reliably
+    # across multiple `glob` entries, so glob stays broad and the script is
+    # the single source of truth for what actually gets linted. See its
+    # header for why those two files are excluded, and its render-then-lint
+    # pass (pre-push, below) for what actually validates them.
+    - name: j2lint
+      glob:
+        - "git-flow/template/**"
+        - "python/template/**"
+      run: scripts/lint-templates.sh --jinja {staged_files}
+
 pre-push:
   jobs:
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
+
+    # Render-then-lint — heavier (a full copier render + uv sync per
+    # template), so pre-push rather than pre-commit; CI runs the same
+    # `just lint-templates` entry point (ci.yml's lint-templates job).
+    - name: lint-templates
+      glob:
+        - "git-flow/**"
+        - "python/**"
+      run: just lint-templates
