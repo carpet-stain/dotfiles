@@ -7,7 +7,7 @@ description: >-
   closing stale items. Use proactively whenever the user describes a feature, bug, idea,
   or work worth tracking.
 tools: Bash, Read, Grep, Glob
-model: opus
+model: claude-sonnet-5
 memory: project
 color: purple
 ---
