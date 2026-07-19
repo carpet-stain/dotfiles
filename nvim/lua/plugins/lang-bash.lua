@@ -3,6 +3,13 @@
 -- LSP server and a linter, following LazyVim's standard extension pattern.
 -- zsh: LSP only — shellcheck doesn't understand zsh-specific syntax
 -- (setopt, glob qualifiers, typeset) and produces constant false positives.
+--
+-- Prefer a system-installed bash-language-server over Mason's own, same
+-- reasoning as mason-tools.lua: not gated on macOS vs. Linux, since a Linux
+-- box may already have it on PATH (it's an npm package, and Node itself is
+-- payload again per #127/#364's premise reversal — see ADR-0030).
+local has_system_bashls = vim.fn.executable("bash-language-server") == 1
+
 return {
   {
     "neovim/nvim-lspconfig",
@@ -10,6 +17,12 @@ return {
       servers = {
         bashls = {
           filetypes = { "sh", "bash", "zsh" },
+          -- Keep the server registered (it still attaches if the binary
+          -- happens to be on PATH) but stop mason-lspconfig's own
+          -- auto-install when a system copy is already present — a path
+          -- independent of this file's mason.nvim block below (see
+          -- mason-tools.lua's comment for why).
+          mason = not has_system_bashls,
           settings = {
             bashIde = {
               -- bash-language-server runs shellcheck internally across all its
@@ -40,6 +53,6 @@ return {
     "mason-org/mason.nvim",
     -- mason.nvim's ensure_installed wants Mason's own package name
     -- ("bash-language-server"), not nvim-lspconfig's server name ("bashls").
-    opts = { ensure_installed = { "bash-language-server" } },
+    opts = { ensure_installed = has_system_bashls and {} or { "bash-language-server" } },
   },
 }
