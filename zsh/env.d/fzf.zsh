@@ -28,10 +28,14 @@ FZF_DEFAULT_OPTS+="
 # 0.61.0, --gutter needs 0.66.0) — Homebrew always tracks latest, so
 # darwin-only.
 if [[ $OSTYPE == darwin* ]]; then
+  # --border: fzf 0.74.0+ only draws its own popup frame when a border
+  # style is explicit, otherwise Zellij's native pane border takes over —
+  # clashes with zellij/config.kdl's `pane_frames false` (see #195).
   FZF_DEFAULT_OPTS+="
   --popup=90%
   --highlight-line
   --input-border
+  --border
   --ghost='Type to search...'
   --gutter=' '"
 fi
