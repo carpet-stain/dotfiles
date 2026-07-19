@@ -31,3 +31,6 @@ bindkey '.' _zsh-dot
 
 # Space expands aliases inline; prefix with backslash to suppress
 bindkey ' ' _expand-alias
+
+# Edit command line in $EDITOR (see KEYBINDINGS.md for the Ghostty dependency)
+bindkey '^[e' edit-command-line   # Alt+E (Option+E)

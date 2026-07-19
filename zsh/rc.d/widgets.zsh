@@ -29,6 +29,10 @@ zle -N up-line-or-beginning-search
 autoload -Uz down-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
+# Edit the current command buffer in $EDITOR, re-execute on save (Alt+E, see keybindings.zsh)
+autoload -Uz edit-command-line
+zle -N edit-command-line
+
 # Custom widgets from fpath/ — filename must match the function name
 autoload -Uz \
   _zsh-dot \
