@@ -9,16 +9,19 @@ name: PR code review (advisory)
 #
 # Inert until an `OPENAI_API_KEY` repo secret exists — provision it with the
 # elevated session, same pattern as RELEASE_PAT. Without it the job skips
-# cleanly (green), it doesn't fail. The reviewer action is SHA-pinned (it
-# holds the key and reads the diff); swap the `uses:` line for a different
-# provider/action, or a DIY OpenAI call, if preferred. Set MODEL to a
-# current model of your choice.
+# cleanly (green), it doesn't fail.
 #
-# Note: this action batches comments per file, so the prompt's `suggestion`
-# blocks post as copy-pasteable code, not GitHub's one-click-applyable
-# suggestions (those need exact per-line anchoring). A DIY step posting
-# per-line review comments via the API is the upgrade for agent-consumable,
-# one-click suggestions — see the PR discussion for #304.
+# DIY step (scripts/pr-review/), not a third-party Action: #330's upgrade
+# over the anc95/ChatGPT-CodeReview action this replaced. That action
+# batched comments per file with no real suggestion-block anchoring, so its
+# `suggestion` blocks posted as copy-pasteable code, not GitHub's
+# one-click-applyable kind (those need exact per-line anchoring via
+# pulls.createReview's `comments` array). scripts/pr-review/run.mjs calls
+# the GitHub and OpenAI REST APIs directly — no third-party Action holding
+# the key or reading the diff — and posts real per-line suggestions. See
+# scripts/pr-review/build-review.test.mjs for its unit-tested logic and the
+# PR discussion for #330 for the design tradeoffs (file/prompt-size caps,
+# single-line-only suggestions).
 
 on:
   pull_request:
@@ -44,13 +47,17 @@ jobs:
           else
             echo "enabled=true" >>"$GITHUB_OUTPUT"
           fi
+      - uses: actions/checkout@v4
+        if: steps.guard.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.enabled == 'true'
+        with:
+          node-version: "20"
       - name: Advisory review
         if: steps.guard.outputs.enabled == 'true'
-        uses: anc95/ChatGPT-CodeReview@1af98686be7c2079f7be2f16ae887c8c023cc506 # v1.0.24
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          MODEL: gpt-4o-mini
-          LANGUAGE: English
-          PROMPT: >-
-            You are an independent code reviewer looking at one file's changes in a pull request — a different model than the one that wrote them, so bring genuinely independent eyes. For each issue: tag its severity (blocking / nit / pre-existing), name the line it's on, say what's wrong and why in a sentence or two, and when the fix is mechanical add a ```suggestion block with the exact replacement code. Most severe first. Be terse, skip praise, and say nothing when the changes are fine. You are advisory — a human approves the merge.
+          OPENAI_MODEL: gpt-4o-mini
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node scripts/pr-review/run.mjs
