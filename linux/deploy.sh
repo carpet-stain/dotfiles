@@ -25,8 +25,6 @@ XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOCAL_BIN="$HOME/.local/bin"
 
 ARCH="$(uname -m)" # x86_64 or aarch64
-# shellcheck disable=SC1091 # /etc/os-release is a system file, not part of this repo
-CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")" # e.g. bookworm, bullseye
 
 # Guarantee $LOCAL_BIN (where this script installs neovim, delta, zellij,
 # eza) and the standard system dirs are searched, regardless of what PATH
@@ -133,52 +131,11 @@ bootstrap_apt() {
   sudo apt-get install -y --no-install-recommends curl wget gpg ca-certificates
 }
 
-add_apt_repos() {
-  # GitHub CLI
-  if ! dpkg -l gh &>/dev/null 2>&1; then
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg |
-      sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-    sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-    printf 'deb [arch=%s signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\n' \
-      "$(dpkg --print-architecture)" |
-      sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-  fi
-
-  # NodeSource — Node 20 LTS
-  if ! node --version 2>/dev/null | grep -q '^v20'; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - >/dev/null
-  fi
-
-  # Debian backports — golang-go 1.22+ (stable's own golang-go is too old for
-  # gopls on both Bookworm and Bullseye). Hardcoding "bookworm-backports"
-  # here would silently glue a wrong-release apt source onto any other
-  # Debian version, which can leave dpkg/apt in a broken, hard-to-diagnose
-  # state — always derive the suite name from the running release instead.
-  if ! grep -rq "${CODENAME}-backports" /etc/apt/sources.list* 2>/dev/null; then
-    printf 'deb http://deb.debian.org/debian %s-backports main\n' "$CODENAME" |
-      sudo tee /etc/apt/sources.list.d/backports.list >/dev/null
-  fi
-
-  sudo apt-get update -qq
-}
-
 install_apt_packages() {
-  # One transaction for everything, Aptfile packages plus golang-go (pinned
-  # to backports via the pkg/release syntax), gh, and nodejs. Three separate
-  # apt-get install calls here previously let a later transaction silently
-  # remove a package an earlier one had just installed (observed: zsh and
-  # tealdeer vanished after gh/nodejs resolved) with no visible failure —
-  # resolving the whole dependency graph at once means apt either satisfies
-  # everything or reports the conflict loudly instead of quietly dropping it.
   local packages
   packages=$(grep -v '^\s*#' "$SCRIPT_DIR/Aptfile" | grep -v '^\s*$' | tr '\n' ' ')
-  # golang-go/<release> only pins that one package to backports — unlike
-  # `-t <release>` (which sets the preference for the whole resolution), the
-  # pkg/release suffix doesn't extend to golang-go's own deps, so its
-  # backports golang-src requirement has to be pinned the same way too.
   # shellcheck disable=SC2086
-  sudo apt-get install -y --no-install-recommends \
-    $packages "golang-go/${CODENAME}-backports" "golang-src/${CODENAME}-backports" gh nodejs
+  sudo apt-get install -y --no-install-recommends $packages
 }
 
 # +-------------------+
@@ -340,13 +297,6 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/theme/delta/catppuccin.gitconfig" \
     "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
 
-  # Backs the `pr`/`new`/`sync` git aliases (git/config) — must be on PATH
-  # as bare commands, not just reachable by relative path, since git/config
-  # is used from any repo.
-  ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
-  ln -sf "$DOTFILES_DIR/scripts/git-new.sh" "$LOCAL_BIN/git-new"
-  ln -sf "$DOTFILES_DIR/scripts/git-sync.sh" "$LOCAL_BIN/git-sync"
-
   ln -sf "$DOTFILES_DIR/ripgreprc" "$XDG_CONFIG_HOME/ripgrep/config"
   ln -sf "$DOTFILES_DIR/curlrc" "$XDG_CONFIG_HOME/curlrc"
   ln -sf "$DOTFILES_DIR/tealdeerconfig.toml" "$XDG_CONFIG_HOME/tealdeer/config.toml"
@@ -506,7 +456,6 @@ generate_ghostty_terminfo() {
 
 required "Creating directory tree" create_directories
 required "Bootstrapping apt" bootstrap_apt
-required "Adding custom apt repositories" add_apt_repos
 stream "Installing apt packages" install_apt_packages
 stream "Installing Neovim" install_neovim
 required "Installing git-delta" install_tool delta delta

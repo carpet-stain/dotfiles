@@ -142,6 +142,18 @@ jobs:
           path: .cache/dotfiles-binaries
           key: linux-binaries-${{ hashFiles('linux/binaries.lock') }}
 
+      # The "Install git, Node runtime" step above only exists to run this
+      # job's own JS-based Actions (checkout, paths-filter, cache) inside the
+      # container — the last of which just ran. deploy.sh/smoke-test.sh below
+      # assume a fresh Debian target that never had Node on it (#362); purging
+      # it here keeps that assumption true instead of the container silently
+      # carrying CI-harness scaffolding into the fresh-install assertions.
+      - name: Remove Node runtime (only needed for the Actions JS steps above)
+        if: steps.relevant.outputs.run == 'true'
+        run: |
+          apt-get purge -y nodejs
+          apt-get autoremove -y
+
       # deploy.sh assumes "a regular user with passwordless sudo (the
       # default on OrbStack VMs)" — running it as root instead would be a
       # shortcut that skips the code path it's actually written for (every

@@ -11,6 +11,7 @@ set -uo pipefail
 
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export LOCAL_BIN="${LOCAL_BIN:-$HOME/.local/bin}"
 
 failures=0
 
@@ -34,6 +35,11 @@ echo "apt package state:"
 check "zsh installed (dpkg)" bash -c "dpkg -l zsh | grep -q '^ii'"
 check "tealdeer installed (dpkg)" bash -c "dpkg -l tealdeer | grep -q '^ii'"
 
+echo "Dev-tooling leaks (#362, must be absent):"
+for pkg in golang-go golang-src gh nodejs python3 python3-pip; do
+  check "$pkg not installed (dpkg)" bash -c "! dpkg -l $pkg 2>/dev/null | grep -q '^ii'"
+done
+
 echo "bat theme:"
 check "Catppuccin Mocha registered" bash -c "bat --list-themes | grep -qi 'catppuccin mocha'"
 
@@ -47,6 +53,11 @@ check ".zshenv linked" bash -c '[[ -L $HOME/.zshenv && -e $HOME/.zshenv ]]'
 check "nvim init.lua linked" bash -c '[[ -L $XDG_CONFIG_HOME/nvim/init.lua && -e $XDG_CONFIG_HOME/nvim/init.lua ]]'
 # shellcheck disable=SC2016
 check "claude/rules linked" bash -c '[[ -L $HOME/.claude/rules && -e $HOME/.claude/rules ]]'
+
+echo "Removed git script symlinks (#362, must be absent):"
+for name in git-pr-link git-new git-sync; do
+  check "$name not linked" bash -c "[[ ! -e \$LOCAL_BIN/$name ]]"
+done
 
 echo "Shell:"
 # shellcheck disable=SC2016
