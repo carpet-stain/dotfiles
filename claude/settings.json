@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; b=$(basename \"$f\" 2>/dev/null); if [ \"$b\" = \"AGENTS.md\" ] || [ \"$b\" = \"CLAUDE.md\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"AGENTS.md changed \\u2014 run the /audit-rules skill to check for contradictions or drift against the global claude/rules tree before finishing this task.\"}}'; fi; }"
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; b=$(basename \"$f\" 2>/dev/null); if [ \"$b\" = \"AGENTS.md\" ] || [ \"$b\" = \"CLAUDE.md\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"AGENTS.md changed \\u2014 run the /audit-rules skill to check for contradictions or drift against the global claude/rules tree before finishing this task.\"}}'; elif echo \"$f\" | grep -q '\\.claude/agent-memory/.*\\.md$'; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Agent-memory file changed \\u2014 run the /audit-memory skill in a fresh session before /clear to check for stale or duplicated memory.\"}}'; fi; }"
           }
         ]
       }
