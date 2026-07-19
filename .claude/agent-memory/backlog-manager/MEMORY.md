@@ -17,6 +17,7 @@ here — this tier holds only what's specific to this repo/user.
 - [Git-flow governance #136](project_gitflow_starter.md) — CLOSED, epic #309 CLOSED 2026-07-18; both templates extracted to project-starter-template (see ADR-0028); compose-agents-ports-prose-only finding still load-bearing
 - [Terraform repos-as-code #273](project_terraform_repos_as_code.md) — CLOSED 2026-07-18; OpenTofu repos-as-code moved to sibling repo carpet-stain/infra, which now owns continuation
 - [Agent-config adoption #298](project_agent_config_adoption.md) — CLOSED 2026-07-18; all three children shipped (reviewer subagent #300, disclosure skill #299, activation-hook spike #301); CI-review automation lives on in #302
+- [Payload/dev-tooling tier split #127](project_tier_split_127.md) — spike CLOSED 2026-07-19; executing as epic #361 (plan-approved, children #362/#363/#364) — non-obvious sequencing/ADR gaps from plan review recorded there
 
 ## Environment
 - [Claude Code paths & ~/.claude leak](env_claude_paths.md) — where CC writes; the daemon/telemetry leak is upstream (#134), not the subagent
