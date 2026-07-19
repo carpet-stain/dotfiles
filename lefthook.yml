@@ -56,6 +56,19 @@ pre-commit:
         - "nvim/**/*.lua"
       run: selene --config nvim/selene.toml {staged_files}
 
+    - name: comment-concision
+      glob:
+        - "zsh/.zshenv"
+        - "zsh/.zshrc"
+        - "zsh/rc.d/**"
+        - "zsh/env.d/**"
+        - "macos/deploy.zsh"
+        - "linux/*.sh"
+        - "scripts/*.sh"
+        - "nvim/*.lua"
+        - "nvim/**/*.lua"
+      run: scripts/check-comment-concision.sh {staged_files}
+
     - name: toml-format
       glob:
         - "*.toml"
