@@ -1,0 +1,27 @@
+name: Spike / research
+description: A time-boxed question with a concrete deliverable
+title: "spike(<scope>): "
+labels: ["spike"]
+body:
+  # <scope> = this repo's scope table (AGENTS.md): zsh, zellij, git, nvim, macos, theme, python.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: The one thing this spike answers. Never open-ended.
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      description: How much effort before we stop and decide.
+    validations:
+      required: false
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      description: The concrete artifact this ends with — a decision, an ADR, a follow-up issue.
+    validations:
+      required: false

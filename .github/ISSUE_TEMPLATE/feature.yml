@@ -1,0 +1,27 @@
+name: Feature / enhancement
+description: A change worth building
+title: "feat(<scope>): "
+labels: ["enhancement"]
+body:
+  # <scope> = this repo's scope table (AGENTS.md): zsh, zellij, git, nvim, macos, theme, python.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What's wrong or missing, and who it's for — the why comes first.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What you'd build or change, and the alternatives you weighed.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      description: What "done" looks like — concrete, checkable criteria.
+    validations:
+      required: false

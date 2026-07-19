@@ -1,0 +1,27 @@
+name: Bug
+description: Something behaves differently than it should
+title: "fix(<scope>): "
+labels: ["bug"]
+body:
+  # <scope> = this repo's scope table (AGENTS.md): zsh, zellij, git, nvim, macos, theme, python.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Expected versus actual. Concrete over vague.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The minimal steps that trigger it.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS/version, tool version, shell — whatever a fresh reader needs to reproduce it.
+    validations:
+      required: false
