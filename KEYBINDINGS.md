@@ -54,6 +54,12 @@ repo's overrides merged) — the authoritative source when auditing a new key, n
     above).
   - Resizing an individual Neovim split (as opposed to a Zellij pane) still has LazyVim's own
     defaults: `Ctrl-Up/Down/Left/Right`. Unclaimed anywhere else in the chain, no conflict.
+- **zsh** (`zsh/rc.d/keybindings.zsh` + `zsh/rc.d/widgets.zsh`): unclaimed by Zellij or Neovim, so
+  an `Alt` binding here reaches the shell's line editor (zle) as-is once the key passes through
+  the two layers above. `Alt e` (`^[e`) → builtin `edit-command-line` widget (opens the current
+  command buffer in `$EDITOR`, re-executes on save). This depends on Ghostty's
+  `macos-option-as-alt` setting from above — without it, `Option+E` is macOS's dead-key
+  composition for `é` and never reaches zsh as `Alt+E`.
 
 ## Design decisions
 
