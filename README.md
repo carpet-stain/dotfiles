@@ -188,9 +188,9 @@ handles the installation of:
 - Shell: `zsh`, `coreutils`, `curl`
 - Modern Utils: `bat`, `eza`, `fd`, `ripgrep`, `fzf`, `zoxide`
 - Data Tools: `jaq` (fast `jq` alternative)
-- Language Toolchains: `go`, `node`, `python` — needed for Neovim's LSP
-  tooling (`gopls`, `pyright`/`ruff`, `bash-language-server`), not just
-  their own development
+- Language Toolchains: `go`, `fnm` (Node), `uv` (Python) — needed for
+  Neovim's LSP tooling (`gopls`, `pyright`, `bash-language-server`), not
+  just their own development; see ADR-0029
 
 ## Development
 

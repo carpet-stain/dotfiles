@@ -92,7 +92,7 @@ create_directories() {
   zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
   zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,git-credential-cache}
-  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,zsh/plugins}
+  zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,fnm,zsh/plugins}
   zf_mkdir -p $XDG_STATE_HOME/{zsh,less}
   zf_mkdir -p $XDG_RUNTIME_DIR/Homebrew
   zf_mkdir -p $HOME/.claude
@@ -395,6 +395,24 @@ if [[ $HOMEBREW_PREFIX != /opt/homebrew && -z $HOMEBREW_CASK_OPTS ]]; then
 fi
 
 stream   "Installing Brewfile packages"        install_brewfile
+
+# fnm installs and activates the Node it manages, in this script's own
+# process — set_neovim's headless Mason bootstrap below needs node/npm on
+# PATH right now, not just in a later shell that's sourced .zshenv. Runs at
+# top level, not inside required()/optional(): those execute "$@" in a
+# subshell (command substitution/pipeline), so a PATH mutation inside one
+# can't propagate to set_neovim, a later, separate top-level call — same
+# reason `eval "$($BREW_BIN shellenv)"` above runs at top level instead of
+# inside a step. No top-level errexit is in scope here (the script's
+# `setopt err_exit` calls are all function-scoped), so failures are checked
+# explicitly, mirroring the BREW_BIN check above.
+print "Installing fnm-managed Node..."
+export FNM_DIR=$XDG_DATA_HOME/fnm # fnm reads this from its own subprocess env; must stay in sync with zsh/.zshenv's FNM_DIR
+fnm install --lts && fnm default lts-latest || { print "  FAILED: fnm install/default" >&2; exit 1 }
+eval "$(fnm env)"
+node --version >/dev/null || { print "  FAILED: fnm-provided node did not resolve on PATH after fnm env" >&2; exit 1 }
+print "  ...done"
+
 optional "Installing lefthook hooks"           install_lefthook_hooks
 required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules

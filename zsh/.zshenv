@@ -141,6 +141,23 @@ if [[ $OSTYPE == darwin* ]]; then
   # any name collision.
   for bindir in $HOMEBREW_PREFIX/opt/*/libexec/gnubin(N); do path=($bindir $path); done
   for mandir in $HOMEBREW_PREFIX/opt/*/libexec/gnuman(N); do manpath=($mandir $manpath); done
+
+  # +-----+
+  # | FNM |
+  # +-----+
+
+  # fnm (ADR-0029) provides the Node actually used for development. Must
+  # come after the opt/*/bin loop above: Homebrew still installs a Node
+  # transitively (prettier/markdownlint-cli2 both depend on it), which that
+  # loop would otherwise put on PATH first — fnm's eval below has to win the
+  # ordering, not just exist. Guarded, not truly unconditional (a fresh
+  # machine has no fnm yet, and .zshenv line 3 forbids output), matching the
+  # direnv block's shape below rather than the looser wording that shape
+  # implies.
+  export FNM_DIR=$XDG_DATA_HOME/fnm # must stay in sync with macos/deploy.zsh's FNM_DIR
+  if (( ${+commands[fnm]} )); then
+    eval "$(fnm env)"
+  fi
 fi
 
 # User-local binaries and scripts. Prepend (not append) so a user binary
