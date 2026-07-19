@@ -1,6 +1,94 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.7.0] - 2026-07-19
+
+### Features
+
+- *(claude)* Close compose/audit lifecycle gaps ([#233](https://github.com/carpet-stain/dotfiles/pull/233))
+- *(git)* Add adr-guard to the git-flow template ([#250](https://github.com/carpet-stain/dotfiles/pull/250))
+- *(macos)* Support no-sudo homebrew prefixes ([#259](https://github.com/carpet-stain/dotfiles/pull/259))
+- *(zsh)* Add you-should-use alias reminders ([#265](https://github.com/carpet-stain/dotfiles/pull/265))
+- *(git)* Complete the git-flow copier bootstrap base ([#277](https://github.com/carpet-stain/dotfiles/pull/277))
+- *(python)* Compose the python overlay with the git-flow base ([#279](https://github.com/carpet-stain/dotfiles/pull/279))
+- *(git)* Add retrofit-governance.sh — additive template apply for existing repos ([#283](https://github.com/carpet-stain/dotfiles/pull/283))
+- *(claude)* Add python language conventions rule ([#287](https://github.com/carpet-stain/dotfiles/pull/287))
+- *(claude)* Add terraform conventions rule ([#293](https://github.com/carpet-stain/dotfiles/pull/293))
+- *(terraform)* Manage the dotfiles repo with opentofu ([#295](https://github.com/carpet-stain/dotfiles/pull/295))
+- *(terraform)* Wire tf lint/scan into hooks and ci ([#296](https://github.com/carpet-stain/dotfiles/pull/296))
+- *(terraform)* Create the infra repo as code ([#306](https://github.com/carpet-stain/dotfiles/pull/306))
+- *(claude)* Harden audit-rules doc coverage + add ADR-ref check ([#320](https://github.com/carpet-stain/dotfiles/pull/320))
+- *(claude)* Add read-only audit-memory skill ([#323](https://github.com/carpet-stain/dotfiles/pull/323))
+- *(claude)* Issue templates + backlog-manager read-and-fill ([#324](https://github.com/carpet-stain/dotfiles/pull/324))
+- *(claude)* Add verify-nvim-config skill ([#326](https://github.com/carpet-stain/dotfiles/pull/326))
+- *(claude)* Add read-only plan-reviewer subagent ([#321](https://github.com/carpet-stain/dotfiles/pull/321))
+- *(claude)* Build the plan-review gate into backlog-manager ([#328](https://github.com/carpet-stain/dotfiles/pull/328))
+- *(ghostty)* Install terminfo on remote hosts over ssh ([#275](https://github.com/carpet-stain/dotfiles/pull/275))
+- *(claude)* Scoped script for backlog-manager's memory PRs ([#339](https://github.com/carpet-stain/dotfiles/pull/339))
+- *(claude)* Tighten backlog-manager's plan-review gate ([#344](https://github.com/carpet-stain/dotfiles/pull/344))
+- *(claude)* Audit-memory flags misplaced durable content ([#345](https://github.com/carpet-stain/dotfiles/pull/345))
+
+### Bug Fixes
+
+- *(zsh)* Drop broken cut→choose alias ([#232](https://github.com/carpet-stain/dotfiles/pull/232))
+- *(claude)* Point smoke-test claude/rules check at ~/.claude ([#234](https://github.com/carpet-stain/dotfiles/pull/234))
+- *(github)* Drop both tokens to elevate gh to admin ([#244](https://github.com/carpet-stain/dotfiles/pull/244))
+- *(github)* Clear legacy branch protection in bootstrap ([#253](https://github.com/carpet-stain/dotfiles/pull/253))
+- *(macos)* Use vendored ghostty terminfo source ([#254](https://github.com/carpet-stain/dotfiles/pull/254))
+- *(macos)* Anchor brew symlinks to main checkout ([#260](https://github.com/carpet-stain/dotfiles/pull/260))
+- *(macos)* Install tflint as a cask, not a formula ([#317](https://github.com/carpet-stain/dotfiles/pull/317))
+- *(claude)* Read origin/main before memory writes ([#318](https://github.com/carpet-stain/dotfiles/pull/318))
+- *(claude)* Amend ADR-0025's implementer tier from Haiku to Sonnet ([#337](https://github.com/carpet-stain/dotfiles/pull/337))
+- *(claude)* Exclude agent-memory from git-flow's lefthook-base.yml ([#343](https://github.com/carpet-stain/dotfiles/pull/343))
+- *(zsh)* Unquote compdump freshness glob so -C cache branch is reachable ([#353](https://github.com/carpet-stain/dotfiles/pull/353))
+- *(git)* Default git pr --draft body to the PR template ([#354](https://github.com/carpet-stain/dotfiles/pull/354))
+
+### Refactor
+
+- *(claude)* Make doc-ownership a universal rule ([#235](https://github.com/carpet-stain/dotfiles/pull/235))
+- *(zsh)* Sweep comments to stingy why-not-what + pointer form ([#255](https://github.com/carpet-stain/dotfiles/pull/255))
+- *(nvim)* Sweep comments to stingy why-not-what form ([#257](https://github.com/carpet-stain/dotfiles/pull/257))
+- *(macos)* Sweep deploy-script comments to why-not-what form ([#258](https://github.com/carpet-stain/dotfiles/pull/258))
+- *(git)* Sweep config comments to stingy why-not-what form ([#261](https://github.com/carpet-stain/dotfiles/pull/261))
+- *(theme)* Sweep loose-config comments to why-not-what form ([#263](https://github.com/carpet-stain/dotfiles/pull/263))
+- *(git)* Disjoint file ownership for base + overlay via native composition ([#284](https://github.com/carpet-stain/dotfiles/pull/284))
+- *(git)* Drop the copier answers file — no copier update path ([#288](https://github.com/carpet-stain/dotfiles/pull/288))
+- *(git)* Remove copier templates from dotfiles after extraction ([#351](https://github.com/carpet-stain/dotfiles/pull/351))
+
+### Documentation
+
+- Adopt adr-tools and backfill 18 ADRs from history ([#245](https://github.com/carpet-stain/dotfiles/pull/245))
+- Break README↔AGENTS circular pointer and dedup deploy steps ([#249](https://github.com/carpet-stain/dotfiles/pull/249))
+- *(git)* Make the seeded README pointer-only to avoid drift ([#281](https://github.com/carpet-stain/dotfiles/pull/281))
+- *(claude)* Bring go.md to python.md parity ([#290](https://github.com/carpet-stain/dotfiles/pull/290))
+- Decide repos-as-code foundation (ADR-0022) ([#292](https://github.com/carpet-stain/dotfiles/pull/292))
+- Scrap the tf overlay, keep the repo move (ADR-0024) ([#297](https://github.com/carpet-stain/dotfiles/pull/297))
+- *(claude)* Document the lean-SKILL.md authoring convention ([#319](https://github.com/carpet-stain/dotfiles/pull/319))
+- *(adr)* Reject a skill-activation nudge hook (ADR-0026) ([#325](https://github.com/carpet-stain/dotfiles/pull/325))
+- *(adr)* Advisory review pipeline + model tiers (ADR-0025) ([#322](https://github.com/carpet-stain/dotfiles/pull/322))
+
+### Build
+
+- Adopt just as the repo task runner ([#252](https://github.com/carpet-stain/dotfiles/pull/252))
+
+### CI
+
+- Cache homebrew cellar and release tarballs ([#264](https://github.com/carpet-stain/dotfiles/pull/264))
+- Relink brew formulae after cache restore ([#285](https://github.com/carpet-stain/dotfiles/pull/285))
+- Drop the fragile Homebrew bottle cache, install fresh each run ([#286](https://github.com/carpet-stain/dotfiles/pull/286))
+- *(git-flow)* Make the base lint workflow portable, drop Homebrew ([#289](https://github.com/carpet-stain/dotfiles/pull/289))
+- Add advisory non-Anthropic PR code review ([#329](https://github.com/carpet-stain/dotfiles/pull/329))
+
+### Chore
+
+- *(github)* Add agent-ready to the portable label manifest ([#251](https://github.com/carpet-stain/dotfiles/pull/251))
+- *(terraform)* Move the repos-as-code config to infra ([#308](https://github.com/carpet-stain/dotfiles/pull/308))
+- *(claude)* Sync backlog-manager memory ([#316](https://github.com/carpet-stain/dotfiles/pull/316))
+- *(claude)* Pin backlog-manager to Sonnet ([#327](https://github.com/carpet-stain/dotfiles/pull/327))
+- *(claude)* Sync backlog-manager memory ([#340](https://github.com/carpet-stain/dotfiles/pull/340))
+- *(claude)* Sync backlog-manager memory ([#346](https://github.com/carpet-stain/dotfiles/pull/346))
+- *(claude)* Close out copier-extraction memory after epic #309 ([#352](https://github.com/carpet-stain/dotfiles/pull/352))
+
 ## [1.6.0] - 2026-07-14
 
 ### Features
