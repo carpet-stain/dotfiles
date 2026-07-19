@@ -228,12 +228,6 @@ Three more tools worth reaching for by hand, not wired into any hook:
   ruleset bootstrap. Needs Administration scope the routine `GH_TOKEN` lacks
   — run with `env -u GH_TOKEN -u GITHUB_TOKEN`. Not wired into CI; run manually
   once a repo's checks are set up.
-- `scripts/apply-labels.sh` — idempotent label-taxonomy bootstrap
-  (`scripts/labels.json`), upsert-only. Same `env -u GH_TOKEN -u GITHUB_TOKEN`, manual,
-  one-time convention; see `carpet-stain/project-starter-template`'s
-  `git-flow/README.md` bootstrap runbook for how the two compose with the
-  copier template (the templates and this script's counterpart moved there;
-  see ADR-0028).
 
 ### Credentials: `.envrc` / `.envrc.local`
 
