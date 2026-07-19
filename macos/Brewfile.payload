@@ -1,0 +1,53 @@
+# Deployed everywhere in spirit — the shell/editor/prompt experience and
+# general-purpose CLI/dev tooling. Linux gets the same capability via apt,
+# linux/binaries.lock, a vendored zsh-plugin submodule, or a pinned `go
+# install`/`npm install -g`, even where the exact provenance differs from
+# Homebrew's. See ADR-0006/ADR-0030 for the tier model and its history.
+
+tap 'Giammarco-Ferranti/deja' # deja isn't in homebrew-core
+tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
+
+brew 'bash-language-server' # Bash/zsh LSP; nvim's prefer-system-tooling fallback (mason-tools.lua)
+brew 'bat' # Better cat
+brew 'coreutils'
+brew 'curl'
+brew 'curlie'
+brew 'deja' # Fuzzy/directory/sequence-aware autosuggestions, replaces zsh-autosuggestions
+brew 'delve' # Go debugger (dlv); nvim-dap-go/general debugging
+brew 'direnv' # Loading .envrc files
+brew 'doggo' # Better dig
+brew 'dua-cli' # Better du
+brew 'eza' # Better ls
+brew 'fd' # better find
+brew 'fnm' # Node version manager — see ADR-0029; Linux gets nodejs via apt
+brew 'fzf' # Fuzzy finder
+brew 'gh' # GitHub CLI; general dev tooling, not just this repo's release process
+brew 'git' # More recent version of git
+brew 'git-delta' # Better diff
+brew 'gnu-sed'
+brew 'gnu-tar'
+brew 'go' # Go toolchain; general dev tooling, Linux gets golang-go/golang-src via apt too
+brew 'gofumpt' # Stricter gofmt; nvim formatter
+brew 'goimports' # gofmt + import management; nvim formatter
+brew 'golangci-lint' # Go meta-linter; nvim linter
+brew 'gomodifytags' # Add/remove Go struct tags; nvim code action
+brew 'gopls' # Go language server
+brew 'grep' # aliased to rg interactively, but scripts/subprocesses call grep directly
+brew 'htop'
+brew 'jaq' # Fast jq alternative
+brew 'lesspipe'
+brew 'lua-language-server' # Lua language server
+brew 'neovim'
+brew 'powerlevel10k' # zsh command prompt
+brew 'pyright' # Python language server
+brew 'ripgrep' # Faster ag written in Rust
+brew 'ruff' # Python linter/formatter (also an LSP)
+brew 'selene' # Lint Lua files; general dev tooling, not just this repo's own lint config
+brew 'stylua' # Format Lua files; general dev tooling, not just this repo's own lint config
+brew 'tealdeer' # tldr utility
+brew 'zellij' # terminal multiplexer
+brew 'zoxide' # Smart cd
+brew 'zsh-completions'
+brew 'zsh-autopair'
+brew 'zsh-patina' # Better syntax highlighting than fast-syntax-highlighting
+brew 'zsh-you-should-use' # Reminds you when a typed command has a shorter alias

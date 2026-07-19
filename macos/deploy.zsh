@@ -177,10 +177,18 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/actrc $XDG_CONFIG_HOME/act/actrc
 
   # $DOTFILES_DIR, not $DEPLOY_DIR — a worktree-invoked deploy would
-  # otherwise leave these two links pointing at the ephemeral worktree copy
+  # otherwise leave these links pointing at the ephemeral worktree copy
   # (observed for real; see the DOTFILES_DIR anchor comment up top).
   zf_ln -sf $DOTFILES_DIR/macos/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
-  zf_ln -sf $DOTFILES_DIR/macos/Brewfile $XDG_CONFIG_HOME/homebrew/Brewfile
+
+  # Three files (payload/dev/personal — see each file's own header), not
+  # Homebrew's single `--global` Brewfile convention: install_brewfile below
+  # always passes an explicit --file, so this symlinking is purely for ad hoc
+  # `brew bundle --file=~/.config/homebrew/Brewfile.dev ...` use later, not
+  # something deploy itself reads back.
+  zf_ln -sf $DOTFILES_DIR/macos/Brewfile.payload $XDG_CONFIG_HOME/homebrew/Brewfile.payload
+  zf_ln -sf $DOTFILES_DIR/macos/Brewfile.dev $XDG_CONFIG_HOME/homebrew/Brewfile.dev
+  zf_ln -sf $DOTFILES_DIR/macos/Brewfile.personal $XDG_CONFIG_HOME/homebrew/Brewfile.personal
 
   zf_ln -sf $DOTFILES_DIR/ssh/config $XDG_CONFIG_HOME/ssh/config
 
@@ -237,7 +245,11 @@ install_homebrew() {
 }
 
 install_brewfile() {
-  brew bundle --file=$DEPLOY_DIR/Brewfile
+  setopt local_options err_exit
+  local file
+  for file in Brewfile.payload Brewfile.dev Brewfile.personal; do
+    brew bundle --file=$DEPLOY_DIR/$file
+  done
 }
 
 # Activate the git hooks in lefthook.yml: pre-commit (zsh syntax, shellcheck,
@@ -386,10 +398,10 @@ eval "$($BREW_BIN shellenv)"
 # user-writable ~/Applications. A pre-set HOMEBREW_CASK_OPTS wins — export
 # it before deploying to pick another writable dir (e.g.
 # --appdir="/Applications/Corporate Apps"). Only drag-install
-# (.app/binary/font) casks work without sudo — pkg-based casks (mullvad-vpn
-# is the Brewfile's only one) still need an admin. Same conditional as
-# zsh/.zshenv — keep in sync; it's repeated here because a first deploy
-# runs before .zshenv is linked.
+# (.app/binary/font) casks work without sudo — pkg-based casks (mullvad-vpn,
+# in Brewfile.personal, is the only one across all three Brewfiles) still
+# need an admin. Same conditional as zsh/.zshenv — keep in sync; it's
+# repeated here because a first deploy runs before .zshenv is linked.
 if [[ $HOMEBREW_PREFIX != /opt/homebrew && -z $HOMEBREW_CASK_OPTS ]]; then
   export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
 fi
@@ -411,6 +423,22 @@ export FNM_DIR=$XDG_DATA_HOME/fnm # fnm reads this from its own subprocess env; 
 fnm install --lts && fnm default lts-latest || { print "  FAILED: fnm install/default" >&2; exit 1 }
 eval "$(fnm env)"
 node --version >/dev/null || { print "  FAILED: fnm-provided node did not resolve on PATH after fnm env" >&2; exit 1 }
+print "  ...done"
+
+# `impl` (Go struct-interface stub generator, an nvim code action per
+# mason-tools.lua) has no Homebrew formula — the one gap in this repo's
+# otherwise-brew-managed Go tooling (gopls/gofumpt/goimports/golangci-lint/
+# gomodifytags/delve all do). `go install <module>@<pinned-version>` is
+# still reproducible: Go's module proxy + sumdb checksum-verify the fetch,
+# same integrity guarantee binaries.lock's sha256 pins give linux/deploy.sh
+# for its own no-apt-package tools. Exported GOPATH (not the default ~/go)
+# to match zsh/.zshenv's XDG placement; top-level like the fnm block above,
+# not inside required()/optional(), so set_neovim's later headless run sees
+# `impl` on PATH too and correctly skips Mason-managing a second copy.
+print "Installing impl (go install)..."
+export GOPATH=$XDG_DATA_HOME/go # must match zsh/.zshenv's GOPATH
+path=($GOPATH/bin $path)
+go install github.com/josharian/impl@v1.5.0 || { print "  FAILED: go install impl" >&2; exit 1 }
 print "  ...done"
 
 optional "Installing lefthook hooks"           install_lefthook_hooks

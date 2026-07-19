@@ -112,16 +112,21 @@ zsh ~/.config/dotfiles/macos/deploy.zsh
 The [deploy script](macos/deploy.zsh) is idempotent and handles:
 
 1. Creating necessary XDG directory structures.
-2. Installing Homebrew and all `Brewfile` packages.
+2. Installing Homebrew and all `Brewfile.payload`/`Brewfile.dev`/
+   `Brewfile.personal` packages.
 3. Linking all config files to `$XDG_CONFIG_HOME`.
 4. Compiling terminfo entries and shell plugins.
 
 ### Linux (Debian — secondary target)
 
 Debian support ([`linux/deploy.sh`](linux/deploy.sh)) is a secondary target,
-mainly for a Linux dev VM you SSH into — e.g. a remote work box. It sets up
-the shell/CLI environment only; GUI concerns don't apply. Run as a regular
-user with passwordless sudo:
+mainly for a Linux dev VM you SSH into — e.g. a remote work box for general
+development, not just editing this repo. It deploys the payload tier, which
+includes general-purpose dev tooling (Go, Node, Python, GitHub CLI) — only
+the CI/lint/release toolchain this repo itself is developed with (`act`,
+`shellcheck`, `lefthook`, etc.) is excluded by design, not GUI concerns —
+see [ADR-0030](docs/adr/0030-redefine-dev-tier-as-the-ci-lint-release-toolchain-only.md).
+Run as a regular user with passwordless sudo:
 
 ```bash
 git clone https://github.com/carpet-stain/dotfiles ~/.config/dotfiles

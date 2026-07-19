@@ -1,6 +1,6 @@
 # Local shift-left mirror of what CI enforces (ci.yml, pr-guards.yml) — catches
 # the same issues before push instead of after. Install with `lefthook install`
-# (installed via macos/Brewfile's `lefthook` formula).
+# (installed via macos/Brewfile.dev's `lefthook` formula).
 pre-commit:
   jobs:
     - name: zsh-syntax
@@ -34,6 +34,15 @@ pre-commit:
         - ".github/workflows/*.yml"
         - ".github/workflows/*.yaml"
       run: actionlint {staged_files}
+
+    - name: brewfile-tiers
+      glob:
+        - "macos/Brewfile.payload"
+        - "macos/Brewfile.dev"
+        - "macos/Brewfile.personal"
+        - "linux/Aptfile"
+        - "linux/deploy.sh"
+      run: scripts/check-brewfile-tiers.sh
 
     - name: lua-format
       glob:

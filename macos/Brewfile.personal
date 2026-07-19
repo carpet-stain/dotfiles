@@ -1,0 +1,10 @@
+# Personal/leisure apps — unrelated to development, macOS GUI only, no
+# Linux equivalent possible. Split out from Brewfile.dev (both are
+# macOS-only) because these aren't "dev tooling" by any reading of the
+# term — see Brewfile.dev's header for that file's own membership rule.
+
+cask 'bitwarden'
+cask 'mullvad-vpn'
+cask 'steam'
+cask 'transmission'
+cask 'vscodium'
