@@ -31,7 +31,23 @@ if $is_draft; then
     echo "need at least 1 commit ahead of origin/main to open a draft PR" >&2
     exit 1
   fi
-  gh pr create "$@"
+
+  # `gh pr create` only seeds the repo's PR template in its interactive
+  # editor flow — never non-interactively (#307). Default the body to the
+  # template ourselves so agent/CI-driven PRs still get it; any flag that
+  # already supplies or sources a body still overrides.
+  has_body=false
+  for arg in "$@"; do
+    case "$arg" in
+      -b | --body | -F | --body-file | -f | --fill | --fill-first | --fill-verbose | -e | --editor | -T | --template | -w | --web) has_body=true ;;
+    esac
+  done
+  template="$(git rev-parse --show-toplevel)/.github/pull_request_template.md"
+  if ! $has_body && [[ -f "$template" ]]; then
+    gh pr create "$@" --body-file "$template"
+  else
+    gh pr create "$@"
+  fi
   exit 0
 fi
 
