@@ -1,0 +1,41 @@
+# macOS-only, not personal-use — never deployed to Linux
+# (scripts/check-brewfile-tiers.sh fails the build if any of these names
+# leaks into linux/deploy.sh or linux/Aptfile). Two different reasons a tool
+# ends up in this one file, both covered by "dev": (1) the CI/lint/release
+# toolchain this repo is itself developed with (ADR-0030's narrow
+# definition — act, shellcheck, lefthook, etc.), and (2) anything else
+# macOS-only with no current Linux path — a convenience CLI tool that
+# hasn't been ported (dysk/procs/viddy/hyperfine) or a GUI/professional-use
+# app with no Linux equivalent possible (ghostty, claude-code, tflint).
+# Personal/leisure apps live in Brewfile.personal instead.
+
+tap 'terraform-linters/tap' # tflint left homebrew-core (license change, 2026)
+
+brew 'act' # Run GitHub Actions workflows locally
+brew 'actionlint' # Lint GitHub Actions workflow files
+brew 'adr-tools' # Create/manage Architecture Decision Records (docs/adr/)
+brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
+brew 'docker' # Docker CLI — talks to Colima's socket, no Docker Desktop
+brew 'dysk' # Better df; no Linux port yet, not just CI toolchain
+brew 'git-cliff' # Changelog from conventional commits
+brew 'hyperfine' # Command-line benchmarking
+brew 'just' # Task runner (justfile) for repo dev verbs — see ADR-0019
+brew 'lefthook' # Manages the git hooks in lefthook.yml
+brew 'markdownlint-cli2' # Lint Markdown files
+brew 'prettier' # Format Markdown files
+brew 'procs' # Better ps; no Linux port yet, not just CI toolchain
+brew 'shellcheck' # Lint shell scripts
+brew 'shfmt' # Format shell scripts
+brew 'taplo' # Lint and format TOML files
+brew 'tenv' # OpenTofu/Terraform version manager — resolves required_version (infra repo)
+brew 'trivy' # IaC misconfiguration scanner for the infra repo (tfsec successor)
+brew 'uv' # Python package/env manager for project scaffolding
+brew 'viddy' # Better watch; no Linux port yet, not just CI toolchain
+brew 'yamlfmt' # Format YAML files
+
+cask 'claude' # AI desktop app; macOS GUI, no Linux equivalent possible
+cask 'claude-code' # AI coding assistant CLI; macOS GUI, no Linux equivalent possible
+cask 'font-jetbrains-mono-nerd-font' # macOS GUI, no Linux equivalent possible
+cask 'ghostty' # GPU-accelerated terminal; macOS GUI, no Linux equivalent possible
+cask 'rectangle' # macOS GUI, no Linux equivalent possible
+cask 'tflint' # Terraform linter for the infra repo — cask-only in terraform-linters/tap, no core formula

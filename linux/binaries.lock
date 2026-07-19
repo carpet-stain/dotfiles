@@ -2,18 +2,15 @@
 # linux/update-binaries.sh; do not hand-edit. Tab-separated fields:
 # tool  arch  version  url  sha256
 neovim	x86_64	v0.12.4	https://github.com/neovim/neovim/releases/download/v0.12.4/nvim-linux-x86_64.tar.gz	012bf3fcac5ade43914df3f174668bf64d05e049a4f032a388c027b1ebd78628
-neovim	aarch64	v0.12.4	https://github.com/neovim/neovim/releases/download/v0.12.4/nvim-linux-arm64.tar.gz	ceb7e88c6b681f0515d135dcdfad54f5eb4373b25ce6172197cd9a69c758063f
 delta	x86_64	0.19.2	https://github.com/dandavison/delta/releases/download/0.19.2/delta-0.19.2-x86_64-unknown-linux-musl.tar.gz	f1ea01ca7728ce3462debc359f39dfc7cbbc1a63224b71fefabf92042864aa1b
-delta	aarch64	0.19.2	https://github.com/dandavison/delta/releases/download/0.19.2/delta-0.19.2-aarch64-unknown-linux-gnu.tar.gz	0bfce159a5cddd5feb3d6db4a616d883ff51253ce08ac7ec11cb1d208cfaab9e
 zellij	x86_64	v0.44.3	https://github.com/zellij-org/zellij/releases/download/v0.44.3/zellij-x86_64-unknown-linux-musl.tar.gz	0f7c346788627f506c0a28296517768633cff24fc822a739f8264b640ecad751
-zellij	aarch64	v0.44.3	https://github.com/zellij-org/zellij/releases/download/v0.44.3/zellij-aarch64-unknown-linux-musl.tar.gz	15e6534d42644d66973d136c590c49739dcfd6a1a2a0d3d917973f16c81b45fb
 eza	x86_64	v0.23.5	https://github.com/eza-community/eza/releases/download/v0.23.5/eza_x86_64-unknown-linux-musl.tar.gz	e06eebab74b73d6b7d51a796a353824b001bea82df077706382e100815d28904
-eza	aarch64	v0.23.5	https://github.com/eza-community/eza/releases/download/v0.23.5/eza_aarch64-unknown-linux-gnu.tar.gz	40b87ae8628aa2ff0f0d2dc24ab52f689631366385c3da630bae745671fd71ec
 doggo	x86_64	v1.2.0	https://github.com/mr-karan/doggo/releases/download/v1.2.0/doggo-linux-x86_64.tar.gz	aa6760e7f163958e7626420447385ab938fdc127983edaceb121f809bd3e2bca
-doggo	aarch64	v1.2.0	https://github.com/mr-karan/doggo/releases/download/v1.2.0/doggo-linux-aarch64.tar.gz	b15e3e56b1e1d2e4bb3bf81b292a49a1b55781465ab2cb858cdb7f081fd95d0f
 dua	x86_64	v2.37.1	https://github.com/Byron/dua-cli/releases/download/v2.37.1/dua-v2.37.1-x86_64-unknown-linux-musl.tar.gz	19a3cf8f4a5aebfe2d426b1d12af9ad2e1bf30cdb7d12223c3de71e9713b1371
-dua	aarch64	v2.37.1	https://github.com/Byron/dua-cli/releases/download/v2.37.1/dua-v2.37.1-aarch64-unknown-linux-musl.tar.gz	82193725f73ae00e4e3fec54f985bf479d9c28f51c7143442ec8f7dd36409661
 curlie	x86_64	v1.8.2	https://github.com/rs/curlie/releases/download/v1.8.2/curlie_1.8.2_linux_amd64.tar.gz	033d39a06d7a4320f923c49b488b89ec415c1901413ae85d26b9f7a09b38f1a1
-curlie	aarch64	v1.8.2	https://github.com/rs/curlie/releases/download/v1.8.2/curlie_1.8.2_linux_arm64.tar.gz	570d505ad08e51ffe98e2ee39ee969cb340e846bc17a10ed2e4ba7a5e9d64c1a
 jaq	x86_64	v3.1.0	https://github.com/01mf02/jaq/releases/download/v3.1.0/jaq-x86_64-unknown-linux-gnu	093d741fdd262467f33a4c326acf989e05b03e36677ba190220ca6798326be86
-jaq	aarch64	v3.1.0	https://github.com/01mf02/jaq/releases/download/v3.1.0/jaq-aarch64-unknown-linux-gnu	80fbbb82008d5f4dd3bb378740faf784445184429f2ba082e6b1fbf76360c251
+golangci-lint	x86_64	v2.12.2	https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.tar.gz	8df580d2670fed8fa984aac0507099af8df275e665215f5c7a2ae3943893a553
+lua-language-server	x86_64	3.18.2	https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-linux-x64.tar.gz	ca71415dd19f19e30aaa35a4915aefca9fdb5fec31b98331cc3d77f778d539c5
+ruff	x86_64	0.15.22	https://github.com/astral-sh/ruff/releases/download/0.15.22/ruff-x86_64-unknown-linux-musl.tar.gz	853462df618fb9f156a9f04d9d899d9e5a9e1a43fbffaec72df4bb159348e71b
+stylua	x86_64	v2.5.2	https://github.com/JohnnyMorganz/StyLua/releases/download/v2.5.2/stylua-linux-x86_64-musl.zip	ca6f1cf52eaf69e6632b81acef9c197aa24b85eb30d2455a35e7dbe28ae77c72
+selene	x86_64	0.31.0	https://github.com/Kampfkarren/selene/releases/download/0.31.0/selene-0.31.0-linux.zip	dac452422747999ec4919bbb8bb52992b66aae533b60022bf005669de8616671

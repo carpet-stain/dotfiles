@@ -8,7 +8,7 @@ doesn't have to be excavated from closed issues and PRs. See
 ## Creating one
 
 ADRs are created with [adr-tools](https://github.com/npryce/adr-tools)
-(installed via `macos/Brewfile`), which numbers files sequentially and fills
+(installed via `macos/Brewfile.dev`), which numbers files sequentially and fills
 [`templates/template.md`](templates/template.md). The `just adr` recipe wraps
 it:
 

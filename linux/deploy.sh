@@ -24,7 +24,11 @@ XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOCAL_BIN="$HOME/.local/bin"
 
-ARCH="$(uname -m)" # x86_64 or aarch64
+# x86_64 or aarch64 — only x86_64 has pinned binaries.lock entries (that's
+# this repo's actual Linux target; an aarch64 host fails fetch_verified's
+# lookup with a clear "no pinned entry" error rather than being silently
+# unsupported).
+ARCH="$(uname -m)"
 # shellcheck disable=SC1091 # /etc/os-release is a system file, not part of this repo
 CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")" # e.g. bookworm, bullseye
 
@@ -232,7 +236,9 @@ fetch_verified() {
 }
 
 # install_tool <tool> <binary> — single-binary tools. Extracts the verified
-# asset if it's a gzip tarball, otherwise treats it as a bare binary.
+# asset if it's a gzip tarball or a zip (selene/stylua ship zip; everything
+# else pinned in binaries.lock ships tar.gz), otherwise treats it as a bare
+# binary.
 install_tool() {
   local tool="$1" binary="$2" archive
   archive="$(fetch_verified "$tool")" || return 1
@@ -240,6 +246,12 @@ install_tool() {
     local tmp
     tmp="$(mktemp -d)"
     tar -xzf "$archive" -C "$tmp"
+    find "$tmp" -name "$binary" -type f -exec cp {} "$LOCAL_BIN/$binary" \;
+    rm -rf "$tmp"
+  elif unzip -tq "$archive" >/dev/null 2>&1; then
+    local tmp
+    tmp="$(mktemp -d)"
+    unzip -q "$archive" -d "$tmp"
     find "$tmp" -name "$binary" -type f -exec cp {} "$LOCAL_BIN/$binary" \;
     rm -rf "$tmp"
   else
@@ -516,6 +528,49 @@ required "Installing doggo" install_tool doggo doggo
 required "Installing dua" install_tool dua dua
 required "Installing curlie" install_tool curlie curlie
 required "Installing jaq" install_tool jaq jaq
+required "Installing golangci-lint" install_tool golangci-lint golangci-lint
+required "Installing lua-language-server" install_tool lua-language-server lua-language-server
+required "Installing ruff" install_tool ruff ruff
+required "Installing stylua" install_tool stylua stylua
+required "Installing selene" install_tool selene selene
+
+# Dev tooling with no Debian apt package and no GitHub-release binary either
+# (gopls/goimports/gofumpt/gomodifytags/impl/delve are go-install-only;
+# pyright/bash-language-server are npm-only) — reproducible via each
+# ecosystem's own package manager instead: `go install <module>@<version>`
+# is checksum-verified through Go's module proxy/sumdb, `npm install
+# -g <pkg>@<version>` pins an exact registry version. Same integrity spirit
+# as binaries.lock's sha256 pins, just via each tool's native package
+# manager rather than a raw curl download. Bump versions here by hand;
+# there's no per-tool lock file the way binaries.lock covers GitHub
+# releases. Runs at top level, not inside required()/optional(): those
+# execute "$@" in a subshell (command substitution), so a PATH mutation
+# inside one can't propagate to set_neovim, a later, separate top-level
+# call — same reasoning as macos/deploy.zsh's fnm/impl block. The script's
+# own `set -euo pipefail` (top of file) covers error handling here, unlike
+# deploy.zsh's manual checks — bash's errexit isn't function-scoped the way
+# zsh's `setopt err_exit` is, so it's already in effect at top level.
+printf 'Installing go-installed dev tools...\n'
+export GOPATH="$XDG_DATA_HOME/go" # must match zsh/.zshenv's GOPATH
+PATH="$GOPATH/bin:$PATH"
+go install golang.org/x/tools/gopls@v0.23.0
+go install golang.org/x/tools/cmd/goimports@v0.48.0
+go install mvdan.cc/gofumpt@v0.10.0
+go install github.com/fatih/gomodifytags@v1.17.0
+go install github.com/josharian/impl@v1.5.0
+go install github.com/go-delve/delve/cmd/dlv@v1.27.0
+printf '  ...done\n'
+
+# npm's default global prefix needs sudo on Debian's apt-installed nodejs
+# (unlike macOS's fnm-managed Node, which is already user-owned) — an
+# explicit --prefix keeps these two installs sudo-free and XDG-scoped
+# without a permanent npm config change.
+printf 'Installing npm-installed dev tools...\n'
+NPM_GLOBAL_PREFIX="$XDG_DATA_HOME/npm-global"
+npm install -g --prefix "$NPM_GLOBAL_PREFIX" pyright@1.1.411 bash-language-server@5.6.0
+PATH="$NPM_GLOBAL_PREFIX/bin:$PATH"
+printf '  ...done\n'
+
 required "Syncing submodules" sync_submodules
 optional "Enabling git maintenance" enable_git_maintenance
 required "Linking config files" link_configs

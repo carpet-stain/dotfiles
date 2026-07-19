@@ -196,8 +196,8 @@ step; run `just lint` to check everything at once.
 ### Linters/formatters by file type
 
 `lefthook.yml` is the exact source for which tool lints/formats which file
-type — installed via `macos/Brewfile`, shared with `ci.yml`'s `lint` job and
-nvim's `conform`/`nvim-lint` (not a second Mason-managed copy). Worth calling
+type — installed via `macos/Brewfile.dev`, shared with `ci.yml`'s `lint` job
+and nvim's `conform`/`nvim-lint` (not a second Mason-managed copy). Worth calling
 out beyond what the config shows: zsh has no formatter, `zsh -n` is
 syntax-check only; shellcheck excludes zsh (false positives); markdownlint
 and prettier skip `CHANGELOG.md` (git-cliff generated); json (3 files),

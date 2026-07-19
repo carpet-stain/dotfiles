@@ -122,8 +122,9 @@ if [[ $OSTYPE == darwin* ]]; then
   # set it in the environment to pick another writable dir (e.g.
   # --appdir="/Applications/Corporate Apps"). Only drag-install
   # (.app/binary/font) casks work without sudo — pkg-based casks
-  # (mullvad-vpn is the Brewfile's only one) still need an admin. Same
-  # conditional as macos/deploy.zsh — keep the two in sync.
+  # (mullvad-vpn, in Brewfile.personal, is the only one across all three
+  # Brewfiles) still need an admin. Same conditional as macos/deploy.zsh —
+  # keep the two in sync.
   if [[ -n $HOMEBREW_PREFIX && $HOMEBREW_PREFIX != /opt/homebrew && -z $HOMEBREW_CASK_OPTS ]]; then
     export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
   fi

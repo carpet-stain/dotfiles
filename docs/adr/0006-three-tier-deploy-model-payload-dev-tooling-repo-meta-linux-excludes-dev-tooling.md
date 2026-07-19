@@ -4,12 +4,12 @@ Date: 2026-07-09
 
 ## Status
 
-Accepted
-
 The repo-meta tier's example list below (Decision) names the `python/`+
 `git-flow/` templates, which have since moved to
 [`carpet-stain/project-starter-template`](https://github.com/carpet-stain/project-starter-template)
 (ADR-0028) — the tier concept and the rest of its examples are unaffected.
+
+Superceded by [30. Redefine dev tier as the CI/lint/release toolchain only](0030-redefine-dev-tier-as-the-ci-lint-release-toolchain-only.md)
 
 ## Context
 
