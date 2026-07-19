@@ -106,7 +106,8 @@ local compdump_file="$XDG_CACHE_HOME/zsh/compdump"
 #   .  -> Plain files only
 #   mh -> Modified time, in hours
 #   +20 -> More than 20 hours ago
-if ! [[ -f "$compdump_file" ]] || [[ -n "($compdump_file(#qN.mh+20))" ]]; then
+local -a stale_compdump=($compdump_file(#qN.mh+20))
+if ! [[ -f "$compdump_file" ]] || [[ -n "$stale_compdump" ]]; then
     # '-i' (insecure) skips security checks — we trust our own fpath.
     compinit -i -u -d "$compdump_file"
 else
