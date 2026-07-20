@@ -134,7 +134,10 @@ reviewer cycles on it unasked — sweeping shouldn't silently kick off N multi-r
    until it's sound, drilling the issue down further if the approach itself is wrong. Only when no
    blocking finding remains (or the human explicitly waives one) flip `needs-plan-review` →
    `plan-approved`. Never approve over an unresolved blocking finding just because you authored the
-   plan.
+   plan. At the flip, consolidate the converged plan into the issue body — the top post must be
+   self-sufficient to implement from, ending with a one-line pointer at the comment thread as the
+   derivation trail. The revision comments are provenance, not the spec; an implementer should
+   never need to mentally merge them.
 
 `plan-approved` means ready to implement — a fresh session picks it up. The gate is discipline, not
 a hard block: the labels are a queue and a signal, so honour them, but nothing mechanically stops
