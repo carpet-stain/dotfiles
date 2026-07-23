@@ -9,8 +9,8 @@ const SEVERITY_RANK = { blocking: 0, nit: 1, "pre-existing": 2 };
 // Bound cost and prompt size: only this many files, and this many prompt
 // characters total, go to the model. A PR bigger than this gets a partial
 // review (first MAX_FILES files, truncated at MAX_PROMPT_CHARS) rather than
-// an unbounded request — see PR #<this PR>'s discussion for why a hard cap
-// beats dynamic chunking here.
+// an unbounded request — see #330's discussion for why a hard cap beats
+// dynamic chunking here.
 export const MAX_FILES = 25;
 export const MAX_PROMPT_CHARS = 12000;
 
@@ -42,6 +42,14 @@ export function buildPrompt(parsedFiles) {
       section += `${line}: ${content}\n`;
     }
     if (out.length + section.length > MAX_PROMPT_CHARS) {
+      // A first file whose section alone overflows the budget still gets a
+      // truncated slice, so a large single-file PR is reviewed partially
+      // rather than not at all. buildReviewComments validates every finding
+      // against the full parsed line map, so a mid-line cut here can't post
+      // a comment on a bogus anchor.
+      if (out.length === 0) {
+        out = section.slice(0, MAX_PROMPT_CHARS);
+      }
       out += "\n[truncated — remaining files omitted to bound prompt size]\n";
       break;
     }

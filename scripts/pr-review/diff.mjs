@@ -14,14 +14,15 @@ export function parsePatch(patch) {
   if (!patch) return lines;
 
   let newLine = 0;
-  for (const raw of patch.split("\n")) {
+  const rawLines = patch.split("\n");
+  for (let i = 0; i < rawLines.length; i++) {
+    const raw = rawLines[i];
     if (raw.startsWith("@@")) {
       const match = raw.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
       if (!match) continue;
       newLine = Number(match[1]);
       continue;
     }
-    if (raw.length === 0) continue; // trailing split() artifact
     if (raw.startsWith("\\")) continue; // "\ No newline at end of file"
     if (raw.startsWith("-")) continue; // old-file-only line, no RIGHT anchor
     if (raw.startsWith("+")) {
@@ -29,7 +30,13 @@ export function parsePatch(patch) {
       newLine++;
       continue;
     }
-    // context line: starts with the diff's single leading space marker
+    // Only the final element of split() on a patch ending in "\n" is a bare
+    // "" — drop it. A blank *context* line is " " (leading space marker), so
+    // it falls through to the context branch and keeps newLine in sync; a
+    // stray mid-patch "" is likewise treated as blank context, never skipped
+    // (skipping without advancing newLine would desync every later anchor).
+    if (raw === "" && i === rawLines.length - 1) continue;
+    // context line: strip the diff's single leading space marker
     lines.set(newLine, raw.slice(1));
     newLine++;
   }

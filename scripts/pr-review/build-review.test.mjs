@@ -1,6 +1,6 @@
 // Unit tests for the pure diff-parsing / review-building logic, run with
 // Node's built-in test runner (no dependency, no package.json needed):
-//   node --test scripts/pr-review/
+//   node --test scripts/pr-review/*.test.mjs
 //
 // This is the isolation-testable half of the DIY PR reviewer (#330) — the
 // I/O half (run.mjs: real GitHub/OpenAI calls) can only really prove out
@@ -9,7 +9,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePatch } from "./diff.mjs";
-import { parseFiles, buildPrompt, buildReviewComments } from "./build-review.mjs";
+import { parseFiles, buildPrompt, buildReviewComments, MAX_PROMPT_CHARS } from "./build-review.mjs";
 
 const SAMPLE_PATCH = [
   "@@ -10,3 +10,4 @@ function greet() {",
@@ -34,6 +34,28 @@ test("parsePatch returns an empty map for a binary/no-patch file", () => {
   assert.equal(parsePatch("").size, 0);
 });
 
+test("parsePatch keeps line numbers in sync across a blank context line", () => {
+  // A blank unchanged line is a bare " " (leading-space marker) in a unified
+  // diff — it must map to its line number and advance the counter, or every
+  // later anchor desyncs.
+  const patch = ["@@ -1,4 +1,4 @@", " first", " ", "-old", "+new"].join("\n");
+  const lines = parsePatch(patch);
+  assert.equal(lines.get(1), "first");
+  assert.equal(lines.get(2), ""); // blank context line, still counted
+  assert.equal(lines.get(3), "new"); // stays line 3, not shifted to 2
+  assert.equal(lines.size, 3);
+});
+
+test("parsePatch handles multiple hunks in one file", () => {
+  const patch = ["@@ -1,2 +1,2 @@", " a", "+b", "@@ -10,2 +20,2 @@", " x", "+y"].join("\n");
+  const lines = parsePatch(patch);
+  assert.equal(lines.get(1), "a");
+  assert.equal(lines.get(2), "b");
+  assert.equal(lines.get(20), "x");
+  assert.equal(lines.get(21), "y");
+  assert.equal(lines.size, 4);
+});
+
 test("parseFiles drops binary/no-patch files", () => {
   const files = [
     { filename: "a.ts", patch: SAMPLE_PATCH },
@@ -49,6 +71,20 @@ test("buildPrompt renders annotated line numbers per file", () => {
   const prompt = buildPrompt(parsed);
   assert.match(prompt, /File: a\.ts/);
   assert.match(prompt, /11:   console\.log\('hello'\)/);
+});
+
+test("buildPrompt still includes a truncated slice when the first file alone exceeds the cap", () => {
+  // A single file bigger than the whole budget must be reviewed partially,
+  // not skipped into an empty prompt (which would silently review nothing).
+  const lines = new Map();
+  const lineLen = 40;
+  for (let i = 1; i <= Math.ceil((MAX_PROMPT_CHARS * 2) / lineLen); i++) {
+    lines.set(i, "x".repeat(lineLen));
+  }
+  const prompt = buildPrompt([{ filename: "big.ts", lines }]);
+  assert.ok(prompt.length > 0, "prompt must not be empty");
+  assert.match(prompt, /File: big\.ts/);
+  assert.match(prompt, /\[truncated/);
 });
 
 test("buildReviewComments keeps findings anchored to real diff lines, drops hallucinated ones", () => {

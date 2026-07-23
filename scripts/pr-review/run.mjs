@@ -173,6 +173,14 @@ async function main() {
 }
 
 main().catch((err) => {
+  // Advisory reviewer: a transient OpenAI/GitHub outage or rate-limit must
+  // never fail the check (docs/adr/0025 — human approval is the gate and
+  // this job is deliberately not a required check). Log the full error for
+  // diagnosis, surface a warning annotation so a real misconfig (bad key,
+  // missing perms) stays visible in the PR checks UI, then exit 0 so the run
+  // stays green. Wiring errors in our own env are still caught loud above
+  // (missing required env var -> exit 1) before any of this runs.
   console.error(err);
-  process.exit(1);
+  console.log(`::warning title=PR advisory review::skipped after error: ${err.message}`);
+  process.exit(0);
 });
