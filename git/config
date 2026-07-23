@@ -29,6 +29,10 @@
   # of whether the local origin/main ref is stale or fresh going in. See
   # git-squash.sh.
   squash = "!git-squash"
+  # Open a scoped draft PR syncing backlog-manager's file-based memory
+  # (ADR-0027) — the only sanctioned path it reaches git history, staging
+  # strictly .claude/agent-memory/backlog-manager/**. See backlog-memory-pr.sh.
+  memory-pr = "!git-memory-pr"
 
 [include]
   path = ~/.config/git/catppuccin.gitconfig

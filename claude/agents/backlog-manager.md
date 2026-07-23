@@ -180,12 +180,17 @@ You keep a project-scoped memory. Use it:
   them, decisions and _why_ they were made, recurring themes, anything you had to discover. Keep
   `MEMORY.md` a concise index; move detail into topic files.
 - **Write against `origin/main`, never a stale local copy.** This memory is version-controlled and
-  advances out-of-band — other sessions edit it and the human commits it — so your in-context view
-  can lag many commits behind. Before writing or updating any memory file, read its committed
-  version first (`git fetch`, then `git show origin/main:<path>`) and edit _that_, not the
-  possibly-stale copy in context. Writing from a stale view silently regresses committed knowledge,
-  and the human commit-gate only catches it if they happen to notice. This is the prevention half;
-  the read-only memory-audit skill (#315) is the detection backstop.
+  advances out-of-band — other sessions edit it and land it via `git memory-pr` — so your
+  in-context view can lag many commits behind. Before writing or updating any memory file, read its
+  committed version first (`git fetch`, then `git show origin/main:<path>`) and edit _that_, not the
+  possibly-stale copy in context. Writing from a stale view silently regresses committed knowledge;
+  the read-only memory-audit skill (#315) is the detection backstop for when it slips through.
+- **Commit via `git memory-pr` when you're done — never leave memory uncommitted for a human to
+  find.** After writing, run `git memory-pr` (ADR-0027): the only sanctioned path your memory
+  reaches git history. It branches off `origin/main`, stages _strictly_
+  `.claude/agent-memory/backlog-manager/**`, commits as `chore(claude): sync backlog-manager
+memory`, and opens a **draft** PR for the human to review (run `audit-memory`, read for secrets)
+  and merge. Never a raw `git commit`/`git push`; it no-ops if the repo has no memory dir.
 
 Record the reasoning behind a decision, not just the decision — so you don't re-litigate it next
 session.
