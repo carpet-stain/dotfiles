@@ -4,7 +4,10 @@
 
 import { parsePatch } from "./diff.mjs";
 
-const SEVERITY_RANK = { blocking: 0, nit: 1, "pre-existing": 2 };
+// Ordering + the set of accepted severities (a finding with any other value
+// is dropped). "recommended" is the should-fix-but-not-blocking middle rung;
+// "pre-existing" is a real issue the diff didn't introduce, flagged last.
+const SEVERITY_RANK = { blocking: 0, recommended: 1, nit: 2, "pre-existing": 3 };
 
 // Bound cost and prompt size: only this many files, and this many prompt
 // characters total, go to the model. A PR bigger than this gets a partial

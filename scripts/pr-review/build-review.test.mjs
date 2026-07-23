@@ -109,17 +109,18 @@ test("buildReviewComments keeps findings anchored to real diff lines, drops hall
   assert.match(comments[0].body, /```suggestion\n {2}console\.log\(`hello`\)\n```/);
 });
 
-test("buildReviewComments sorts blocking before nit before pre-existing", () => {
+test("buildReviewComments sorts blocking < recommended < nit < pre-existing", () => {
   const parsed = parseFiles([{ filename: "a.ts", patch: SAMPLE_PATCH }]);
   const findings = [
     { file: "a.ts", line: 10, severity: "nit", comment: "n", suggestion: null },
     { file: "a.ts", line: 11, severity: "blocking", comment: "b", suggestion: null },
     { file: "a.ts", line: 12, severity: "pre-existing", comment: "p", suggestion: null },
+    { file: "a.ts", line: 13, severity: "recommended", comment: "r", suggestion: null },
   ];
   const { comments } = buildReviewComments(parsed, findings);
   assert.deepEqual(
     comments.map((c) => c.line),
-    [11, 10, 12],
+    [11, 13, 10, 12],
   );
 });
 
