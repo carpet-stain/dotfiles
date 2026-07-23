@@ -358,6 +358,7 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
   ln -sf "$DOTFILES_DIR/scripts/git-new.sh" "$LOCAL_BIN/git-new"
   ln -sf "$DOTFILES_DIR/scripts/git-sync.sh" "$LOCAL_BIN/git-sync"
+  ln -sf "$DOTFILES_DIR/scripts/backlog-memory-pr.sh" "$LOCAL_BIN/git-memory-pr"
 
   ln -sf "$DOTFILES_DIR/ripgreprc" "$XDG_CONFIG_HOME/ripgrep/config"
   ln -sf "$DOTFILES_DIR/curlrc" "$XDG_CONFIG_HOME/curlrc"
