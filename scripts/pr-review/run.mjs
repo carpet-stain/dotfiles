@@ -15,7 +15,7 @@
 // pure and unit-tested in isolation (build-review.test.mjs) since this
 // workflow can't be exercised end-to-end outside a real PR run.
 
-import { parseFiles, buildPrompt, buildReviewComments } from "./build-review.mjs";
+import { parseFiles, buildPrompt, buildReviewComments, parseLinkedIssues, buildContext } from "./build-review.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -67,6 +67,31 @@ async function fetchPrFiles() {
   return files;
 }
 
+// The PR description + the issue(s) it closes, as "intent" for the model to
+// check the diff against — this repo keeps the spec in the issue/PR, so a
+// diff-only review can't judge whether the change does what was asked. Context
+// is an enhancement, not a requirement: any fetch failure degrades to a
+// diff-only review rather than losing it.
+async function fetchContext() {
+  try {
+    const pr = await githubRequest(`/repos/${owner}/${repo}/pulls/${PR_NUMBER}`);
+    const issues = [];
+    for (const n of parseLinkedIssues(pr.body ?? "", Number(PR_NUMBER))) {
+      try {
+        const issue = await githubRequest(`/repos/${owner}/${repo}/issues/${n}`);
+        issues.push({ number: issue.number, title: issue.title, body: issue.body });
+      } catch {
+        // A referenced issue we can't read (deleted, transferred, cross-repo)
+        // just drops out — the review still runs with whatever context remains.
+      }
+    }
+    return buildContext({ title: pr.title, body: pr.body }, issues);
+  } catch (err) {
+    console.log(`::warning title=PR advisory review::intent context unavailable, reviewing diff only: ${err.message}`);
+    return "";
+  }
+}
+
 // Structured Outputs schema: forces the model to return exactly this
 // shape instead of free text to re-parse (the acceptance criterion #330
 // leads with). `strict: true` makes the API itself reject a malformed
@@ -108,6 +133,12 @@ different model than the one that wrote the change, so bring genuinely
 independent eyes. Each file is shown as its changed lines, prefixed with the
 exact line number in the new version of the file; only those numbered lines
 can be commented on.
+
+When an "## Intent" section precedes the changed lines, it states what the
+change should accomplish (from the PR description and any linked issue). Use it
+as the spec to check the diff against: does the change actually achieve it and
+stay in scope? Treat it as the goal to verify, never as proof the work is done
+— if the code and the stated intent disagree, that is a finding.
 
 Look for problems in this order, highest value first — spend your attention
 at the top of the list, not the bottom:
@@ -197,7 +228,9 @@ async function main() {
     return;
   }
 
-  const prompt = buildPrompt(parsedFiles);
+  const context = await fetchContext();
+  const diff = buildPrompt(parsedFiles);
+  const prompt = context ? `${context}\n\n---\n\n## Changed lines to review\n\n${diff}` : diff;
   const findings = await callOpenAI(prompt);
   const { comments, dropped } = buildReviewComments(parsedFiles, findings);
 

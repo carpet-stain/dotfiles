@@ -9,7 +9,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePatch } from "./diff.mjs";
-import { parseFiles, buildPrompt, buildReviewComments, MAX_PROMPT_CHARS } from "./build-review.mjs";
+import {
+  parseFiles,
+  buildPrompt,
+  buildReviewComments,
+  parseLinkedIssues,
+  buildContext,
+  MAX_PROMPT_CHARS,
+  MAX_ISSUES,
+  MAX_ISSUE_BODY_CHARS,
+} from "./build-review.mjs";
 
 const SAMPLE_PATCH = [
   "@@ -10,3 +10,4 @@ function greet() {",
@@ -130,4 +139,40 @@ test("buildReviewComments drops a finding with an unknown severity", () => {
   const { comments, dropped } = buildReviewComments(parsed, findings);
   assert.equal(comments.length, 0);
   assert.equal(dropped, 1);
+});
+
+test("parseLinkedIssues follows closing keywords, ignores plain mentions, dedupes", () => {
+  const body = "Fixes #12 and resolves: #34.\nSee #99 for background. Also closes #12 again.";
+  assert.deepEqual(parseLinkedIssues(body), [12, 34]); // #99 is a plain mention; #12 deduped
+});
+
+test("parseLinkedIssues excludes the PR's own number and caps at MAX_ISSUES", () => {
+  assert.deepEqual(parseLinkedIssues("Closes #7", 7), []);
+  const many = Array.from({ length: MAX_ISSUES + 2 }, (_, i) => `Closes #${i + 1}`).join("\n");
+  assert.equal(parseLinkedIssues(many).length, MAX_ISSUES);
+});
+
+test("parseLinkedIssues returns [] for empty/absent body", () => {
+  assert.deepEqual(parseLinkedIssues(""), []);
+  assert.deepEqual(parseLinkedIssues(undefined), []);
+});
+
+test("buildContext renders PR title/body and linked issues, empty for no PR", () => {
+  const ctx = buildContext(
+    { title: "feat: add widget", body: "Adds the widget.\nCloses #5" },
+    [{ number: 5, title: "Need a widget", body: "We should have a widget." }],
+  );
+  assert.match(ctx, /## Intent/);
+  assert.match(ctx, /PR: feat: add widget/);
+  assert.match(ctx, /Adds the widget\./);
+  assert.match(ctx, /Linked issue #5: Need a widget/);
+  assert.match(ctx, /We should have a widget\./);
+  assert.equal(buildContext(null), "");
+});
+
+test("buildContext caps an over-long issue body", () => {
+  const huge = "y".repeat(MAX_ISSUE_BODY_CHARS * 2);
+  const ctx = buildContext({ title: "t" }, [{ number: 1, title: "big", body: huge }]);
+  assert.ok(!ctx.includes(huge), "full oversized body must not appear verbatim");
+  assert.ok(ctx.includes("y".repeat(MAX_ISSUE_BODY_CHARS)), "a capped slice should appear");
 });
