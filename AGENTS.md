@@ -267,6 +267,39 @@ to fall back to `gh auth login`'s broader session instead (#160).
 scoped `GH_TOKEN` automatically (no second credential to manage); see
 `claude/rules/platform/github.md`'s "Changelog PR links" section.
 
+#### Vended cross-repo token (Bitwarden Secrets Manager)
+
+Separate from `GH_TOKEN` (which stays as above, #74): the sibling repo
+`carpet-stain/infra` vends a rotating, narrowly-scoped GitHub token
+(`{contents, issues, pull_requests}: write`, no Administration, over the
+managed repos except `infra`) into a Bitwarden **`vended-tokens`** Project,
+re-minted every 20 min. A local shell reads it without ever touching the App's
+raw key — the sanctioned cross-repo/agent credential. Design and grant table
+live in infra's ADR-0008/0009 and `docs/CONSUMING-SECRETS.md`; this only binds
+the local setup (#377).
+
+Mechanism: `.zshenv` exports `BWS_ACCESS_TOKEN` (the **Local** machine-account
+token, read-only on `vended-tokens` and **nothing else** — never `infra`) from
+the macOS login Keychain; each repo's `.envrc` then runs `bws-vended-token`
+(`scripts/bws-vended-token.sh`) to fetch the token fresh, check its
+`expires_at`, and export `GH_VENDED_TOKEN` — failing loud at shell entry if
+it's stale or missing rather than surfacing a 401 later. macOS only (no
+consumer on the payload-only Linux target, per ADR-0006).
+
+One-time setup — store the Local machine-account access token in the Keychain
+(`-A` allows silent reads, since the vended path is routine, not elevated;
+contrast infra's `infra-bws` item, added _without_ `-A` so its crown-jewel
+reads stay prompt-gated):
+
+```sh
+security add-generic-password -s vended-bws -a "$USER" -A -U -w
+# prompts for the value — paste the Local machine account's access token,
+# keeping it out of shell history
+```
+
+The secret's UUID (`BWS_VENDED_SECRET_ID`, in `.envrc`) is non-secret — it
+grants nothing without the access token.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model
