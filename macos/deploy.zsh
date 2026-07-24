@@ -371,6 +371,35 @@ grant_zellij_permissions() {
 	KDL
 }
 
+# Install the Bitwarden Secrets Manager CLI (`bws`). Consumers: the vended-token
+# fetch in a repo's .envrc (#377) and infra's `with-infra-secrets.sh`, which
+# read secrets from Bitwarden at shell/invocation time. NOT on Homebrew — brew
+# only ships `bitwarden-cli` (`bw`, the vault CLI, which can't read Secrets
+# Manager). Bitwarden distributes `bws` only as a release binary from
+# bitwarden/sdk-sm, so this is a pinned GitHub-release download into
+# ~/.local/bin — same precedent as gitstatusd/zjstatus above, not a Brewfile
+# entry (impossible) or a submodule (that's for sourced plugins, not compiled
+# binaries). macOS only, deliberately not linux/deploy.sh: the payload-only
+# Linux VM has no bws consumer (no gh, no .envrc.local, no infra checkout) and
+# ADR-0006 scopes dev tooling to macOS (#362). Keep $ver in sync with infra's
+# .github/workflows/vend-token.yml BWS_VERSION — two repos, no shared pin.
+install_bws() {
+  setopt local_options err_exit pipe_fail
+  local ver=2.1.0
+  command -v bws >/dev/null && [[ "$(bws --version 2>/dev/null)" == *$ver* ]] && return 0
+  local arch=x86_64; [[ $(uname -m) == arm64 ]] && arch=aarch64
+  local tmp=$(mktemp -d)
+  curl -fsSL -o "$tmp/bws.zip" \
+    "https://github.com/bitwarden/sdk-sm/releases/download/bws-v${ver}/bws-${arch}-apple-darwin-${ver}.zip"
+  unzip -qo "$tmp/bws.zip" -d "$tmp" bws
+  zf_mkdir -p $HOME/.local/bin
+  mv "$tmp/bws" "$HOME/.local/bin/bws"
+  chmod +x "$HOME/.local/bin/bws"
+  # Clear the download quarantine so it runs without a Gatekeeper prompt.
+  xattr -d com.apple.quarantine "$HOME/.local/bin/bws" 2>/dev/null || true
+  rm -rf "$tmp"
+}
+
 set_neovim() {
   # Launch nvim to trigger Lazy to download plugins and Mason to install any
   # LSPs/formatters declared via ensure_installed (LazyVim's own lang extras
@@ -448,6 +477,7 @@ required "Syncing submodules"                  sync_submodules
 optional "Enabling git maintenance"            enable_git_maintenance
 optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
+optional "Installing bws (Bitwarden SM CLI)"   install_bws
 optional "Importing zsh history into deja"     import_deja_history
 optional "Generating dua/doggo completions"    generate_completions
 optional "Refreshing TLDR pages"               refresh_tldr
