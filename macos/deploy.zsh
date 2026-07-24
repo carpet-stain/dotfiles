@@ -171,6 +171,11 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/scripts/git-squash.sh $HOME/.local/bin/git-squash
   zf_ln -sf $DOTFILES_DIR/scripts/backlog-memory-pr.sh $HOME/.local/bin/git-memory-pr
 
+  # On PATH as a bare command so any repo's .envrc can fetch the vended token
+  # (#377). macOS only, like the rest of this script — bws (#388) and BSD
+  # `date` it relies on are macOS here.
+  zf_ln -sf $DOTFILES_DIR/scripts/bws-vended-token.sh $HOME/.local/bin/bws-vended-token
+
   zf_ln -sf $DOTFILES_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
   zf_ln -sf $DOTFILES_DIR/curlrc $XDG_CONFIG_HOME/curlrc
   zf_ln -sf $DOTFILES_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml

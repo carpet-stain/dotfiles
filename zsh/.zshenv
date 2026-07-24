@@ -173,6 +173,26 @@ path=($GOPATH/bin $path)
 # Custom zsh functions and completion definitions
 fpath+=$ZDOTDIR/fpath
 
+# +-----+
+# | BWS |
+# +-----+
+
+# Export the Bitwarden Secrets Manager access token (the Local machine account,
+# read-only on the vended-tokens Project) from the macOS login Keychain, so
+# `bws` can fetch the vended GitHub token in any repo's .envrc (#377). Must run
+# before the DIRENV block below, which evaluates .envrc — the consumer. Silent
+# and guarded like the fnm/direnv blocks: no bws, non-macOS, or no Keychain
+# item (fresh machine, pre-setup) is a no-op with no output (line 3), never a
+# prompt. The token is routine (reads only the rotating vended token), so its
+# Keychain item is added with an ACL that allows silent reads (AGENTS.md
+# Credentials); infra's elevated path stays prompt-gated by contrast.
+if [[ $OSTYPE == darwin* ]] && (( ${+commands[bws]} )); then
+  if _bws_tok=$(security find-generic-password -s vended-bws -w 2>/dev/null); then
+    export BWS_ACCESS_TOKEN=$_bws_tok
+  fi
+  unset _bws_tok
+fi
+
 # +--------+
 # | DIRENV |
 # +--------+
