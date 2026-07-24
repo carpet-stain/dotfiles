@@ -8,9 +8,11 @@
 // stays advisory-only per docs/adr/0025 — posts a COMMENT-event review,
 // never APPROVE/REQUEST_CHANGES, so it can't gate a merge on its own.
 //
-// Talks to the GitHub and OpenAI REST APIs directly with the platform
-// `fetch` (no octokit/openai SDK, no third-party Action in the request
-// path — the whole point of #330 over the prior action). All I/O lives
+// Talks to the GitHub REST API and an OpenAI-compatible chat-completions
+// endpoint (OpenAI, or OpenRouter's free tier — set via OPENAI_API_URL /
+// OPENAI_MODEL) directly with the platform `fetch` (no octokit/openai SDK,
+// no third-party Action in the request path — the whole point of #330 over
+// the prior action). All I/O lives
 // here; the parsing/formatting logic in diff.mjs and build-review.mjs is
 // pure and unit-tested in isolation (build-review.test.mjs) since this
 // workflow can't be exercised end-to-end outside a real PR run.
@@ -183,20 +185,28 @@ diff has no real issues. Do not invent a file or line number that wasn't
 shown to you.`;
 
 async function callOpenAI(prompt) {
+  const payload = {
+    model: OPENAI_MODEL,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: prompt },
+    ],
+    response_format: { type: "json_schema", json_schema: FINDINGS_SCHEMA },
+  };
+  // OpenRouter serves a model across several provider endpoints, not all of
+  // which enforce a json_schema; require_parameters makes it route only to one
+  // that does, so we don't silently get unstructured output. OpenAI rejects
+  // unknown body fields, so send it only when the endpoint is OpenRouter.
+  if (OPENAI_API_URL.includes("openrouter.ai")) {
+    payload.provider = { require_parameters: true };
+  }
   const res = await fetch(OPENAI_API_URL, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: prompt },
-      ],
-      response_format: { type: "json_schema", json_schema: FINDINGS_SCHEMA },
-    }),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     throw new Error(`OpenAI API request failed: ${res.status} ${await res.text()}`);
