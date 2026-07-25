@@ -128,3 +128,24 @@ failure mode none of the revisit triggers named. ADR-0032 replaces it with
 one fixed branch and one rolling draft PR, rebuilt from the working tree on
 every sync. Everything else here stands: the scoped staging guard, draft-only,
 and the human-merge checkpoint as convention.
+
+**Amended 2026-07-25 (#411): auto-merge declined; the draft stop stands.**
+Landing #390 removed this ADR's stated reason for rejecting auto-finalize —
+gitleaks
+now scans `.claude/agent-memory/**` in lefthook and CI, verified against a
+planted secret. What that did not change, named as accepted residuals:
+gitleaks is a pattern/entropy floor with no coverage for a novel, unpatterned
+leak, and audit-memory's checks are structural, not a judgment of content
+quality — the human read carries both. Two further facts decided it. First,
+the enforcement-point spike (#412) concluded there is no automated
+enforcement point (the audit runs as a
+fresh-context subagent pre-merge; no CI check, per ADR-0025's
+no-Anthropic-key-in-CI and advisory-only rules) — so no non-human gate exists
+for auto-merge to ride. Second, the cadence evidence #411 required: over the
+mechanism's first eight days, syncs merged minutes after review on active
+grooming days (six of eight within half an hour); the only pile-up ever
+observed was caused by the fork-every-time defect ADR-0032 fixed, not by
+review cost — which ADR-0033's pointer contract cut further. Auto-merge would
+delete the sole enforcement checkpoint to save minutes on grooming days.
+Reopen only if the rolling draft is observed skipped for long stretches
+_because the diff costs too much to read_ despite the pointer contract.
