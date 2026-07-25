@@ -126,6 +126,14 @@ Two boundaries, fixed deliberately:
 - **"The issue" is not a promotion target for this check.** Memory↔issue traffic is already owned
   by the Staleness and One-home checks above; this check stays the doc↔memory sibling.
 
+**Mode split by filename** (ADR-0033's Residency section): a file matching `map_*.md` is a
+cross-repo map entry and gets a **structural** check instead of the audience judgment below. Its
+body must be exactly: repo name; memory-store location; one one-line hook; optionally a
+checkout-path hint marked non-portable; optionally pending-relocation pointer(s), each exactly
+`<repo>#<N>` plus at most a one-line hook — prose beyond the schema is a finding, judged
+per-pointer. No semantic "does this inform another repo's backlog" judgment anywhere — shape,
+not meaning. Everything below applies to non-map files only.
+
 **Scope**: `project`- and `reference`-type entries only — check each file's `metadata: type:`
 frontmatter. Skip `user`- and `feedback`-type entries outright; they're about how to work with the
 maintainer, not repo-documentation material, by nature — never flag them here.

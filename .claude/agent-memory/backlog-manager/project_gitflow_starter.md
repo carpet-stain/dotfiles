@@ -13,8 +13,8 @@ read that for the why. This entry keeps only what would matter again in a simila
 `Write` out of `allowed-tools`). Governance has four layers and only layer 1 moves through it:
 prose (compose-agents) → tracked enforcement files (needed the copier scaffolder) → repo
 settings (Administration API — never mine to run; provisioned by infra's `tofu apply` for
-`repos.tf`-managed repos, see [[reference-infra-repo]]) → label taxonomy (same
-infra-supersedes-manual pattern).
+`repos.tf`-managed repos — that lesson lives in infra's own store, [[map-infra]]) → label
+taxonomy (same infra-supersedes-manual pattern).
 
 **Two couplings that would recur:** (a) the branch-protection ruleset must require the *exact*
 check names pr-guards.yml emits (`single commit`, `conventional commit`) or bad merges slip

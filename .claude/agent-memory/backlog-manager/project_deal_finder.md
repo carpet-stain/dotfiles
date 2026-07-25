@@ -12,8 +12,8 @@ implementing session — not mine to design.** The full spec text lives in the o
 conversation, not restated here: when the repo exists, ask the user to re-supply it rather than
 re-deriving it from memory.
 
-**Why no repo yet:** creation routes through infra's `repos.tf` (see [[reference-infra-repo]]) —
-filed as infra#75. Scaffolding then follows project-starter-template's bootstrap runbook; watch
+**Why no repo yet:** creation routes through infra's `repos.tf` (see [[map-infra]]) — filed as
+infra#75. Scaffolding then follows project-starter-template's bootstrap runbook; watch
 the GH013 protection-before-first-commit gotcha ([[project-gitflow-starter]]).
 
 **My part, once the repo exists:** build the real backlog there — an epic mapping the spec's
