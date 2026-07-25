@@ -3,7 +3,8 @@ name: audit-memory
 description: >-
   Read-only audit of a repo's subagent project-memory (`.claude/agent-memory/<name>/`) for
   staleness against live GitHub state, one-home duplication of issue content, a drifted MEMORY.md
-  index, sprawl, and durable content that belongs in README/AGENTS.md/docs instead — reporting
+  index, sprawl, and durable content that belongs in a durable documentation home
+  (README/AGENTS.md/ADR) instead — reporting
   proposed fixes without editing anything. Use when asked to audit, review, or check
   agent/backlog-manager memory for stale pointers, restated issue status, orphaned or dangling
   memory files, files that have grown too long, or memory content that should live in repo docs
@@ -110,8 +111,18 @@ Same shapes as `audit-rules`, calibrated for memory:
 ## Misplaced durable content
 
 The doc↔memory sibling of `audit-rules`' Cross-doc replication check: content sitting in memory
-that's actually general repo documentation, not backlog-manager-audience material, and isn't
-already stated in README.md/AGENTS.md/docs.
+that belongs in a durable documentation home — README, AGENTS.md, or an ADR — rather than in
+memory, because it's general repo documentation, not backlog-manager-audience material, and isn't
+already stated in README.md/AGENTS.md/docs. The spec for what memory may hold at all is ADR-0033
+(memory is a pointer layer, keyed to the frontmatter types); this check is its lint.
+
+Two boundaries, fixed deliberately:
+
+- The Scope section's `adr/` read-exclusion stands even though an ADR is now a named promotion
+  target: ADR is a _proposal target_, never a read-surface for de-dup suppression. Promotion
+  leaves only a pointer in memory, so there's nothing left to false-positive on.
+- **"The issue" is not a promotion target for this check.** Memory↔issue traffic is already owned
+  by the Staleness and One-home checks above; this check stays the doc↔memory sibling.
 
 **Scope**: `project`- and `reference`-type entries only — check each file's `metadata: type:`
 frontmatter. Skip `user`- and `feedback`-type entries outright; they're about how to work with the

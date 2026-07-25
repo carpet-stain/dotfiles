@@ -1,15 +1,14 @@
 ---
 name: project-python-starter
-description: Epic #129 — CLOSED; python starter template extracted to project-starter-template (2026-07-18, folded into #309/#312)
+description: Python starter template (epic #129) — extracted to project-starter-template; ADR-0014 is the decision record
 metadata:
   type: project
 ---
 
-**CLOSED.** Codified a reproducible packaged Python 3 starter (uv+ruff+pyright+pytest+lefthook+CI)
-as a copier template. The durable decision record is dotfiles' **ADR-0014** — stack, alternatives
-considered, and rationale all live there, not here.
+Epic #129 codified a reproducible packaged Python 3 starter (uv+ruff+pyright+pytest+lefthook+CI)
+as a copier template. **The durable decision record is ADR-0014** — stack, alternatives, and
+rationale live there, not here.
 
-The template itself (`python/`, formerly in this repo) moved to
-`carpet-stain/project-starter-template` via epic #309/#312 — see [[project-gitflow-starter]] for
-that extraction's own record. Dotfiles no longer carries a `python` commit scope or a `py-new`
-wrapper.
+The template itself moved to `carpet-stain/project-starter-template` via epic #309 — see
+[[project-gitflow-starter]] for that extraction's record. Dotfiles no longer carries a `python`
+commit scope or a `py-new` wrapper.

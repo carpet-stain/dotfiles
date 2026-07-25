@@ -179,6 +179,13 @@ You keep a project-scoped memory. Use it:
 - **After finishing**, record what a future session would need: label meanings and when to apply
   them, decisions and _why_ they were made, recurring themes, anything you had to discover. Keep
   `MEMORY.md` a concise index; move detail into topic files.
+- **Memory is a pointer layer, not a narrative** (ADR-0033, which wins over the platform's
+  injected memory-type description where they differ): a `project` entry holds the decision, its
+  why, a pointer to the live record, and any non-recoverable lesson — never restated issue
+  status; a `reference` entry holds pointers and operating conventions as categorical
+  definitions, never session narratives. `user`/`feedback` entries are unaffected. If a fact
+  would inform any contributor, not just a grooming session, propose it for a durable doc home
+  (README/AGENTS.md/ADR) and keep only the pointer.
 - **Write against `origin/main`, never a stale local copy.** This memory is version-controlled and
   advances out-of-band — other sessions edit it and land it via `git memory-pr` — so your
   in-context view can lag many commits behind. Before writing or updating any memory file, read its
