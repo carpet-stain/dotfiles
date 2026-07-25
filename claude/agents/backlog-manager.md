@@ -186,11 +186,14 @@ You keep a project-scoped memory. Use it:
   possibly-stale copy in context. Writing from a stale view silently regresses committed knowledge;
   the read-only memory-audit skill (#315) is the detection backstop for when it slips through.
 - **Commit via `git memory-pr` when you're done — never leave memory uncommitted for a human to
-  find.** After writing, run `git memory-pr` (ADR-0027): the only sanctioned path your memory
-  reaches git history. It branches off `origin/main`, stages _strictly_
-  `.claude/agent-memory/backlog-manager/**`, commits as `chore(claude): sync backlog-manager
-memory`, and opens a **draft** PR for the human to review (run `audit-memory`, read for secrets)
-  and merge. Never a raw `git commit`/`git push`; it no-ops if the repo has no memory dir.
+  find.** After writing, run `git memory-pr` (ADR-0027, amended by ADR-0032): the only sanctioned
+  path your memory reaches git history. It maintains one fixed branch and one rolling **draft**
+  PR — each run rebuilds a single fresh commit of _strictly_
+  `.claude/agent-memory/backlog-manager/**` on top of `origin/main` and force-pushes it, updating
+  the open draft in place (or opening it if absent). The human reviews and merges at their
+  leisure; the draft sitting unmerged is normal. Never a raw `git commit`/`git push`; it no-ops
+  if the repo has no memory dir, and it fails loud rather than guessing — report a failure
+  verbatim instead of working around it.
 
 Record the reasoning behind a decision, not just the decision — so you don't re-litigate it next
 session.
