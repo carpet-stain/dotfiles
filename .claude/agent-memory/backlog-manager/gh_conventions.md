@@ -99,3 +99,48 @@ Good epic examples to match: #42 (CI e2e — rungs + explicit out-of-scope + acc
 
 Note: the agent-memory dir is tracked (not gitignored) and inside the repo checkout, so the
 Write tool hits a worktree-isolation guard — write memory files via bash heredoc instead.
+
+**2026-07-24 grooming finding — CI-shares-the-local-lint-command means format jobs can't switch to
+`--write` without breaking CI as a gate.** In this repo (and identically in project-starter-template
+and any git-flow-scaffolded repo), `ci.yml`'s lint job runs the exact same command as `just lint`
+(`lefthook run pre-commit --all-files`) — there's no separate CI-only `--check` variant. A
+formatter job (`md-format` = `prettier --check`) can't be switched to `--write`+`stage_fixed` for
+local auto-fix convenience, because `--write` always exits 0: CI would rewrite files in its
+throwaway checkout and report green regardless of whether the actual pushed commit was formatted,
+silently breaking the format gate. The fix that keeps both properties (local convenience + CI
+still a real gate) is a separate, unhooked recipe (`just format`) — reach-by-hand, same pattern as
+`cliff-preview`/`act`/`bootstrap-branch-protection.sh` — not a change to the job lefthook and CI
+share. Filed as dotfiles#405/#406 (reorder md-format before markdownlint; add the `format` recipe)
++ ported to project-starter-template#19/#20 (blocked on the dotfiles pair landing first, per #310's
+"prove lint tooling in dotfiles before porting" precedent). This reasoning will recur for any
+future lefthook job that's tempted to add `--write`/`stage_fixed` — check whether CI invokes the
+identical command before assuming it's safe.
+
+**Also from that pass — MD013/MD007 in `.markdownlint-cli2.yaml`:** checked live before opining
+(Verify, Don't Trust) — `markdownlint-cli2 "claude/rules/**/*.md"` reports zero MD013 violations
+today (an earlier byte-length awk scan looked like violations but was counting UTF-8 em-dash bytes,
+not markdownlint's character count), so MD013 is a working, currently-honored guardrail, not dead
+weight — recommended keeping it rather than disabling outright absent a concrete friction example.
+MD007's `indent` default is already `2` (confirmed in markdownlint's own rule source, `params.config
+.indent || 2`) — explicitly setting `indent: 2` in config would be a no-op, so no action taken.
+
+**2026-07-24, second grooming pass — reviewed .editorconfig/.yamlfmt/actrc/justfile/lefthook.yml
+for gaps.** Concrete findings, filed as #407-#410 (all `priority: low`):
+- **`justfile` had zero lint/format enforcement** — every other config type in this repo has one,
+  the justfile didn't. `just --fmt --check` (stable since 1.57.0, no `--unstable` needed) already
+  passes clean against the current file — zero-cost to add. #407.
+- **`shellcheck`/`shfmt` job order is lint-then-format**, the one holdout against the
+  format-before-lint convention #405 establishes for markdown (lua/toml pairs already had this
+  right). #408.
+- **`.editorconfig` is real, enforced config for stylua/prettier-covered files** (verified
+  empirically: stylua's `--no-editorconfig` flag exists specifically to disable this, and a
+  2-space-vs-tab test file inside the repo tree picks up `indent_size = 2` with zero `.stylua.toml`
+  present) — but nothing enforces it for files no formatter covers at all (zsh/*, git/config,
+  ssh/config). `editorconfig-checker` (Homebrew, confirmed available) closes that gap. #410.
+- **`yaml-format`'s glob excludes `.github/workflows/*.yml`/`ISSUE_TEMPLATE/*.yml`/`nvim/vim.yml`**
+  — not documented as deliberate, but widening it isn't a clean flip: `yamlfmt -lint` run by hand
+  against `release-prepare.yml` wants to collapse an intentionally-wrapped `>-` folded scalar onto
+  one line. Filed as a spike (#409), not a straight fix, because the real risk needed evidence
+  (found it) before committing to the change.
+- **No changes to `actrc`**: every workflow's `runs-on` is `ubuntu-latest`, matching the single
+  existing pin — nothing uncovered.

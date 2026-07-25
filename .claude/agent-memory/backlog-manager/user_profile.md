@@ -31,3 +31,11 @@ principles; #169 tracks the Go-concrete additions to go.md.
 **The lane he set for me:** issues / labels / milestones / memory + reading the repo — NOT editing
 app/config files (Brewfile, `.envrc`, `claude/rules`, scripts). He affirmed this when I held it;
 I file and shape the work, dev sessions implement.
+
+**Directory layout (established 2026-07-24):** `dotfiles` lives at `~/.config/dotfiles` — it's
+the config source, so it sits under `$XDG_CONFIG_HOME`, not with the rest. Every other
+account repo (`infra`, `project-starter-template`, `golden-ratio-dual-gate`) lives under
+`~/code/`. So `dotfiles` is **not** a sibling of the `~/code` repos — a session invoked from
+`~/code/` won't see it in the same working tree, and vice versa. Don't assume a shared-parent
+multi-repo session covers all four; it covers at most the `~/code` three. See
+[[reference-infra-repo]] for the cross-repo memory pattern this motivated.
