@@ -13,6 +13,13 @@ pre-commit:
         - "macos/deploy.zsh"
       run: zsh -n {staged_files}
 
+    - name: shfmt
+      glob:
+        - "linux/*.sh"
+        - "scripts/*.sh"
+        - "claude/skills/**/*.sh"
+      run: shfmt -i 2 -ci -d {staged_files}
+
     - name: shellcheck
       glob:
         - "linux/*.sh"
@@ -21,13 +28,6 @@ pre-commit:
         - ".envrc"
         - ".envrc.local.example"
       run: shellcheck {staged_files}
-
-    - name: shfmt
-      glob:
-        - "linux/*.sh"
-        - "scripts/*.sh"
-        - "claude/skills/**/*.sh"
-      run: shfmt -i 2 -ci -d {staged_files}
 
     - name: actionlint
       glob:
@@ -88,15 +88,6 @@ pre-commit:
         - "lefthook.yml"
       run: yamlfmt -lint {staged_files}
 
-    - name: markdownlint
-      glob:
-        - "*.md"
-        - "**/*.md"
-      exclude:
-        - "CHANGELOG.md"
-        - ".claude/agent-memory/**"
-      run: markdownlint-cli2 {staged_files}
-
     - name: md-format
       glob:
         - "*.md"
@@ -105,6 +96,15 @@ pre-commit:
         - "CHANGELOG.md"
         - ".claude/agent-memory/**"
       run: prettier --check {staged_files}
+
+    - name: markdownlint
+      glob:
+        - "*.md"
+        - "**/*.md"
+      exclude:
+        - "CHANGELOG.md"
+        - ".claude/agent-memory/**"
+      run: markdownlint-cli2 {staged_files}
 
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
