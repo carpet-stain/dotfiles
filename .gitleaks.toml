@@ -1,0 +1,10 @@
+# Config for lefthook.yml's gitleaks job. Extends the default ruleset; this
+# file only adds allowlists. dir-mode scanning has no git awareness, so the
+# gitignored local-credential file must be allowlisted here — otherwise a
+# checkout with a real token in .envrc.local can never commit.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "gitignored local credentials and parallel-job worktrees"
+paths = ['''\.envrc\.local$''', '''^\.claude/worktrees/''']

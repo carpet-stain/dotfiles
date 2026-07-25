@@ -44,7 +44,8 @@ jobs:
       - name: Install lint/format tools
         run: |
           brew install just lefthook zsh shellcheck actionlint shfmt stylua \
-            selene taplo yamlfmt markdownlint-cli2 prettier editorconfig-checker
+            selene taplo yamlfmt markdownlint-cli2 prettier editorconfig-checker \
+            gitleaks
 
       # `just lint` is the same entry point contributors run (it wraps
       # `lefthook run pre-commit --all-files`), so CI and local share one
