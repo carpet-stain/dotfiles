@@ -121,3 +121,10 @@ Revisit if: GitHub adds an owner-scoped required-review bypass that makes
 platform enforcement of the merge checkpoint practical, #334 concludes memory
 needs a cross-repo mechanism instead of per-repo self-commit, or draft PRs are
 observed piling up unreviewed in practice.
+
+**Amended by ADR-0032 (2026-07-25):** the branch-per-invocation mechanism
+described above forked three competing sync PRs in one session (#414) — a
+failure mode none of the revisit triggers named. ADR-0032 replaces it with
+one fixed branch and one rolling draft PR, rebuilt from the working tree on
+every sync. Everything else here stands: the scoped staging guard, draft-only,
+and the human-merge checkpoint as convention.
