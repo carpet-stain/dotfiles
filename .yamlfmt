@@ -1,2 +1,7 @@
 formatter:
   retain_line_breaks: true
+  # Keep intentionally-wrapped `>-` folded scalars as written (e.g.
+  # release-prepare.yml's multi-line `args:`) instead of collapsing them onto
+  # one line — retain_line_breaks doesn't reach inside folded scalars. Required
+  # for the widened glob (#409) to leave workflow YAML readable.
+  scan_folded_as_literal: true
