@@ -40,6 +40,17 @@ _default:
 lint *args:
     lefthook run pre-commit --all-files {{ args }}
 
+# Auto-format markdown with prettier (fixes what md-format only checks).
+# Manual, deliberately NOT a lefthook job: `just lint` (and CI's lint job) run
+# `lefthook run pre-commit --all-files`, and `prettier --write` always exits 0
+# — hooking it would make md-format stop gating format in CI, breaking the
+# CI-and-local-share-one-entry-point guarantee (#406). Scoped via git ls-files
+# to tracked markdown only, mirroring md-format's excludes (CHANGELOG is
+# git-cliff-generated, agent-memory is heredoc notes) — and, unlike a bare
+# `**/*.md`, not recursing into .claude/worktrees or submodule copies.
+format:
+    git ls-files -z '*.md' ':!:CHANGELOG.md' ':!:.claude/agent-memory/**' | xargs -0 prettier --write
+
 # Run the GitHub Actions workflows locally via act (Colima-backed); args pass through.
 act *args:
     scripts/act-run.sh {{ args }}

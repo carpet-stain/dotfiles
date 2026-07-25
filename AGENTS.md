@@ -208,7 +208,12 @@ and only nudges toward re-reading an outlier-length comment block, since a
 hard block on something this judgment-dependent gets `--no-verify`'d past
 immediately.
 
-Three more tools worth reaching for by hand, not wired into any hook:
+A few more tools worth reaching for by hand, not wired into any hook:
+
+- `just format` — `prettier --write` over the repo's tracked markdown: the fix
+  side of the `md-format` check. Manual, deliberately not a hook — `just lint`
+  and CI run `prettier --check`, and `--write` always exits 0, so hooking it
+  would make CI stop gating format (#406).
 
 - `just cliff-preview` (wraps `git cliff --bump`) — preview the exact
   version/changelog `release-prepare.yml` would compute, zero side effects.
