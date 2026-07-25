@@ -11,7 +11,7 @@ here — this tier holds only what's specific to this repo/user.
 ## Backlog mechanics
 - [gh conventions](gh_conventions.md) — labels, theme/priority/milestone axes, epic sub-issue gh gotchas, worktree-Write guard
 - [carpet-stain/infra](reference_infra_repo.md) — sibling GitHub-governance repo with its own backlog-manager memory; #331 closed, live thread now is the Bitwarden account-budget question (infra#73) spanning both repos, infra#74 (untracked memory fix), and infra#75 (deal-finder repo creation)
-- [Memory-PR automation](project_memory_pr_automation.md) — auto-merge/audit-memory automation asks, gated on dotfiles#390 (gitleaks) + dotfiles#411 (ADR-0027 amendment) — not decided yet
+- [Memory-PR automation](project_memory_pr_automation.md) — auto-merge/audit-memory automation asks, gated on dotfiles#390 (gitleaks) + dotfiles#412 (audit-memory agent-vs-skill spike) + dotfiles#411 (ADR-0027 amendment) — not decided yet. Also: a "don't hand-extend someone else's in-flight memory-sync PR" lesson from this same session, worth reading before touching any open memory PR.
 
 ## Initiatives (decision records — live status lives on the issue)
 - [Python starter #129](project_python_starter.md) — CLOSED; template extracted to project-starter-template (see ADR-0014, ADR-0028)
