@@ -123,4 +123,4 @@ zrecompile -pq "$compdump_file"
 
 # Load the bash completion compatibility system as a fallback
 # for tools that don't provide native Zsh completions.
-autoload -Uz bashcompinit && bashcompinit   
+autoload -Uz bashcompinit && bashcompinit

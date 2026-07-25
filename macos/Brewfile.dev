@@ -17,6 +17,7 @@ brew 'adr-tools' # Create/manage Architecture Decision Records (docs/adr/)
 brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
 brew 'docker' # Docker CLI — talks to Colima's socket, no Docker Desktop
 brew 'dysk' # Better df; no Linux port yet, not just CI toolchain
+brew 'editorconfig-checker' # Enforce .editorconfig on files no other formatter covers
 brew 'git-cliff' # Changelog from conventional commits
 brew 'hyperfine' # Command-line benchmarking
 brew 'just' # Task runner (justfile) for repo dev verbs — see ADR-0019
