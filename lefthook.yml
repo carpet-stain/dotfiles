@@ -106,6 +106,14 @@ pre-commit:
         - ".claude/agent-memory/**"
       run: markdownlint-cli2 {staged_files}
 
+    - name: justfile-format
+      glob:
+        - "justfile"
+      # --justfile (not a positional, which `just` reads as a recipe name);
+      # --fmt --check validates syntax (it must parse to format) and canonical
+      # formatting in one pass.
+      run: just --fmt --check --justfile {staged_files}
+
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
 
