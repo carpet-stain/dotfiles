@@ -6,7 +6,7 @@ setopt AUTO_CD          # if the command is directory and cannot be executed, pe
 setopt AUTO_PUSHD       # Make cd push the old directory onto the directory stack
 setopt PUSHD_SILENT     # Do not print the directory stack after pushd or popd.
 setopt CORRECT_ALL      # try to correct the spelling of all arguments in a line
-setopt CDABLE_VARS      # Change directory to a path stored in a variable.  
+setopt CDABLE_VARS      # Change directory to a path stored in a variable.
 
 # +---------+
 # | HISTORY |

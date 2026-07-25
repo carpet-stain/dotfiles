@@ -115,6 +115,26 @@ pre-commit:
       # formatting in one pass.
       run: just --fmt --check --justfile {staged_files}
 
+    - name: editorconfig
+      glob:
+        - "*"
+        - "**/*"
+      exclude:
+        - "theme/**"
+        - "zellij/themes/catppuccin.kdl"
+        - "CHANGELOG.md"
+        - ".claude/agent-memory/**"
+      # The catch-all for files no dedicated formatter covers (zsh, git/config,
+      # ssh/config, plain rc files): enforces .editorconfig's unambiguous rules
+      # — trailing whitespace, final newline, line endings. Indent checks are
+      # off (--disable-indentation): indent_size false-positives on prose, and
+      # indent_style on legitimately-tabbed files (.gitmodules, terminfo,
+      # required `<<-` heredoc tabs); indentation stays each per-language
+      # formatter's job (shfmt/stylua/taplo/prettier), which understands its own
+      # syntax. Vendored (theme/**, catppuccin.kdl) and generated/heredoc files
+      # (CHANGELOG, agent-memory) excluded, matching the markdown jobs.
+      run: editorconfig-checker --disable-indentation {staged_files}
+
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
 

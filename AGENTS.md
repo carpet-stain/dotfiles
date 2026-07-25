@@ -202,7 +202,13 @@ out beyond what the config shows: zsh has no formatter, `zsh -n` is
 syntax-check only; shellcheck excludes zsh (false positives); markdownlint
 and prettier skip `CHANGELOG.md` (git-cliff generated); json (3 files),
 kdl, and js (one file) are deliberately unstyled — not enough surface to
-justify a tool. `comment-concision` (`scripts/check-comment-concision.sh`,
+justify a tool. `editorconfig-checker` is the catch-all closing that gap: it
+enforces `.editorconfig`'s trailing-whitespace / final-newline / line-ending
+rules on the files no dedicated formatter touches (zsh, `git/config`,
+`ssh/config`, plain rc files), with indent checks off (`--disable-indentation`)
+— those false-positive on prose, terminfo, `.gitmodules`, and required `<<-`
+heredoc tabs, so indentation stays each language formatter's job.
+`comment-concision` (`scripts/check-comment-concision.sh`,
 ADR-0031) is advisory only, unlike every other job here — it always exits 0
 and only nudges toward re-reading an outlier-length comment block, since a
 hard block on something this judgment-dependent gets `--no-verify`'d past

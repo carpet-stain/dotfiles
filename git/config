@@ -84,7 +84,7 @@
 
 [pager]
   diff = delta
-  log = delta 
+  log = delta
   tag = sort -V
 
 [interactive]
