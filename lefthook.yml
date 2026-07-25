@@ -135,6 +135,15 @@ pre-commit:
       # (CHANGELOG, agent-memory) excluded, matching the markdown jobs.
       run: editorconfig-checker --disable-indentation {staged_files}
 
+    - name: gitleaks
+      # No glob, no {staged_files}: gitleaks is content-based, not
+      # file-type-gated, and must cover .claude/agent-memory/** (ADR-0027's
+      # secret-detection gap) — never copy the md hooks' exclude list here.
+      # Whole-tree dir scan rather than --staged so the same invocation is
+      # meaningful under CI's `lefthook run pre-commit --all-files`, where
+      # nothing is staged. Allowlists live in .gitleaks.toml.
+      run: gitleaks dir . --no-banner --redact
+
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
 
