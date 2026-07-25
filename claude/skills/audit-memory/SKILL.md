@@ -23,7 +23,9 @@ same report shape, a different target. Report findings and proposed fixes — ne
 
 **The auditor is not the author.** This runs as its own skill precisely so the actor that writes
 memory doesn't grade its own work — a deliberate independent read, the same reason `audit-rules`
-exists as a separate pass. Don't invoke it _as_ the backlog-manager.
+exists as a separate pass. Don't invoke it _as_ the backlog-manager — and since a skill runs in
+its caller's context, a session that wrote memory runs it via a **fresh-context subagent**
+pointed at this file, never inline (the sanctioned pattern per #412's spike decision).
 
 **On the read-only guarantee.** `disallowed-tools` blocks Write/Edit, and Bash is scoped in
 `allowed-tools` to read-only `gh` queries (`view`/`list`/`search`, `label list`). That's a

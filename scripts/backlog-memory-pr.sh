@@ -139,7 +139,9 @@ Sitting unmerged for a while is the design working, not a backlog.
 ## Before merging
 
 - Regression / staleness / duplication: run the \`audit-memory\` skill
-  against this diff (read-only).
+  against this diff **in a fresh-context subagent** — the auditor is not
+  the author (#412). Note the audited commit SHA in a PR comment; a later
+  force-push makes that audit stale — re-run against the new head.
 - Secrets: gitleaks scans this path automatically (lefthook pre-commit +
   CI's lint job once the PR is flipped ready) — the human read here is the
   judgment layer on top of that floor, not the only coverage.
