@@ -110,3 +110,7 @@ draft-PR review instead of a raw commit. The "have the subagent commit its
 own memory" alternative rejected above is partially reversed, not
 discarded — see ADR-0027 for the mechanism and why the human checkpoint
 stays convention, not platform enforcement.
+
+**See also ADR-0033 (2026-07-25):** the content contract for what belongs in
+this memory at all — a content-placement rule, not a revisit of the
+commit-granularity split this ADR rejected.

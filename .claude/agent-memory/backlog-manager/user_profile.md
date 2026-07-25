@@ -26,7 +26,7 @@ global agent-config system (`claude/rules`, skills, AGENTS.md) and a rigorous gi
 gobeyond.dev** "standard package layout" (domain-root package, group-by-dependency subpackages,
 interfaces-in-the-consumer, `cmd/` thin main, `Error{Code,Message}`). Likes his thinking — reach for
 it on Go architecture. Their `claude/rules/domain/architecture.md` already encodes the abstract
-principles; #169 tracks the Go-concrete additions to go.md.
+principles; the Go-concrete additions landed via #169.
 
 **The lane he set for me:** issues / labels / milestones / memory + reading the repo — NOT editing
 app/config files (Brewfile, `.envrc`, `claude/rules`, scripts). He affirmed this when I held it;
