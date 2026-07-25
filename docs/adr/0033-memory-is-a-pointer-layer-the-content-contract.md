@@ -62,6 +62,51 @@ The contract binds backlog-manager wherever it runs, judged against each
 repo's own doc homes — carpet-stain/infra's memory store gets its own slim
 there as a follow-up, not here.
 
+## Residency (added 2026-07-25, #421)
+
+Cross-repo grooming needs one more placement rule, standalone here so it
+reads on its own: **a memory fact lives in the memory store of the repo
+whose backlog it informs.** Only the invoking repo's memory auto-loads —
+a permanent platform asymmetry (#334 settled the mechanism: cd-hop plus
+per-repo sync via the machine-global `git memory-pr`) — so without a
+residency rule the invoking repo's store becomes the junk drawer for
+every repo visited.
+
+- The invoking repo's store keeps its **own** repo's facts per the
+  contract above, plus a **cross-repo map**. The only-a-pointer constraint
+  applies to _other-repo_ content; a convention about the invoking repo's
+  own cross-repo grooming behavior informs its own backlog and lands in
+  its own non-map store.
+- **The map**: one reserved-filename file per known repo, `map_<repo>.md`,
+  `type: reference` (no fifth frontmatter type). Its body is exactly —
+  repo name; memory-store location; a one-line hook; an optional
+  checkout-path **hint** marked non-portable (probe before trusting: a
+  wrong value reads as _unknown_, never as "no checkout"); optional
+  pending-relocation pointer(s), each exactly `<repo>#<N>` plus at most a
+  one-line hook. Anything beyond that schema is an audit finding — the
+  filename is the auditor's mode selector, so enforcement is structural
+  (shape, not meaning; no semantic "informs another repo's backlog"
+  judgment anywhere).
+- Cross-repo threads live where the deciding issue lives; the other side
+  points.
+- **Write flow**: grooming repo X starts by reading X's `MEMORY.md` (the
+  map entry is the bridge past the auto-load asymmetry); X's facts are
+  written to X's store against X's `origin/main` and synced by running
+  `git memory-pr` from X's checkout. Sync PRs scale with facts written,
+  not repos visited.
+- **No-checkout fallback**: a fact for a checkout-less repo files as an
+  issue in the target repo, the issue body being the sole carrier, until a
+  checkout-equipped grooming session relocates it into the store and
+  closes the issue. That is a _transient carrier_, not a promotion
+  target — no contradiction with the issue-exclusion above. Named,
+  accepted failure mode: the forcing function is the target repo's
+  grooming cadence, so a rarely-groomed repo can carry an open relocation
+  issue for a long time — revisit if observed.
+- This section binds nothing in other repos; enforcement rides the
+  machine-global artifacts (agent doc + skill). Each repo's reciprocal
+  pointer and content shape are its own deliverables under its own
+  conventions.
+
 ## Alternatives considered
 
 - **A new content taxonomy** (a parallel five-category vocabulary for what
@@ -77,6 +122,10 @@ there as a follow-up, not here.
   existing fifth check already owns the doc↔memory boundary; generalizing
   its promotion targets covers the contract without a new check to keep
   consistent with the other five.
+- **A central cross-repo memory store** (instead of per-repo residency +
+  maps) — rejected: it breaks repo-locality — an infra-invoked session
+  would auto-load nothing useful, and the invoking repo's store becomes a
+  junk drawer for every repo visited.
 
 ## Consequences
 

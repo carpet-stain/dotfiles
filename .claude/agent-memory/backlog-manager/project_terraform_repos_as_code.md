@@ -21,5 +21,5 @@ ruleset, labels, actions secrets).
 
 **Standing grooming calls:** `terraform` title scope exists (introduced with the epic);
 epic-and-children got `priority: low`, milestone New-repo bootstrap; sub-issue mechanics in
-[[gh-conventions]]. See [[reference-infra-repo]] for the tofu-apply-provisions-everything
-lesson.
+[[gh-conventions]]. The tofu-apply-provisions-everything lesson lives in infra's own store
+([[map-infra]]).

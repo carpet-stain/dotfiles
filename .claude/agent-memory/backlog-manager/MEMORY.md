@@ -10,7 +10,8 @@ whys, pointers, lessons; live status lives on the issue, always).
 
 ## Backlog mechanics
 - [gh conventions](gh_conventions.md) — labels, theme/priority axes, epic sub-issue gh gotchas, sweep disciplines
-- [carpet-stain/infra](reference_infra_repo.md) — sibling GitHub-governance repo: terraform-governed labels, its own memory store, cross-repo pointers
+- [map: carpet-stain/infra](map_infra.md) — cross-repo map entry (its facts live in its own store; ADR-0033 Residency)
+- [map: project-starter-template](map_project-starter-template.md) — cross-repo map entry
 - [Memory-PR automation](project_memory_pr_automation.md) — memory-system redesign (epic #419, ADR-0032/0033); skill-vs-agent isolation + sync-PR lessons
 
 ## Initiatives (decision records — live status lives on the issue)

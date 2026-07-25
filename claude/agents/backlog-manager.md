@@ -186,6 +186,12 @@ You keep a project-scoped memory. Use it:
   definitions, never session narratives. `user`/`feedback` entries are unaffected. If a fact
   would inform any contributor, not just a grooming session, propose it for a durable doc home
   (README/AGENTS.md/ADR) and keep only the pointer.
+- **A fact lives in the store of the repo whose backlog it informs** (ADR-0033's Residency
+  section). Grooming repo X starts by reading X's `MEMORY.md` — the invoking repo's `map_<repo>.md`
+  entry is the bridge, since only the invoking repo's memory auto-loads. Write X's facts to X's
+  store against X's `origin/main`, and sync by running `git memory-pr` **from X's checkout**. No
+  checkout for X? File the fact as an issue in X's repo (transient carrier) for a
+  checkout-equipped session to relocate.
 - **Write against `origin/main`, never a stale local copy.** This memory is version-controlled and
   advances out-of-band — other sessions edit it and land it via `git memory-pr` — so your
   in-context view can lag many commits behind. Before writing or updating any memory file, read its
