@@ -25,13 +25,17 @@ infra#15 (synced `needs-plan-review`/`plan-approved` into `local.labels`) both c
 `tofu apply`. **Still open:** dotfiles#331 (retire `scripts/apply-labels.sh`, now that infra#15
 landed) — no longer blocked, just not yet actioned.
 
-**Risk found, not mine to fix (flagged to the user):** infra's `.claude/agent-memory/` dir is
-**untracked** — never committed to `origin/main` (`git log --all -- .claude` is empty), unlike
-dotfiles' where the same dir is tracked. A `git clean -fd` or careless branch switch there loses
-it silently. Also, infra's local checkout was on a stale `migrate-terraform` branch with upstream
-gone (already merged/deleted) as of 2026-07-18 — `gh issue`/`gh api` calls are unaffected (they
-hit the API, not local files), but anyone editing infra's tracked files locally should
-`git fetch && git switch main` first.
+**Risk found 2026-07-18, filed as infra#74 on 2026-07-24:** infra's `.claude/agent-memory/`
+dir is **untracked** — never committed to `origin/main` (`git log --all -- .claude` is empty),
+unlike dotfiles' where the same dir is tracked via `git memory-pr` (ADR-0027). A `git clean -fd`
+or careless branch switch there loses it silently. infra#74 is the fix: `git memory-pr` is
+machine-global tooling (deployed by dotfiles' own deploy scripts, not dotfiles-specific — works
+in any repo with a `.claude/agent-memory/backlog-manager/` dir), so the fix is just running it
+there for the first time, plus adding a `reference-dotfiles-repo`-equivalent file so the pointer
+goes both directions. Check infra#74's state before re-flagging this. Also, infra's local
+checkout was on a stale `migrate-terraform` branch with upstream gone (already merged/deleted) as
+of 2026-07-18 — `gh issue`/`gh api` calls are unaffected (they hit the API, not local files), but
+anyone editing infra's tracked files locally should `git fetch && git switch main` first.
 
 **2026-07-18: infra#14 + infra#15 closed same session (batch `tofu apply`).** Confirmed via
 `repos.tf` that `github_repository_ruleset.this` and `github_issue_label.this` are both
@@ -46,3 +50,22 @@ recommending those scripts; see [[project-gitflow-starter]] for the concrete cas
 topics without `git-flow`) — filed as **infra#20**, gated on
 `carpet-stain/project-starter-template#3` (the real README) landing first as the accurate
 wording source. #3 has since merged; infra#20 is actionable now.
+
+**2026-07-24: Bitwarden Secrets Manager account-budget question spans both repos.** infra#71
+(closed via PR #72) documented the consumer-facing Bitwarden structure — and in doing so
+surfaced that the free tier's 3-Machine-Account cap (ADR-0008) is fully spent. That fed directly
+into dotfiles#377 (dotfiles' own `GH_TOKEN` migration — likely resolvable for free via the
+already-vended token, pending one scope-gap check: the vended token has no `Actions` permission,
+dotfiles' current PAT does) and dotfiles#399/#400 (a new LLM-key secret with no existing Project
+to live in). Filed **infra#73** to make the actual account-budget call (consolidate two of the
+three existing Machine Accounts, share the `vended-tokens` Project, or pay for a higher tier) —
+whichever way it resolves, dotfiles#377's Non-goals needs a follow-up edit (see the comment
+thread there) and dotfiles#399/#400 inherit whatever Project the LLM key lands in. Read infra#73
+before touching either dotfiles credentials issue.
+
+**2026-07-24: infra#75 filed — `deal-finder` new-repo creation.** New personal project (secondhand
+PC-parts marketplace monitor, see [[project-deal-finder]]); no `import` block needed since it's a
+genuinely new repo, just a `local.repos` map entry. Confirmed via `repos.tf`/README: a brand-new
+entry still needs the fresh-repo default-label collision handled the same way as every prior
+apply (import-block the colliding six, hand-delete the three GitHub-default strays). Not mine to
+`tofu apply` — elevated, infra's own domain.

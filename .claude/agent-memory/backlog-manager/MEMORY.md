@@ -10,7 +10,8 @@ here — this tier holds only what's specific to this repo/user.
 
 ## Backlog mechanics
 - [gh conventions](gh_conventions.md) — labels, theme/priority/milestone axes, epic sub-issue gh gotchas, worktree-Write guard
-- [carpet-stain/infra](reference_infra_repo.md) — sibling GitHub-governance repo with its own backlog-manager memory; dotfiles#331 still open there
+- [carpet-stain/infra](reference_infra_repo.md) — sibling GitHub-governance repo with its own backlog-manager memory; #331 closed, live thread now is the Bitwarden account-budget question (infra#73) spanning both repos, infra#74 (untracked memory fix), and infra#75 (deal-finder repo creation)
+- [Memory-PR automation](project_memory_pr_automation.md) — auto-merge/audit-memory automation asks, gated on dotfiles#390 (gitleaks) + dotfiles#411 (ADR-0027 amendment) — not decided yet
 
 ## Initiatives (decision records — live status lives on the issue)
 - [Python starter #129](project_python_starter.md) — CLOSED; template extracted to project-starter-template (see ADR-0014, ADR-0028)
@@ -18,6 +19,7 @@ here — this tier holds only what's specific to this repo/user.
 - [Terraform repos-as-code #273](project_terraform_repos_as_code.md) — CLOSED 2026-07-18; OpenTofu repos-as-code moved to sibling repo carpet-stain/infra, which now owns continuation
 - [Agent-config adoption #298](project_agent_config_adoption.md) — CLOSED 2026-07-18; all three children shipped (reviewer subagent #300, disclosure skill #299, activation-hook spike #301); CI-review automation lives on in #302
 - [Payload/dev-tooling tier split #127](project_tier_split_127.md) — spike CLOSED 2026-07-19; executing as epic #361 (plan-approved, children #362/#363/#364) — non-obvious sequencing/ADR gaps from plan review recorded there
+- [Deal Finder (new, pre-repo)](project_deal_finder.md) — infra#75 files repo creation; not yet actionable as a real backlog
 
 ## Environment
 - [Claude Code paths & ~/.claude leak](env_claude_paths.md) — where CC writes; the daemon/telemetry leak is upstream (#134), not the subagent
