@@ -75,11 +75,9 @@ README states the XDG principle; these are the entries that must stay in
   zellij, eza). Both scripts hand-maintain their own directory/runner
   logic — no shared lib between them; when one changes, check the other.
 - Both deploy scripts run every step through a `required()`/`optional()`
-  wrapper: critical steps (creating dirs, symlinking configs) abort loud on
-  failure; best-effort steps (a specific Brewfile package, a headless nvim
-  bootstrap) log and continue. Concrete realization of Logs Are For
-  Diagnosis, Output Is For Humans — a failed `optional()` step is visible
-  in the run output without stopping the whole deploy.
+  wrapper: critical steps (dirs, config symlinks) abort loud on failure;
+  best-effort steps (a specific Brewfile package, the headless nvim bootstrap)
+  log and continue.
 - Section headers use the ASCII box style: `# +------+`.
 - Keep ordering dependencies explicit and commented (e.g. "must come after
   compinit").
@@ -145,34 +143,26 @@ architectural layers:
 
 ## Commit style
 
-> Concrete realization of **git.md** (`claude/rules/tools/git.md`) for this repo:
-> scopes = `claude, git, zsh, macos, github, ci, theme, release, adr, nvim, linux, docs, deploy,
-ghostty`; version scheme = SemVer; branches = short-lived feature branches → `main` (protected).
-> It's baseline; the rules below win here and are complete on their own.
+> Concrete realization of **git.md** (`claude/rules/tools/git.md`) for this repo;
+> version scheme = SemVer; branches = short-lived feature branches → `main`
+> (protected). It's baseline; the rules below win here and are complete on their own.
 
-Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
-Every commit:
+Follow `git/committemplate` and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+`type(scope): description` — imperative, lowercase subject, no trailing period,
+≤50 chars where possible (hard limit 72); blank line; then a body wrapped at 72
+explaining _what_ and _why_ (never _how_ — the diff shows that), omitted only
+when trivial.
 
-1. **Subject**: `type(scope): description`
-   - `type` is a Conventional Commit type (enforced by
-     `.github/workflows/pr-guards.yml`'s `conventional commit` check —
-     CI-only, no local mirror; see it for the exact list)
-   - `scope` (optional): repo area — claude, git, zsh, macos, github, ci, theme, release, adr,
-     nvim, linux, docs, deploy, ghostty
-   - `description`: imperative, lowercase, no trailing period; keep the whole
-     line ≤50 chars where possible (hard limit 72)
-   - Breaking change: `type!:` or a `BREAKING CHANGE:` footer
-   - Good: `fix(zsh): bind arrow keys via terminfo`
-   - Bad: `fixed arrow keys` (no type, past tense, vague)
-2. **Blank line** between subject and body.
-3. **Body** (wrap at 72 chars): explain _what_ and _why_, never _how_ — the diff
-   shows how. Omit only for trivial, self-evident changes.
-4. **Trailers** (optional): add a `Co-authored-by: Name <email>` line for each
-   human contributor, one blank line before the footer block. Do not add AI or
-   assistant attribution.
+- **type** is enforced by `pr-guards.yml`'s `conventional commit` check (CI-only,
+  no local mirror — see it for the exact list). Breaking change: `type!:` or a
+  `BREAKING CHANGE:` footer.
+- **scope** (optional) — a repo area: `claude, git, zsh, macos, github, ci, theme,
+release, adr, nvim, linux, docs, deploy, ghostty`.
+- **Trailers**: `Co-authored-by:` per human contributor; never AI/assistant
+  attribution.
 
-Scope each commit to one logical change — prefer several focused commits over one
-sweeping commit. Propose the split and messages before committing.
+One logical change per commit — prefer several focused commits over one sweeping
+one; propose the split and messages before committing.
 
 ## Local tooling (shift-left)
 
@@ -195,10 +185,9 @@ step; run `just lint` to check everything at once.
 
 ### Linters/formatters by file type
 
-`lefthook.yml` is the exact source for which tool lints/formats which file
-type — installed via `macos/Brewfile.dev`, shared with `ci.yml`'s `lint` job
-and nvim's `conform`/`nvim-lint` (not a second Mason-managed copy). Worth calling
-out beyond what the config shows: zsh has no formatter, `zsh -n` is
+The tools install via `macos/Brewfile.dev` and are mirrored by nvim's
+`conform`/`nvim-lint` (not a second Mason-managed copy). Worth calling out
+beyond what `lefthook.yml` shows: zsh has no formatter, `zsh -n` is
 syntax-check only; shellcheck excludes zsh (false positives); markdownlint
 and prettier skip `CHANGELOG.md` (git-cliff generated); json (3 files),
 kdl, and js (one file) are deliberately unstyled — not enough surface to
