@@ -7,18 +7,27 @@ name: PR code review (advisory)
 # human approval stays the gate. Scoped to `architecture`-labeled PRs to
 # bound cost.
 #
-# Inert until an `OPENAI_API_KEY` repo secret exists — provision it with the
-# elevated session, same pattern as RELEASE_PAT. Without it the job skips
-# cleanly (green), it doesn't fail. The reviewer action is SHA-pinned (it
-# holds the key and reads the diff); swap the `uses:` line for a different
-# provider/action, or a DIY OpenAI call, if preferred. Set MODEL to a
-# current model of your choice.
+# The reviewer targets any OpenAI-compatible chat-completions endpoint, set by
+# OPENAI_API_URL / OPENAI_MODEL below. It currently points at OpenRouter's free
+# tier (a free open model) to trial the reviewer at $0. To move to the OpenAI
+# API, drop those two env lines (run.mjs defaults to gpt-4o-mini on
+# api.openai.com) and put an OpenAI key in the secret instead. Either way the
+# key lives in the `OPENAI_API_KEY` repo secret — provision it with the elevated
+# session, same pattern as RELEASE_PAT. Without it the job skips cleanly
+# (green), it doesn't fail.
 #
-# Note: this action batches comments per file, so the prompt's `suggestion`
-# blocks post as copy-pasteable code, not GitHub's one-click-applyable
-# suggestions (those need exact per-line anchoring). A DIY step posting
-# per-line review comments via the API is the upgrade for agent-consumable,
-# one-click suggestions — see the PR discussion for #304.
+# DIY step (scripts/pr-review/), not a third-party Action: #330's upgrade
+# over the anc95/ChatGPT-CodeReview action this replaced. That action
+# batched comments per file with no real suggestion-block anchoring, so its
+# `suggestion` blocks posted as copy-pasteable code, not GitHub's
+# one-click-applyable kind (those need exact per-line anchoring via
+# pulls.createReview's `comments` array). scripts/pr-review/run.mjs calls
+# the GitHub REST API and an OpenAI-compatible chat API directly — no
+# third-party Action holding the key or reading the diff — and posts real
+# per-line suggestions. See
+# scripts/pr-review/build-review.test.mjs for its unit-tested logic and the
+# PR discussion for #330 for the design tradeoffs (file/prompt-size caps,
+# single-line-only suggestions).
 
 on:
   pull_request:
@@ -33,7 +42,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'architecture')
     runs-on: ubuntu-latest
     steps:
-      - name: Check for the OpenAI key
+      - name: Check for the review API key
         id: guard
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -44,13 +53,22 @@ jobs:
           else
             echo "enabled=true" >>"$GITHUB_OUTPUT"
           fi
+      - uses: actions/checkout@v4
+        if: steps.guard.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.guard.outputs.enabled == 'true'
+        with:
+          node-version: "20"
       - name: Advisory review
         if: steps.guard.outputs.enabled == 'true'
-        uses: anc95/ChatGPT-CodeReview@1af98686be7c2079f7be2f16ae887c8c023cc506 # v1.0.24
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          MODEL: gpt-4o-mini
-          LANGUAGE: English
-          PROMPT: >-
-            You are an independent code reviewer looking at one file's changes in a pull request — a different model than the one that wrote them, so bring genuinely independent eyes. For each issue: tag its severity (blocking / nit / pre-existing), name the line it's on, say what's wrong and why in a sentence or two, and when the fix is mechanical add a ```suggestion block with the exact replacement code. Most severe first. Be terse, skip praise, and say nothing when the changes are fine. You are advisory — a human approves the merge.
+          # OpenRouter free tier (see header note to switch to the OpenAI API).
+          # The free model lineup rotates — if this ID 404s, pick another from
+          # openrouter.ai/models?supported_parameters=structured_outputs (must
+          # keep structured_outputs support). Alternate: openai/gpt-oss-20b:free.
+          OPENAI_API_URL: https://openrouter.ai/api/v1/chat/completions
+          OPENAI_MODEL: nvidia/nemotron-3-super-120b-a12b:free
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node scripts/pr-review/run.mjs
