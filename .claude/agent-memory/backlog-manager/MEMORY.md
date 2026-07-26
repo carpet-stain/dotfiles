@@ -8,6 +8,8 @@ whys, pointers, lessons; live status lives on the issue, always).
 - [User profile](user_profile.md) — solo dotfiles dev, timeline-free, wants direct pushback, DRY-obsessed; the backlog-only lane
 - [Single source of truth](feedback_single_source_of_truth.md) — user's core lens: point at enforced config, don't restate; signpost-vs-spec
 
+- [Template propagation](feedback_template_propagation.md) — git/CI/md-lint/justfile/lefthook changes in dotfiles must propagate to project-starter-template
+
 ## Backlog mechanics
 - [gh conventions](gh_conventions.md) — labels, theme/priority axes, epic sub-issue gh gotchas, sweep disciplines
 - [map: carpet-stain/infra](map_infra.md) — cross-repo map entry (its facts live in its own store; ADR-0033 Residency)
