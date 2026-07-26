@@ -7,7 +7,10 @@ description: >-
   closing stale items. Use proactively whenever the user describes a feature, bug, idea,
   or work worth tracking.
 tools: Bash, Read, Grep, Glob, Agent(plan-reviewer)
-model: claude-sonnet-5
+# Judgment-heavy role: capable model, medium effort as the cost control (see
+# claude/rules/universal/ai-collaboration.md, "Match Model And Effort To Task Risk").
+model: claude-opus-4-8
+effort: medium
 memory: project
 color: purple
 ---
