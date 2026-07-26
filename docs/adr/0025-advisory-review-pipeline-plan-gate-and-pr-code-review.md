@@ -228,3 +228,37 @@ differentiated. "Cheap under governance" still holds relative to Opus; it no
 longer holds relative to the drafting stage itself. Revisit if Claude Code's
 TUI later supports auto mode for Haiku, or a cheaper model becomes viable for
 the implementer tier.
+
+**Amendment, 2026-07-26 (extends this model, not superseding it):** the
+"one manual repo secret" credential shape wasn't a rejection of Bitwarden —
+Bitwarden Secrets Manager wasn't wired into this repo yet when this ADR was
+accepted. That infrastructure (`scripts/bws-vended-token.sh`,
+`BWS_ACCESS_TOKEN` sourced from the Keychain) landed six days later,
+2026-07-24, for a different purpose (the rotating, infra-vended cross-repo
+GitHub token, #377). Now that it exists, the provider key itself moves into
+Bitwarden too: a dedicated Secrets Manager item, in its own project
+(`ci-provider-keys` — deliberately not `vended-tokens`, which is scoped to
+that one rotating cross-repo token, a different shape of secret than a
+static, single-repo provider key). `pr-code-review.yml` fetches it at
+runtime via `bitwarden/sm-action`, using a machine account scoped read-only
+to `ci-provider-keys` only.
+
+This doesn't eliminate a manual GitHub secret — a GitHub Actions runner has
+no Keychain to read a local `BWS_ACCESS_TOKEN` from, so the machine
+account's own access token is still provisioned once by hand as a GitHub
+secret (also named `BWS_ACCESS_TOKEN`, but a distinct machine account from
+the local one: repo-scoped, not the Keychain-sourced one `.envrc` reads for
+`vended-tokens`). What moves is _which_ secret that manual step provisions:
+a narrow Bitwarden machine-account token instead of the provider key
+itself. Rotating the OpenRouter/OpenAI key now means editing it in
+Bitwarden, not re-running `gh secret set` — and it can't quietly drift
+between "the value in Bitwarden" and "the value GitHub actually has", since
+GitHub never holds it.
+
+Consequence: this repo's convention for a CI-time provider key is now
+"Bitwarden Secrets Manager holds the secret material; a raw GitHub Actions
+secret exists only to authenticate to that store, never to hold the secret
+itself." `RELEASE_PAT` (ADR-0007) predates this amendment and is
+unaffected — revisit it separately if worth the same treatment. Revisit
+this amendment if `bitwarden/sm-action` (or the `bws` CLI it wraps) changes
+its interface.
