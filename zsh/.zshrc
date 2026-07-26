@@ -139,6 +139,14 @@ eval "$(zsh-patina activate)"
 # Ghost-text suggestions (fuzzy/directory/sequence-aware); replaced
 # zsh-autosuggestions — swap rationale: see #92. Stands down on its own if
 # zsh-autosuggestions is also loaded, so both can coexist safely.
+#
+# Move deja's suggestion-cycle binding off Tab before the eval (it reads
+# this as a ${VAR=default} override, so no fork/patch needed) — deja's
+# default binds Tab to _deja_cycle, which shadows fzf-tab's picker whenever
+# a ghost is showing (#428). Shift-Tab (^[[Z; confirmed via this repo's
+# xterm-ghostty terminfo kcbt entry, and unbound in keybindings.zsh) hands
+# Tab back to fzf-tab and still lets deja cycle its alternatives.
+export DEJA_CYCLE_KEY='^[[Z'
 eval "$(deja init zsh)"
 
 # +-----------------+
