@@ -26,7 +26,7 @@ check() {
 }
 
 echo "Binaries:"
-for bin in zsh bat delta doggo dua curlie fd rg jaq tldr htop eza zoxide direnv nvim zellij fzf xclip git curl wget gpg; do
+for bin in zsh bat delta doggo dua curlie fd rg jaq tldr htop eza zoxide direnv nvim zellij fzf xclip git curl wget gpg deja zsh-patina; do
   check "$bin" command -v "$bin"
 done
 
@@ -47,6 +47,8 @@ check ".zshenv linked" bash -c '[[ -L $HOME/.zshenv && -e $HOME/.zshenv ]]'
 check "nvim init.lua linked" bash -c '[[ -L $XDG_CONFIG_HOME/nvim/init.lua && -e $XDG_CONFIG_HOME/nvim/init.lua ]]'
 # shellcheck disable=SC2016
 check "claude/rules linked" bash -c '[[ -L $HOME/.claude/rules && -e $HOME/.claude/rules ]]'
+# shellcheck disable=SC2016
+check "zsh-patina config linked" bash -c '[[ -L $XDG_CONFIG_HOME/zsh-patina/config.toml && -e $XDG_CONFIG_HOME/zsh-patina/config.toml ]]'
 
 echo "Shell:"
 # shellcheck disable=SC2016

@@ -14,3 +14,5 @@ lua-language-server	x86_64	3.18.2	https://github.com/LuaLS/lua-language-server/r
 ruff	x86_64	0.15.22	https://github.com/astral-sh/ruff/releases/download/0.15.22/ruff-x86_64-unknown-linux-musl.tar.gz	853462df618fb9f156a9f04d9d899d9e5a9e1a43fbffaec72df4bb159348e71b
 stylua	x86_64	v2.5.2	https://github.com/JohnnyMorganz/StyLua/releases/download/v2.5.2/stylua-linux-x86_64-musl.zip	ca6f1cf52eaf69e6632b81acef9c197aa24b85eb30d2455a35e7dbe28ae77c72
 selene	x86_64	0.31.0	https://github.com/Kampfkarren/selene/releases/download/0.31.0/selene-0.31.0-linux.zip	dac452422747999ec4919bbb8bb52992b66aae533b60022bf005669de8616671
+deja	x86_64	v0.3.2	https://github.com/Giammarco-Ferranti/deja/releases/download/v0.3.2/deja_0.3.2_linux_amd64.tar.gz	f8ffcbefa37b3c1a8287d397518ba5586fcc069b0d1fa53da94736f2edc37642
+zsh-patina	x86_64	1.9.0	https://github.com/michel-kraemer/zsh-patina/releases/download/1.9.0/zsh-patina-v1.9.0-x86_64-unknown-linux-musl.tar.gz	2339ab2124d9c46ce4940322259d31db18a7c5200209f3fc2067f54fedf73926

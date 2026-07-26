@@ -102,7 +102,6 @@ create_directories() {
     "$XDG_CONFIG_HOME/bat/themes" \
     "$XDG_CONFIG_HOME/direnv" \
     "$XDG_CONFIG_HOME/eza" \
-    "$XDG_CONFIG_HOME/fsh" \
     "$XDG_CONFIG_HOME/git" \
     "$XDG_CONFIG_HOME/htop" \
     "$XDG_CONFIG_HOME/nvim" \
@@ -110,9 +109,9 @@ create_directories() {
     "$XDG_CONFIG_HOME/tealdeer" \
     "$XDG_CONFIG_HOME/zellij/themes" \
     "$XDG_CONFIG_HOME/zellij/layouts" \
+    "$XDG_CONFIG_HOME/zsh-patina" \
     "$XDG_CACHE_HOME/bat" \
     "$XDG_CACHE_HOME/direnv" \
-    "$XDG_CACHE_HOME/fast-syntax-highlighting" \
     "$XDG_CACHE_HOME/nvim" \
     "$XDG_CACHE_HOME/tealdeer" \
     "$XDG_CACHE_HOME/zsh/completions" \
@@ -325,8 +324,7 @@ link_configs() {
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   ln -sf "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
-  ln -sf "$DOTFILES_DIR/theme/zsh-fsh/themes/catppuccin-mocha.ini" \
-    "$XDG_CONFIG_HOME/fsh/catppuccin-mocha.ini"
+  ln -sf "$DOTFILES_DIR/zsh-patinaconfig.toml" "$XDG_CONFIG_HOME/zsh-patina/config.toml"
   ln -sf "$DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml" \
     "$XDG_CONFIG_HOME/eza/theme.yml"
 
@@ -453,8 +451,28 @@ download_gitstatusd() {
   CI=1 zsh -is <<<''
 }
 
-set_fsh() {
-  CI=1 zsh -is <<<'fast-theme -q XDG:catppuccin-mocha'
+# Seed deja's suggestion database from existing zsh history. `deja import`
+# is *not* idempotent — re-running it double-counts every command already in
+# the db (verified: re-importing the same history doubled row count) — so
+# this must only ever run once. Guarding on the db file's existence doesn't
+# work: `download_gitstatusd` (just above) spawns an interactive shell that
+# sources .zshrc, whose `deja init zsh` auto-starts deja's daemon, which
+# creates that same db file (empty) on startup — before this step runs.
+# A file-existence check would then always see the file already there and
+# skip the import, forever, so this uses a marker file this function alone
+# controls instead.
+#
+# --file is required: this script never exports HISTFILE (.zshenv's job),
+# so deja import falls back to its default ~/.zsh_history, which doesn't
+# exist under this repo's own HISTFILE relocation — a silent failure,
+# since optional()'s `if $(...); then` suspends errexit, so the marker
+# below still gets written and permanently masks it as success.
+import_deja_history() {
+  local marker="$XDG_STATE_HOME/deja/.imported"
+  [[ -f "$marker" ]] && return
+  deja import --file "$XDG_STATE_HOME/zsh/history"
+  mkdir -p "$(dirname "$marker")"
+  touch "$marker"
 }
 
 refresh_tldr() {
@@ -534,6 +552,8 @@ required "Installing lua-language-server" install_tool lua-language-server lua-l
 required "Installing ruff" install_tool ruff ruff
 required "Installing stylua" install_tool stylua stylua
 required "Installing selene" install_tool selene selene
+required "Installing deja" install_tool deja deja
+required "Installing zsh-patina" install_tool zsh-patina zsh-patina
 
 # Dev tooling with no Debian apt package and no GitHub-release binary either
 # (gopls/goimports/gofumpt/gomodifytags/impl/delve are go-install-only;
@@ -580,7 +600,7 @@ required "Setting zsh as default shell" set_default_shell
 required "Installing Ghostty terminfo" generate_ghostty_terminfo
 optional "Building bat theme cache" build_bat_cache
 optional "Downloading gitstatusd for p10k" download_gitstatusd
-optional "Setting fast-syntax-highlighting theme" set_fsh
+optional "Importing zsh history into deja" import_deja_history
 optional "Refreshing TLDR pages" refresh_tldr
 optional "Granting zellij plugin permissions" grant_zellij_permissions
 optional "Setting up Neovim plugins/LSPs" set_neovim

@@ -33,6 +33,8 @@ TOOLS=(
   "ruff|astral-sh/ruff|ruff-x86_64-unknown-linux-musl.tar.gz"
   "stylua|JohnnyMorganz/StyLua|stylua-linux-x86_64-musl.zip"
   "selene|Kampfkarren/selene|selene-[0-9].*-linux.zip"
+  "deja|Giammarco-Ferranti/deja|deja_.*_linux_amd64.tar.gz"
+  "zsh-patina|michel-kraemer/zsh-patina|zsh-patina-v.*-x86_64-unknown-linux-musl.tar.gz"
 )
 
 gh_api() {
