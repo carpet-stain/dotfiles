@@ -5,9 +5,8 @@
     "DISABLE_ERROR_REPORTING": "1",
     "DISABLE_AUTOUPDATER": "1"
   },
+  "model": "sonnet",
   "disableClaudeAiConnectors": true,
-  "theme": "auto",
-  "disableDeepLinkRegistration": "disable",
   "hooks": {
     "PostToolUse": [
       {
@@ -20,5 +19,8 @@
         ]
       }
     ]
-  }
+  },
+  "effortLevel": "high",
+  "theme": "auto",
+  "disableDeepLinkRegistration": "disable"
 }

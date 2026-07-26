@@ -8,7 +8,10 @@ description: >-
   plan, design, or refactor. Not for reviewing finished code diffs (that's `/code-review`), and
   it never writes code or files — it only critiques.
 tools: Read, Grep, Glob
+# Judgment-heavy role: capable model, medium effort as the cost control (see
+# claude/rules/universal/ai-collaboration.md, "Match Model And Effort To Task Risk").
 model: claude-opus-4-8
+effort: medium
 color: red
 ---
 
