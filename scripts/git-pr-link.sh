@@ -9,6 +9,12 @@
 # iteratively when you can't self-verify" section is explicit that the
 # draft step never gets skipped. Each path asserts its own precondition and
 # fails with a specific message.
+# The draft path also defaults --title to the HEAD commit subject: `gh pr
+# create` only prompts for a title in a tty, so a non-interactive shell
+# (every agent session) errors demanding one otherwise (#452). The title is
+# mechanically irrelevant in this branch model — rebase-merge lands the
+# squashed commit verbatim — so this default is safe; an explicit
+# --title/-t still overrides.
 set -euo pipefail
 
 is_draft=false
@@ -37,16 +43,24 @@ if $is_draft; then
   # template ourselves so agent/CI-driven PRs still get it; any flag that
   # already supplies or sources a body still overrides.
   has_body=false
+  has_title=false
   for arg in "$@"; do
     case "$arg" in
       -b | --body | -F | --body-file | -f | --fill | --fill-first | --fill-verbose | -e | --editor | -T | --template | -w | --web) has_body=true ;;
     esac
+    case "$arg" in
+      -t | --title | -f | --fill | --fill-first | --fill-verbose | -e | --editor | -w | --web) has_title=true ;;
+    esac
   done
+  title_args=()
+  if ! $has_title; then
+    title_args=(--title "$(git log -1 --pretty=%s)")
+  fi
   template="$(git rev-parse --show-toplevel)/.github/pull_request_template.md"
   if ! $has_body && [[ -f "$template" ]]; then
-    gh pr create "$@" --body-file "$template"
+    gh pr create "$@" "${title_args[@]}" --body-file "$template"
   else
-    gh pr create "$@"
+    gh pr create "$@" "${title_args[@]}"
   fi
   exit 0
 fi
