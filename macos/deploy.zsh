@@ -315,10 +315,16 @@ download_gitstatusd() {
 # A file-existence check would then always see the file already there and
 # skip the import, forever, so this uses a marker file this function alone
 # controls instead.
+#
+# --file is required: this script never exports HISTFILE (.zshenv's job),
+# so deja import falls back to its default ~/.zsh_history, which doesn't
+# exist under this repo's own HISTFILE relocation — a silent failure,
+# since optional()'s `if $(...); then` suspends errexit, so the marker
+# below still gets written and permanently masks it as success.
 import_deja_history() {
   local marker=$XDG_STATE_HOME/deja/.imported
   [[ -f $marker ]] && return
-  deja import
+  deja import --file $XDG_STATE_HOME/zsh/history
   zf_mkdir -p ${marker:h}
   touch $marker
 }
