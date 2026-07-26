@@ -11,18 +11,10 @@ name: PR code review (advisory)
 # OPENAI_API_URL / OPENAI_MODEL below. It currently points at OpenRouter's free
 # tier (a free open model) to trial the reviewer at $0. To move to the OpenAI
 # API, drop those two env lines (run.mjs defaults to gpt-4o-mini on
-# api.openai.com) and put an OpenAI key in the Bitwarden item instead.
-#
-# The key itself lives in Bitwarden Secrets Manager, not as a raw GitHub
-# secret (docs/adr/0025's 2026-07-26 amendment): a machine account scoped
-# read-only to the `ci-provider-keys` project fetches it at run time via
-# `bitwarden/sm-action`. The one thing provisioned by hand, same pattern as
-# RELEASE_PAT, is that machine account's own access token — the
-# `BWS_ACCESS_TOKEN` repo secret below (distinct from the Keychain-sourced
-# `BWS_ACCESS_TOKEN` local shells use for the unrelated `vended-tokens`
-# project). Without it the job skips cleanly (green), it doesn't fail.
-# Rotating the OpenRouter/OpenAI key means editing it in Bitwarden — no
-# `gh secret set` needed.
+# api.openai.com) and put an OpenAI key in the secret instead. Either way the
+# key lives in the `OPENAI_API_KEY` repo secret — provision it with the elevated
+# session, same pattern as RELEASE_PAT. Without it the job skips cleanly
+# (green), it doesn't fail.
 #
 # DIY step (scripts/pr-review/), not a third-party Action: #330's upgrade
 # over the anc95/ChatGPT-CodeReview action this replaced. That action
@@ -50,13 +42,13 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'architecture')
     runs-on: ubuntu-latest
     steps:
-      - name: Check for the Bitwarden access token
+      - name: Check for the review API key
         id: guard
         env:
-          BWS_ACCESS_TOKEN: ${{ secrets.BWS_ACCESS_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          if [ -z "$BWS_ACCESS_TOKEN" ]; then
-            echo "BWS_ACCESS_TOKEN not set — advisory review skipped." >&2
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY not set — advisory review skipped." >&2
             echo "enabled=false" >>"$GITHUB_OUTPUT"
           else
             echo "enabled=true" >>"$GITHUB_OUTPUT"
@@ -67,23 +59,11 @@ jobs:
         if: steps.guard.outputs.enabled == 'true'
         with:
           node-version: "20"
-      - name: Fetch the provider key from Bitwarden
-        id: bws
-        if: steps.guard.outputs.enabled == 'true'
-        uses: bitwarden/sm-action@v3
-        with:
-          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
-          cloud_region: us
-          # Secrets Manager secret ID, `ci-provider-keys` project. Non-secret
-          # (a UUID grants nothing without the access token above) — replace
-          # once the item exists in your own Bitwarden Secrets Manager.
-          secrets: |
-            00000000-0000-0000-0000-000000000000 > OPENAI_API_KEY
       - name: Advisory review
         if: steps.guard.outputs.enabled == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ steps.bws.outputs.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # OpenRouter free tier (see header note to switch to the OpenAI API).
           # The free model lineup rotates — if this ID 404s, pick another from
           # openrouter.ai/models?supported_parameters=structured_outputs (must
