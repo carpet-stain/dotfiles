@@ -69,6 +69,13 @@ pre-commit:
         - "nvim/**/*.lua"
       run: scripts/check-comment-concision.sh {staged_files}
 
+    - name: context-budget
+      glob:
+        - "AGENTS.md"
+        - "claude/rules/**/*.md"
+        - ".claude/agent-memory/*/MEMORY.md"
+      run: scripts/check-context-budget.sh {staged_files}
+
     - name: toml-format
       glob:
         - "*.toml"
