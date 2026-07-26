@@ -268,9 +268,8 @@ install_lefthook_hooks() {
 link_zsh_plugins() {
   setopt local_options err_exit
   local -A plugin_srcs=(
-    powerlevel10k      $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k
-    zsh-autopair       $HOMEBREW_PREFIX/share/zsh-autopair
-    zsh-you-should-use $HOMEBREW_PREFIX/share/zsh-you-should-use
+    powerlevel10k $HOMEBREW_PREFIX/opt/powerlevel10k/share/powerlevel10k
+    zsh-autopair  $HOMEBREW_PREFIX/share/zsh-autopair
   )
   local name
   for name in ${(k)plugin_srcs}; do
