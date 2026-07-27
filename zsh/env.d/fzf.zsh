@@ -23,10 +23,12 @@ FZF_DEFAULT_OPTS+="
   --no-separator
   --ansi"
 
-# --popup, --highlight-line, --input-border, --ghost, and --gutter need a
-# newer fzf than Debian's apt package ships (Trixie: 0.60.3; --ghost needs
-# 0.61.0, --gutter needs 0.66.0) — Homebrew always tracks latest, so
-# darwin-only.
+# --popup, --highlight-line, --input-border, --ghost, and --gutter need
+# fzf 0.66+ (the highest of their individual version floors). Both
+# platforms' installs clear that now (Homebrew tracks latest; Linux pins
+# its own fzf via binaries.lock — see #442), but the popup/border rendering
+# is only verified in a real macOS terminal, so this stays darwin-only
+# until someone checks it on Linux.
 if [[ $OSTYPE == darwin* ]]; then
   # --border: fzf 0.74.0+ only draws its own popup frame when a border
   # style is explicit, otherwise Zellij's native pane border takes over —

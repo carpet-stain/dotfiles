@@ -16,7 +16,6 @@ ca-certificates
 # Modern CLI replacements
 bat
 fd-find
-fzf
 ripgrep
 zoxide
 

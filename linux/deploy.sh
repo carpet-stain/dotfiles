@@ -554,6 +554,12 @@ required "Installing stylua" install_tool stylua stylua
 required "Installing selene" install_tool selene selene
 required "Installing deja" install_tool deja deja
 required "Installing zsh-patina" install_tool zsh-patina zsh-patina
+# Pinned rather than apt: Debian's fzf (0.38.0 on Bookworm) predates the
+# `--zsh` integration flag (needs 0.48+) that .zshrc's `eval "$(fzf --zsh)"`
+# relies on, and the `selected-bg` color name the vendored Catppuccin theme
+# uses — both silently no-op/warn on the apt version instead of erroring
+# loudly (see #442).
+required "Installing fzf" install_tool fzf fzf
 
 # Dev tooling with no Debian apt package and no GitHub-release binary either
 # (gopls/goimports/gofumpt/gomodifytags/impl/delve are go-install-only;
