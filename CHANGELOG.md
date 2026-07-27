@@ -1,6 +1,62 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.8.0] - 2026-07-27
+
+### Features
+
+- *(claude)* Nudge /audit-memory when agent-memory files change ([#357](https://github.com/carpet-stain/dotfiles/pull/357))
+- *(macos)* Replace Homebrew-managed node and python with fnm and uv-only ([#360](https://github.com/carpet-stain/dotfiles/pull/360))
+- *(zsh)* Add edit-command-line widget on Alt+E ([#359](https://github.com/carpet-stain/dotfiles/pull/359))
+- *(nvim)* Prefer system-installed LSP/lint/format tooling over Mason's own ([#371](https://github.com/carpet-stain/dotfiles/pull/371))
+- *(claude)* Land comment-concision advisory lint (reference impl) ([#378](https://github.com/carpet-stain/dotfiles/pull/378))
+- *(claude)* Consolidate converged plan into issue body at gate-flip ([#385](https://github.com/carpet-stain/dotfiles/pull/385))
+- *(macos)* Install bws CLI in the deploy script ([#402](https://github.com/carpet-stain/dotfiles/pull/402))
+- *(ci)* Add a lefthook job for justfile format/syntax check ([#420](https://github.com/carpet-stain/dotfiles/pull/420))
+- *(ci)* Add a just recipe to auto-format markdown ([#422](https://github.com/carpet-stain/dotfiles/pull/422))
+- *(ci)* Widen yaml-format to all yaml, tune folded scalars ([#424](https://github.com/carpet-stain/dotfiles/pull/424))
+- *(ci)* Add editorconfig-checker for files no formatter covers ([#423](https://github.com/carpet-stain/dotfiles/pull/423))
+- *(ci)* Add gitleaks secret scanning ([#427](https://github.com/carpet-stain/dotfiles/pull/427))
+- *(zsh)* Consume infra's vended Bitwarden token in local/agent shells ([#403](https://github.com/carpet-stain/dotfiles/pull/403))
+- *(ci)* Advisory context-budget lint for always-loaded agent files ([#446](https://github.com/carpet-stain/dotfiles/pull/446))
+- *(ci)* Add per-line PR review comments with applyable suggestions ([#370](https://github.com/carpet-stain/dotfiles/pull/370))
+
+### Bug Fixes
+
+- *(claude)* Wire up git memory-pr per ADR-0027 ([#392](https://github.com/carpet-stain/dotfiles/pull/392))
+- *(ci)* Run formatters before linters in lefthook ([#418](https://github.com/carpet-stain/dotfiles/pull/418))
+- *(claude)* Rebuild git memory-pr on a rolling draft PR ([#429](https://github.com/carpet-stain/dotfiles/pull/429))
+- *(zsh)* Remap deja's Tab cycle binding to Shift-Tab ([#438](https://github.com/carpet-stain/dotfiles/pull/438))
+- *(linux)* Install deja and zsh-patina, drop stale fsh references ([#444](https://github.com/carpet-stain/dotfiles/pull/444))
+- *(git)* Default git pr --draft title from HEAD commit subject ([#455](https://github.com/carpet-stain/dotfiles/pull/455))
+- *(linux)* Pin fzf via binaries.lock instead of Debian's stale apt package ([#459](https://github.com/carpet-stain/dotfiles/pull/459))
+- *(zsh)* Fall back XDG_RUNTIME_DIR when unwritable on Linux ([#460](https://github.com/carpet-stain/dotfiles/pull/460))
+
+### Documentation
+
+- Migrate ISSUE_TEMPLATE to structured issue forms ([#369](https://github.com/carpet-stain/dotfiles/pull/369))
+- Shorten AGENTS.md — cut restated specs and duplication ([#426](https://github.com/carpet-stain/dotfiles/pull/426))
+- *(claude)* Codify the memory content contract (ADR-0033) ([#430](https://github.com/carpet-stain/dotfiles/pull/430))
+- *(claude)* Add memory residency rule and cross-repo maps ([#434](https://github.com/carpet-stain/dotfiles/pull/434))
+- *(adr)* Decline memory-pr auto-merge, amend ADR-0027 ([#435](https://github.com/carpet-stain/dotfiles/pull/435))
+
+### Chore
+
+- *(zsh)* Keep fzf's own popup border under Zellij ([#356](https://github.com/carpet-stain/dotfiles/pull/356))
+- *(git)* Retire scripts/labels.json and apply-labels.sh ([#358](https://github.com/carpet-stain/dotfiles/pull/358))
+- *(claude)* Sync backlog-manager memory ([#367](https://github.com/carpet-stain/dotfiles/pull/367))
+- *(ci)* Add github-actions ecosystem to dependabot.yml ([#368](https://github.com/carpet-stain/dotfiles/pull/368))
+- *(macos)* Tag Brewfile tiers, add Linux leak guard, redefine dev tier ([#373](https://github.com/carpet-stain/dotfiles/pull/373))
+- *(claude)* Sync backlog-manager memory ([#401](https://github.com/carpet-stain/dotfiles/pull/401))
+- *(claude)* Sync backlog-manager memory ([#404](https://github.com/carpet-stain/dotfiles/pull/404))
+- *(claude)* Sync backlog-manager memory ([#415](https://github.com/carpet-stain/dotfiles/pull/415))
+- *(claude)* Sync backlog-manager memory ([#417](https://github.com/carpet-stain/dotfiles/pull/417))
+- *(claude)* Codify fresh-subagent audit-memory invocation ([#432](https://github.com/carpet-stain/dotfiles/pull/432))
+- *(claude)* Route backlog-manager + plan-reviewer to Opus 4 at medium effort ([#447](https://github.com/carpet-stain/dotfiles/pull/447))
+- *(zsh)* Remove zsh-you-should-use plugin ([#448](https://github.com/carpet-stain/dotfiles/pull/448))
+- *(claude)* Sharpen plan-reviewer.md with codex adversarial-review prompt IP ([#450](https://github.com/carpet-stain/dotfiles/pull/450))
+- *(claude)* Sync backlog-manager memory ([#451](https://github.com/carpet-stain/dotfiles/pull/451))
+
 ## [1.7.0] - 2026-07-19
 
 ### Features
