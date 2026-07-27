@@ -129,7 +129,10 @@ source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 #
 # Must come after compinit/bindkey (completions.zsh runs compinit above) or
 # the highlighter has no effect until a manual `source` — see zsh-patina's
-# own troubleshooting docs.
+# own troubleshooting docs. $XDG_RUNTIME_DIR falls back to a writable dir
+# when unusable (see .zshenv) — the daemon's own directory creation happens
+# lazily via a hook after this line, not here, so the fallback has to be in
+# place shell-wide rather than scoped to just this eval (#443).
 eval "$(zsh-patina activate)"
 
 # +------+

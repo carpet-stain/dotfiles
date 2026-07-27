@@ -47,6 +47,15 @@ if [[ $OSTYPE == darwin* ]]; then
   export XDG_RUNTIME_DIR=$TMPDIR
 else
   export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$UID}
+  # A real login has pam_systemd create /run/user/<uid> before the shell
+  # starts, but a systemd-less environment (bare containers, minimal cron
+  # contexts) never gets one, and /run itself is root-owned — nothing can
+  # create it. zsh-patina's daemon (socket/data dir under $XDG_RUNTIME_DIR)
+  # fails with EACCES there (#443). Nothing else depends on the real path
+  # in that same session-manager-less environment either (no systemd
+  # --user, no D-Bus session bus), so fall back to a user-owned dir
+  # whenever the real one isn't writable.
+  [[ -w $XDG_RUNTIME_DIR ]] || export XDG_RUNTIME_DIR=$XDG_STATE_HOME/xdg-runtime
 fi
 
 # +----------------+
