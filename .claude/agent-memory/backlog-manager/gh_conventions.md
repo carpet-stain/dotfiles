@@ -39,6 +39,9 @@ Repo `carpet-stain/dotfiles` backlog conventions (verify with `gh label list` â€
   *for* a pair of issues can end up never backfilled onto them.
 - A cross-referenced issue can be **deleted** out from under an epic (`gh api` â†’ 410, not
   closed). Closed is fine to leave; a 410 means repoint the epic to where the outcome lives.
+- The release watcher dedupes against nothing: it can flag a version an open issue already
+  covers (#462 vs #383, both fzf v0.74.1). When triaging a `release-watch` batch, check each
+  flagged tool/version against open release-watch issues and fold dupes into the older one.
 
 **Epics use native GitHub sub-issues** (epic bodies also carry a checkbox breakdown). Attach:
 
