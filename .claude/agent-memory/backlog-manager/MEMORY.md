@@ -5,8 +5,8 @@ in `backlog-manager.md`; the content contract is ADR-0033 (memory is a pointer l
 whys, pointers, lessons; live status lives on the issue, always).
 
 ## How we work
-- [User profile](user_profile.md) — solo dotfiles dev, timeline-free, wants direct pushback, DRY-obsessed; the backlog-only lane
-- [Single source of truth](feedback_single_source_of_truth.md) — user's core lens: point at enforced config, don't restate; signpost-vs-spec
+- [User profile](user_profile.md) — the backlog-only lane, workflow shape, Go taste; style prefs live in the rules, not here
+- [Single source of truth](feedback_single_source_of_truth.md) — SSOT lens graduated into the rules; keeps only over-correction + inward-layer nuances
 
 - [Template propagation](feedback_template_propagation.md) — git/CI/md-lint/justfile/lefthook changes in dotfiles must propagate to project-starter-template
 
