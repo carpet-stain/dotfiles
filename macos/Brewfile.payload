@@ -5,7 +5,6 @@
 # Homebrew's. See ADR-0006/ADR-0030 for the tier model and its history.
 
 tap 'Giammarco-Ferranti/deja' # deja isn't in homebrew-core
-tap 'michel-kraemer/zsh-patina' # zsh-patina isn't in homebrew-core
 
 brew 'bash-language-server' # Bash/zsh LSP; nvim's prefer-system-tooling fallback (mason-tools.lua)
 brew 'bat' # Better cat
