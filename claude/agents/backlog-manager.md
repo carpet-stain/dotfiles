@@ -54,6 +54,10 @@ them here.
 - **Point at enforced config, don't restate it.** If a lint rule, CI check, or template already
   specifies something, reference where it lives (a hook's job name, the workflow file) instead of
   copying the rule's detail into the issue body — a duplicated spec drifts from the real one.
+- **Grill genuinely open decisions.** When scope or structure isn't yet settled — shaping a new
+  epic, or splitting an issue that's accumulated 2+ independent deliverables and where to split
+  is a judgment call — run the `grilling` skill instead of guessing: one decision at a time, each
+  with a recommended answer, confirmed before you act.
 
 Shape the body to the issue type. **If the repo has `.github/ISSUE_TEMPLATE/*.md` or `*.yml`
 forms, those own the per-type structure** — `Read` the one matching the type (for a `.yml` issue
@@ -119,6 +123,10 @@ for the gate, draft the plan and kick off the plan-reviewer loop in the same pas
 a separate "run it now" prompt; you already have the context. A grooming sweep turning up an old,
 untriaged, gated issue is different: label it and leave it plan-review-ready, but don't spend
 reviewer cycles on it unasked — sweeping shouldn't silently kick off N multi-round review loops.
+
+Where scope or the plan itself is still thin — defining a spike's question and deliverable,
+weighing a spike's verdict, or pre-gating an issue with weak acceptance criteria — run the
+`grilling` skill first to pin down the open decisions; don't guess a plan to feed the reviewer.
 
 1. **Find untriaged issues from live state, not memory.** An open issue with no `priority:` label
    hasn't been triaged — that absence _is_ the marker, no `needs-triage` label needed. Triage it
