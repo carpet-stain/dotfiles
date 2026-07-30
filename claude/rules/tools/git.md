@@ -61,7 +61,12 @@ commit; propose the split before committing.
    (`git reset --soft origin/<protected-branch> && git commit`), then finalize (mark ready for
    review) — the commit reaches its final shape here, and CI gates on the PR being exactly one
    commit with a Conventional-Commit subject — the two checks rebase-merge relies on, since the
-   host won't rewrite the message the way squash-merge would.
+   host won't rewrite the message the way squash-merge would. Finalizing also means rewriting the
+   PR body to stand alone: what changed and why, deviations from any prior plan, verification
+   done — a reviewer derives the whole change from a one-minute read of the top post, no thread
+   required. Comments stay the real-time journal from step 2, useful depth on demand, never
+   required reading — the same terse-PR/verbose-issue split as the tracked issue itself: detail
+   belongs there, before implementation, not in PR prose or code comments.
 6. Once green, **rebase-merge**: your single commit lands on <protected-branch> verbatim, and the
    branch auto-deletes. No branch reuse or reset step needed — the next change starts a fresh
    branch off <protected-branch>.
