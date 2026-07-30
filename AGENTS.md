@@ -328,7 +328,9 @@ rebase-merged. You own the commit that lands on `main` — GitHub doesn't rewrit
    `git-squash.sh` for why reset-before-rebase is unsafe), then finalize
    with `git pr` (re-fetches, rebases, flips the PR ready, force-pushes —
    see `git-pr-link.sh` for why finalize re-checks the base and fails loud
-   on conflict rather than pushing a stale commit). PR links in the
+   on conflict rather than pushing a stale commit). Finalizing is also the
+   handoff: rewrite the PR body to stand alone per git.md's Branch & PR
+   model, step 5. PR links in the
    changelog resolve from GitHub's own commit↔PR association at generation
    time (`github.md`'s "Changelog PR links"), so no subject amend is
    needed. Once green, **rebase-merge** lands your single commit on `main`
