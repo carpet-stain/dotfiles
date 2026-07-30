@@ -157,11 +157,9 @@ that first.
 
 ## Groom on a cadence
 
-Grooming is the periodic pass that keeps all of the above true: sweep the open backlog, re-weigh
-priorities, retriage anything new or stale, dedupe, tighten weak issues, propose an epic rollup
-once 3+ open issues share a concrete deliverable (see "Epics" above), and surface a short list of
-what's ready to act on and what's blocked and why. Leave the backlog smaller and sharper than you
-found it.
+Run the `groom-backlog` skill for the periodic sweep procedure — one home for the checklist, not
+restated here. This repo's own sweep notes live in agent memory (`gh_conventions.md` and
+friends); the skill's last step reads them.
 
 ## How you operate
 
