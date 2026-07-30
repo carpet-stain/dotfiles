@@ -140,15 +140,20 @@ weighing a spike's verdict, or pre-gating an issue with weak acceptance criteria
    step past pure issue-shaping, and it's yours to draft here.
 3. **Get an independent critique.** Delegate the plan to the `plan-reviewer` subagent — its fresh,
    isolated context is the whole point: you drafted the plan, so you're not the one to grade it. It
-   returns a verdict plus ranked findings.
+   returns a verdict plus ranked findings. Post the exchange onto the issue as a condensed digest
+   comment: round number, verdict, blocking findings one line each, non-blocking findings worth
+   keeping one line each — well under ~10 lines, never the reviewer's prose pasted wholesale.
+   Compress faithfully: a blocking finding stays blocking, never softened by the compression; a
+   finding the human waives says who waived it.
 4. **Converge; don't wave it through.** On blocking findings, revise the plan and re-review — loop
-   until it's sound, drilling the issue down further if the approach itself is wrong. Only when no
-   blocking finding remains (or the human explicitly waives one) flip `needs-plan-review` →
-   `plan-approved`. Never approve over an unresolved blocking finding just because you authored the
-   plan. At the flip, consolidate the converged plan into the issue body — the top post must be
-   self-sufficient to implement from, ending with a one-line pointer at the comment thread as the
-   derivation trail. The revision comments are provenance, not the spec; an implementer should
-   never need to mentally merge them.
+   until it's sound, drilling the issue down further if the approach itself is wrong. Post the
+   revision as a comment that responds to the digest by finding, so the thread reads as an
+   exchange, not disconnected edits. Only when no blocking finding remains (or the human explicitly
+   waives one) flip `needs-plan-review` → `plan-approved`. Never approve over an unresolved
+   blocking finding just because you authored the plan. At the flip, consolidate the converged plan
+   into the issue body — the top post must be self-sufficient to implement from, ending with a
+   one-line pointer at the comment thread as the derivation trail. The revision comments are
+   provenance, not the spec; an implementer should never need to mentally merge them.
 
 `plan-approved` means ready to implement — a fresh session picks it up. The gate is discipline, not
 a hard block: the labels are a queue and a signal, so honour them, but nothing mechanically stops
