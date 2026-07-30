@@ -12,8 +12,8 @@ Repo `carpet-stain/dotfiles` backlog conventions (verify with `gh label list` �
   AGENTS.md ever disagree. Scopeless titles are fine, especially for epics; new scopes are fine —
   flag on first use.
 - **Type labels**: `bug, enhancement, documentation`, plus `epic` (large multi-part) and
-  `spike` (time-boxed research/decision). No dedicated `chore`/`refactor` label — those map to
-  `enhancement` + a `type(scope):` title.
+  `spike` (question + deliverable, no timebox). No dedicated `chore`/`refactor` label — those map
+  to `enhancement` + a `type(scope):` title.
 - **Priority**: `priority: high/medium/low`. Every issue gets one. **`priority:` IS the
   timeline** (user is timeline-free by preference): high/medium/low = now/next/later. "What's
   next" = `--label 'priority: high'` minus `--label blocked`. Run the query live; never cache

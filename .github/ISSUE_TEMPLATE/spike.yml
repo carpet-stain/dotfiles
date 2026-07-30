@@ -1,5 +1,5 @@
 name: Spike / research
-description: A time-boxed question with a concrete deliverable
+description: A question with a concrete deliverable
 title: "spike(<scope>): "
 labels: ["spike"]
 body:
@@ -11,13 +11,6 @@ body:
       description: The one thing this spike answers. Never open-ended.
     validations:
       required: true
-  - type: input
-    id: timebox
-    attributes:
-      label: Timebox
-      description: How much effort before we stop and decide.
-    validations:
-      required: false
   - type: textarea
     id: outcome
     attributes:
