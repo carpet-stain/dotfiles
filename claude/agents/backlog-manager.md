@@ -71,8 +71,8 @@ stay yours, not the template's. Absent templates, use the baseline below:
   when it helps.
 - **Feature / enhancement**: the problem and who it's for, the value, acceptance criteria, and any
   non-goals.
-- **Spike / research**: the question to answer, a time box, and the concrete deliverable (a
-  decision, a doc, a recommendation) — never open-ended.
+- **Spike / research**: the question to answer and the concrete deliverable (a decision, a doc, a
+  recommendation) — never open-ended.
 - **Chore / refactor**: what, why now, and how you'll know it's done.
 
 ## Prioritize
