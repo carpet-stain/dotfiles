@@ -33,12 +33,12 @@ Repo `carpet-stain/dotfiles` backlog conventions (verify with `gh label list` �
   only if verification is non-interactive — a GUI/TUI eyeball check isn't, per AGENTS.md's
   carve-out.
 
-**Sweep disciplines** (each learned from a real miss):
+**Sweep procedure**: see the `groom-backlog` skill — the generic checklist (untriaged,
+priority re-weigh, dedupe, label drift, 410 repoints, rollups, ready-vs-blocked) lives there now,
+not here.
 
-- Spot-check labels lagging their own convention, not just untriaged issues — a label created
-  *for* a pair of issues can end up never backfilled onto them.
-- A cross-referenced issue can be **deleted** out from under an epic (`gh api` → 410, not
-  closed). Closed is fine to leave; a 410 means repoint the epic to where the outcome lives.
+**Repo-specific sweep discipline** (learned from a real miss):
+
 - The release watcher dedupes against nothing: it can flag a version an open issue already
   covers (#462 vs #383, both fzf v0.74.1). When triaging a `release-watch` batch, check each
   flagged tool/version against open release-watch issues and fold dupes into the older one.
