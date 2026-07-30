@@ -18,45 +18,43 @@ export const MAX_FILES = 25;
 export const MAX_PROMPT_CHARS = 12000;
 
 // Bound the intent context (PR description + linked issue bodies) fed to the
-// model alongside the diff. Issue bodies here can be long (they hold the plan).
+// model alongside the diff. Issue bodies here can be long — for a
+// plan-approved issue, the body is the consolidated plan and acceptance
+// criteria (backlog-manager's plan-review gate), which is exactly what a
+// conformance review needs to check the diff against.
 export const MAX_ISSUES = 3;
 export const MAX_PR_BODY_CHARS = 2000;
 export const MAX_ISSUE_BODY_CHARS = 3000;
 
-// GitHub's closing keywords tie a PR to the issue it resolves.
-const CLOSING_REF = /\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\b[:\s]+#(\d+)/gi;
-
 /**
- * Extracts the issue numbers a PR body says it closes (GitHub closing
- * keywords close/fix/resolve + #N). Deduped, first-seen order, capped at
- * MAX_ISSUES. Plain "#N" mentions without a closing keyword are ignored — we
- * follow only the issue the PR claims to resolve, not every cross-reference.
- * @param {string} body - the PR description
- * @param {number} [selfNumber] - the PR's own number, excluded if referenced
- * @returns {number[]}
+ * Decides whether a PR should get the advisory review (#458): auto-triggers
+ * when it closes an issue carrying `plan-approved` — this repo's plan-review
+ * gate consolidates the approved plan + acceptance criteria into that
+ * issue's body, exactly what a conformance review needs — or on demand via
+ * the PR's own `needs-review` label (#456), independent of `architecture`'s
+ * ADR-required meaning.
+ * @param {string[]} prLabels - the PR's own label names
+ * @param {{labels: string[]}[]} issues - issues the PR closes, each with its label names
+ * @returns {boolean}
  */
-export function parseLinkedIssues(body, selfNumber) {
-  if (!body) return [];
-  const seen = [];
-  for (const m of body.matchAll(CLOSING_REF)) {
-    const n = Number(m[1]);
-    if (n !== selfNumber && !seen.includes(n)) seen.push(n);
-  }
-  return seen.slice(0, MAX_ISSUES);
+export function isEligibleForReview(prLabels, issues = []) {
+  return prLabels.includes("needs-review") || issues.some((issue) => issue.labels.includes("plan-approved"));
 }
 
 /**
  * Renders the "Intent" block prepended to the review prompt: the PR's
- * title/description and any linked issue bodies, each length-capped. This is
- * the spec the model checks the diff against — NOT trusted as proof the work
- * is done (see the system prompt). Returns "" when there's no PR context.
+ * title/description and the bodies of issues it closes (sourced from
+ * GraphQL `closingIssuesReferences`, not a body-text regex — run.mjs's
+ * `fetchPrContext`), each length-capped. This is the plan the model checks
+ * the diff against — NOT trusted as proof the work is done (see the system
+ * prompt). Returns "" when there's no PR context.
  * @param {{title?: string, body?: string}|null} pr
  * @param {{number: number, title: string, body?: string}[]} issues
  * @returns {string}
  */
 export function buildContext(pr, issues = []) {
   if (!pr) return "";
-  let out = "## Intent — the diff is supposed to achieve this; verify it does, don't assume it\n";
+  let out = "## Intent — the diff claims to implement this plan; flag divergences from the stated approach and unmet acceptance criteria\n";
   if (pr.title) out += `\nPR: ${pr.title}\n`;
   if (pr.body) out += `\n${pr.body.trim().slice(0, MAX_PR_BODY_CHARS)}\n`;
   for (const issue of issues) {

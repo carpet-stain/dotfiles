@@ -8,16 +8,18 @@
 // stays advisory-only per docs/adr/0025 — posts a COMMENT-event review,
 // never APPROVE/REQUEST_CHANGES, so it can't gate a merge on its own.
 //
-// Talks to the GitHub REST API and an OpenAI-compatible chat-completions
-// endpoint (OpenAI, or OpenRouter's free tier — set via OPENAI_API_URL /
-// OPENAI_MODEL) directly with the platform `fetch` (no octokit/openai SDK,
-// no third-party Action in the request path — the whole point of #330 over
-// the prior action). All I/O lives
-// here; the parsing/formatting logic in diff.mjs and build-review.mjs is
-// pure and unit-tested in isolation (build-review.test.mjs) since this
-// workflow can't be exercised end-to-end outside a real PR run.
+// Talks to the GitHub REST + GraphQL APIs and an OpenAI-compatible
+// chat-completions endpoint (OpenAI, or OpenRouter's free tier — set via
+// OPENAI_API_URL / OPENAI_MODEL) directly with the platform `fetch` (no
+// octokit/openai SDK, no third-party Action in the request path — the whole
+// point of #330 over the prior action). GraphQL (fetchPrContext) resolves
+// the PR's plan-conformance trigger + context (#458); REST handles the diff
+// and posting the review. All I/O lives here; the parsing/formatting logic
+// in diff.mjs and build-review.mjs is pure and unit-tested in isolation
+// (build-review.test.mjs) since this workflow can't be exercised end-to-end
+// outside a real PR run.
 
-import { parseFiles, buildPrompt, buildReviewComments, parseLinkedIssues, buildContext } from "./build-review.mjs";
+import { parseFiles, buildPrompt, buildReviewComments, buildContext, isEligibleForReview, MAX_ISSUES } from "./build-review.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -26,6 +28,7 @@ const {
   GITHUB_REPOSITORY,
   PR_NUMBER,
   GITHUB_API_URL = "https://api.github.com",
+  GITHUB_GRAPHQL_URL = "https://api.github.com/graphql",
   OPENAI_API_URL = "https://api.openai.com/v1/chat/completions",
 } = process.env;
 
@@ -69,29 +72,72 @@ async function fetchPrFiles() {
   return files;
 }
 
-// The PR description + the issue(s) it closes, as "intent" for the model to
-// check the diff against — this repo keeps the spec in the issue/PR, so a
-// diff-only review can't judge whether the change does what was asked. Context
-// is an enhancement, not a requirement: any fetch failure degrades to a
-// diff-only review rather than losing it.
-async function fetchContext() {
-  try {
-    const pr = await githubRequest(`/repos/${owner}/${repo}/pulls/${PR_NUMBER}`);
-    const issues = [];
-    for (const n of parseLinkedIssues(pr.body ?? "", Number(PR_NUMBER))) {
-      try {
-        const issue = await githubRequest(`/repos/${owner}/${repo}/issues/${n}`);
-        issues.push({ number: issue.number, title: issue.title, body: issue.body });
-      } catch {
-        // A referenced issue we can't read (deleted, transferred, cross-repo)
-        // just drops out — the review still runs with whatever context remains.
+async function githubGraphQL(query, variables) {
+  const res = await fetch(GITHUB_GRAPHQL_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+  if (!res.ok) {
+    throw new Error(`GitHub GraphQL request failed: ${res.status} ${await res.text()}`);
+  }
+  const body = await res.json();
+  if (body.errors) {
+    throw new Error(`GitHub GraphQL errors: ${JSON.stringify(body.errors)}`);
+  }
+  return body.data;
+}
+
+const PR_CONTEXT_QUERY = `
+  query($owner: String!, $repo: String!, $number: Int!, $maxIssues: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $number) {
+        title
+        body
+        labels(first: 20) { nodes { name } }
+        closingIssuesReferences(first: $maxIssues) {
+          nodes {
+            number
+            title
+            body
+            labels(first: 20) { nodes { name } }
+          }
+        }
       }
     }
-    return buildContext({ title: pr.title, body: pr.body }, issues);
-  } catch (err) {
-    console.log(`::warning title=PR advisory review::intent context unavailable, reviewing diff only: ${err.message}`);
-    return "";
   }
+`;
+
+// The PR + the issue(s) it closes, resolved via GitHub's own computed
+// closingIssuesReferences field (#458) — not a body-text regex, so a typo'd
+// closing keyword can't silently mis-scope either the review context or the
+// trigger below. Also decides whether to review at all: this repo's
+// plan-review gate consolidates the approved plan + acceptance criteria
+// into a plan-approved issue's body, which is exactly what a conformance
+// review needs, so a PR closing one auto-triggers; needs-review is the
+// on-demand opt-in for anything else (#456). Unlike the old diff-only
+// fallback, a fetch failure here means skip rather than guess — this call
+// also gates the OpenAI spend, so erring toward "don't run" beats erring
+// toward an unbounded review on every transient API error.
+async function fetchPrContext() {
+  const data = await githubGraphQL(PR_CONTEXT_QUERY, {
+    owner,
+    repo,
+    number: Number(PR_NUMBER),
+    maxIssues: MAX_ISSUES,
+  });
+  const pr = data.repository.pullRequest;
+  const labels = pr.labels.nodes.map((l) => l.name);
+  const issues = pr.closingIssuesReferences.nodes.map((issue) => ({
+    number: issue.number,
+    title: issue.title,
+    body: issue.body,
+    labels: issue.labels.nodes.map((l) => l.name),
+  }));
+  return { pr: { title: pr.title, body: pr.body }, issues, eligible: isEligibleForReview(labels, issues) };
 }
 
 // Structured Outputs schema: forces the model to return exactly this
@@ -137,10 +183,13 @@ exact line number in the new version of the file; only those numbered lines
 can be commented on.
 
 When an "## Intent" section precedes the changed lines, it states what the
-change should accomplish (from the PR description and any linked issue). Use it
-as the spec to check the diff against: does the change actually achieve it and
-stay in scope? Treat it as the goal to verify, never as proof the work is done
-— if the code and the stated intent disagree, that is a finding.
+change should accomplish (from the PR description and any issue it closes —
+for a reviewed issue, that's the approved plan and its acceptance criteria).
+Use it as the spec to check the diff against: does the change actually
+achieve it, stay in scope, and satisfy every acceptance criterion listed?
+Treat it as the goal to verify, never as proof the work is done — a diff
+that diverges from the stated approach, or leaves a listed criterion unmet,
+is a finding.
 
 Look for problems in this order, highest value first — spend your attention
 at the top of the list, not the bottom:
@@ -240,6 +289,18 @@ async function postReview(comments, dropped) {
 }
 
 async function main() {
+  let pr, issues, eligible;
+  try {
+    ({ pr, issues, eligible } = await fetchPrContext());
+  } catch (err) {
+    console.log(`::warning title=PR advisory review::skipped, trigger check failed: ${err.message}`);
+    return;
+  }
+  if (!eligible) {
+    console.log("pr-review: not needs-review-labeled and closes no plan-approved issue — skipping.");
+    return;
+  }
+
   const rawFiles = await fetchPrFiles();
   const parsedFiles = parseFiles(rawFiles);
   if (parsedFiles.length === 0) {
@@ -247,7 +308,7 @@ async function main() {
     return;
   }
 
-  const context = await fetchContext();
+  const context = buildContext(pr, issues);
   const diff = buildPrompt(parsedFiles);
   const prompt = context ? `${context}\n\n---\n\n## Changed lines to review\n\n${diff}` : diff;
   const findings = await callOpenAI(prompt);

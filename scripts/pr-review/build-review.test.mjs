@@ -13,10 +13,9 @@ import {
   parseFiles,
   buildPrompt,
   buildReviewComments,
-  parseLinkedIssues,
   buildContext,
+  isEligibleForReview,
   MAX_PROMPT_CHARS,
-  MAX_ISSUES,
   MAX_ISSUE_BODY_CHARS,
 } from "./build-review.mjs";
 
@@ -141,22 +140,6 @@ test("buildReviewComments drops a finding with an unknown severity", () => {
   assert.equal(dropped, 1);
 });
 
-test("parseLinkedIssues follows closing keywords, ignores plain mentions, dedupes", () => {
-  const body = "Fixes #12 and resolves: #34.\nSee #99 for background. Also closes #12 again.";
-  assert.deepEqual(parseLinkedIssues(body), [12, 34]); // #99 is a plain mention; #12 deduped
-});
-
-test("parseLinkedIssues excludes the PR's own number and caps at MAX_ISSUES", () => {
-  assert.deepEqual(parseLinkedIssues("Closes #7", 7), []);
-  const many = Array.from({ length: MAX_ISSUES + 2 }, (_, i) => `Closes #${i + 1}`).join("\n");
-  assert.equal(parseLinkedIssues(many).length, MAX_ISSUES);
-});
-
-test("parseLinkedIssues returns [] for empty/absent body", () => {
-  assert.deepEqual(parseLinkedIssues(""), []);
-  assert.deepEqual(parseLinkedIssues(undefined), []);
-});
-
 test("buildContext renders PR title/body and linked issues, empty for no PR", () => {
   const ctx = buildContext(
     { title: "feat: add widget", body: "Adds the widget.\nCloses #5" },
@@ -175,4 +158,19 @@ test("buildContext caps an over-long issue body", () => {
   const ctx = buildContext({ title: "t" }, [{ number: 1, title: "big", body: huge }]);
   assert.ok(!ctx.includes(huge), "full oversized body must not appear verbatim");
   assert.ok(ctx.includes("y".repeat(MAX_ISSUE_BODY_CHARS)), "a capped slice should appear");
+});
+
+test("isEligibleForReview triggers on the PR's own needs-review label", () => {
+  assert.equal(isEligibleForReview(["needs-review"], []), true);
+  assert.equal(isEligibleForReview(["architecture"], []), false);
+});
+
+test("isEligibleForReview triggers when a closed issue carries plan-approved", () => {
+  assert.equal(isEligibleForReview([], [{ labels: ["plan-approved"] }]), true);
+  assert.equal(isEligibleForReview([], [{ labels: ["needs-plan-review"] }]), false);
+});
+
+test("isEligibleForReview is false when neither the label nor a closed issue qualifies", () => {
+  assert.equal(isEligibleForReview([], []), false);
+  assert.equal(isEligibleForReview(["bug"], [{ labels: ["enhancement"] }]), false);
 });

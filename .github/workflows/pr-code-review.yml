@@ -4,11 +4,20 @@ name: PR code review (advisory)
 # model's eyes than the Claude that planned and implemented the change (see
 # docs/adr/0025). Deliberately NOT a required status check: an LLM reviewer
 # false-positives, and a rate-limit or outage must never block a merge, so
-# human approval stays the gate. Scoped to `needs-review`-labeled PRs to
-# bound cost — a standalone opt-in, unrelated to `architecture`'s ADR-required
-# meaning (adr-guard.yml owns that label). The two used to be the same label;
-# see #456 for why sharing it broke (labeling a non-architectural PR to get
-# the free review also tripped the ADR guard).
+# human approval stays the gate.
+#
+# Plan-conformance review (#458): a PR closing a `plan-approved` issue gets
+# that issue's consolidated plan (approach + acceptance criteria) fetched via
+# GraphQL `closingIssuesReferences` and prepended to the review prompt as the
+# spec to check the diff against — a soldier PR can faithfully misimplement
+# an approved plan, and a diff-only review can't see that. Auto-triggers on
+# any PR closing a plan-approved issue; `needs-review` requests it on demand
+# for anything else — a standalone opt-in, unrelated to `architecture`'s
+# ADR-required meaning (adr-guard.yml owns that label; the two used to share
+# one label, see #456 for why that broke). Both checks live in run.mjs
+# itself (one GraphQL call decides eligibility and supplies the plan
+# context), so this job always starts but exits before any OpenAI call for a
+# PR that qualifies under neither trigger.
 #
 # The reviewer targets any OpenAI-compatible chat-completions endpoint, set by
 # OPENAI_API_URL / OPENAI_MODEL below. It currently points at OpenRouter's free
@@ -42,7 +51,6 @@ permissions:
 
 jobs:
   review:
-    if: contains(github.event.pull_request.labels.*.name, 'needs-review')
     runs-on: ubuntu-latest
     steps:
       - name: Check for the review API key
