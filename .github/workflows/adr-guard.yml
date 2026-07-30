@@ -5,6 +5,9 @@ name: ADR guard
 # of merging and leaving the "why" to be excavated from closed issues/PRs later.
 # Presence, not significance — a human applies the label; this only checks that a
 # labeled PR touches docs/adr/. See docs/adr/README.md for what an ADR is.
+# `architecture` means ONLY this ADR obligation — the advisory PR reviewer
+# (pr-code-review.yml) has its own separate `needs-review` opt-in (#456), so
+# requesting one no longer implies the other.
 #
 # Ported verbatim (static, protected branch = main) from the git-flow template's
 # adr-guard.yml.jinja so this repo — where the template originated, now hosted
