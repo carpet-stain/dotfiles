@@ -8,32 +8,41 @@
 # hasn't been ported (dysk/procs/viddy/hyperfine) or a GUI/professional-use
 # app with no Linux equivalent possible (ghostty, claude-code, tflint).
 # Personal/leisure apps live in Brewfile.personal instead.
+#
+# `[lint]` tags the exact subset ci.yml's lint job installs (#425) — every
+# formula lefthook.yml's pre-commit jobs invoke, and nothing else, so
+# ci.yml never has to touch a GUI cask or a third-party tap on Linuxbrew.
+# A `[lint]` formula already declared in Brewfile.payload (general dev
+# tooling, e.g. selene/stylua) stays tagged there instead of duplicated
+# here — this tier check only allows a name in exactly one Brewfile. Tag
+# or untag a formula in either file to add or drop it from that job;
+# ci.yml reads both files, not a second hardcoded list.
 
 tap 'terraform-linters/tap' # tflint left homebrew-core (license change, 2026)
 
 brew 'act' # Run GitHub Actions workflows locally
-brew 'actionlint' # Lint GitHub Actions workflow files
+brew 'actionlint' # Lint GitHub Actions workflow files [lint]
 brew 'adr-tools' # Create/manage Architecture Decision Records (docs/adr/)
 brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
 brew 'docker' # Docker CLI — talks to Colima's socket, no Docker Desktop
 brew 'dysk' # Better df; no Linux port yet, not just CI toolchain
-brew 'editorconfig-checker' # Enforce .editorconfig on files no other formatter covers
+brew 'editorconfig-checker' # Enforce .editorconfig on files no other formatter covers [lint]
 brew 'git-cliff' # Changelog from conventional commits
-brew 'gitleaks' # Scan for hardcoded secrets (lefthook.yml pre-commit + CI)
+brew 'gitleaks' # Scan for hardcoded secrets (lefthook.yml pre-commit + CI) [lint]
 brew 'hyperfine' # Command-line benchmarking
-brew 'just' # Task runner (justfile) for repo dev verbs — see ADR-0019
-brew 'lefthook' # Manages the git hooks in lefthook.yml
-brew 'markdownlint-cli2' # Lint Markdown files
-brew 'prettier' # Format Markdown files
+brew 'just' # Task runner (justfile) for repo dev verbs — see ADR-0019 [lint]
+brew 'lefthook' # Manages the git hooks in lefthook.yml [lint]
+brew 'markdownlint-cli2' # Lint Markdown files [lint]
+brew 'prettier' # Format Markdown files [lint]
 brew 'procs' # Better ps; no Linux port yet, not just CI toolchain
-brew 'shellcheck' # Lint shell scripts
-brew 'shfmt' # Format shell scripts
-brew 'taplo' # Lint and format TOML files
+brew 'shellcheck' # Lint shell scripts [lint]
+brew 'shfmt' # Format shell scripts [lint]
+brew 'taplo' # Lint and format TOML files [lint]
 brew 'tenv' # OpenTofu/Terraform version manager — resolves required_version (infra repo)
 brew 'trivy' # IaC misconfiguration scanner for the infra repo (tfsec successor)
 brew 'uv' # Python package/env manager for project scaffolding
 brew 'viddy' # Better watch; no Linux port yet, not just CI toolchain
-brew 'yamlfmt' # Format YAML files
+brew 'yamlfmt' # Format YAML files [lint]
 
 cask 'claude' # AI desktop app; macOS GUI, no Linux equivalent possible
 cask 'claude-code' # AI coding assistant CLI; macOS GUI, no Linux equivalent possible

@@ -3,6 +3,10 @@
 # linux/binaries.lock, a vendored zsh-plugin submodule, or a pinned `go
 # install`/`npm install -g`, even where the exact provenance differs from
 # Homebrew's. See ADR-0006/ADR-0030 for the tier model and its history.
+#
+# `[lint]` (see also macos/Brewfile.dev's header) tags the formulae here
+# that ci.yml's lint job also installs (#425) — general dev tooling that
+# happens to double as part of this repo's own lint toolchain.
 
 tap 'Giammarco-Ferranti/deja' # deja isn't in homebrew-core
 
@@ -41,11 +45,12 @@ brew 'powerlevel10k' # zsh command prompt
 brew 'pyright' # Python language server
 brew 'ripgrep' # Faster ag written in Rust
 brew 'ruff' # Python linter/formatter (also an LSP)
-brew 'selene' # Lint Lua files; general dev tooling, not just this repo's own lint config
-brew 'stylua' # Format Lua files; general dev tooling, not just this repo's own lint config
+brew 'selene' # Lint Lua files; general dev tooling, not just this repo's own lint config [lint]
+brew 'stylua' # Format Lua files; general dev tooling, not just this repo's own lint config [lint]
 brew 'tealdeer' # tldr utility
 brew 'zellij' # terminal multiplexer
 brew 'zoxide' # Smart cd
+brew 'zsh' # macOS ships this already; declared so CI's ubuntu-latest (no system zsh) gets it too [lint]
 brew 'zsh-completions'
 brew 'zsh-autopair'
 brew 'zsh-patina' # Better syntax highlighting than fast-syntax-highlighting
