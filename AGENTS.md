@@ -100,6 +100,24 @@ README states the XDG principle; these are the entries that must stay in
   content — discuss before writing or committing. zsh/nvim/tool-config tweaks are
   mechanical — proceed and report.
 
+## Agent shell tool preference
+
+Prefer `rg`/`fd` over `grep`/`find` in Bash: faster, and gitignore-aware by
+default — `.rgignore` (repo root) is half of `#437`'s search-noise fix, the
+other half is `permissions.deny` in `claude/settings.json`. Keep output
+plain: `--no-pager`, `--color=never`, no TUI tools (`viddy`), no pagers
+(`delta` as a pager), no fuzzy resolution (`zoxide`) — decorated output is
+ANSI token waste and fuzzy jumps are nondeterminism. `zsh/.zshenv`'s
+`RIPGREP_CONFIG_PATH` (`ripgreprc`) is tuned for interactive use — colors,
+hyperlinks — and applies to every shell including an agent's, so pass
+`--color=never` explicitly rather than assuming the default is plain.
+
+Don't push interactive aliases (`cat→bat`, `ls→eza`, `diff→delta`) into
+agent-visible init: they live in `zsh/rc.d/aliases.zsh` (interactive-only),
+and that split is the enforcement — agents get plain tools by construction.
+This note exists so nobody "fixes" that by promoting the aliases to
+`.zshenv`.
+
 ## Documentation: one home per fact, everything else points
 
 > Concrete realization of **documentation.md** (`claude/rules/universal/documentation.md`) for this

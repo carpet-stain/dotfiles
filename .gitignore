@@ -12,6 +12,12 @@ ssh/config.local
 # Scoped-down GH_TOKEN for .envrc — never commit a real token
 .envrc.local
 
+# EnterWorktree's isolated copies (claude/rules/tools/git.md's worktree
+# mode) — ephemeral, machine-local. Was only excluded via this machine's
+# untracked .git/info/exclude; belongs in the tracked file so every clone
+# (and repo-wide Grep) skips it by construction, not by local accident (#437).
+.claude/worktrees/
+
 # Machine-private Claude Code files — internal/work platform tooling that
 # must never reach this public repo. Anything under platform/private/ is
 # ignored by default, so a new private file is safe the moment it's created:
