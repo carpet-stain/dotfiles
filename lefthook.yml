@@ -158,3 +158,11 @@ pre-push:
   jobs:
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
+
+    - name: deploy-pair-coupling
+      # No glob: the script computes its own whole-branch diff scope
+      # (origin/main...HEAD), like envrc-local-example-sync above.
+      run: scripts/check-deploy-pair.sh
+
+    - name: governance-propagation
+      run: scripts/check-governance-propagation.sh

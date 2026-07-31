@@ -203,6 +203,22 @@ and only nudges toward re-reading an outlier-length comment block, since a
 hard block on something this judgment-dependent gets `--no-verify`'d past
 immediately.
 
+Two more advisory checks run at **pre-push**, not pre-commit, so they see
+the whole branch rather than one commit at a time (`git diff --name-only
+origin/main...HEAD`): `deploy-pair-coupling`
+(`scripts/check-deploy-pair.sh`) flags a branch that touches
+`macos/deploy.zsh` without `linux/deploy.sh` or vice versa; `governance-propagation`
+(`scripts/check-governance-propagation.sh`) flags a branch that touches a
+governance surface (CI workflows, `lefthook.yml`, `justfile`, `cliff.toml`,
+root lint configs) as a reminder to evaluate propagating the change to
+`carpet-stain/project-starter-template` (#493). Both always exit 0, same
+discipline as `comment-concision`. Pre-push-only means neither has a CI/PR
+presence — no server-side check exists for either, so `git push --no-verify`
+or a machine without lefthook installed silently skips them; accepted
+because this is a solo repo whose only pusher runs on lefthook-provisioned
+machines, and whole-branch three-dot diffing can't be computed cleanly
+under CI's shallow `--all-files` checkout.
+
 A few more tools worth reaching for by hand, not wired into any hook:
 
 - `just format` — `prettier --write` over the repo's tracked markdown: the fix
