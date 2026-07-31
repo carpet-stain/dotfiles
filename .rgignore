@@ -1,0 +1,16 @@
+# Tracked content that's pure search noise: generated, vendored, or
+# mirrored, never something a repo-wide grep is looking for (#437).
+# .gitignore is the other half of this pair — it excludes what's
+# untracked (e.g. .claude/worktrees/); this file excludes what's tracked
+# but still noise, since gitignore patterns apply regardless of tracked
+# status for any ripgrep-family consumer (this file, `rg`, Claude Code's
+# Grep tool).
+
+# git-cliff generated — markdownlint/prettier already skip it too (AGENTS.md).
+/CHANGELOG.md
+
+# LazyVim lockfile — machine-generated, not hand-edited.
+/nvim/lazy-lock.json
+
+# Catppuccin submodules, vendored upstream, not this repo's own content.
+/theme/

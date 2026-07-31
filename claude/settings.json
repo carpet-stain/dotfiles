@@ -22,5 +22,13 @@
   },
   "effortLevel": "high",
   "theme": "auto",
-  "disableDeepLinkRegistration": "disable"
+  "disableDeepLinkRegistration": "disable",
+  "permissions": {
+    "deny": [
+      "Read(./CHANGELOG.md)",
+      "Read(./nvim/lazy-lock.json)",
+      "Read(./theme/**)",
+      "Read(./.claude/worktrees/**)"
+    ]
+  }
 }
