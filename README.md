@@ -1,5 +1,8 @@
 # Dotfiles
 
+<!-- throwaway: verifies pr-guards.yml's issue-link check (#449) blocks a
+PR closing no issue. Closed without merging. -->
+
 <!--toc:start-->
 
 - [Dotfiles](#dotfiles)
