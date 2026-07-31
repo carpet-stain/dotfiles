@@ -1,10 +1,11 @@
 name: PR guards
 
-# Enforces the one-commit-per-PR + rebase-merge workflow (AGENTS.md): a PR must
-# be exactly one commit whose subject is a Conventional Commit, so rebase-merge
-# lands a single clean, author-written commit on main. Replaces pr-title.yml —
-# under rebase-merge the PR title no longer becomes main's commit message, so
-# the commit itself is what must be valid, not the title.
+# Enforces PR-shape requirements the rebase-merge workflow (AGENTS.md) depends
+# on: a PR must be exactly one Conventional-Commit-subject commit, so
+# rebase-merge lands a single clean, author-written commit on main (replaces
+# pr-title.yml — under rebase-merge the PR title no longer becomes main's
+# commit message, so the commit itself must be valid, not the title); and it
+# must close an issue or declare why not (#449 — see that job's own comment).
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -12,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: pr-guards-${{ github.ref }}
@@ -64,3 +66,50 @@ jobs:
             fi
           done
           exit $rc
+
+  issue-link:
+    name: issue link
+    runs-on: ubuntu-latest
+    # release-prepare.yml's release/* PRs close no issue by design — exempted
+    # here in-guard rather than having that workflow inject a No-Issue body
+    # marker, so the whole contract stays in this one file (#449).
+    if: github.event.pull_request.draft == false && !startsWith(github.event.pull_request.head.ref, 'release/')
+    steps:
+      # closingIssuesReferences is GitHub's own computed field (#449) — not a
+      # body-text regex — so it reflects the link however it was made (a
+      # closing keyword or a manual Development-panel link), and a typo'd
+      # keyword that failed to actually link fails this check instead of
+      # passing it.
+      - name: Require a closing issue reference or a No-Issue marker
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # shellcheck disable=SC2016 # single-quoted: these are GraphQL's own
+          # $owner/$repo/$number variables, passed via -f/-F below — must not
+          # expand as bash variables.
+          count=$(gh api graphql -f query='
+            query($owner: String!, $repo: String!, $number: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $number) {
+                  closingIssuesReferences { totalCount }
+                }
+              }
+            }' -f owner="$OWNER" -f repo="$REPO" -F number="$PR_NUMBER" \
+            --jq '.data.repository.pullRequest.closingIssuesReferences.totalCount')
+
+          if [ "$count" -gt 0 ]; then
+            echo "closes $count issue(s) — ok."
+            exit 0
+          fi
+
+          if echo "$PR_BODY" | grep -qE '^No-Issue:[[:space:]]*[^[:space:]]'; then
+            echo "No-Issue marker present — ok."
+            exit 0
+          fi
+
+          echo "::error::PR closes no issue and has no No-Issue: marker. Add \`Closes #N\` to the body, or a \`No-Issue: <reason>\` line."
+          exit 1
