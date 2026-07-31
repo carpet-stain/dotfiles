@@ -20,13 +20,16 @@ name: PR code review (advisory)
 # PR that qualifies under neither trigger.
 #
 # The reviewer targets any OpenAI-compatible chat-completions endpoint, set by
-# OPENAI_API_URL / OPENAI_MODEL below. It currently points at OpenRouter's free
-# tier (a free open model) to trial the reviewer at $0. To move to the OpenAI
-# API, drop those two env lines (run.mjs defaults to gpt-4o-mini on
-# api.openai.com) and put an OpenAI key in the secret instead. Either way the
-# key lives in the `OPENAI_API_KEY` repo secret — provision it with the elevated
-# session, same pattern as RELEASE_PAT. Without it the job skips cleanly
-# (green), it doesn't fail.
+# OPENAI_API_URL / OPENAI_MODEL below. It points at OpenRouter, routed to a
+# paid frontier model rather than the free tier the reviewer trialed at $0
+# under (#490) — conformance review (below) is judgment work, not
+# lint-adjacent nits, so it's matched to a model that can actually compare a
+# diff against an approved plan. To move to the OpenAI API directly, drop
+# those two env lines (run.mjs defaults to gpt-4o-mini on api.openai.com) and
+# put an OpenAI key in the secret instead. Either way the key lives in the
+# `OPENAI_API_KEY` repo secret — provision it with the elevated session, same
+# pattern as RELEASE_PAT. Without it the job skips cleanly (green), it
+# doesn't fail.
 #
 # DIY step (scripts/pr-review/), not a third-party Action: #330's upgrade
 # over the anc95/ChatGPT-CodeReview action this replaced. That action
@@ -75,11 +78,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # OpenRouter free tier (see header note to switch to the OpenAI API).
-          # The free model lineup rotates — if this ID 404s, pick another from
-          # openrouter.ai/models?supported_parameters=structured_outputs (must
-          # keep structured_outputs support). Alternate: openai/gpt-oss-20b:free.
+          # OpenRouter (see header note to switch to the OpenAI API directly).
+          # gpt-5.6-sol is the flagship of OpenAI's GPT-5.6 series as of #490
+          # (verified live against openrouter.ai/api/v1/models, not recalled
+          # from training data) — re-verify against
+          # openrouter.ai/models?supported_parameters=structured_outputs if
+          # this ID 404s, since OpenRouter's lineup rotates.
           OPENAI_API_URL: https://openrouter.ai/api/v1/chat/completions
-          OPENAI_MODEL: nvidia/nemotron-3-super-120b-a12b:free
+          OPENAI_MODEL: openai/gpt-5.6-sol
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: node scripts/pr-review/run.mjs
