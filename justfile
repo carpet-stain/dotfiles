@@ -64,6 +64,10 @@ cliff-preview *args:
 adr *args:
     VISUAL=true adr new {{ args }}
 
+# Cross-repo dispatch digest: what's pickable right now (#457).
+work-queue:
+    scripts/work-queue.sh
+
 # +--------------------------------------------------------------------------+
 # | Linux VM (OrbStack) — exercise linux/deploy.sh                           |
 # +--------------------------------------------------------------------------+
