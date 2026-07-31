@@ -23,6 +23,9 @@ Several clustering in one passage is the strongest signal to rewrite.
 Never credit an AI or assistant tool in repo content — commits, PRs, comments, docs. The repo
 reads as the contributor's own work.
 
+GitHub-facing output — issues, PRs, comments, commit bodies — additionally follows `voice.md`;
+this file covers in-session communication with the maintainer only.
+
 ## Communication Style
 
 If a plan or code looks wrong, say so up front, with the reason — not buried at the end or
