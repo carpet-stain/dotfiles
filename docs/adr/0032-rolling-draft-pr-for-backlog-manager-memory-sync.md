@@ -111,3 +111,54 @@ the audited commit, not the PR.
 Revisit if: the single-checkout assumption breaks in practice (a second
 machine or persistent worktree starts running syncs), or #411 concludes the
 human merge checkpoint needs automation on top of this buffer.
+
+**Amended (2026-07-31, #498):** the primary-tree rebuild (`switch -C` +
+`reset --soft` + `restore --source=origin/main`) forced two refusals —
+tracked non-memory changes dirty, HEAD diverging from `origin/main` outside
+the memory dir — that fired together in one routine sync (an
+auto-maintenance-written `git/config` line, a stale local `main`, dirty
+submodule pins), none of it related to memory. The single-checkout
+assumption this ADR named above is retired along with them.
+
+Replaced with a throwaway temp-index build: `git read-tree origin/main`
+seeds a scratch index, `git add -A` — redirected to it via
+`$GIT_INDEX_FILE`, never the real index — layers the memory dir's current
+working-tree content on top, and `git commit-tree` produces a dangling
+commit with no local ref ever created. The primary work-tree, index, and
+HEAD are untouched **by construction**, not by an asserted invariant, so an
+unrelated dirty file, a feature-branch HEAD, a stale local `main`, and a
+dirty submodule pointer are all irrelevant — retiring both refusals outright
+rather than special-casing around them.
+
+The stranded-delta guard is retired too: its precondition — a local
+`$FIXED_BRANCH` commit ahead of its remote because a prior run committed but
+never pushed — cannot occur here. No persistent local commit exists to
+strand; the built commit is a dangling object held only in a shell variable
+until the push succeeds, so a failed push just leaves it for eventual git
+garbage collection while the primary `$MEMORY_DIR` (the source of truth) is
+untouched and the next run rebuilds cleanly from it.
+
+Nothing-to-sync no longer reads local `git status`; it diffs the built
+commit's `$MEMORY_DIR` content against a per-routing-path baseline —
+`origin/$FIXED_BRANCH` on the update path, the newest existing timestamped
+fork (falling back to `origin/$FIXED_BRANCH`) on the divert path, or
+`origin/main` on the create path — so an idle run diffs clean under all
+three routing states instead of forking a duplicate PR or re-pushing a no-op
+that would invalidate a pending audit.
+
+`--force-with-lease` becomes the sole concurrency guard, the former
+double-checkout backstop having no analog here: every push uses the
+explicit `<ref>:<expected-sha>` form, with the expectation read from a fetch
+immediately preceding it, rather than the bare form that relied on a local
+branch's own remote-tracking ref.
+
+The staging guard also moves: ADR-0027's "verified by re-inspecting the
+index after staging" is superseded by a tree-diff backstop
+(`git diff --quiet origin/main <built-tree> -- . ':(exclude)$MEMORY_DIR'`)
+run once against the built tree — a pathspec/glob-bug check, not a
+per-invariant necessity, since `read-tree`-then-scoped-`add` should make it
+a no-op diff by construction.
+
+Everything else stands unchanged: one fixed branch, one rolling draft PR,
+draft-only, human-merge-as-convention, fail-loud with no auto-retry. No new
+ADR — only the rebuild mechanism moved (#498).

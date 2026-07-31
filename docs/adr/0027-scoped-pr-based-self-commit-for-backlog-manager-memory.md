@@ -149,3 +149,12 @@ review cost — which ADR-0033's pointer contract cut further. Auto-merge would
 delete the sole enforcement checkpoint to save minutes on grooming days.
 Reopen only if the rolling draft is observed skipped for long stretches
 _because the diff costs too much to read_ despite the pointer contract.
+
+**Amended by ADR-0032 (2026-07-31, #498):** the rebuild mechanism moves
+again — from ADR-0032's primary-tree `switch`/`reset --soft`/`restore` to a
+throwaway temp-index build (`read-tree` + `add -A` + `commit-tree`) that
+never touches the primary work-tree, index, or HEAD. The staging guard
+described above ("verified by re-inspecting the index after staging") is
+superseded by a tree-diff backstop against the built tree; see ADR-0032's
+issue #498 amendment for the mechanism and the guards it retires. Draft-only
+and the human-merge checkpoint stand unchanged.

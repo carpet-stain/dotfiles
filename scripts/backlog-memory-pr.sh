@@ -10,16 +10,31 @@
 # backlog (ADR-0032, amending ADR-0027). Fail loud everywhere: no
 # auto-retry, no auto-delete, no fallthrough.
 #
-# Single-checkout assumption: git itself refuses to check the fixed branch
-# out in two worktrees at once, and the force-with-lease pushes below are
-# race-safe only because each is preceded by its own fresh fetch — the
-# lease compares against the remote-tracking ref, so a stale one would
-# turn the lease into a rubber stamp.
+# The sync commit is built in a throwaway temp index, never in the primary
+# work-tree or its real index: `git read-tree origin/main` seeds a scratch
+# index, `git add -A` (redirected to that index via $GIT_INDEX_FILE) layers
+# the memory dir's current working-tree content on top, and `commit-tree`
+# produces a dangling commit object with no local ref ever created. The
+# primary tree, index, and HEAD are untouched by construction — not merely
+# by convention — so an unrelated dirty file, a feature-branch HEAD, a
+# stale local main, or a dirty submodule pin are all irrelevant; no
+# clean-tree or HEAD-divergence guard is needed. A push failure just leaves
+# an unreferenced object for git to garbage-collect eventually — nothing
+# strands, since nothing local ever pointed at it (ADR-0032 amendment,
+# #498).
+#
+# `--force-with-lease` is the sole concurrency guard now (there is no local
+# checkout of the fixed branch to fall back on): every push uses the
+# explicit `<ref>:<expected-sha>` form, with the expected sha read from a
+# fetch done immediately beforehand, so a stale expectation can't turn the
+# lease into a rubber stamp.
 set -euo pipefail
 
 MEMORY_DIR=".claude/agent-memory/backlog-manager"
 FIXED_BRANCH="chore/sync-backlog-memory"
 COMMIT_MSG="chore(claude): sync backlog-manager memory"
+
+cd "$(git rev-parse --show-toplevel)"
 
 if [[ ! -d "$MEMORY_DIR" ]]; then
   echo "no $MEMORY_DIR here — nothing to sync" >&2
@@ -27,59 +42,32 @@ if [[ ! -d "$MEMORY_DIR" ]]; then
 fi
 
 git fetch --prune origin main
-
-memory_dirty="$(git status --porcelain=v1 -- "$MEMORY_DIR")"
-
-# Stranded-delta check — a prior run that committed but failed to push
-# leaves the fixed branch ahead with a clean memory dir. Ordered before the
-# early-exit so a naive re-run can't report a success-shaped "nothing to
-# sync" over an unpushed delta. (A dirty memory dir subsumes the strand:
-# the rebuild below re-commits the whole dir from the working tree.)
-if git show-ref --verify --quiet "refs/heads/$FIXED_BRANCH"; then
-  if git show-ref --verify --quiet "refs/remotes/origin/$FIXED_BRANCH"; then
-    strand_base="refs/remotes/origin/$FIXED_BRANCH"
-  else
-    strand_base="refs/remotes/origin/main"
-  fi
-  ahead="$(git rev-list --count "$strand_base..refs/heads/$FIXED_BRANCH")"
-  if [[ "$ahead" -gt 0 && -z "$memory_dirty" ]]; then
-    {
-      echo "stranded delta: local $FIXED_BRANCH is $ahead commit(s) ahead of ${strand_base#refs/remotes/}"
-      echo "with a clean memory dir — a prior run committed but never pushed. Resolve by hand:"
-      echo "  git push --force-with-lease origin $FIXED_BRANCH    # push the committed delta as-is"
-      echo "or rebuild from the working tree and re-run:"
-      echo "  git switch $FIXED_BRANCH && git reset --soft origin/main"
-    } >&2
-    exit 1
-  fi
+if git ls-remote --exit-code --heads origin "$FIXED_BRANCH" >/dev/null; then
+  git fetch origin "$FIXED_BRANCH"
 fi
+git fetch --prune origin "refs/heads/$FIXED_BRANCH-*:refs/remotes/origin/$FIXED_BRANCH-*"
 
-if [[ -z "$memory_dirty" ]]; then
-  echo "no changes under $MEMORY_DIR to sync" >&2
-  exit 0
-fi
+# Build the sync commit. mktemp's file starts zero-byte, which read-tree
+# treats as a corrupt index — remove it first so git initializes a fresh
+# one at that path.
+tmpidx="$(mktemp)"
+trap 'rm -f "$tmpidx"' EXIT
+rm -f "$tmpidx"
 
-# Tracked non-memory changes (staged or unstaged) would be silently
-# destroyed by the re-parent restore below — refuse before any ref moves.
-# Untracked files never block: nothing here discards them (the 2026-07-24
-# incident's casualty was a tracked-modified file, not an untracked one).
-if [[ -n "$(git status --porcelain=v1 --untracked-files=no -- . ":(exclude)$MEMORY_DIR")" ]]; then
-  git status --short --untracked-files=no -- . ":(exclude)$MEMORY_DIR" >&2
-  echo "refusing: tracked changes outside $MEMORY_DIR (above) — commit or restore them first" >&2
+GIT_INDEX_FILE="$tmpidx" git read-tree origin/main
+GIT_INDEX_FILE="$tmpidx" git add -A -- "$MEMORY_DIR"
+tree="$(GIT_INDEX_FILE="$tmpidx" git write-tree)"
+
+# Backstop: the pathspec above should make this a no-op diff by
+# construction (read-tree seeded everything else straight from
+# origin/main); if it isn't, a pathspec/glob bug staged something outside
+# the memory dir.
+if ! git diff --quiet origin/main "$tree" -- . ":(exclude)$MEMORY_DIR"; then
+  echo "aborting: built tree differs from origin/main outside $MEMORY_DIR" >&2
   exit 1
 fi
 
-# Entry contract: proceed only from the fixed branch (the state this script
-# itself leaves behind) or a checkout whose non-memory tree already equals
-# fresh origin/main. A feature-branch HEAD is refused cleanly here, before
-# any ref moves — never surprise-flipped onto the sync branch.
-current_branch="$(git symbolic-ref --quiet --short HEAD || true)"
-if [[ "$current_branch" != "$FIXED_BRANCH" ]] &&
-  ! git diff --quiet origin/main -- . ":(exclude)$MEMORY_DIR"; then
-  echo "refusing: HEAD diverges from origin/main outside $MEMORY_DIR —" \
-    "run from the fixed branch ($FIXED_BRANCH) or an up-to-date main checkout" >&2
-  exit 1
-fi
+commit="$(git commit-tree "$tree" -p origin/main -m "$COMMIT_MSG")"
 
 # Route on the open PR for the fixed branch. A failed query aborts — it
 # must never fall through to "create" and fork a duplicate of a PR it
@@ -94,39 +82,6 @@ if [[ "$(wc -l <<<"$pr_state")" -gt 1 ]]; then
   echo "more than one open PR with head $FIXED_BRANCH — resolve by hand: gh pr list --head $FIXED_BRANCH" >&2
   exit 1
 fi
-
-# Rebuild <branch> as origin/main + the working tree's memory dir, then
-# commit. switch -C with implicit HEAD start-point: zero tree change (the
-# dirty memory dir carries over), no other ref touched. reset --soft moves
-# only the branch ref. The restore re-parents the non-memory index+worktree
-# onto fresh origin/main; it depends on restore's default no-overlay mode —
-# adds, modifies, and deletes all reconcile exactly; never add --overlay.
-# Safe because the dirty guard above proved no tracked non-memory changes
-# exist, and committed divergence lives on refs this never touches.
-rebuild_and_commit() {
-  local branch="$1"
-  git switch -C "$branch"
-  git reset --soft origin/main
-  git restore --source=origin/main --staged --worktree -- . ":(exclude)$MEMORY_DIR"
-
-  git add -- "$MEMORY_DIR"
-
-  # Re-verify the index after staging rather than trust the pathspec alone —
-  # a pure backstop against a quoting/glob bug in the line above; it never
-  # fires on a healthy path (the restore already reset everything else).
-  while IFS= read -r -d '' path; do
-    case "$path" in
-      "$MEMORY_DIR"/*) ;;
-      *)
-        git restore --staged -- "$path"
-        echo "aborting: staged path outside $MEMORY_DIR: $path" >&2
-        exit 1
-        ;;
-    esac
-  done < <(git diff --cached --name-only -z)
-
-  git commit -m "$COMMIT_MSG"
-}
 
 pr_body="## Summary
 
@@ -149,29 +104,50 @@ Sitting unmerged for a while is the design working, not a backlog.
 ## Scope
 
 Every changed path is under \`$MEMORY_DIR\` — enforced by the script's
-staging guard, not asserted."
+tree-diff backstop, not asserted."
 
+# Nothing-to-sync is checked per routing path, against the baseline that
+# path's diff will actually land against — not a single fixed baseline —
+# so an idle run diffs clean instead of forking a duplicate PR or
+# invalidating a pending audit with a no-op re-push.
 case "$pr_state" in
   false)
     # Rolling PR exists but was flipped ready-for-review: it's the human's
     # turn — hands off the fixed branch entirely. Divert this sync to a
-    # fresh timestamped branch and a new draft PR.
+    # fresh timestamped branch and a new draft PR. Baseline is the newest
+    # existing fork of that branch (if a prior divert already happened),
+    # falling back to the fixed branch itself — comparing against
+    # origin/$FIXED_BRANCH here would re-fork a duplicate PR on every
+    # repeat sync once diverted.
+    newest_fork="$(git for-each-ref --sort=-refname --format='%(refname:short)' "refs/remotes/origin/$FIXED_BRANCH-*" | head -1)"
+    baseline_ref="${newest_fork:-refs/remotes/origin/$FIXED_BRANCH}"
+    if git diff --quiet "$baseline_ref" "$commit" -- "$MEMORY_DIR"; then
+      echo "no changes under $MEMORY_DIR since the last diverted sync — nothing to do" >&2
+      exit 0
+    fi
     fallback_branch="$FIXED_BRANCH-$(date +%Y%m%d%H%M%S)"
     echo "rolling PR is ready-for-review (human's turn) — diverting to $fallback_branch" >&2
-    rebuild_and_commit "$fallback_branch"
-    git push --force-with-lease="$fallback_branch": origin "$fallback_branch"
-    gh pr create --draft --title "$COMMIT_MSG" --body "$pr_body
+    if ! git push --force-with-lease="$fallback_branch": origin "$commit:refs/heads/$fallback_branch"; then
+      echo "push refused — $fallback_branch already exists on the remote (clock collision?); re-run" >&2
+      exit 1
+    fi
+    gh pr create --draft --head "$fallback_branch" --title "$COMMIT_MSG" --body "$pr_body
 
 > Opened on a timestamped branch because the rolling PR was already
 > ready-for-review. After both land, delete this branch's local copy;
 > \`git memory-pr\` returns to the fixed branch on its own."
     ;;
   true)
-    # Update path: refresh the lease baseline first — force-with-lease
-    # without it would compare against a stale remote-tracking ref.
-    rebuild_and_commit "$FIXED_BRANCH"
+    if git diff --quiet "refs/remotes/origin/$FIXED_BRANCH" "$commit" -- "$MEMORY_DIR"; then
+      echo "no changes under $MEMORY_DIR to sync" >&2
+      exit 0
+    fi
+    # Refresh the lease baseline right before pushing — the top-of-script
+    # fetch is fine for routing/nothing-to-sync, but the lease itself needs
+    # the freshest possible expected-sha to stay race-safe.
     git fetch origin "$FIXED_BRANCH"
-    if ! git push --force-with-lease origin "$FIXED_BRANCH"; then
+    old_sha="$(git rev-parse "refs/remotes/origin/$FIXED_BRANCH")"
+    if ! git push "--force-with-lease=$FIXED_BRANCH:$old_sha" origin "$commit:refs/heads/$FIXED_BRANCH"; then
       {
         echo "push lease failed — the remote branch moved outside this run. Disambiguate:"
         echo "  gh pr list --head $FIXED_BRANCH --state all"
@@ -184,11 +160,14 @@ case "$pr_state" in
     echo "rolling draft PR updated in place — review and merge by hand." >&2
     ;;
   "")
+    if git diff --quiet origin/main "$commit" -- "$MEMORY_DIR"; then
+      echo "no changes under $MEMORY_DIR to sync" >&2
+      exit 0
+    fi
     # Create path: empty-expectation lease — the remote ref must not
     # exist. A lingering branch from a closed-unmerged PR fails loud here
     # instead of being silently overwritten.
-    rebuild_and_commit "$FIXED_BRANCH"
-    if ! git push --force-with-lease="$FIXED_BRANCH": origin "$FIXED_BRANCH"; then
+    if ! git push --force-with-lease="$FIXED_BRANCH": origin "$commit:refs/heads/$FIXED_BRANCH"; then
       {
         echo "push refused — a remote $FIXED_BRANCH already exists with no open PR"
         echo "(likely a closed-unmerged PR's leftover). Disambiguate:"
@@ -201,7 +180,7 @@ case "$pr_state" in
     fi
     # A previously-closed PR on this branch is a known state — create
     # fresh, never reopen.
-    gh pr create --draft --title "$COMMIT_MSG" --body "$pr_body"
+    gh pr create --draft --head "$FIXED_BRANCH" --title "$COMMIT_MSG" --body "$pr_body"
     echo "rolling draft PR opened — review and merge by hand; this script never finalizes or merges." >&2
     ;;
   *)
