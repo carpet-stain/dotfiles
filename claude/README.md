@@ -50,6 +50,7 @@ to cross-reference:
 |                             | `documentation.md`            | Documentation ownership & currency     | Always applies                                                      |
 |                             | `ai-collaboration.md`         | How the agent operates                 | Always applies                                                      |
 |                             | `communication.md`            | What gets said/written                 | Always applies                                                      |
+|                             | `voice.md`                    | How GitHub-facing output sounds        | Always applies                                                      |
 | `rules/domain/`             | `architecture.md`             | Building a layered application         | Self-gates on being a layered app                                   |
 | `rules/tools/`              | `git.md`                      | Any git repo, any host                 | Always applies (trivial gate)                                       |
 |                             | `go.md`                       | Go repos only                          | Native `paths:` frontmatter — loads only on `go.mod`/`*.go`         |
