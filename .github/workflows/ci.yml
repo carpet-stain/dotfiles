@@ -41,11 +41,22 @@ jobs:
       # patches (#285 relink, #286 image-scoped key) treated symptoms; a fresh
       # install is the only reliable form and links correctly on its own. It's
       # ~48s (#124), the cost #276's Homebrew-free rewrite removes for good.
+      #
+      # Reads Brewfile.{dev,payload}'s `[lint]`-tagged formulae instead of a
+      # second hardcoded list (#425) — those files are the single source
+      # for this repo's dev/lint toolchain now, for both macos/deploy.zsh
+      # and CI (a `[lint]` formula lives in whichever of the two already
+      # owns it — Brewfile.payload for general dev tooling like
+      # selene/stylua, Brewfile.dev for CI/lint-only tools). Plain `brew
+      # install`, not `brew bundle --file=...`: Brewfile.dev also holds GUI
+      # casks and a third-party tap that either don't exist or aren't
+      # needed on Linuxbrew, so a full bundle install would drag in
+      # unrelated tooling (or fail on a cask) rather than just being
+      # slower.
       - name: Install lint/format tools
         run: |
-          brew install just lefthook zsh shellcheck actionlint shfmt stylua \
-            selene taplo yamlfmt markdownlint-cli2 prettier editorconfig-checker \
-            gitleaks
+          awk -F"'" '/^brew .*\[lint\]/{print $2}' macos/Brewfile.dev macos/Brewfile.payload \
+            | xargs brew install
 
       # `just lint` is the same entry point contributors run (it wraps
       # `lefthook run pre-commit --all-files`), so CI and local share one
