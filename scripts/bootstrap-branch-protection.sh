@@ -24,10 +24,10 @@
 #   branch        protected branch (default: repo's default branch)
 #   extra-check   additional required status check name, repeatable
 #                 (e.g. "lint" — CI job names vary per repo/language;
-#                 "single commit" and "conventional commit" are always
-#                 required since they come from the pr-guards.yml template
-#                 verbatim, and "adr guard" is added automatically when
-#                 .github/workflows/adr-guard.yml is present)
+#                 "single commit", "conventional commit", and "issue link"
+#                 are always required since they come from the pr-guards.yml
+#                 template verbatim, and "adr guard" is added automatically
+#                 when .github/workflows/adr-guard.yml is present)
 #
 # Free-tier gotcha: GitHub rulesets need GitHub Pro or a public repo — a
 # private repo 403s until upgraded or made public.
@@ -67,7 +67,7 @@ EXISTING_ID=$(echo "$RULESETS_JSON" | jq -r --arg name "$RULESET_NAME" '.[] | se
 # actually ships: gate on the file so re-running this on a repo that opts out
 # (dotfiles itself, per #241's Deferral) doesn't pin a required check that
 # never reports and would block every PR.
-REQUIRED_CHECKS=("single commit" "conventional commit")
+REQUIRED_CHECKS=("single commit" "conventional commit" "issue link")
 if [[ -f .github/workflows/adr-guard.yml ]]; then
   REQUIRED_CHECKS+=("adr guard")
 fi
