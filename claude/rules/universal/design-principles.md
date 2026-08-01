@@ -17,6 +17,16 @@ Write the minimum code that solves the problem. No speculative flags, no configu
 asked for, no abstraction for a single call site, no handling for a case that can't happen.
 Self-check: would a senior engineer call this overcomplicated?
 
+Once you understand the problem, find the minimum in order before writing anything new: does this
+need to exist at all? → is it already in this codebase? → the standard library? → a native
+platform feature? → an already-installed dependency? → can it be one line? → only then, the least
+code that works. The ladder runs _after_ understanding the problem, never instead of it.
+
+Terse is not fragile. The reuse search never trades away understanding the problem before coding,
+validation at trust boundaries, error handling that prevents data loss, security, or tests — leave
+at least one runnable check behind non-trivial logic. This is code-scoped: it governs code, not
+prose, docs, issue drafts, or agent-memory writes.
+
 ## Configuration Is Code, Not Ambient State
 
 Tooling config — linter rules, formatter settings, hooks, CI behavior — is a versioned file every
