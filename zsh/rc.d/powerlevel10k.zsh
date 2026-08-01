@@ -16,17 +16,33 @@ source $XDG_DATA_HOME/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme
   # Unset all configuration options.
   unset -m '(POWERLEVEL9K_*|DEFAULT_USER)~POWERLEVEL9K_GITSTATUS_DIR'
 
-  # ---[ Catppuccin Mocha Theme Palette ]---
-  local P9K_BG='#1e1e2e'     # Base
-  local P9K_FG='#cdd6f4'     # Text
-  local P9K_RED='#f38ba8'    # Red
-  local P9K_GREEN='#a6e3a1'  # Green
-  local P9K_YELLOW='#f9e2af' # Yellow
-  local P9K_BLUE='#89b4fa'   # Blue
-  local P9K_PURPLE='#cba6f7' # Mauve
-  local P9K_CYAN='#89dceb'   # Sapphire
-  local P9K_SUBTEXT='#a6adc8' # Subtext1
-  local P9K_GREY='#585b70'   # Surface2 (for dim/stale)
+  # ---[ Catppuccin Theme Palette — mode selected by THEME_MODE (.zshenv) ]---
+  # One-prompt stale-palette flash on the first new shell after a flip is
+  # accepted: instant-prompt's cache renders with the previous session's
+  # palette before this block re-runs (#441).
+  if [[ $THEME_MODE == light ]]; then
+    local P9K_BG='#eff1f5'     # Base
+    local P9K_FG='#4c4f69'     # Text
+    local P9K_RED='#d20f39'    # Red
+    local P9K_GREEN='#40a02b'  # Green
+    local P9K_YELLOW='#df8e1d' # Yellow
+    local P9K_BLUE='#1e66f5'   # Blue
+    local P9K_PURPLE='#8839ef' # Mauve
+    local P9K_CYAN='#209fb5'   # Sapphire
+    local P9K_SUBTEXT='#5c5f77' # Subtext1
+    local P9K_GREY='#acb0be'   # Surface2 (for dim/stale)
+  else
+    local P9K_BG='#1e1e2e'     # Base
+    local P9K_FG='#cdd6f4'     # Text
+    local P9K_RED='#f38ba8'    # Red
+    local P9K_GREEN='#a6e3a1'  # Green
+    local P9K_YELLOW='#f9e2af' # Yellow
+    local P9K_BLUE='#89b4fa'   # Blue
+    local P9K_PURPLE='#cba6f7' # Mauve
+    local P9K_CYAN='#89dceb'   # Sapphire
+    local P9K_SUBTEXT='#a6adc8' # Subtext1
+    local P9K_GREY='#585b70'   # Surface2 (for dim/stale)
+  fi
   # ---[ End Theme ]---
 
   # Zsh >= 5.1 is required.

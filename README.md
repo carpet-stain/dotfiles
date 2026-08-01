@@ -42,8 +42,10 @@ This configuration is built on five core principles:
    - `cd` → `zoxide` (teleportation)
 
 3. **Explicit & Unified:**
-   - **Theming:** A consistent [Catppuccin Mocha][catppuccin] theme applied
-     programmatically across Ghostty, Zellij, FZF, Bat, Delta, and Neovim.
+   - **Theming:** [Catppuccin][catppuccin] applied programmatically across
+     Ghostty, Zellij, FZF, Bat, Delta, and Neovim — all but Zellij follow
+     macOS light/dark (Latte/Mocha): Ghostty natively and live, the rest at
+     each new shell/invocation.
    - **Workflow:** A "Zellij-First" approach where the terminal emulator
      (Ghostty) is merely a canvas. Window management, scrolling, and clipboard
      integration are handled explicitly by Zellij.
@@ -61,8 +63,9 @@ This configuration is built on five core principles:
 
 ## Features
 
-- **Fully Themed**: Consistent Catppuccin Mocha theme across Ghostty, Zellij,
-  FZF, Bat, Delta, and Neovim.
+- **Fully Themed**: Catppuccin across Ghostty, Zellij, FZF, Bat, Delta, and
+  Neovim — all but Zellij follow macOS light/dark, Ghostty live and the rest
+  at each new shell/invocation.
 - Extensive Zsh [configuration](zsh/rc.d) and [plugins](zsh/plugins):
   - [powerlevel10k][p10k] prompt (Catppuccin styled)
   - [fzf-tab][fzf-tab] for interactive, preview-enabled tab completion
