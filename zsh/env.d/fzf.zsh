@@ -25,7 +25,6 @@ FZF_DEFAULT_OPTS+="
   --pointer ''
   --marker '✓'
   --preview-window 'right:65%'
-  --no-separator
   --ansi"
 
 # --popup, --highlight-line, --input-border, --ghost, and --gutter need
@@ -45,6 +44,13 @@ if [[ $OSTYPE == darwin* ]]; then
   --border
   --ghost='Type to search...'
   --gutter=' '"
+else
+  # fzf 0.74.1 auto-hides the info-line separator whenever a border already
+  # separates input from list — exactly the darwin --input-border --border
+  # setup above, so --no-separator is redundant there (#383). Non-darwin sets
+  # neither border, so it still needs the flag explicitly.
+  FZF_DEFAULT_OPTS+="
+  --no-separator"
 fi
 
 # Ctrl+T — file search
