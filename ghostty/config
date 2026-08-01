@@ -8,8 +8,9 @@
 # | THEME |
 # +-------+
 
-# Ships built-in — exact name (with space/casing) from `ghostty +list-themes`
-theme = Catppuccin Mocha
+# Both ship built-in (`ghostty +list-themes`); `light:...,dark:...` follows
+# the current macOS appearance live, no restart needed.
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
 
 # Ghostty's auto-generated 256-color palette desaturates/misrenders some
 # themes' indexed colors (see ghostty-org/ghostty#10852); use the theme's
