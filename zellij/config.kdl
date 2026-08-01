@@ -6,7 +6,13 @@
 // Everything else (kill pane, floating scratchpad, layout swap, sync) is
 // still TBD — using Zellij's own sensible defaults for now; see #2.
 
+// Static fallback plus native follow: on a terminal that reports its color
+// scheme (CSI 2031/DSR 997 — Ghostty does, see ghostty/config), Zellij
+// switches between these live, no reattach/restart needed. See ADR-0034's
+// #506 amendment.
 theme "catppuccin-mocha"
+theme_dark "catppuccin-mocha"
+theme_light "catppuccin-latte"
 
 // True color, mouse selection/resize, big scrollback
 simplified_ui false
