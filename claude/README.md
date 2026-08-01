@@ -261,6 +261,14 @@ not the count of skills, so a skill that outgrows a screen offloads depth to res
 instead of inlining it. The two skills above sit near 200 lines with nothing split out yet; reach
 for the pattern when a skill grows (likely #280's nvim skill or a future terraform one), not before.
 
+**When something earns being a skill — three gates, all present.** Shape aside, a lesson is
+skill-worthy only when: a check actually passed (a green test, a clean exit, a reproduced repro —
+"seemed to work" doesn't count); the specific failure it avoids or diagnoses is named; and at
+least one dead-end is recorded — an approach tried and ruled out, with the reason. Miss one and
+it's a memory note (for agents that keep memory) or nothing, not a skill. Origin: spike #387 — the
+promotion rule from `self-learning-skills`, machinery dropped, same mechanisms-yes/infra-no line as
+the #298 filter.
+
 **An MCP must earn its context tax.** Tool schemas load into every session, so a default MCP
 server taxes every session's context whether it's used or not. Default to a skill wrapping a CLI
 or REST call; reach for an MCP only when it needs what a CLI-in-a-skill can't give — interactive
