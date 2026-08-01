@@ -261,6 +261,12 @@ not the count of skills, so a skill that outgrows a screen offloads depth to res
 instead of inlining it. The two skills above sit near 200 lines with nothing split out yet; reach
 for the pattern when a skill grows (likely #280's nvim skill or a future terraform one), not before.
 
+**An MCP must earn its context tax.** Tool schemas load into every session, so a default MCP
+server taxes every session's context whether it's used or not. Default to a skill wrapping a CLI
+or REST call; reach for an MCP only when it needs what a CLI-in-a-skill can't give — interactive
+session state, streaming, an auth handshake, or structured browsing. Zero MCPs run here today;
+this is the bar the first one clears. Origin: spike #380.
+
 ## Lifecycle: running the skills over a repo's life
 
 `compose-agents` and `audit-rules`, plus Claude Code's built-in `/init` and `/doctor`, all touch
