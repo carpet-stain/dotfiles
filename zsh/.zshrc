@@ -124,8 +124,14 @@ source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 # +-------------+
 
 # Syntax highlighting; replaced fast-syntax-highlighting — swap rationale
-# and fsh's retired fsh#27 `whatis` workaround: see #92. Theme comes from
-# zsh-patinaconfig.toml (built-in catppuccin-mocha, no compile step).
+# and fsh's retired fsh#27 `whatis` workaround: see #92. Theme comes from one
+# of two built-in-theme configs (catppuccin-mocha/-latte, no compile step),
+# selected below by THEME_MODE (zsh/.zshenv) via ZSH_PATINA_CONFIG_PATH — the
+# only lever the installed binary exposes for this (verified: no CLI flag on
+# `activate`/`start`, just this env var, checked before the default
+# $XDG_CONFIG_HOME/zsh-patina/config.toml path). Set here rather than
+# .zshenv: the daemon reads it at `activate` time, right below, and this is
+# the only consumer.
 #
 # Must come after compinit/bindkey (completions.zsh runs compinit above) or
 # the highlighter has no effect until a manual `source` — see zsh-patina's
@@ -133,6 +139,11 @@ source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 # when unusable (see .zshenv) — the daemon's own directory creation happens
 # lazily via a hook after this line, not here, so the fallback has to be in
 # place shell-wide rather than scoped to just this eval (#443).
+if [[ $THEME_MODE == light ]]; then
+  export ZSH_PATINA_CONFIG_PATH=$XDG_CONFIG_HOME/zsh-patina/config-latte.toml
+else
+  export ZSH_PATINA_CONFIG_PATH=$XDG_CONFIG_HOME/zsh-patina/config-mocha.toml
+fi
 eval "$(zsh-patina activate)"
 
 # +------+

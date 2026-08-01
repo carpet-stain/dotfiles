@@ -17,7 +17,8 @@
 # Color even when piping
 --color=always
 
---theme="Catppuccin Mocha"
+# Theme comes from BAT_THEME (zsh/.zshenv, mode-selected via THEME_MODE),
+# not a fixed line here — see #441.
 
 # --- Custom Syntax Mappings ---
 # For files whose names bat can't sniff a syntax from.

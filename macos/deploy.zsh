@@ -89,7 +89,7 @@ stream() {
 
 create_directories() {
   setopt local_options err_exit
-  zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza/themes/mocha,eza/themes/latte,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
   zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,git-credential-cache}
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,fnm,zsh/plugins}
@@ -138,8 +138,15 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/claude/settings.json $HOME/.claude/settings.json
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
-  zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig.toml $XDG_CONFIG_HOME/zsh-patina/config.toml
-  zf_ln -sf $DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml $XDG_CONFIG_HOME/eza/theme.yml
+
+  # Mode-selected by THEME_MODE at shell-init time (zsh/.zshrc sets
+  # ZSH_PATINA_CONFIG_PATH; zsh/.zshenv sets EZA_CONFIG_DIR) — both flavours
+  # deployed unconditionally so either is available the moment appearance
+  # flips, no re-deploy needed.
+  zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig-mocha.toml $XDG_CONFIG_HOME/zsh-patina/config-mocha.toml
+  zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig-latte.toml $XDG_CONFIG_HOME/zsh-patina/config-latte.toml
+  zf_ln -sf $DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml $XDG_CONFIG_HOME/eza/themes/mocha/theme.yml
+  zf_ln -sf $DOTFILES_DIR/theme/eza/themes/latte/catppuccin-latte-mauve.yml $XDG_CONFIG_HOME/eza/themes/latte/theme.yml
 
   zf_ln -sf $DOTFILES_DIR/nvim/init.lua $XDG_CONFIG_HOME/nvim/init.lua
   zf_ln -sfn $DOTFILES_DIR/nvim/lua $XDG_CONFIG_HOME/nvim/lua
@@ -154,7 +161,10 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/htoprc $XDG_CONFIG_HOME/htop/htoprc
 
   zf_ln -sf $DOTFILES_DIR/batconfig $XDG_CONFIG_HOME/bat/config
+  # Both flavours deployed unconditionally — BAT_THEME (zsh/.zshenv) selects
+  # by THEME_MODE at invocation time, no re-deploy needed.
   zf_ln -sf $DOTFILES_DIR/theme/bat/themes/"Catppuccin Mocha.tmTheme" $XDG_CONFIG_HOME/bat/themes/"Catppuccin Mocha.tmTheme"
+  zf_ln -sf $DOTFILES_DIR/theme/bat/themes/"Catppuccin Latte.tmTheme" $XDG_CONFIG_HOME/bat/themes/"Catppuccin Latte.tmTheme"
 
   zf_ln -sf $DOTFILES_DIR/git/attributes $XDG_CONFIG_HOME/git/attributes
   zf_ln -sf $DOTFILES_DIR/git/committemplate $XDG_CONFIG_HOME/git/committemplate
@@ -358,8 +368,9 @@ generate_ghostty_terminfo() {
 }
 
 # bat only ships Catppuccin as a built-in theme in fairly recent releases;
-# batconfig requests "Catppuccin Mocha" unconditionally, so compile the
-# vendored theme/bat submodule copy into bat's cache regardless of version.
+# BAT_THEME (zsh/.zshenv) requests one of the two vendored theme/bat
+# submodule copies unconditionally, so compile both into bat's cache
+# regardless of version.
 build_bat_cache() {
   bat cache --build
 }

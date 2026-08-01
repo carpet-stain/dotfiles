@@ -7,8 +7,13 @@
 
 export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
 
-# Colors from the catppuccin/fzf submodule (sets FZF_DEFAULT_OPTS)
-source $DOTFILES/theme/fzf/themes/catppuccin-fzf-mocha.sh
+# Colors from the catppuccin/fzf submodule (sets FZF_DEFAULT_OPTS); mode
+# selected by THEME_MODE (derived in .zshenv)
+if [[ $THEME_MODE == light ]]; then
+  source $DOTFILES/theme/fzf/themes/catppuccin-fzf-latte.sh
+else
+  source $DOTFILES/theme/fzf/themes/catppuccin-fzf-mocha.sh
+fi
 
 # Append layout and behavior on top of the theme's colors
 FZF_DEFAULT_OPTS+="

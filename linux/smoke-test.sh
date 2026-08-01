@@ -48,7 +48,7 @@ check "nvim init.lua linked" bash -c '[[ -L $XDG_CONFIG_HOME/nvim/init.lua && -e
 # shellcheck disable=SC2016
 check "claude/rules linked" bash -c '[[ -L $HOME/.claude/rules && -e $HOME/.claude/rules ]]'
 # shellcheck disable=SC2016
-check "zsh-patina config linked" bash -c '[[ -L $XDG_CONFIG_HOME/zsh-patina/config.toml && -e $XDG_CONFIG_HOME/zsh-patina/config.toml ]]'
+check "zsh-patina config linked" bash -c '[[ -L $XDG_CONFIG_HOME/zsh-patina/config-mocha.toml && -e $XDG_CONFIG_HOME/zsh-patina/config-mocha.toml ]]'
 
 echo "Shell:"
 # shellcheck disable=SC2016

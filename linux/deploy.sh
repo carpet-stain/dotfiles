@@ -101,7 +101,7 @@ create_directories() {
   mkdir -p \
     "$XDG_CONFIG_HOME/bat/themes" \
     "$XDG_CONFIG_HOME/direnv" \
-    "$XDG_CONFIG_HOME/eza" \
+    "$XDG_CONFIG_HOME/eza/themes/mocha" \
     "$XDG_CONFIG_HOME/git" \
     "$XDG_CONFIG_HOME/htop" \
     "$XDG_CONFIG_HOME/nvim" \
@@ -324,9 +324,14 @@ link_configs() {
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   ln -sf "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
-  ln -sf "$DOTFILES_DIR/zsh-patinaconfig.toml" "$XDG_CONFIG_HOME/zsh-patina/config.toml"
+  # macos/deploy.zsh deploys both flavours (THEME_MODE follows macOS
+  # appearance there); Linux hardcodes THEME_MODE=dark (zsh/.zshenv, #439's
+  # non-goal) so zsh/.zshrc's ZSH_PATINA_CONFIG_PATH and zsh/.zshenv's
+  # EZA_CONFIG_DIR only ever resolve to the mocha path here — deploying a
+  # latte variant that can never be selected would be dead weight.
+  ln -sf "$DOTFILES_DIR/zsh-patinaconfig-mocha.toml" "$XDG_CONFIG_HOME/zsh-patina/config-mocha.toml"
   ln -sf "$DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml" \
-    "$XDG_CONFIG_HOME/eza/theme.yml"
+    "$XDG_CONFIG_HOME/eza/themes/mocha/theme.yml"
 
   ln -sf "$DOTFILES_DIR/nvim/init.lua" "$XDG_CONFIG_HOME/nvim/init.lua"
   ln -sfn "$DOTFILES_DIR/nvim/lua" "$XDG_CONFIG_HOME/nvim/lua"
@@ -480,7 +485,8 @@ refresh_tldr() {
 }
 
 # bat only ships Catppuccin as a built-in theme in fairly recent releases;
-# batconfig requests "Catppuccin Mocha" unconditionally, and Debian's apt
+# BAT_THEME (zsh/.zshenv) requests "Catppuccin Mocha" unconditionally here
+# (Linux hardcodes THEME_MODE=dark), and Debian's apt
 # bat is old enough to have neither the built-in nor (until link_configs
 # symlinks it in) the vendored theme/bat submodule copy — compile it into
 # bat's cache regardless of version.

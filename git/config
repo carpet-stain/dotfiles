@@ -91,7 +91,8 @@
   diffFilter = delta --color-only
 
 [delta]
-  features = interactive catppuccin-mocha
+  # features comes from DELTA_FEATURES (zsh/.zshenv, mode-selected via
+  # THEME_MODE), not a fixed line here — see #441.
   navigate = true     # use n and N to move between diff sections
   hyperlinks = true
   line-numbers = true

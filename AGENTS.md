@@ -54,10 +54,11 @@ README states the XDG principle; these are the entries that must stay in
   completions, fzf-tab, powerlevel10k).
 - `zsh/env.d/` — sourced always (e.g. `ls_colors.zsh`).
 - `zsh/fpath/` — custom zle widgets and completions, autoloaded.
-- `theme/` — Catppuccin submodules per tool (bat, delta, zsh-fsh). Ghostty uses
-  its built-in `catppuccin-latte`/`catppuccin-mocha` themes (no submodule),
-  switched live by macOS appearance via `light:...,dark:...` in
-  `ghostty/config`.
+- `theme/` — Catppuccin submodules per tool (bat, delta, eza, fzf), each
+  carrying both Mocha/Latte flavours selected by `THEME_MODE` (see
+  `zsh/.zshenv` and ADR-0034). Ghostty uses its built-in
+  `catppuccin-latte`/`catppuccin-mocha` themes (no submodule), switched live
+  by macOS appearance via `light:...,dark:...` in `ghostty/config`.
 - `zellij/` — `config.kdl` (keybinds, kitty-keyboard-protocol disabled for nvim
   compat), `layouts/default.kdl` (zjstatus status bar), `themes/catppuccin.kdl`
   (vendored, not a submodule — same rationale as `theme/`).
