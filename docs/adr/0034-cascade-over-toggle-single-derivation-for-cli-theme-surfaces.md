@@ -69,6 +69,39 @@ Session persistence and appearance-following are in direct tension; closing
 this gap is a session-model decision, not a config one — spiked later only
 if the dark bar on a light terminal proves to hurt in practice.
 
+**Amendment (2026-08-01, #506): the gap splits in two, one half closes.**
+The dark-bar friction fired (#441 shipped, PR #505) and triggered the
+evidence-gated spike. Findings, not speculation — verified against the
+installed `zellij 0.44.3` binary and both upstream trackers:
+
+- **`zellij/config.kdl`'s own `theme` selection is closeable now, natively.**
+  Zellij 0.44.2 added CSI 2031/DSR 997 host-terminal color-scheme detection —
+  `theme_dark`/`theme_light` config keys plus `set-dark-theme`/
+  `set-light-theme`/`toggle-theme` actions, applied live when the _host
+  terminal_ reports its palette. Ghostty implements the terminal side of
+  that same protocol already (`ghostty/config`'s `light:...,dark:...`). This
+  is a third genuinely-native surface, same tier as Ghostty/nvim above — no
+  wrapper, no `THEME_MODE` plumbing, no toggle. Follow-up filed to adopt it.
+- **The zjstatus bar — the actual reported friction — stays a gap, for a
+  different reason than originally recorded.** zjstatus has no native
+  Zellij-theme inheritance (open feature request, dj95/zjstatus#12); its hex
+  colors are static plugin config baked in at launch. The one lever that
+  could re-theme it live without a session restart,
+  `zellij action start-or-reload-plugin`, is blocked by an open upstream bug
+  (zellij-org/zellij#3927, #3994, #3995): reloading a plugin instance that
+  was started as part of a layout — exactly this repo's setup, zjstatus
+  lives inside `default_tab_template` in `layouts/default.kdl` — opens a
+  duplicate pane instead of reloading in place. `default_tab_template` also
+  means every open tab runs its own zjstatus instance, so a working fix
+  would need to iterate every tab, not just one pane. No workaround here
+  clears the no-stateful-toggle bar cleanly enough to adopt.
+
+The original "session-model decision" framing is superseded for the config
+theme (closed, natively) and narrowed for the bar (blocked on a specific,
+trackable upstream bug, not a fundamental `attach --create` conflict).
+Revisit the bar once zellij-org/zellij#3927 (or its follow-ups) resolves
+upstream.
+
 **Adding a theme-following tool later** means picking the narrowest lever it
 exposes (env var beats config-path beats nothing) and wiring it the same
 way — `zsh/.zshenv` for env-var consumers, deploy-time-symlinked directory
