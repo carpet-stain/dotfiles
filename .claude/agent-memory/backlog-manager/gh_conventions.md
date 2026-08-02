@@ -51,6 +51,17 @@ not here.
 Gotcha: the API wants the child's integer database `id`, passed with `-F` (typed) not `-f`
 (string), or it 422s. Good epic examples to match: #42, #97.
 
+**Native blocked-by dependencies** (the "reason via native link" half of the `blocked` discipline —
+distinct from sub-issues). Same integer-`id` + `-F` shape:
+
+    BLOCKER_ID=$(gh api repos/:owner/:repo/issues/<BLOCKER_NUM> --jq '.id')
+    gh api --method POST repos/:owner/:repo/issues/<BLOCKED_NUM>/dependencies/blocked_by -F issue_id="$BLOCKER_ID"
+
+GET the same path to read/verify (`.[].number`). Used for #476→#517 and #518→#516 (spike #431
+follow-ups). Note: a native blocked-by link carries the sequencing, so the `blocked` *label* is
+reserved for the decision/actionability block — drop the label once the gating decision lands even
+if a build-order dependency remains (that's what the native link is for).
+
 **Pointers, not restatements** (each home owns its detail):
 
 - Credential reality in agent shells (scoped `GH_TOKEN`, direnv export, elevation): AGENTS.md's
