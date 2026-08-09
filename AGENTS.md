@@ -330,7 +330,7 @@ payload-only Linux target, per ADR-0006).
 One-time setup — create an access key for `infra-local-read` (AWS console, as
 root: IAM → Users → infra-local-read → Security credentials → Create access
 key, use case CLI), then store it (`-A` allows silent reads, since the vended
-path is routine, not elevated; contrast infra's `infra-bws`/
+path is routine, not elevated; contrast infra's `infra-aws-local-apply`/
 `infra-aws-bootstrap` items, added _without_ `-A` so their crown-jewel reads
 stay prompt-gated):
 
