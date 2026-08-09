@@ -304,38 +304,41 @@ to fall back to `gh auth login`'s broader session instead (#160).
 scoped `GH_TOKEN` automatically (no second credential to manage); see
 `claude/rules/platform/github.md`'s "Changelog PR links" section.
 
-#### Vended cross-repo token (Bitwarden Secrets Manager)
+#### Vended cross-repo token (AWS SSM)
 
 Separate from `GH_TOKEN` (which stays as above, #74): the sibling repo
-`carpet-stain/infra` vends a rotating, narrowly-scoped GitHub token
-(`{contents, issues, pull_requests}: write`, no Administration, over the
-managed repos except `infra`) into a Bitwarden **`vended-tokens`** Project,
-re-minted every 20 min. A local shell reads it without ever touching the App's
-raw key — the sanctioned cross-repo/agent credential. Design and grant table
-live in infra's ADR-0008/0009 and `docs/CONSUMING-SECRETS.md`; this only binds
-the local setup (#377).
+`carpet-stain/infra` vends a rotating, narrowly-scoped GitHub token (write on
+the managed repos with a live consumer, no Administration — the exact grant
+list lives in infra's `vend-token.yml`) into SSM Parameter Store at
+`/runtime/vended-token`, re-minted every 5 min. A local shell reads it without
+ever touching the App's raw key — the sanctioned cross-repo/agent credential.
+Design and role matrix live in infra's ADR-0010 (superseding the Bitwarden
+story in ADR-0008/0009); this only binds the local setup (#377, store swapped
+by infra#125).
 
-Mechanism: `.zshenv` exports `BWS_ACCESS_TOKEN` (the **Local** machine-account
-token, read-only on `vended-tokens` and **nothing else** — never `infra`) from
-the macOS login Keychain; each repo's `.envrc` then runs `bws-vended-token`
-(`scripts/bws-vended-token.sh`) to fetch the token fresh, check its
+Mechanism: each repo's `.envrc` runs `aws-vended-token`
+(`scripts/aws-vended-token.sh`) to fetch the token fresh, check its
 `expires_at`, and export `GH_VENDED_TOKEN` — failing loud at shell entry if
-it's stale or missing rather than surfacing a 401 later. macOS only (no
-consumer on the payload-only Linux target, per ADR-0006).
+it's stale or missing rather than surfacing a 401 later. The script reads the
+`infra-local-read` IAM user's access key from the macOS login Keychain at call
+time, for that process only — no ambient `AWS_*` export (those names stay free
+for other tools, e.g. infra's local tofu R2 backend). That user is
+runtime-tier-only: by construction it cannot decrypt anything under
+`/infra/*` (infra's `iam/main.tf`). macOS only (no consumer on the
+payload-only Linux target, per ADR-0006).
 
-One-time setup — store the Local machine-account access token in the Keychain
-(`-A` allows silent reads, since the vended path is routine, not elevated;
-contrast infra's `infra-bws` item, added _without_ `-A` so its crown-jewel
-reads stay prompt-gated):
+One-time setup — create an access key for `infra-local-read` (AWS console, as
+root: IAM → Users → infra-local-read → Security credentials → Create access
+key, use case CLI), then store it (`-A` allows silent reads, since the vended
+path is routine, not elevated; contrast infra's `infra-bws`/
+`infra-aws-bootstrap` items, added _without_ `-A` so their crown-jewel reads
+stay prompt-gated):
 
 ```sh
-security add-generic-password -s vended-bws -a "$USER" -A -U -w
-# prompts for the value — paste the Local machine account's access token,
+security add-generic-password -s infra-aws-local-read -a <ACCESS_KEY_ID> -A -U -w
+# prompts for the value — paste the secret access key,
 # keeping it out of shell history
 ```
-
-The secret's UUID (`BWS_VENDED_SECRET_ID`, in `.envrc`) is non-secret — it
-grants nothing without the access token.
 
 ## Git workflow
 
