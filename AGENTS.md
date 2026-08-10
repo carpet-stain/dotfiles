@@ -266,9 +266,10 @@ A few more tools worth reaching for by hand, not wired into any hook:
   OrbStack VMs are ephemeral dev environments, not a fit for nested
   virtualization just to run act, so this is macOS-only.
 - `scripts/bootstrap-branch-protection.sh` — idempotent branch-protection
-  ruleset bootstrap. Needs Administration scope the routine `GH_TOKEN` lacks
-  — run with `env -u GH_TOKEN -u GITHUB_TOKEN`. Not wired into CI; run manually
-  once a repo's checks are set up.
+  ruleset bootstrap. Needs Administration scope no routine credential
+  carries — run under infra's admin path (`with-infra-secrets.sh
+--gh-admin`, infra ADR-0013; see "Credentials" below). Not wired into CI;
+  run manually once a repo's checks are set up.
 
 ### Credentials: `.envrc` / `.envrc.local`
 
@@ -279,34 +280,56 @@ this repo never has admin rights to lose — and Security By Default's rule
 (`claude/rules/universal/engineering-practices.md`) that secrets live in
 an environment file, gitignored, never hardcoded.
 
-`gh` CLI defaults to a scoped-down fine-grained PAT (Contents/Pull
-requests/Actions read-write, no Administration) via `GH_TOKEN`, loaded by
-`direnv` from `.envrc.local` (gitignored — never commit a real token) rather
-than the full-admin `gh auth login` session, so day-to-day work in this repo
-can't accidentally touch repo settings. `.envrc.local.example` is the tracked
-template — copy it to `.envrc.local` and fill in a real token (every export
-line in the template itself must stay empty; a pre-commit hook enforces both
-that and that the template hasn't drifted from `.envrc.local`'s structure).
-Use `env -u GH_TOKEN -u GITHUB_TOKEN gh ...` for anything that actually needs
-the full-admin session (e.g. changing branch protection). Both vars must drop:
-`.envrc` aliases `GITHUB_TOKEN` to the same scoped `GH_TOKEN` (for `git-cliff`,
-below) and gh prefers `GITHUB_TOKEN`, so dropping `GH_TOKEN` alone silently
-keeps the scoped token active — the elevation is a no-op (#213). Don't "fix"
-this by dropping the alias — that just breaks `git-cliff`'s token.
+Routine `gh` auth is the vended token (#453, retiring #74's per-repo
+PATs): `.envrc` maps `GH_TOKEN` from `GH_VENDED_TOKEN` (fetched below), so
+day-to-day work rides a rotating ~1h credential with no Administration and
+a covered repo needs no hand-minted PAT. Resolution order in `.envrc`: a
+non-empty `GH_TOKEN` from `.envrc.local` wins (escape hatch); else the
+vended token; else the sentinel `vended-unavailable-see-453` —
+unconditional and last, so gh fails closed with a visible 401 instead of
+silently reaching gh's keyring credential (the #160 guarantee; the
+keyring's dev PAT covers infra, which the vended grant deliberately
+excludes). A 401 naming the sentinel means the vended path is down — see
+the fetch error at shell entry.
 
-This guarantee needs `GH_TOKEN` loaded — direnv only fires for interactive
-shells, so non-interactive ones (scripts, cron, an agent's tool shell) used
-to fall back to `gh auth login`'s broader session instead (#160).
-`zsh/.zshenv` now runs `direnv export` eagerly for every shell to fix that.
+Escape hatch: `.envrc.local` (gitignored — never commit a real token)
+keeps an empty `export GH_TOKEN=` line; `.envrc.local.example` is the
+tracked template (every export line in it must stay empty; a pre-commit
+hook enforces both that and that the template hasn't drifted from
+`.envrc.local`'s structure). If the vended path is down for long, mint a
+fresh fine-grained PAT (Contents/Issues/Pull requests/Actions read-write,
+no Administration, ~2 min) and fill the line. The pre-cutover PATs are
+revoked — rollback is deliberate, not "paste the old one back".
+
+Expiry: the vended token is fetched once at shell entry and lives ~1h, so
+a long-lived shell can outlive it and start 401ing. Remedy: `direnv
+reload` (interactive) or a new shell (agents — `.zshenv`'s eager `direnv
+export` re-fetches). Accepted exposure; no auto-refresh wrapper.
+
+Elevation: `env -u GH_TOKEN -u GITHUB_TOKEN gh ...` drops to gh's keyring
+credential — since infra#151 that's the fleet dev PAT (no Administration),
+not an admin session; admin operations ride infra's Keychain-gated
+`with-infra-secrets.sh --gh-admin` (infra ADR-0013). Both vars must drop:
+`.envrc` aliases `GITHUB_TOKEN` to the resolved `GH_TOKEN` (for
+`git-cliff`, below) and gh prefers `GITHUB_TOKEN`, so dropping `GH_TOKEN`
+alone is a no-op (#213). Don't "fix" this by dropping the alias — that
+just breaks `git-cliff`'s token.
+
+The fail-closed guarantee needs `GH_TOKEN` in env — direnv only fires for
+interactive shells, so non-interactive ones (scripts, cron, an agent's
+tool shell) used to fall back to gh's keyring session instead (#160).
+`zsh/.zshenv` runs `direnv export` eagerly for every shell to fix that.
 
 `git-cliff` reads its GitHub token from a differently-named env var
-(`GITHUB_TOKEN`, not `GH_TOKEN`) — `.envrc` aliases `GITHUB_TOKEN` to the same
-scoped `GH_TOKEN` automatically (no second credential to manage); see
+(`GITHUB_TOKEN`, not `GH_TOKEN`) — `.envrc` aliases `GITHUB_TOKEN` to the
+resolved `GH_TOKEN` automatically (no second credential to manage), so it
+inherits the sentinel too: a git-cliff 401 while the vended path is down is
+intended, not a git-cliff bug (`--offline` skips the lookups); see
 `claude/rules/platform/github.md`'s "Changelog PR links" section.
 
 #### Vended cross-repo token (AWS SSM)
 
-Separate from `GH_TOKEN` (which stays as above, #74): the sibling repo
+The source of routine `GH_TOKEN` (above): the sibling repo
 `carpet-stain/infra` vends a rotating, narrowly-scoped GitHub token (write on
 the managed repos with a live consumer, no Administration — the exact grant
 list lives in infra's `vend-token.yml`) into SSM Parameter Store at
