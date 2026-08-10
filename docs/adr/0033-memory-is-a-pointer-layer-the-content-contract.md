@@ -4,10 +4,10 @@ Date: 2026-07-25
 
 ## Status
 
-Accepted
-
 References [ADR-0009](0009-backlog-manager-subagent-with-committed-file-based-memory.md)
 (which it does not amend or supersede — nothing in 0009 is reversed).
+
+Superceded by [36. MCP knowledge-graph memory with a private local store](0036-mcp-knowledge-graph-memory-with-a-private-local-store.md)
 
 ## Context
 

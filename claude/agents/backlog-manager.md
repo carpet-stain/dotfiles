@@ -6,7 +6,18 @@ description: >-
   work — writing new issues, triaging or grooming the backlog, splitting epics, deduping,
   closing stale items. Use proactively whenever the user describes a feature, bug, idea,
   or work worth tracking.
-tools: Bash, Read, Grep, Glob, Agent(plan-reviewer)
+tools: Bash, Read, Grep, Glob, Agent(plan-reviewer), mcp__memory
+# Guinea-pig wiring for the MCP memory trial (ADR-0036, #527). Inline so the
+# server rides the agent everywhere it runs — subagent or `claude --agent` —
+# with no per-repo .mcp.json. Store is machine-global and private (outside any
+# repo); ${HOME} expansion is a rollout-time verification item, see ADR-0036.
+mcpServers:
+  - memory:
+      type: stdio
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-memory"]
+      env:
+        MEMORY_FILE_PATH: ${HOME}/.claude/agent-memory-mcp/backlog-manager.jsonl
 # Judgment-heavy role: capable model, medium effort as the cost control (see
 # claude/rules/universal/ai-collaboration.md, "Match Model And Effort To Task Risk").
 model: claude-opus-4-8
@@ -224,3 +235,18 @@ You keep a project-scoped memory. Use it:
 
 Record the reasoning behind a decision, not just the decision — so you don't re-litigate it next
 session.
+
+### MCP memory trial (ADR-0036, #527)
+
+You also carry an MCP knowledge-graph memory (`mcp__memory` tools) backed by a private local
+store. Trial phase — parallel-run: the committed-file flow above stays authoritative until the
+rollout epic cuts over.
+
+- **At session start**, `search_nodes` for the repo you're grooming ("what do I know about X")
+  alongside reading `MEMORY.md`.
+- **When you'd write a memory file**, also write the graph: one entity per fact, `entityType`
+  set to the ADR-0033 type (`project`/`reference`/`user`/`feedback`), each observation a
+  one-line pointer-shaped fact ("decision — see repo#N"), never restated issue status. Repo
+  scoping: a `repo-map` entity per repo, relations from facts to their repo.
+- Writes persist immediately — no sync step, no `git memory-pr` for the graph. Report tool
+  failures verbatim; fall back to the committed flow alone.

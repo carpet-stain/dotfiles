@@ -4,9 +4,9 @@ Date: 2026-07-25
 
 ## Status
 
-Accepted
-
 Amends [ADR-0027](0027-scoped-pr-based-self-commit-for-backlog-manager-memory.md).
+
+Superceded by [36. MCP knowledge-graph memory with a private local store](0036-mcp-knowledge-graph-memory-with-a-private-local-store.md)
 
 ## Context
 
