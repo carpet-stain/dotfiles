@@ -340,6 +340,12 @@ security add-generic-password -s infra-aws-local-read -a <ACCESS_KEY_ID> -A -U -
 # keeping it out of shell history
 ```
 
+`audit-keychain-gate` (`scripts/audit-keychain-gate.sh`, on PATH from the
+deploy) verifies those two elevated items still prompt on every read — the
+gate one "Always Allow" click silently disables (found live 2026-08-09,
+infra#167). It lives here because the items are this machine's login-Keychain
+state; when to run it is infra's periodic audit (its `docs/BOOTSTRAP.md`).
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model

@@ -186,6 +186,10 @@ link_configs() {
   # script — the Keychain read it relies on is macOS-only.
   zf_ln -sf $DOTFILES_DIR/scripts/aws-vended-token.sh $HOME/.local/bin/aws-vended-token
 
+  # Audits infra's elevated Keychain items (infra#167) — macOS only, like
+  # everything Keychain-shaped here.
+  zf_ln -sf $DOTFILES_DIR/scripts/audit-keychain-gate.sh $HOME/.local/bin/audit-keychain-gate
+
   zf_ln -sf $DOTFILES_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
   zf_ln -sf $DOTFILES_DIR/curlrc $XDG_CONFIG_HOME/curlrc
   zf_ln -sf $DOTFILES_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml
