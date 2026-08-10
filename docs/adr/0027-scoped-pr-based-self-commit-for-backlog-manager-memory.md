@@ -4,7 +4,7 @@ Date: 2026-07-18
 
 ## Status
 
-Accepted
+Superceded by [36. MCP knowledge-graph memory with a private local store](0036-mcp-knowledge-graph-memory-with-a-private-local-store.md)
 
 ## Context
 
