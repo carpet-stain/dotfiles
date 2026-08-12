@@ -70,15 +70,12 @@ jobs:
   issue-link:
     name: issue link
     runs-on: ubuntu-latest
-    # release-prepare.yml's release/* PRs and git memory-pr's
-    # chore/sync-backlog-memory* PRs (ADR-0032) close no issue by design —
-    # exempted here in-guard rather than having those writers inject a
-    # No-Issue body marker, so the whole contract stays in this one file
-    # (#449, #550).
+    # release-prepare.yml's release/* PRs close no issue by design — exempted
+    # here in-guard rather than having that writer inject a No-Issue body
+    # marker, so the whole contract stays in this one file (#449, #550).
     if: >-
       github.event.pull_request.draft == false
       && !startsWith(github.event.pull_request.head.ref, 'release/')
-      && !startsWith(github.event.pull_request.head.ref, 'chore/sync-backlog-memory')
     steps:
       # closingIssuesReferences is GitHub's own computed field (#449) — not a
       # body-text regex — so it reflects the link however it was made (a

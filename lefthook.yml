@@ -73,7 +73,6 @@ pre-commit:
       glob:
         - "AGENTS.md"
         - "claude/rules/**/*.md"
-        - ".claude/agent-memory/*/MEMORY.md"
       run: scripts/check-context-budget.sh {staged_files}
 
     - name: toml-format
@@ -102,7 +101,6 @@ pre-commit:
         - "**/*.md"
       exclude:
         - "CHANGELOG.md"
-        - ".claude/agent-memory/**"
       run: prettier --check {staged_files}
 
     - name: markdownlint
@@ -111,7 +109,6 @@ pre-commit:
         - "**/*.md"
       exclude:
         - "CHANGELOG.md"
-        - ".claude/agent-memory/**"
       run: markdownlint-cli2 {staged_files}
 
     - name: justfile-format
@@ -130,7 +127,6 @@ pre-commit:
         - "theme/**"
         - "zellij/themes/catppuccin.kdl"
         - "CHANGELOG.md"
-        - ".claude/agent-memory/**"
       # The catch-all for files no dedicated formatter covers (zsh, git/config,
       # ssh/config, plain rc files): enforces .editorconfig's unambiguous rules
       # — trailing whitespace, final newline, line endings. Indent checks are
@@ -138,14 +134,13 @@ pre-commit:
       # indent_style on legitimately-tabbed files (.gitmodules, terminfo,
       # required `<<-` heredoc tabs); indentation stays each per-language
       # formatter's job (shfmt/stylua/taplo/prettier), which understands its own
-      # syntax. Vendored (theme/**, catppuccin.kdl) and generated/heredoc files
-      # (CHANGELOG, agent-memory) excluded, matching the markdown jobs.
+      # syntax. Vendored (theme/**, catppuccin.kdl) and generated files
+      # (CHANGELOG) excluded, matching the markdown jobs.
       run: editorconfig-checker --disable-indentation {staged_files}
 
     - name: gitleaks
       # No glob, no {staged_files}: gitleaks is content-based, not
-      # file-type-gated, and must cover .claude/agent-memory/** (ADR-0027's
-      # secret-detection gap) — never copy the md hooks' exclude list here.
+      # file-type-gated — never copy the md hooks' exclude list here.
       # Whole-tree dir scan rather than --staged so the same invocation is
       # meaningful under CI's `lefthook run pre-commit --all-files`, where
       # nothing is staged. Allowlists live in .gitleaks.toml.

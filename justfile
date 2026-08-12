@@ -46,10 +46,10 @@ lint *args:
 # — hooking it would make md-format stop gating format in CI, breaking the
 # CI-and-local-share-one-entry-point guarantee (#406). Scoped via git ls-files
 # to tracked markdown only, mirroring md-format's excludes (CHANGELOG is
-# git-cliff-generated, agent-memory is heredoc notes) — and, unlike a bare
-# `**/*.md`, not recursing into .claude/worktrees or submodule copies.
+# git-cliff-generated) — and, unlike a bare `**/*.md`, not recursing into
+# .claude/worktrees or submodule copies.
 format:
-    git ls-files -z '*.md' ':!:CHANGELOG.md' ':!:.claude/agent-memory/**' | xargs -0 prettier --write
+    git ls-files -z '*.md' ':!:CHANGELOG.md' | xargs -0 prettier --write
 
 # Run the GitHub Actions workflows locally via act (Colima-backed); args pass through.
 act *args:
