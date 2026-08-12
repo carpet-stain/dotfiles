@@ -1,6 +1,6 @@
 ---
 name: project-deal-finder
-description: Deal-finder — personal marketplace monitor; repo creation routes through infra#75, real backlog gets built once the repo exists
+description: Deal-finder — personal marketplace monitor; repo now exists (created 2026-07-26), its backlog not yet built — re-supply spec then build the epic
 metadata:
   type: project
 ---
@@ -12,10 +12,12 @@ implementing session — not mine to design.** The full spec text lives in the o
 conversation, not restated here: when the repo exists, ask the user to re-supply it rather than
 re-deriving it from memory.
 
-**Why no repo yet:** creation routes through infra's `repos.tf` (see [[map-infra]]) — filed as
-infra#75. Scaffolding then follows project-starter-template's bootstrap runbook; watch
-the GH013 protection-before-first-commit gotcha ([[project-gitflow-starter]]).
+**Repo now exists:** `carpet-stain/deal-finder` created 2026-07-26 (via infra#75, `repos.tf`).
+Scaffolding follows project-starter-template's bootstrap runbook; watch the GH013
+protection-before-first-commit gotcha ([[project-gitflow-starter]]).
 
-**My part, once the repo exists:** build the real backlog there — an epic mapping the spec's
-goals to its own suggested build sequence (first vertical slice: one source → normalizer →
-filter → LLM analysis → notification → seen-set). Nothing is filed or labeled until then.
+**Pending — build its backlog (unblocked, not yet done):** an epic mapping the spec's goals to a
+suggested build sequence (first vertical slice: one source → normalizer → filter → LLM analysis →
+notification → seen-set). Ask the user to re-supply the spec first (above). Per ADR-0033 residency,
+that backlog and its facts live in **deal-finder's own store** once built — this dotfiles entry then
+slims to a `map_deal-finder` pointer; nothing is filed here.

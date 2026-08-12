@@ -17,9 +17,8 @@ mismatch (template#25). Directed by the user: "anything involving git/CI/basic m
 linting/justfile/lefthooks should be added to the template."
 
 **Downstream chain (added 2026-07-26):** propagation is one-hop — dotfiles → template →
-consumers. infra syncs its live governance copies from the *template's* output (infra#101 is
-the standing pattern: blocked on the template epic, never ported from dotfiles directly — two
-sources would fork the lineage).
+consumers. infra syncs its live governance copies from the *template's* output, never ported from
+dotfiles directly — two sources would fork the lineage. infra#101 established this pattern (shipped).
 
 **How to apply:** when triaging or filing a dotfiles issue on those surfaces, add a
 propagate-to-template acceptance item or a companion template issue. During grooming sweeps,
