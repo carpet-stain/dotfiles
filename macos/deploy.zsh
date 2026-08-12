@@ -89,7 +89,7 @@ stream() {
 
 create_directories() {
   setopt local_options err_exit
-  zf_mkdir -p $XDG_CONFIG_HOME/{act,bat/themes,direnv,docker,eza/themes/mocha,eza/themes/latte,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
+  zf_mkdir -p $XDG_CONFIG_HOME/{act,aichat,bat/themes,direnv,docker,eza/themes/mocha,eza/themes/latte,git,htop,ghostty,ripgrep,tealdeer,zsh-patina,homebrew,nvim}
   zf_mkdir -p $XDG_CONFIG_HOME/zellij/{themes,layouts}
   zf_mkdir -p $XDG_CACHE_HOME/{nvim,zsh/completions,direnv,bat,tealdeer,git-credential-cache}
   zf_mkdir -p $XDG_DATA_HOME/{nvim,terminfo,direnv,zoxide,go,colima,fnm,zsh/plugins}
@@ -154,6 +154,12 @@ link_configs() {
 
   zf_ln -sf $DOTFILES_DIR/ghostty/config $XDG_CONFIG_HOME/ghostty/config
 
+  # Per-file, not the whole aichat/ dir: aichat writes runtime files (REPL
+  # input history, messages, sessions) into its config dir — a whole-dir
+  # symlink would land them inside the repo (#511).
+  zf_ln -sf $DOTFILES_DIR/aichat/config.yaml $XDG_CONFIG_HOME/aichat/config.yaml
+  zf_ln -sfn $DOTFILES_DIR/aichat/roles $XDG_CONFIG_HOME/aichat/roles
+
   zf_ln -sf $DOTFILES_DIR/zellij/config.kdl $XDG_CONFIG_HOME/zellij/config.kdl
   zf_ln -sf $DOTFILES_DIR/zellij/themes/catppuccin.kdl $XDG_CONFIG_HOME/zellij/themes/catppuccin.kdl
   zf_ln -sf $DOTFILES_DIR/zellij/layouts/default.kdl $XDG_CONFIG_HOME/zellij/layouts/default.kdl
@@ -175,6 +181,7 @@ link_configs() {
   # Backs the `pr`/`new`/`sync`/`squash` git aliases (git/config) — must be
   # on PATH as bare commands, not just reachable by relative path, since
   # git/config is used from any repo.
+  zf_ln -sf $DOTFILES_DIR/scripts/aichat-pane.sh $HOME/.local/bin/aichat-pane
   zf_ln -sf $DOTFILES_DIR/scripts/git-pr-link.sh $HOME/.local/bin/git-pr-link
   zf_ln -sf $DOTFILES_DIR/scripts/git-new.sh $HOME/.local/bin/git-new
   zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync

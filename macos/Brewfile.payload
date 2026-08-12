@@ -10,6 +10,7 @@
 
 tap 'Giammarco-Ferranti/deja' # deja isn't in homebrew-core
 
+brew 'aichat' # LLM CLI behind the Alt-a floating command scratchpad (#511); macOS-only, no apt package
 brew 'bash-language-server' # Bash/zsh LSP; nvim's prefer-system-tooling fallback (mason-tools.lua)
 brew 'bat' # Better cat
 brew 'coreutils'

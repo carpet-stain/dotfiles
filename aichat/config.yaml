@@ -1,0 +1,28 @@
+# aichat — the Alt-a floating command scratchpad's REPL (#511).
+# OPENROUTER_API_KEY is resolved by scripts/aichat-pane.sh, never stored here.
+
+# Cheapest current model that handles one-line command generation well
+# ($0.03/$0.13 per M tokens — pricing survey on PR #554; fallback if the
+# output format drifts: google/gemini-2.5-flash-lite). Declared under the
+# client too: aichat's bundled openrouter list predates this model, and a
+# non-empty models: block replaces that list outright rather than merging.
+model: openrouter:qwen/qwen3.7-flash
+
+# Isolation (#399): no messages.md transcript, and no writing executed
+# commands into shell history — the upstream default for the latter is ON.
+save: false
+save_shell_history: false
+
+# Applies roles/cmd.md at REPL start: bare runnable command per request,
+# prose only on explicit follow-up questions. The role prompt is the tuning
+# surface if that split misfires — not this file, not the launcher.
+repl_prelude: role:cmd
+
+clients:
+  - type: openai-compatible
+    name: openrouter
+    # api_base defaults to https://openrouter.ai/api/v1 for this client name
+    models:
+      - name: qwen/qwen3.7-flash
+        max_input_tokens: 1000000
+        max_output_tokens: 32768
