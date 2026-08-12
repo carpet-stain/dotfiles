@@ -10,14 +10,19 @@ tools: Bash, Read, Grep, Glob, Agent(plan-reviewer), mcp__memory
 # Guinea-pig wiring for the MCP memory trial (ADR-0036, #527). Inline so the
 # server rides the agent everywhere it runs — subagent or `claude --agent` —
 # with no per-repo .mcp.json. Store is machine-global and private (outside any
-# repo); ${HOME} expansion is a rollout-time verification item, see ADR-0036.
+# repo). The sh -c wrapper exists because ${HOME} in `env:` reaches the server
+# literally (verified at rollout, #542): the server treats the non-absolute
+# path as relative to its own npx-cache install dir — the shell expands $HOME
+# before exec, keeping the path absolute and the config machine-portable.
 mcpServers:
   - memory:
       type: stdio
-      command: npx
-      args: ["-y", "@modelcontextprotocol/server-memory"]
-      env:
-        MEMORY_FILE_PATH: ${HOME}/.claude/agent-memory-mcp/backlog-manager.jsonl
+      command: /bin/sh
+      args:
+        - -c
+        - >-
+          MEMORY_FILE_PATH="$HOME/.claude/agent-memory-mcp/backlog-manager.jsonl"
+          exec npx -y @modelcontextprotocol/server-memory
 # Judgment-heavy role: capable model, medium effort as the cost control (see
 # claude/rules/universal/ai-collaboration.md, "Match Model And Effort To Task Risk").
 model: claude-opus-4-8
