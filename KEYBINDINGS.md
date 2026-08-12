@@ -42,6 +42,11 @@ repo's overrides merged) — the authoritative source when auditing a new key, n
     otherwise moves Zellij focus directly. Replaces Zellij's own default `Ctrl h` (enter Move
     mode) — `j`/`k`/`l` were unbound in normal mode by default.
   - `Alt ,`/`Alt .` → prefix-less tab switching (`GoToPreviousTab`/`GoToNextTab`).
+  - `Alt a` → launch the floating aichat command scratchpad (#511): runs `aichat-pane`
+    (`scripts/aichat-pane.sh`, resolves the API key) as the pane's own process — no zsh in the
+    loop, so nothing touches `~/.zsh_history`. Zellij's default `Alt f` (`ToggleFloatingPanes`)
+    hides/shows it afterwards with REPL state intact. Two keys because Zellij has no
+    focus-or-spawn action for command panes — `Alt a` while one exists spawns a duplicate.
   - **Resizing a pane**: Zellij's own Resize mode (`Ctrl n` to enter; `h/j/k/l` grow, `H/J/K/L`
     shrink, directionally; `Enter`/`Esc`/`Ctrl n` to exit) or the mode-less `Alt =`/`Alt -`
     shortcut (grows/shrinks the focused pane, non-directional). Deliberately not forwarded to

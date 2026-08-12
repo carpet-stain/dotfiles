@@ -99,6 +99,7 @@ stream() {
 
 create_directories() {
   mkdir -p \
+    "$XDG_CONFIG_HOME/aichat" \
     "$XDG_CONFIG_HOME/bat/themes" \
     "$XDG_CONFIG_HOME/direnv" \
     "$XDG_CONFIG_HOME/eza/themes/mocha" \
@@ -337,6 +338,13 @@ link_configs() {
   ln -sfn "$DOTFILES_DIR/nvim/lua" "$XDG_CONFIG_HOME/nvim/lua"
   ln -sf "$DOTFILES_DIR/nvim/lazy-lock.json" "$XDG_CONFIG_HOME/nvim/lazy-lock.json"
 
+  # Per-file, not the whole aichat/ dir — aichat writes runtime files into its
+  # config dir; a whole-dir symlink would land them inside the repo (#511).
+  # Config only on Linux: no aichat install and no Keychain credential path
+  # here, so Alt-a's launcher fails with a clean message instead.
+  ln -sf "$DOTFILES_DIR/aichat/config.yaml" "$XDG_CONFIG_HOME/aichat/config.yaml"
+  ln -sfn "$DOTFILES_DIR/aichat/roles" "$XDG_CONFIG_HOME/aichat/roles"
+
   ln -sf "$DOTFILES_DIR/zellij/config.kdl" "$XDG_CONFIG_HOME/zellij/config.kdl"
   ln -sf "$DOTFILES_DIR/zellij/themes/catppuccin.kdl" \
     "$XDG_CONFIG_HOME/zellij/themes/catppuccin.kdl"
@@ -358,6 +366,7 @@ link_configs() {
   # Backs the `pr`/`new`/`sync` git aliases (git/config) — must be on PATH
   # as bare commands, not just reachable by relative path, since git/config
   # is used from any repo.
+  ln -sf "$DOTFILES_DIR/scripts/aichat-pane.sh" "$LOCAL_BIN/aichat-pane"
   ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
   ln -sf "$DOTFILES_DIR/scripts/git-new.sh" "$LOCAL_BIN/git-new"
   ln -sf "$DOTFILES_DIR/scripts/git-sync.sh" "$LOCAL_BIN/git-sync"

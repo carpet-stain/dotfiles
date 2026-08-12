@@ -369,6 +369,25 @@ gate one "Always Allow" click silently disables (found live 2026-08-09,
 infra#167). It lives here because the items are this machine's login-Keychain
 state; when to run it is infra's periodic audit (its `docs/BOOTSTRAP.md`).
 
+#### OpenRouter API key (aichat)
+
+The Alt-a floating aichat pane (#511) resolves `OPENROUTER_API_KEY` in
+`scripts/aichat-pane.sh`: an already-set env var wins (escape hatch); else
+the login Keychain item `openrouter-api-key`, read at pane launch for that
+process only. The item is added with `-A` deliberately — routine tier on a
+personal machine, same trust class as `infra-aws-local-read` above, not a
+prompt-gated crown jewel. Without it the pane just warns and closes on a
+keypress. One-time setup (mint the key at openrouter.ai/settings/keys):
+
+```sh
+security add-generic-password -s openrouter-api-key -a openrouter -A -U -w
+# prompts for the value — paste the API key, keeping it out of shell history
+```
+
+Residency is pending infra#170's secrets-residency ADR; if it routes LLM
+keys through SSM, the migration is a swap of the Keychain read in the
+launcher. macOS-only — Linux gets neither aichat nor a Keychain.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model

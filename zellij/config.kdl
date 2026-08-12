@@ -74,6 +74,18 @@ keybinds {
         // Prefix-less tab switching (Alt-,/Alt-.)
         bind "Alt ," { GoToPreviousTab; }
         bind "Alt ." { GoToNextTab; }
+
+        // Floating LLM command scratchpad (#511): Alt-a launches aichat via
+        // the credential-resolving launcher (scripts/aichat-pane.sh); the
+        // default Alt-f then hides/shows it with REPL state intact. Two keys
+        // because Zellij has no focus-or-spawn for command panes — Alt-a
+        // again spawns a duplicate. Deliberately not a layout floating_panes
+        // entry: hide_floating_panes is ignored on tabs resolved through
+        // default_tab_template (kdl_layout_parser), so a layout pane would
+        // pop up at every session start. close_on_exit: quitting the REPL
+        // (or dismissing the launcher's no-key warning) closes the pane
+        // instead of holding a dead one. See KEYBINDINGS.md.
+        bind "Alt a" { Run "aichat-pane" { floating true; close_on_exit true; }; }
     }
 }
 
