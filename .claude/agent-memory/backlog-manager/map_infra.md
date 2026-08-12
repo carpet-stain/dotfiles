@@ -9,4 +9,3 @@ metadata:
 - Memory store: `.claude/agent-memory/backlog-manager/` (tracked on its `origin/main`)
 - Hook: GitHub account governance as OpenTofu — repo settings, canonical labels (terraform-governed, never `gh label create`), branch protection; read its store before grooming there.
 - Checkout hint (non-portable — probe before trusting; a wrong value means *unknown*, never "no checkout"): `~/code/infra`
-- Pending relocation: infra#83 — slim its store (incl. its narrative `dotfiles_repo.md`) to the pointer contract
