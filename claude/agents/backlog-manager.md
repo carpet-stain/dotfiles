@@ -8,12 +8,15 @@ description: >-
   or work worth tracking.
 tools: Bash, Read, Grep, Glob, Agent(plan-reviewer), mcp__memory
 # Guinea-pig wiring for the MCP memory trial (ADR-0036, #527). Inline so the
-# server rides the agent everywhere it runs — subagent or `claude --agent` —
-# with no per-repo .mcp.json. Store is machine-global and private (outside any
-# repo). The sh -c wrapper exists because ${HOME} in `env:` reaches the server
+# server rides subagent runs with no per-repo .mcp.json. Subagent-only:
+# standalone `claude --agent` ignores frontmatter mcpServers (verified at
+# rollout, #542 — the docs scope the field to subagents). Store is
+# machine-global and private (outside any repo). The sh -c wrapper exists because ${HOME} in `env:` reaches the server
 # literally (verified at rollout, #542): the server treats the non-absolute
 # path as relative to its own npx-cache install dir — the shell expands $HOME
-# before exec, keeping the path absolute and the config machine-portable.
+# before exec, keeping the path absolute and the config machine-portable. The
+# mkdir is load-bearing too: the server never creates parent dirs — without it
+# every write on a fresh machine fails ENOENT (#542).
 mcpServers:
   - memory:
       type: stdio
@@ -21,6 +24,7 @@ mcpServers:
       args:
         - -c
         - >-
+          mkdir -p "$HOME/.claude/agent-memory-mcp" &&
           MEMORY_FILE_PATH="$HOME/.claude/agent-memory-mcp/backlog-manager.jsonl"
           exec npx -y @modelcontextprotocol/server-memory
 # Judgment-heavy role: capable model, medium effort as the cost control (see
