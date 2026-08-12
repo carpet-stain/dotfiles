@@ -199,9 +199,9 @@ always-on context — it loads only when delegated to, so it costs nothing until
 
 - **`backlog-manager`** — a project-manager / ticket specialist that owns GitHub issue and backlog
   work: writing, labeling, prioritizing, grooming, and driving issues. Repo-agnostic — it reads each
-  repo's labels and conventions at runtime rather than hardcoding them — and uses project-scoped memory
-  to retain a repo's backlog knowledge across sessions. Delegate by mentioning issues/backlog, by name,
-  or run a dedicated session with `claude --agent backlog-manager`.
+  repo's labels and conventions at runtime rather than hardcoding them — and retains backlog knowledge
+  across sessions in an MCP knowledge-graph memory (see below). Delegate by mentioning issues/backlog,
+  by name, or run a dedicated session with `claude --agent backlog-manager`.
 - **`plan-reviewer`** — an adversarial, read-only design reviewer: a fresh isolated context critiques
   a plan, design, or architecture _before_ it's built and returns a ranked critique (gaps, risks,
   unstated assumptions, boundary problems, simpler alternatives). Repo-agnostic — reads the repo's
@@ -209,25 +209,18 @@ always-on context — it loads only when delegated to, so it costs nothing until
   `audit-rules`). It's the taxonomy exception below: no persistent memory, justified by context
   isolation alone. Delegate before committing to a non-trivial plan, or by name.
 
-### Subagent memory: tracked, and split by portability
+### Subagent memory: a private machine-global knowledge graph
 
-A subagent's project-scoped memory (`.claude/agent-memory/<name>/`) is tracked, not gitignored —
-it's the durable half of "write it down over memory," version-controlled like everything else the
-subagent's judgment shapes. The dividing line from the subagent's own definition
-(`claude/agents/<name>.md`) is portability: a rule that would hold for this subagent in _any_ repo
-belongs in the definition — hand-reviewed, symlinked everywhere the agent runs; a fact specific to
-_this_ repo (issue numbers, this repo's label scheme, this user's preferences) stays in memory.
-Within the memory tier, commit it whole — no further split between "doc-like" and "notes about the
-user" files, complexity a solo repo doesn't need.
-
-The subagent itself never commits memory — `backlog-manager` has no git access, and its lane stops
-at issues/labels/memory content, not repo mutation. Whoever's in the repo commits it
-opportunistically, batched at the end of a substantive session or after a grooming sweep, not
-per-tweak: one low-ceremony `chore(claude): sync <agent> memory` through the normal branch → draft
-PR → squash → rebase-merge flow — memory isn't code, but it's small enough that a dedicated
-lighter lane isn't worth the extra mechanism. Memory files are heredoc-authored working notes, not
-published prose, so `.claude/agent-memory/**` is excluded from the markdownlint/prettier hooks —
-same treatment as `CHANGELOG.md`.
+Backlog-manager's memory is an MCP knowledge graph (`@modelcontextprotocol/server-memory`, wired
+inline in its frontmatter) backed by one private local store at
+`~/.claude/agent-memory-mcp/backlog-manager.jsonl` — ADR-0036 owns the decision and supersedes
+the committed-file model (ADR-0027/0032/0033). Outside every repo, so private by construction;
+writes persist immediately with no sync step or review gate. The dividing line from the
+subagent's own definition (`claude/agents/<name>.md`) is unchanged: a rule that would hold for
+this subagent in _any_ repo belongs in the definition — hand-reviewed, symlinked everywhere the
+agent runs; a fact specific to one repo lives in the graph, related to that repo's `repo-map`
+entity. Content follows the pointer-layer contract (one-line pointer-shaped facts, never
+restated issue status); the `audit-memory` skill is the detection backstop.
 
 ## Skills (`claude/skills/`)
 

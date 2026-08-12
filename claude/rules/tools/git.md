@@ -75,9 +75,9 @@ commit; propose the split before committing.
 
 Script-managed sync branches are outside this model: a repo may maintain a long-lived,
 script-owned branch whose rolling **draft** PR accumulates force-pushed syncs until a human
-merges it (e.g. `git memory-pr`'s memory-sync branch, governed by the repo's own ADRs). There,
-draft means "buffer awaiting the human," not "agent still working" — never finalize, squash,
-rebase, or delete such a branch or PR by hand; the owning script is its only writer.
+merges it (governed by the repo's own docs). There, draft means "buffer awaiting the human," not
+"agent still working" — never finalize, squash, rebase, or delete such a branch or PR by hand;
+the owning script is its only writer.
 
 ## Working iteratively when you can't self-verify
 

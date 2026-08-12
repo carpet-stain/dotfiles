@@ -186,7 +186,6 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/scripts/git-new.sh $HOME/.local/bin/git-new
   zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync
   zf_ln -sf $DOTFILES_DIR/scripts/git-squash.sh $HOME/.local/bin/git-squash
-  zf_ln -sf $DOTFILES_DIR/scripts/backlog-memory-pr.sh $HOME/.local/bin/git-memory-pr
 
   # On PATH as a bare command so any repo's .envrc can fetch the vended token
   # (#377, SSM-backed since infra#125). macOS only, like the rest of this

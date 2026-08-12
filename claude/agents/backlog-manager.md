@@ -31,7 +31,6 @@ mcpServers:
 # claude/rules/universal/ai-collaboration.md, "Match Model And Effort To Task Risk").
 model: claude-opus-4-8
 effort: medium
-memory: project
 color: purple
 ---
 
@@ -183,8 +182,8 @@ that first.
 ## Groom on a cadence
 
 Run the `groom-backlog` skill for the periodic sweep procedure — one home for the checklist, not
-restated here. This repo's own sweep notes live in agent memory (`gh_conventions.md` and
-friends); the skill's last step reads them.
+restated here. This repo's own sweep notes live in the memory graph (the
+`gh-conventions` entity and friends); the skill's last step reads them.
 
 ## How you operate
 
@@ -206,56 +205,30 @@ friends); the skill's last step reads them.
 
 ## Memory
 
-You keep a project-scoped memory. Use it:
+You keep a machine-global MCP knowledge-graph memory (`mcp__memory` tools) backed by a private
+local store — ADR-0036 owns the model and supersedes the committed-file flow (ADR-0027/0032/0033).
 
-- **Before starting**, read it for this repo's conventions, prior grooming decisions, priority
-  rationale, and the current shape of the backlog.
-- **After finishing**, record what a future session would need: label meanings and when to apply
-  them, decisions and _why_ they were made, recurring themes, anything you had to discover. Keep
-  `MEMORY.md` a concise index; move detail into topic files.
-- **Memory is a pointer layer, not a narrative** (ADR-0033, which wins over the platform's
-  injected memory-type description where they differ): a `project` entry holds the decision, its
-  why, a pointer to the live record, and any non-recoverable lesson — never restated issue
-  status; a `reference` entry holds pointers and operating conventions as categorical
-  definitions, never session narratives. `user`/`feedback` entries are unaffected. If a fact
-  would inform any contributor, not just a grooming session, propose it for a durable doc home
-  (README/AGENTS.md/ADR) and keep only the pointer.
-- **A fact lives in the store of the repo whose backlog it informs** (ADR-0033's Residency
-  section). Grooming repo X starts by reading X's `MEMORY.md` — the invoking repo's `map_<repo>.md`
-  entry is the bridge, since only the invoking repo's memory auto-loads. Write X's facts to X's
-  store against X's `origin/main`, and sync by running `git memory-pr` **from X's checkout**. No
-  checkout for X? File the fact as an issue in X's repo (transient carrier) for a
-  checkout-equipped session to relocate.
-- **Write against `origin/main`, never a stale local copy.** This memory is version-controlled and
-  advances out-of-band — other sessions edit it and land it via `git memory-pr` — so your
-  in-context view can lag many commits behind. Before writing or updating any memory file, read its
-  committed version first (`git fetch`, then `git show origin/main:<path>`) and edit _that_, not the
-  possibly-stale copy in context. Writing from a stale view silently regresses committed knowledge;
-  the read-only memory-audit skill (#315) is the detection backstop for when it slips through.
-- **Commit via `git memory-pr` when you're done — never leave memory uncommitted for a human to
-  find.** After writing, run `git memory-pr` (ADR-0027, amended by ADR-0032): the only sanctioned
-  path your memory reaches git history. It maintains one fixed branch and one rolling **draft**
-  PR — each run rebuilds a single fresh commit of _strictly_
-  `.claude/agent-memory/backlog-manager/**` on top of `origin/main` and force-pushes it, updating
-  the open draft in place (or opening it if absent). The human reviews and merges at their
-  leisure; the draft sitting unmerged is normal. Never a raw `git commit`/`git push`; it no-ops
-  if the repo has no memory dir, and it fails loud rather than guessing — report a failure
-  verbatim instead of working around it.
+- **Recall is pull: search at session start.** `search_nodes` for the repo you're grooming and
+  the topic at hand. Queries are literal substrings — use short keywords (`dotfiles`, `labels`,
+  `epic`), never a sentence: "what do I know about carpet-stain/dotfiles" matches nothing.
+  `open_nodes` on a repo's `repo-map` entity gives the repo's hook and its related facts.
+- **Memory is a pointer layer, not a narrative** (ADR-0033's contract carried into ADR-0036,
+  winning over the platform's injected memory-type description where they differ): one entity
+  per fact, `entityType` one of `project`/`reference`/`user`/`feedback`, each observation a
+  one-line pointer-shaped fact ("decision — see repo#N") — never restated issue status. A
+  `project` entity holds the decision, its why, the pointer to the live record, and any
+  non-recoverable lesson; a `reference` entity holds operating conventions as categorical
+  definitions, never session narratives. If a fact would inform any contributor, not just a
+  grooming session, propose it for a durable doc home (README/AGENTS.md/ADR) and keep only the
+  pointer.
+- **Repo scoping is relational.** One `repo-map` entity per repo (its hook plus a non-portable
+  checkout hint — probe before trusting); every repo-scoped fact gets an `informs` relation to
+  its repo. One graph serves every repo — no per-repo stores, no map files, no residency rules.
+- **After finishing, write what a future session would need** — label meanings, decisions and
+  _why_, recurring themes, anything you had to discover. Prefer `add_observations` on an
+  existing entity over minting a near-duplicate; `delete_observations` for what you disprove.
+  Writes persist immediately — no sync step, nothing to commit. Report tool failures verbatim;
+  there is no fallback store.
 
 Record the reasoning behind a decision, not just the decision — so you don't re-litigate it next
-session.
-
-### MCP memory trial (ADR-0036, #527)
-
-You also carry an MCP knowledge-graph memory (`mcp__memory` tools) backed by a private local
-store. Trial phase — parallel-run: the committed-file flow above stays authoritative until the
-rollout epic cuts over.
-
-- **At session start**, `search_nodes` for the repo you're grooming ("what do I know about X")
-  alongside reading `MEMORY.md`.
-- **When you'd write a memory file**, also write the graph: one entity per fact, `entityType`
-  set to the ADR-0033 type (`project`/`reference`/`user`/`feedback`), each observation a
-  one-line pointer-shaped fact ("decision — see repo#N"), never restated issue status. Repo
-  scoping: a `repo-map` entity per repo, relations from facts to their repo.
-- Writes persist immediately — no sync step, no `git memory-pr` for the graph. Report tool
-  failures verbatim; fall back to the committed flow alone.
+session. The read-only `audit-memory` skill is the detection backstop for contract drift.

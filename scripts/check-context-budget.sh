@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Advisory nudge, never a hard failure (ADR-0031's pattern): token-counts the
-# agent context that's actually always injected every turn — AGENTS.md,
-# backlog-manager's MEMORY.md, and the claude/rules files with no native
-# `paths:` frontmatter gate. go.md/python.md/terraform.md are excluded: their
+# agent context that's actually always injected every turn — AGENTS.md and
+# the claude/rules files with no native `paths:` frontmatter gate. go.md/python.md/terraform.md are excluded: their
 # `paths:` frontmatter means Claude Code itself skips loading them in a repo
 # with no matching files (claude/README.md's loading table), so they aren't
 # part of the permanent tax this counts. Counting is chars/4, a rough token
@@ -27,7 +26,6 @@ is_context_file() {
       [[ -f "$1" ]] && has_paths_gate "$1" && return 1
       return 0
       ;;
-    .claude/agent-memory/*/MEMORY.md) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -36,7 +34,6 @@ all_context_files() {
   {
     [[ -f AGENTS.md ]] && echo AGENTS.md
     find claude/rules -name '*.md' 2>/dev/null
-    find .claude/agent-memory -mindepth 2 -maxdepth 2 -iname 'MEMORY.md' 2>/dev/null
   } | while IFS= read -r f; do
     is_context_file "$f" && echo "$f"
   done
