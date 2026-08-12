@@ -17,6 +17,7 @@ whys, pointers, lessons; live status lives on the issue, always).
 - [Memory-PR automation](project_memory_pr_automation.md) — memory-system redesign (epic #419, ADR-0032/0033); skill-vs-agent isolation + sync-PR lessons
 
 ## Initiatives (decision records — live status lives on the issue)
+- [Agent operating model](project_agent_operating_model.md) — "agents as managed team members" north-star (#545) + shipped-work authorship (ADR-0037/#544); authorship≠ownership, graph-sep non-goal
 - [Python starter](project_python_starter.md) — template extracted; ADR-0014 owns the decision
 - [Git-flow governance](project_gitflow_starter.md) — extraction lessons (compose-agents is prose-only; ruleset↔check-name coupling); ADR-0028 owns the decision
 - [Terraform repos-as-code](project_terraform_repos_as_code.md) — TF work belongs in infra, not dotfiles; ADR-0022/0023/0024 own the decisions
