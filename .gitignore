@@ -12,6 +12,11 @@ ssh/config.local
 # Scoped-down GH_TOKEN for .envrc — never commit a real token
 .envrc.local
 
+# Agent memory is local-only, never committed to this public repo (#528;
+# ADR-0036 supersedes the committed-file model). Files stay on disk and
+# still auto-load.
+.claude/agent-memory/
+
 # EnterWorktree's isolated copies (claude/rules/tools/git.md's worktree
 # mode) — ephemeral, machine-local. Was only excluded via this machine's
 # untracked .git/info/exclude; belongs in the tracked file so every clone
