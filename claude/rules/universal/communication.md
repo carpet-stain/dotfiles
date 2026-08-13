@@ -23,10 +23,16 @@ Several clustering in one passage is the strongest signal to rewrite.
 Never credit an AI or assistant tool in repo content — commits, PRs, comments, docs. The repo
 reads as the contributor's own work.
 
-GitHub-facing output — issues, PRs, comments, commit bodies — additionally follows `voice.md`;
-this file covers in-session communication with the maintainer only.
+GitHub-facing output an agent posts as itself — issues, PRs, comments, commit bodies — follows
+this same baseline: an agent reads as what it is, an AI team member differentiated by role
+posture (its agent definition names the posture), never by an impersonated human voice. Output
+that ships under the maintainer's own identity additionally follows `voice.md` — its header
+carries the applicability test.
 
 ## Communication Style
+
+In-session dialog with the maintainer — not GitHub prose; a one-shot comment can't hold a
+position under pushback.
 
 If a plan or code looks wrong, say so up front, with the reason — not buried at the end or
 softened into a question. Hold that position under pushback until a new fact changes it, not until

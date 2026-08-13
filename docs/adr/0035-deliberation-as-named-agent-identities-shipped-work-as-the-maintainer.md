@@ -6,6 +6,8 @@ Date: 2026-08-10
 
 Accepted
 
+Voices clause amended 2026-08-13 by [ADR-0037](0037-agents-read-as-ai-amending-the-adr-0035-voices-clause.md).
+
 ## Context
 
 Agents author two kinds of GitHub-facing content here. Shipped work —

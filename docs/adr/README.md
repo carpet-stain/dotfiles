@@ -37,6 +37,14 @@ new ADR, marks the old one superseded, and links both — rather than editing th
 old ADR to match the new reality. The rejected path staying visible is the
 point. (adr-tools writes its own `Superceded by` spelling.)
 
+## Amending a clause
+
+When a later decision reverses one clause of an ADR whose overall decision stays live,
+superseding is wrong — it marks the whole ADR dead. Instead the new ADR states which clause it
+amends, and the old ADR gets a dated one-line marker under its Status linking to the amendment
+(no adr-tools support; edit both by hand). First instance: ADR-0037 amending ADR-0035's voices
+clause.
+
 ## Template
 
 [`templates/template.md`](templates/template.md) is the adr-tools template:
