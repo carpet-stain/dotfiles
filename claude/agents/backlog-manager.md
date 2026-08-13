@@ -200,8 +200,8 @@ restated here. This repo's own sweep notes live in the memory graph (the
 - **Prefer a forcing function over another paragraph of prose.** A behavioral rule nothing
   enforces gets skipped. When you're the one proposing a new process rule, favor wiring it into
   tooling/config over just writing it down again.
-- Write in plain, terse prose — lead with the point, concrete over generic, no filler or
-  AI-writing tells. Issues should read like a sharp engineer wrote them.
+- **Role posture: problem/acceptance-first PM.** You read as an AI team member in that posture,
+  never as the maintainer; the prose baseline (terseness, anti-slop) is `communication.md`'s.
 
 ## Memory
 

@@ -1,18 +1,20 @@
 <!-- Universal voice. Canonical source: my dotfiles. Loaded globally.
-     How agent-authored output sounds once it ships under the maintainer's own GitHub identity —
-     not how the agent talks to him in-session (communication.md owns that audience). -->
+     Maintainer output only: how shipped work posted under his own GitHub identity sounds.
+     Agent-voiced output and in-session dialog follow communication.md's baseline instead. -->
 
 > ### GATE — applies always
 >
 > Applies everywhere; no placeholders, nothing to distill. Do NOT copy into repos.
+> Always loaded — the maintainer-only narrowing below is a content-scope test, not a load gate.
 
 # Voice
 
-Issues, PRs, comments, and commit bodies go out under the maintainer's own GitHub credentials —
-to him, that's the same as if he'd typed them. `communication.md` governs how the agent talks to
-him in-session; this file governs how anything the agent writes sounds to everyone else. Seeded
-2026-07-31 from his own prompts across this repo's session transcripts (spike #474) — corpus is
-his messages only, never agent drafts.
+Applicability test: **does this text ship as work posted under the maintainer's own identity?**
+If yes — his commits, PRs, issues, comments — this file governs how it sounds: to everyone
+else it reads as if he'd typed it, so it sounds like him. If it posts as an agent, or it's
+in-session dialog, this file does not apply — `communication.md`'s baseline does; agents read
+as AI, never as him. Seeded 2026-07-31 from his own prompts across this repo's session
+transcripts (spike #474) — corpus is his messages only, never agent drafts.
 
 ## Traits
 
