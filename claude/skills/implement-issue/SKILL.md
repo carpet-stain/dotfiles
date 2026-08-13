@@ -29,11 +29,16 @@ opening PRs live in the repo's own git workflow doc — this skill doesn't resta
    AGENTS.md (or CONTRIBUTING, or an equivalent stated doc) for the repo's concrete commands and
    conventions; absent one, fall back to the generic short-lived-branch-plus-protected-main model.
    Zero mechanics restated here — this step is a pointer, not a protocol.
-4. **Tie the PR to the issue.** PR body carries `Closes #<N>`. Journal _deviations from the
+4. **Author as the implementor.** Every `git commit` in this ritual (including the squash) runs
+   with `GIT_AUTHOR_NAME=carpet-stain-implementor` and
+   `GIT_AUTHOR_EMAIL=316583991+carpet-stain-implementor@users.noreply.github.com` — honest blame
+   (ADR-0038 in the dotfiles repo). Author only: committer, push, and merge stay the human's;
+   never add an AI co-author trailer.
+5. **Tie the PR to the issue.** PR body carries `Closes #<N>`. Journal _deviations from the
    issue's plan_ specifically as PR comments while working — that's the signal a plan-vs-diff
    check reads later.
-5. **Write terse.** Code comments explain why, not what; detail belongs on the issue, not in the
+6. **Write terse.** Code comments explain why, not what; detail belongs on the issue, not in the
    diff. The PR description and comments stay terse by the same discipline.
-6. **At finalize, hand off.** Apply the repo's PR handoff rule if it states one (self-sufficient
+7. **At finalize, hand off.** Apply the repo's PR handoff rule if it states one (self-sufficient
    top post, journal as optional depth) — rewrite the PR body to stand alone before flipping ready.
    Stop there. Flipping the PR to ready-for-review is the handoff; merging is someone else's call.

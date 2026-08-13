@@ -13,8 +13,10 @@ Applicability test: **does this text ship as work posted under the maintainer's 
 If yes — his commits, PRs, issues, comments — this file governs how it sounds: to everyone
 else it reads as if he'd typed it, so it sounds like him. If it posts as an agent, or it's
 in-session dialog, this file does not apply — `communication.md`'s baseline does; agents read
-as AI, never as him. Seeded 2026-07-31 from his own prompts across this repo's session
-transcripts (spike #474) — corpus is his messages only, never agent drafts.
+as AI, never as him. The git author field is orthogonal: author is mechanical blame, voice is
+the owner's narrative — a commit authored by the implementor identity still ships as his work
+and sounds like him (ADR-0038). Seeded 2026-07-31 from his own prompts across this repo's
+session transcripts (spike #474) — corpus is his messages only, never agent drafts.
 
 ## Traits
 

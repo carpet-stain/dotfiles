@@ -8,6 +8,8 @@ Accepted
 
 Voices clause amended 2026-08-13 by [ADR-0037](0037-agents-read-as-ai-amending-the-adr-0035-voices-clause.md).
 
+Shipped-work clause amended 2026-08-13 by [ADR-0038](0038-agent-authors-maintainer-ships-amending-the-adr-0035-shipped-work-clause.md).
+
 ## Context
 
 Agents author two kinds of GitHub-facing content here. Shipped work —
