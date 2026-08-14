@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+# rename the active zellij tab to the foreground command's name
+_zellij-tab-preexec() {
+  [[ -n $ZELLIJ ]] || return
+  local -a words
+  words=(${(z)1})
+  zellij action rename-tab "${words[1]:t}" 2>/dev/null
+}

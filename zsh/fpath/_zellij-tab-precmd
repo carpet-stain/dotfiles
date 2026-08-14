@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+# rename the active zellij tab to the cwd's basename
+_zellij-tab-precmd() {
+  [[ -n $ZELLIJ ]] || return
+  local name=${PWD:t}
+  [[ $PWD == $HOME ]] && name='~'
+  zellij action rename-tab "$name" 2>/dev/null
+}
