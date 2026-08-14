@@ -94,20 +94,42 @@ link_configs() {
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
 
-  # → ~/.claude/rules, not a CLAUDE_CONFIG_DIR relocation (#134) — see claude/README.md.
+  # → ~/.claude/{rules,agents,skills}, layered from claude/global/ (submodule)
+  # plus repo-local exceptions — see claude/README.md § Deployment; ADR-0039.
+
   # rm first: clears the old loader/per-file layouts; deploy owns all these paths.
   rm -f $HOME/.claude/CLAUDE.md
   rm -rf $HOME/.claude/fragments
   rm -rf $HOME/.claude/rules
-  zf_ln -sfn $DOTFILES_DIR/claude/rules $HOME/.claude/rules
-
-  # Same one-directory symlink as rules/ above — see claude/README.md § Subagents.
   rm -rf $HOME/.claude/agents
-  zf_ln -sfn $DOTFILES_DIR/claude/agents $HOME/.claude/agents
-
-  # Same one-directory symlink as rules/ above — see claude/README.md § Skills.
   rm -rf $HOME/.claude/skills
-  zf_ln -sfn $DOTFILES_DIR/claude/skills $HOME/.claude/skills
+
+  zf_mkdir -p $HOME/.claude/rules
+  zf_ln -sfn $DOTFILES_DIR/claude/global/rules/domain $HOME/.claude/rules/domain
+  zf_ln -sfn $DOTFILES_DIR/claude/global/rules/tools $HOME/.claude/rules/tools
+
+  zf_mkdir -p $HOME/.claude/rules/universal
+  for f in $DOTFILES_DIR/claude/global/rules/universal/*.md(N); do
+    zf_ln -sf $f $HOME/.claude/rules/universal/$f:t
+  done
+  zf_ln -sf $DOTFILES_DIR/claude/rules/universal/voice.md $HOME/.claude/rules/universal/voice.md
+
+  zf_mkdir -p $HOME/.claude/rules/platform
+  zf_ln -sf $DOTFILES_DIR/claude/global/rules/platform/github.md $HOME/.claude/rules/platform/github.md
+  zf_ln -sfn $DOTFILES_DIR/claude/rules/platform/private $HOME/.claude/rules/platform/private
+
+  # backlog-manager stays local: repo-specific MCP memory/identity, not
+  # something every consumer of claude/global/ should inherit.
+  zf_mkdir -p $HOME/.claude/agents
+  zf_ln -sf $DOTFILES_DIR/claude/global/agents/plan-reviewer.md $HOME/.claude/agents/plan-reviewer.md
+  zf_ln -sf $DOTFILES_DIR/claude/agents/backlog-manager.md $HOME/.claude/agents/backlog-manager.md
+
+  # verify-nvim-config stays local: it verifies *this* repo's nvim config.
+  zf_mkdir -p $HOME/.claude/skills
+  for d in $DOTFILES_DIR/claude/global/skills/*(/N); do
+    zf_ln -sfn $d $HOME/.claude/skills/$d:t
+  done
+  zf_ln -sfn $DOTFILES_DIR/claude/skills/verify-nvim-config $HOME/.claude/skills/verify-nvim-config
 
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   zf_ln -sf $DOTFILES_DIR/claude/settings.json $HOME/.claude/settings.json

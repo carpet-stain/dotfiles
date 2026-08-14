@@ -4,9 +4,10 @@ Guidance for AI assistants working in this repo (repo-specific).
 Vendor-neutral; the root `CLAUDE.md` is a gitignored symlink to this file.
 
 > **Note:** this repo also has a `claude/` directory unrelated to the root
-> `CLAUDE.md` symlink above. `claude/rules/*.md` are the global agent-config
-> files (tracked, deployed to `~/.claude/rules`, where Claude
-> Code auto-discovers and loads them) — see `claude/README.md`.
+> `CLAUDE.md` symlink above. It's the global agent-config tree (mostly the
+> `claude/global/` submodule, plus a few files that stay local to this repo),
+> deployed to `~/.claude/{rules,agents,skills}`, where Claude Code
+> auto-discovers and loads them — see `claude/README.md`.
 
 ## Precedence: this repo's own docs win over the generic files
 
