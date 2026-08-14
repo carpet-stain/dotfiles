@@ -13,10 +13,8 @@ return {
       },
       linters = {
         selene = {
-          -- selene doesn't search upward for its config the way stylua does,
-          -- so point it at nvim/selene.toml explicitly regardless of cwd.
-          -- prepend_args (a LazyVim nvim-lint extension) adds this ahead of
-          -- selene's builtin `--display-style json -`, rather than replacing it.
+          -- selene doesn't search upward for its config, so point it at nvim/selene.toml
+          -- explicitly. prepend_args adds to selene's builtin args, doesn't replace them.
           prepend_args = { "--config", vim.fn.stdpath("config") .. "/selene.toml" },
         },
       },

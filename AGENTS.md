@@ -80,7 +80,24 @@ README states the XDG principle; these are the entries that must stay in
 - Both deploy scripts run every step through a `required()`/`optional()`
   wrapper: critical steps (dirs, config symlinks) abort loud on failure;
   best-effort steps (a specific Brewfile package, the headless nvim bootstrap)
-  log and continue.
+  log and continue. A third runner, `stream()`, carries `required()`'s
+  contract for long steps (`brew bundle` and the Homebrew installer on
+  macOS, apt and the neovim extract on Linux) where command substitution's
+  buffering leaves the terminal silent for minutes: it streams output live
+  and tees to a logfile so a failure leaves something behind. The two
+  implementations catch a failing pipeline differently — zsh checks
+  `$pipestatus[1]` explicitly, bash relies on the script's top-level
+  `set -euo pipefail` — so changing one means checking the other.
+- **`optional()` suspends errexit** (`if $(...); then`), which makes any
+  "did it work?" side effect written after it unreliable. `import_deja_history`
+  (in both deploy scripts) is where that bites: it passes `--file`
+  explicitly, because falling back to deja's default `~/.zsh_history` (which
+  this repo's `HISTFILE` relocation leaves nonexistent) would fail silently
+  and still write the marker; and it gates on a marker file it alone owns,
+  not on the db's existence — `deja import` is not idempotent (re-importing
+  doubles row count), and the daemon `download_gitstatusd` starts creates an
+  empty db before the import step runs, so an existence check would skip
+  forever.
 - Section headers use the ASCII box style: `# +------+`.
 - Keep ordering dependencies explicit and commented (e.g. "must come after
   compinit").
@@ -219,11 +236,10 @@ rules on the files no dedicated formatter touches (zsh, `git/config`,
 — those false-positive on prose, terminfo, `.gitmodules`, and required `<<-`
 heredoc tabs, so indentation stays each language formatter's job.
 `comment-concision` (`scripts/check-comment-concision.sh`, ADR-0044,
-superseding ADR-0031's advisory nudge) exits non-zero on a comment block
-over 2 lines attached to one declaration — the cap is the tripwire plus its
-pointer, and the durable why relocates to an ADR or issue. File headers stay
-exempt. The job is held advisory here with `|| true` until #532 sweeps this
-repo's 191 pre-existing blocks; that flip is #532's diff, not this rule's.
+superseding ADR-0031's advisory nudge) blocks on a comment block over
+`design-principles.md`'s signpost cap attached to one declaration. File
+headers and ASCII section banners are out of scope — neither carries a why
+to relocate.
 
 Two more advisory checks run at **pre-push**, not pre-commit, so they see
 the whole branch rather than one commit at a time (`git diff --name-only
@@ -255,9 +271,12 @@ A few more tools worth reaching for by hand, not wired into any hook:
   `--offline` (as `just cliff-preview --offline`) to skip that.
 - `act` — runs the GitHub Actions workflows themselves locally (via Docker),
   for testing workflow changes without pushing and waiting on real CI. Needs
-  a Docker socket, which macOS gets from Colima (`COLIMA_HOME`, see
-  `.zshenv`), not Docker Desktop — a headless, license-free VM that stays
-  down unless something's using it. Run `just act <args>` (wraps
+  a Docker socket, which macOS gets from Colima, not Docker Desktop — a
+  headless, license-free VM that stays down unless something's using it.
+  `COLIMA_HOME` relocates the whole tree at once (config, VM disk, sockets,
+  logs): Lima's maintainers deliberately don't split those, so
+  `XDG_CONFIG_HOME`'s narrower support is the wrong lever. No `LIMA_HOME` —
+  Colima nests Lima's home at `$COLIMA_HOME/_lima` itself. Run `just act <args>` (wraps
   `scripts/act-run.sh`) rather than `act` directly: it starts Colima on demand, runs act, and
   stops Colima again only if it was the one that started it, so repeated
   runs don't re-pay the VM boot. `colima stop` tears it down explicitly when

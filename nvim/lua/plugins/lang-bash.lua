@@ -17,17 +17,13 @@ return {
       servers = {
         bashls = {
           filetypes = { "sh", "bash", "zsh" },
-          -- Keep the server registered (it still attaches if the binary
-          -- happens to be on PATH) but stop mason-lspconfig's own
-          -- auto-install when a system copy is already present — a path
-          -- independent of this file's mason.nvim block below (see
-          -- mason-tools.lua's comment for why).
+          -- Keeps the server registered but stops mason-lspconfig's own auto-install,
+          -- a path independent of the mason.nvim block below (see mason-tools.lua).
           mason = not has_system_bashls,
           settings = {
             bashIde = {
-              -- bash-language-server runs shellcheck internally across all its
-              -- filetypes; disabling it here so nvim-lint can run shellcheck
-              -- selectively (sh/bash only — zsh produces constant false positives).
+              -- bashls runs shellcheck across all its filetypes; disabled here so nvim-lint
+              -- runs it selectively (sh/bash only — zsh gives constant false positives).
               shellcheckPath = "",
             },
           },
@@ -44,11 +40,8 @@ return {
       },
     },
   },
-  -- nvim-lspconfig's `servers` table is supposed to auto-install LSP servers
-  -- via Mason too, but that path is unreliably slow/async in practice — so
-  -- list it explicitly here for a deterministic `deploy.zsh` bootstrap.
-  -- shellcheck itself comes from macos/Brewfile now (shared with lefthook.yml
-  -- and CI), not Mason — one copy on PATH instead of two.
+  -- ensure_installed must name the tool explicitly (AGENTS.md, Structure & conventions).
+  -- shellcheck comes from macos/Brewfile instead, shared with lefthook.yml and CI.
   {
     "mason-org/mason.nvim",
     -- mason.nvim's ensure_installed wants Mason's own package name

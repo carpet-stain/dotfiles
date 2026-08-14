@@ -37,9 +37,8 @@ check "tealdeer installed (dpkg)" bash -c "dpkg -l tealdeer | grep -q '^ii'"
 echo "bat theme:"
 check "Catppuccin Mocha registered" bash -c "bat --list-themes | grep -qi 'catppuccin mocha'"
 
-# Single-quoted bash -c bodies below are deliberate: expansion happens in
-# the child shell (which inherits the exported XDG_*/HOME vars above), not
-# here.
+# Single quotes are deliberate: the bash -c bodies below expand in the child
+# shell, which inherits the exported XDG_*/HOME vars.
 echo "Config symlinks:"
 # shellcheck disable=SC2016
 check ".zshenv linked" bash -c '[[ -L $HOME/.zshenv && -e $HOME/.zshenv ]]'
@@ -55,10 +54,8 @@ echo "Shell:"
 check "zsh is the default login shell" bash -c '[[ "$(getent passwd "$(id -un)" | cut -d: -f7)" == "$(command -v zsh)" ]]'
 
 echo "Ghostty terminfo:"
-# No TERMINFO override here on purpose: the entry is compiled to
-# $HOME/.terminfo (ncurses' default search path), so it must resolve with a
-# bare environment — this is the exact case that broke before #202's fix,
-# and a $TERMINFO override here would mask a regression back to that bug.
+# No TERMINFO override on purpose — the entry must resolve in a bare
+# environment; an override would mask a regression to #202.
 check "xterm-ghostty registered" infocmp xterm-ghostty
 
 echo

@@ -18,9 +18,8 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- Official LazyVim language extras (LSP, formatting, linting, treesitter
-    -- per language, maintained upstream). No extra exists for bash/shell —
-    -- see plugins/lang-bash.lua for that one.
+    -- Official extras: LSP, formatting, linting and treesitter per language,
+    -- maintained upstream. None exists for bash/shell — see plugins/lang-bash.lua.
     { import = "lazyvim.plugins.extras.lang.python" },
     { import = "lazyvim.plugins.extras.lang.go" },
     { import = "lazyvim.plugins.extras.lang.json" },
@@ -48,9 +47,6 @@ require("lazy").setup({
       -- disable some rtp plugins
       disabled_plugins = {
         "gzip",
-        -- "matchit",
-        -- "matchparen",
-        -- "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",

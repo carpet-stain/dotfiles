@@ -9,12 +9,8 @@ zmodload -m -F zsh/files b:zf_ln b:zf_mkdir
 
 DEPLOY_DIR=$(dirname $(realpath $0))
 
-# Anchor to the main checkout's root via the shared .git dir, not wherever
-# this script physically lives. A linked worktree (e.g. Claude Code session
-# isolation) has its own directory that's deleted once its task is done —
-# symlinking live $HOME/$XDG config at that ephemeral copy leaves every
-# symlink dangling. --git-common-dir resolves to the main repo's .git
-# regardless of which worktree invokes it, so this is safe from any of them.
+# Anchor to the main checkout via --git-common-dir, not $DEPLOY_DIR: a linked
+# worktree is ephemeral, so links made from one dangle once it's removed.
 GIT_COMMON_DIR=$(git -C $DEPLOY_DIR rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
 if [[ -n $GIT_COMMON_DIR ]]; then
   DOTFILES_DIR=${GIT_COMMON_DIR:h}
@@ -28,9 +24,7 @@ XDG_CONFIG_HOME=$HOME/.config
 XDG_DATA_HOME=$HOME/.local/share
 XDG_STATE_HOME=$HOME/.local/state
 
-# XDG_RUNTIME_DIR is for non-persistent, temporary files (like sockets).
-# On macOS, the system-provided $TMPDIR is the correct, secure,
-# and non-persistent location to use.
+# $TMPDIR is macOS's secure, non-persistent per-user dir — what XDG_RUNTIME_DIR wants.
 XDG_RUNTIME_DIR=$TMPDIR
 
 # +---------+
@@ -64,14 +58,8 @@ optional() {
   fi
 }
 
-# Same contract as required(), but for long-running steps (brew bundle, the
-# Homebrew installer) where command substitution's full buffering leaves the
-# terminal silent for minutes with no way to tell "working" from "stuck".
-# Streams "$@"'s output live instead of capturing it, while still tee-ing to
-# a logfile so a FAILED step leaves something concrete behind, and still
-# exits on failure like required() does. $pipestatus[1] is "$@"'s own exit
-# code, not tee's — checking it explicitly means no shell option needs to
-# change just to make a failing piped command detectable.
+# required()'s contract for long steps that would otherwise sit silent —
+# see AGENTS.md. $pipestatus[1] is "$@"'s exit code, not tee's.
 stream() {
   local desc=$1; shift
   print "$desc..."
@@ -106,31 +94,18 @@ link_configs() {
   # Code picks up the same guidance without duplicating it
   zf_ln -sf AGENTS.md $DOTFILES_DIR/CLAUDE.md
 
-  # Claude Code agent config → ~/.claude/rules. Claude Code doesn't fully honor
-  # CLAUDE_CONFIG_DIR (daemon/telemetry/auth subsystems hardcode ~/.claude
-  # regardless, #134) so config lives at its real default instead of a
-  # half-relocated XDG split. Claude Code auto-discovers and loads every *.md
-  # under rules/ recursively and unconditionally — no loader file or @import
-  # wiring needed. See claude/README.md.
-  # Symlinked as one directory so universal/tools/platform (and any gitignored
-  # private file dropped inside them) all come along with zero per-file wiring.
-  # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
-  # old loader design; a real claude/rules/ dir of individual symlinks from the
-  # per-file-glob design) — safe since deploy fully owns all of these paths.
+  # → ~/.claude/rules, not a CLAUDE_CONFIG_DIR relocation (#134) — see claude/README.md.
+  # rm first: clears the old loader/per-file layouts; deploy owns all these paths.
   rm -f $HOME/.claude/CLAUDE.md
   rm -rf $HOME/.claude/fragments
   rm -rf $HOME/.claude/rules
   zf_ln -sfn $DOTFILES_DIR/claude/rules $HOME/.claude/rules
 
-  # Claude Code subagents → ~/.claude/agents. Same one-directory symlink as
-  # rules/ above — every *.md under agents/ is discovered recursively, no per-agent
-  # wiring. See claude/README.md § Subagents.
+  # Same one-directory symlink as rules/ above — see claude/README.md § Subagents.
   rm -rf $HOME/.claude/agents
   zf_ln -sfn $DOTFILES_DIR/claude/agents $HOME/.claude/agents
 
-  # Claude Code skills → ~/.claude/skills. Same one-directory symlink as
-  # rules/ and agents/ above — every skill's SKILL.md under skills/<name>/ is
-  # discovered recursively, no per-skill wiring. See claude/README.md § Skills.
+  # Same one-directory symlink as rules/ above — see claude/README.md § Skills.
   rm -rf $HOME/.claude/skills
   zf_ln -sfn $DOTFILES_DIR/claude/skills $HOME/.claude/skills
 
@@ -139,10 +114,8 @@ link_configs() {
 
   zf_ln -sf $DOTFILES_DIR/zsh/.zshenv $HOME/.zshenv
 
-  # Mode-selected by THEME_MODE at shell-init time (zsh/.zshrc sets
-  # ZSH_PATINA_CONFIG_PATH; zsh/.zshenv sets EZA_CONFIG_DIR) — both flavours
-  # deployed unconditionally so either is available the moment appearance
-  # flips, no re-deploy needed.
+  # Both flavours deployed unconditionally — THEME_MODE selects one at shell-init
+  # time, so an appearance flip needs no re-deploy. See ADR-0034.
   zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig-mocha.toml $XDG_CONFIG_HOME/zsh-patina/config-mocha.toml
   zf_ln -sf $DOTFILES_DIR/zsh-patinaconfig-latte.toml $XDG_CONFIG_HOME/zsh-patina/config-latte.toml
   zf_ln -sf $DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml $XDG_CONFIG_HOME/eza/themes/mocha/theme.yml
@@ -154,9 +127,8 @@ link_configs() {
 
   zf_ln -sf $DOTFILES_DIR/ghostty/config $XDG_CONFIG_HOME/ghostty/config
 
-  # Per-file, not the whole aichat/ dir: aichat writes runtime files (REPL
-  # input history, messages, sessions) into its config dir — a whole-dir
-  # symlink would land them inside the repo (#511).
+  # Per-file, not the whole dir: aichat writes REPL history/sessions into its
+  # config dir, and a dir symlink would land them inside the repo (#511).
   zf_ln -sf $DOTFILES_DIR/aichat/config.yaml $XDG_CONFIG_HOME/aichat/config.yaml
   zf_ln -sfn $DOTFILES_DIR/aichat/roles $XDG_CONFIG_HOME/aichat/roles
 
@@ -178,18 +150,16 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/git/ignore $XDG_CONFIG_HOME/git/ignore
   zf_ln -sf $DOTFILES_DIR/theme/delta/catppuccin.gitconfig $XDG_CONFIG_HOME/git/catppuccin.gitconfig
 
-  # Backs the `pr`/`new`/`sync`/`squash` git aliases (git/config) — must be
-  # on PATH as bare commands, not just reachable by relative path, since
-  # git/config is used from any repo.
+  # Must be on PATH as bare commands, not a relative path: the git/config aliases
+  # (`pr`/`new`/`sync`/`squash`) they back run from any repo.
   zf_ln -sf $DOTFILES_DIR/scripts/aichat-pane.sh $HOME/.local/bin/aichat-pane
   zf_ln -sf $DOTFILES_DIR/scripts/git-pr-link.sh $HOME/.local/bin/git-pr-link
   zf_ln -sf $DOTFILES_DIR/scripts/git-new.sh $HOME/.local/bin/git-new
   zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync
   zf_ln -sf $DOTFILES_DIR/scripts/git-squash.sh $HOME/.local/bin/git-squash
 
-  # On PATH as a bare command so any repo's .envrc can fetch the vended token
-  # (#377, SSM-backed since infra#125). macOS only, like the rest of this
-  # script — the Keychain read it relies on is macOS-only.
+  # On PATH as a bare command so any repo's .envrc can fetch it (#377, ADR-0041).
+  # macOS only — the Keychain read it relies on is.
   zf_ln -sf $DOTFILES_DIR/scripts/aws-vended-token.sh $HOME/.local/bin/aws-vended-token
 
   # Audits infra's elevated Keychain items (infra#167) — macOS only, like
@@ -202,26 +172,20 @@ link_configs() {
   # Pins the runner image `act` uses — see actrc's own comment.
   zf_ln -sf $DOTFILES_DIR/actrc $XDG_CONFIG_HOME/act/actrc
 
-  # $DOTFILES_DIR, not $DEPLOY_DIR — a worktree-invoked deploy would
-  # otherwise leave these links pointing at the ephemeral worktree copy
-  # (observed for real; see the DOTFILES_DIR anchor comment up top).
+  # $DOTFILES_DIR, not $DEPLOY_DIR — a worktree-invoked deploy would otherwise
+  # point these links at the ephemeral worktree copy (see the anchor up top).
   zf_ln -sf $DOTFILES_DIR/macos/brew.env $XDG_CONFIG_HOME/homebrew/brew.env
 
-  # Three files (payload/dev/personal — see each file's own header), not
-  # Homebrew's single `--global` Brewfile convention: install_brewfile below
-  # always passes an explicit --file, so this symlinking is purely for ad hoc
-  # `brew bundle --file=~/.config/homebrew/Brewfile.dev ...` use later, not
-  # something deploy itself reads back.
+  # Only for ad hoc `brew bundle --file=...` use — install_brewfile always passes
+  # an explicit --file, so deploy never reads these back. Tiers: each file's header.
   zf_ln -sf $DOTFILES_DIR/macos/Brewfile.payload $XDG_CONFIG_HOME/homebrew/Brewfile.payload
   zf_ln -sf $DOTFILES_DIR/macos/Brewfile.dev $XDG_CONFIG_HOME/homebrew/Brewfile.dev
   zf_ln -sf $DOTFILES_DIR/macos/Brewfile.personal $XDG_CONFIG_HOME/homebrew/Brewfile.personal
 
   zf_ln -sf $DOTFILES_DIR/ssh/config $XDG_CONFIG_HOME/ssh/config
 
-  # Machine-specific SSH config (real hostnames/IPs, usernames) — deployed
-  # config.local's `Include` expects this to exist, but it's deliberately
-  # a plain local file, not something this repo tracks/symlinks, so it's
-  # created once here and never touched again on later deploy runs.
+  # Machine-local (real hostnames/IPs), deliberately untracked — ssh/config's
+  # `Include` needs it to exist, so create once and never overwrite.
   [[ -f $XDG_CONFIG_HOME/ssh/config.local ]] || touch $XDG_CONFIG_HOME/ssh/config.local
 
   # ~/.ssh → ~/.config/ssh (XDG via symlink). Skip if ~/.ssh is already a
@@ -235,10 +199,8 @@ link_configs() {
 # | Homebrew |
 # +----------+
 
-# Resolve the brew binary across the prefixes this repo supports: an
-# env-provided HOMEBREW_PREFIX, a no-sudo install at $HOME/homebrew (#206),
-# then the Apple Silicon default. Same probe order as zsh/.zshenv — keep
-# the two in sync.
+# $HOME/homebrew is the no-sudo install (#206). Same probe order as
+# zsh/.zshenv — keep the two in sync.
 brew_bin() {
   local b
   for b in ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin/brew} $HOME/homebrew/bin/brew /opt/homebrew/bin/brew; do
@@ -250,13 +212,8 @@ brew_bin() {
   command -v brew
 }
 
-# Check for Homebrew; install it if missing. An admin user gets the official
-# installer (it sudos into /opt/homebrew). A standard (non-admin) user can't
-# run that, so it gets the documented untar-anywhere install at
-# $HOME/homebrew instead (#206). The tradeoff: bottles are built for
-# /opt/homebrew, so at $HOME/homebrew the cellar-locked formulae (git,
-# neovim, node, python, …) compile from source — slow, and it needs the
-# Xcode Command Line Tools already present.
+# A non-admin user can't sudo into /opt/homebrew, so it gets the untar-anywhere
+# install (#206) — cellar-locked formulae then build from source, needing Xcode CLT.
 install_homebrew() {
   setopt local_options err_exit pipe_fail
   if [[ -n $(brew_bin) ]]; then
@@ -278,10 +235,6 @@ install_brewfile() {
   done
 }
 
-# Activate the git hooks in lefthook.yml: pre-commit (zsh syntax, shellcheck,
-# actionlint — mirrors of what ci.yml/pr-guards.yml enforce) and pre-push (the
-# .envrc.local.example sync check). A single `lefthook install` covers every
-# hook type declared as a top-level key in lefthook.yml.
 install_lefthook_hooks() {
   # lefthook has no -C/--cwd equivalent; it discovers .git relative to the
   # working directory, so it has to actually run from inside the repo.
@@ -298,9 +251,8 @@ link_zsh_plugins() {
   )
   local name
   for name in ${(k)plugin_srcs}; do
-    # Fail loudly rather than symlink a path that doesn't exist yet — a
-    # dangling link here would surface later as an opaque `source` error
-    # at shell startup instead of a clear deploy-time failure.
+    # Fail loudly rather than symlink a path that doesn't exist yet — a dangling
+    # link surfaces later as an opaque `source` error at shell startup.
     [[ -e $plugin_srcs[$name] ]] || { print "  Missing $name at $plugin_srcs[$name]" >&2; return 1 }
     zf_ln -sf $plugin_srcs[$name] $XDG_DATA_HOME/zsh/plugins/$name
   done
@@ -312,39 +264,21 @@ sync_submodules() {
   git -C $DOTFILES_DIR submodule update --init --recursive
 }
 
-# Registers this repo for git's background maintenance (launchd on macOS),
-# which prefetches origin so remote-tracking refs stay current with zero
-# effort — `git new`'s fetch becomes an instant no-op. Scoped to this repo;
-# run `git maintenance start` by hand in any other repo that wants the same
-# background freshness.
+# Background prefetch keeps remote-tracking refs current, so `git new`'s fetch is
+# a no-op. Scoped to this repo — run `git maintenance start` by hand in others.
 enable_git_maintenance() {
   git -C $DOTFILES_DIR maintenance start
 }
 
 # Trigger zsh run to download gitstatusd
 download_gitstatusd() {
-  # CI=1 skips .zshrc's zellij auto-attach block — without it, this
-  # non-tty interactive shell hits `exec zellij attach` and hangs forever
-  # instead of just running the p10k/gitstatusd bootstrap it's here for.
+  # CI=1 skips .zshrc's zellij auto-attach — without it this non-tty
+  # interactive shell hits `exec zellij attach` and hangs forever.
   CI=1 $SHELL -is <<< ''
 }
 
-# Seed deja's suggestion database from existing zsh history. `deja import`
-# is *not* idempotent — re-running it double-counts every command already in
-# the db (verified: re-importing the same history doubled row count) — so
-# this must only ever run once. Guarding on the db file's existence doesn't
-# work: `download_gitstatusd` (just above) spawns an interactive shell that
-# sources .zshrc, whose `deja init zsh` auto-starts deja's daemon, which
-# creates that same db file (empty) on startup — before this step runs.
-# A file-existence check would then always see the file already there and
-# skip the import, forever, so this uses a marker file this function alone
-# controls instead.
-#
-# --file is required: this script never exports HISTFILE (.zshenv's job),
-# so deja import falls back to its default ~/.zsh_history, which doesn't
-# exist under this repo's own HISTFILE relocation — a silent failure,
-# since optional()'s `if $(...); then` suspends errexit, so the marker
-# below still gets written and permanently masks it as success.
+# Run-once: `deja import` isn't idempotent, and the marker (not the db file)
+# is the gate. --file is mandatory — see AGENTS.md for both, and why.
 import_deja_history() {
   local marker=$XDG_STATE_HOME/deja/.imported
   [[ -f $marker ]] && return
@@ -363,31 +297,20 @@ refresh_tldr() {
   tldr -u
 }
 
-# Install Ghostty's xterm-ghostty terminfo into the XDG terminfo dir.
-# Needed because TERMINFO points at $XDG_DATA_HOME/terminfo and macOS's system
-# terminfo predates Ghostty. Compiled from the vendored source, same as
-# linux/deploy.sh — not extracted from Ghostty.app: the app's location stops
-# being predictable once casks may install outside /Applications (#206), and
-# the vendored file works before (or without) the cask being installed.
-# Tradeoff: the vendored file can lag a newer Ghostty — refresh it when
-# Ghostty's terminfo changes. Bare tic, no brewed-ncurses path: macOS's
-# system tic compiles this entry identically to brewed tic (verified
-# byte-identical via infocmp), so no Homebrew dependency is needed here.
+# Compiled from the vendored source, not Ghostty.app — the cask's location isn't
+# predictable (#206). Refresh the vendored file when Ghostty's terminfo changes.
 generate_ghostty_terminfo() {
   tic -x -o "$XDG_DATA_HOME/terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
 }
 
-# bat only ships Catppuccin as a built-in theme in fairly recent releases;
-# BAT_THEME (zsh/.zshenv) requests one of the two vendored theme/bat
-# submodule copies unconditionally, so compile both into bat's cache
-# regardless of version.
+# Compiles both vendored flavours — BAT_THEME requests one per invocation
+# (ADR-0034), and bat's built-in Catppuccin only exists in recent releases.
 build_bat_cache() {
   bat cache --build
 }
 
-# Pre-grant zjstatus its permissions: it lives in the 1-row status bar pane,
-# where permission prompts are known to not render/be usable
-# (zellij-org/zellij#4749), so it can't realistically get them interactively.
+# zjstatus can't be granted interactively — prompts don't render in the 1-row
+# status bar pane it lives in (zellij-org/zellij#4749).
 grant_zellij_permissions() {
   local perms_file="$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl"
   local zjstatus_url="https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm"
@@ -403,10 +326,8 @@ grant_zellij_permissions() {
 }
 
 set_neovim() {
-  # Launch nvim to trigger Lazy to download plugins and Mason to install any
-  # LSPs/formatters declared via ensure_installed (LazyVim's own lang extras
-  # and lsp core plugin both do this automatically on startup — no separate
-  # install command needed).
+  # A headless launch is the install step: Lazy syncs plugins and Mason installs
+  # whatever ensure_installed names (see AGENTS.md § Structure & conventions).
   command nvim --headless -c "helptags ALL" -c "qall"
 }
 
@@ -418,38 +339,21 @@ required "Creating required directory tree"    create_directories
 required "Linking config files"                link_configs
 stream   "Checking for Homebrew"               install_homebrew
 
-# The runners execute their step in a subshell (command substitution or a
-# pipeline), so install_homebrew can't export brew's environment upward —
-# shellenv has to be evaluated here, in the script's own context, for every
-# step below that calls brew or reads HOMEBREW_PREFIX. Fails loud rather
-# than let those steps hit an empty prefix one by one.
+# Evaluated here, not inside a runner: the runners execute their step in a
+# subshell, so brew's env can't propagate up to the steps below.
 BREW_BIN=$(brew_bin) || { print "brew not found after install step" >&2; exit 1 }
 eval "$($BREW_BIN shellenv)"
 
-# A non-default prefix means a no-sudo machine (#206): default casks to the
-# user-writable ~/Applications. A pre-set HOMEBREW_CASK_OPTS wins — export
-# it before deploying to pick another writable dir (e.g.
-# --appdir="/Applications/Corporate Apps"). Only drag-install
-# (.app/binary/font) casks work without sudo — pkg-based casks (mullvad-vpn,
-# in Brewfile.personal, is the only one across all three Brewfiles) still
-# need an admin. Same conditional as zsh/.zshenv — keep in sync; it's
-# repeated here because a first deploy runs before .zshenv is linked.
+# No-sudo machine (#206): casks go to ~/Applications, but pkg casks (mullvad-vpn)
+# still need an admin. Same conditional as zsh/.zshenv — keep the two in sync.
 if [[ $HOMEBREW_PREFIX != /opt/homebrew && -z $HOMEBREW_CASK_OPTS ]]; then
   export HOMEBREW_CASK_OPTS="--appdir=$HOME/Applications"
 fi
 
 stream   "Installing Brewfile packages"        install_brewfile
 
-# fnm installs and activates the Node it manages, in this script's own
-# process — set_neovim's headless Mason bootstrap below needs node/npm on
-# PATH right now, not just in a later shell that's sourced .zshenv. Runs at
-# top level, not inside required()/optional(): those execute "$@" in a
-# subshell (command substitution/pipeline), so a PATH mutation inside one
-# can't propagate to set_neovim, a later, separate top-level call — same
-# reason `eval "$($BREW_BIN shellenv)"` above runs at top level instead of
-# inside a step. No top-level errexit is in scope here (the script's
-# `setopt err_exit` calls are all function-scoped), so failures are checked
-# explicitly, mirroring the BREW_BIN check above.
+# Top level, not a runner: set_neovim's Mason bootstrap needs node on PATH now,
+# and a subshell's PATH mutation wouldn't reach it (ADR-0029). No errexit here.
 print "Installing fnm-managed Node..."
 export FNM_DIR=$XDG_DATA_HOME/fnm # fnm reads this from its own subprocess env; must stay in sync with zsh/.zshenv's FNM_DIR
 fnm install --lts && fnm default lts-latest || { print "  FAILED: fnm install/default" >&2; exit 1 }
@@ -457,16 +361,8 @@ eval "$(fnm env)"
 node --version >/dev/null || { print "  FAILED: fnm-provided node did not resolve on PATH after fnm env" >&2; exit 1 }
 print "  ...done"
 
-# `impl` (Go struct-interface stub generator, an nvim code action per
-# mason-tools.lua) has no Homebrew formula — the one gap in this repo's
-# otherwise-brew-managed Go tooling (gopls/gofumpt/goimports/golangci-lint/
-# gomodifytags/delve all do). `go install <module>@<pinned-version>` is
-# still reproducible: Go's module proxy + sumdb checksum-verify the fetch,
-# same integrity guarantee binaries.lock's sha256 pins give linux/deploy.sh
-# for its own no-apt-package tools. Exported GOPATH (not the default ~/go)
-# to match zsh/.zshenv's XDG placement; top-level like the fnm block above,
-# not inside required()/optional(), so set_neovim's later headless run sees
-# `impl` on PATH too and correctly skips Mason-managing a second copy.
+# The one Go tool with no formula; pinned go install is checksum-verified — see
+# ADR-0030. Top-level so set_neovim's headless run finds it and skips a Mason copy.
 print "Installing impl (go install)..."
 export GOPATH=$XDG_DATA_HOME/go # must match zsh/.zshenv's GOPATH
 path=($GOPATH/bin $path)

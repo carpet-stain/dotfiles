@@ -16,9 +16,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCK="$SCRIPT_DIR/binaries.lock"
 
-# tool | repo | x86_64 asset pattern
-# Patterns are matched against the release's browser_download_url list, so
-# the version embedded in some asset names is a `.*` wildcard here.
+# tool | repo | x86_64 asset pattern — matched against browser_download_url,
+# so versions embedded in asset names are `.*` wildcards.
 TOOLS=(
   "neovim|neovim/neovim|nvim-linux-x86_64.tar.gz"
   "delta|dandavison/delta|delta-.*-x86_64-unknown-linux-musl.tar.gz"

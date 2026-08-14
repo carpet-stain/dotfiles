@@ -9,9 +9,8 @@
 # not precision; don't "fix" this into a dependency.
 set -uo pipefail
 
-# No measured ceiling exists yet (dotfiles#431's spike is still open); 20k is
-# a round number with headroom over this repo's real total as of #436
-# (~13k) — retune once #431 lands actual numbers.
+# No measured ceiling yet; 20k is a round number with headroom over the real
+# total as of #436 (~13k) — retune once #431's spike lands actual numbers.
 CEILING_TOKENS=20000
 
 has_paths_gate() {

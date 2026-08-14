@@ -27,16 +27,11 @@ FZF_DEFAULT_OPTS+="
   --preview-window 'right:65%'
   --ansi"
 
-# --popup, --highlight-line, --input-border, --ghost, and --gutter need
-# fzf 0.66+ (the highest of their individual version floors). Both
-# platforms' installs clear that now (Homebrew tracks latest; Linux pins
-# its own fzf via binaries.lock — see #442), but the popup/border rendering
-# is only verified in a real macOS terminal, so this stays darwin-only
-# until someone checks it on Linux.
+# These flags need fzf 0.66+; both platforms clear that (#442), but the popup/border
+# rendering is only verified in a macOS terminal — darwin-only until checked on Linux.
 if [[ $OSTYPE == darwin* ]]; then
-  # --border: fzf 0.74.0+ only draws its own popup frame when a border
-  # style is explicit, otherwise Zellij's native pane border takes over —
-  # clashes with zellij/config.kdl's `pane_frames false` (see #195).
+  # --border: fzf 0.74.0+ only draws its own popup frame when a style is explicit,
+  # else Zellij's pane border takes over, clashing with `pane_frames false` (#195).
   FZF_DEFAULT_OPTS+="
   --popup=90%
   --highlight-line
@@ -45,10 +40,8 @@ if [[ $OSTYPE == darwin* ]]; then
   --ghost='Type to search...'
   --gutter=' '"
 else
-  # fzf 0.74.1 auto-hides the info-line separator whenever a border already
-  # separates input from list — exactly the darwin --input-border --border
-  # setup above, so --no-separator is redundant there (#383). Non-darwin sets
-  # neither border, so it still needs the flag explicitly.
+  # fzf 0.74.1 auto-hides the info separator when a border already splits input from
+  # list, so it's redundant on darwin but still needed here — no border set (#383).
   FZF_DEFAULT_OPTS+="
   --no-separator"
 fi

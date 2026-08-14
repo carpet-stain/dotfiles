@@ -3,18 +3,14 @@
 # This file configures and initializes Zsh's completion system (compinit).
 # It's tuned for performance, fzf-tab, and smart matching.
 
-# Zstyle pattern syntax:
+# Zstyle pattern syntax, '*' matching any field:
 # :completion:<function>:<completer>:<command>:<argument>:<tag>
-# '*' is a wildcard for any field.
 
 # Colorize filenames during completion; ${(s.:.)...} splits $LS_COLORS on ':'.
 zstyle ':completion:*'                  list-colors         ${(s.:.)LS_COLORS}
 
-# Define the order of completion methods (completers) Zsh should try.
-# _expand:       Performs glob expansions.
-# _complete:     The main completion engine.
-# _ignored:      Completes ignored patterns (e.g., files in .gitignore).
-# _approximate:  Tries to find approximate/misspelled matches.
+# Completer order. '_ignored' completes otherwise-ignored patterns (e.g. .gitignore'd
+# files); '_approximate' matches misspellings.
 zstyle ':completion:*'                  completer           _expand _complete _ignored _approximate
 
 zstyle ':completion:*'                  use-cache           true
@@ -66,8 +62,7 @@ zstyle ':completion:*:git-switch:*'    complete-refs 'yes'
 zstyle ':completion:*:git:*'           verbose 'yes'
 
 # --- Kill Completions ---
-# Show full command lines for 'kill' targets instead of just PIDs.
-# This feeds rich data directly into fzf-tab.
+# Full command lines instead of bare PIDs — that's what fzf-tab previews.
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,command | sed "s/ $//"'
 zstyle ':completion:*:kill:*' table-format 'PID:8' 'COMMAND'
 zstyle ':completion:*:kill:*' sort-order 'user'
@@ -80,10 +75,8 @@ zstyle ':completion:*:ssh:*:*' hosts-file ~/.ssh/config ~/.ssh/known_hosts
 # |  COMPLETION SYSTEM   |
 # +----------------------+
 
-# Add zsh-completions to the function path. Homebrew ships it on macOS; on
-# Linux there's no reliable apt package (absent from Trixie's archive
-# entirely), so install_zsh_plugins git-clones it like the other plugins —
-# upstream's own install instructions point fpath at its src/ subdirectory.
+# Homebrew ships zsh-completions on macOS; Debian has no package (absent from
+# Trixie), so install_zsh_plugins git-clones it — upstream points fpath at src/.
 if [[ $OSTYPE == darwin* ]]; then
   fpath+=$HOMEBREW_PREFIX/share/zsh-completions
 else
@@ -99,13 +92,8 @@ zmodload zsh/complist
 autoload -Uz compinit
 local compdump_file="$XDG_CACHE_HOME/zsh/compdump"
 
-# Regenerate the compdump at most once per ~20 hours; otherwise load it
-# straight from cache. `($compdump_file(#qN.mh+20))` is a glob qualifier:
-#   #q -> Quiet
-#   N  -> NULL_GLOB (return nothing if no match, prevents error)
-#   .  -> Plain files only
-#   mh -> Modified time, in hours
-#   +20 -> More than 20 hours ago
+# Regenerate the compdump at most once per ~20 hours, else load it from cache.
+# '(#qN.mh+20)' is a glob qualifier: nullglob, plain files, mtime over 20 hours.
 local -a stale_compdump=($compdump_file(#qN.mh+20))
 if ! [[ -f "$compdump_file" ]] || [[ -n "$stale_compdump" ]]; then
     # '-i' (insecure) skips security checks — we trust our own fpath.
@@ -115,9 +103,8 @@ else
     compinit -i -u -C -d "$compdump_file"
 fi
 
-# Pre-compile the compdump file into a '.zwc' file.
-# Zsh loads the binary '.zwc' file much faster than parsing the text compdump.
-# 'zrecompile' is smart and will skip if the .zwc is already up-to-date.
+# Pre-compile the compdump to '.zwc' — zsh loads the binary form much faster
+# than parsing the text one. zrecompile skips when the .zwc is already current.
 autoload -Uz zrecompile
 zrecompile -pq "$compdump_file"
 

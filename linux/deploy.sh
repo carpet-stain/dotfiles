@@ -5,12 +5,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Anchor to the main checkout's root via the shared .git dir, not wherever
-# this script physically lives. A linked worktree (e.g. Claude Code session
-# isolation) has its own directory that's deleted once its task is done —
-# symlinking live $HOME/$XDG config at that ephemeral copy leaves every
-# symlink dangling. --git-common-dir resolves to the main repo's .git
-# regardless of which worktree invokes it, so this is safe from any of them.
+# Anchor to the main checkout via the shared .git dir: a linked worktree is
+# deleted after its task, leaving every symlink into it dangling.
 GIT_COMMON_DIR="$(git -C "$SCRIPT_DIR" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
 if [[ -n "$GIT_COMMON_DIR" ]]; then
   DOTFILES_DIR="$(dirname "$GIT_COMMON_DIR")"
@@ -24,19 +20,14 @@ XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOCAL_BIN="$HOME/.local/bin"
 
-# x86_64 or aarch64 — only x86_64 has pinned binaries.lock entries (that's
-# this repo's actual Linux target; an aarch64 host fails fetch_verified's
-# lookup with a clear "no pinned entry" error rather than being silently
-# unsupported).
+# Only x86_64 has binaries.lock entries; any other arch fails fetch_verified's
+# lookup loudly rather than being silently unsupported.
 ARCH="$(uname -m)"
 # shellcheck disable=SC1091 # /etc/os-release is a system file, not part of this repo
 CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")" # e.g. bookworm, bullseye
 
-# Guarantee $LOCAL_BIN (where this script installs neovim, delta, zellij,
-# eza) and the standard system dirs are searched, regardless of what PATH
-# looks like in the calling environment — a non-login or minimal shell may
-# not have either, which otherwise surfaces as a confusing "command not
-# found" from a later step for a binary this same run just installed.
+# A non-login or minimal shell may lack $LOCAL_BIN and the system dirs, which
+# surfaces as "command not found" for a binary this same run just installed.
 export PATH="$LOCAL_BIN:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # +---------+
@@ -68,15 +59,8 @@ optional() {
   fi
 }
 
-# Same contract as required(), but for long-running steps (apt installing the
-# full package set, extracting neovim) where command substitution's full
-# buffering leaves the terminal silent for minutes with no way to tell
-# "working" from "stuck". Streams "$@"'s output live instead of capturing it,
-# while still tee-ing to a logfile so a FAILED step leaves something concrete
-# behind, and still exits on failure like required() does. The script's
-# top-level `set -o pipefail` already makes a pipeline report "$@"'s exit
-# code rather than tee's; the `if` around the pipeline keeps `set -e` from
-# short-circuiting past the FAILED branch on a nonzero status.
+# required()'s contract, but streams output live for long steps. The `if`
+# around the pipeline keeps set -e from short-circuiting past FAILED.
 stream() {
   local desc="$1"
   shift
@@ -153,11 +137,8 @@ add_apt_repos() {
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - >/dev/null
   fi
 
-  # Debian backports — golang-go 1.22+ (stable's own golang-go is too old for
-  # gopls on both Bookworm and Bullseye). Hardcoding "bookworm-backports"
-  # here would silently glue a wrong-release apt source onto any other
-  # Debian version, which can leave dpkg/apt in a broken, hard-to-diagnose
-  # state — always derive the suite name from the running release instead.
+  # Backports for golang-go 1.22+ (stable's is too old for gopls). Derive the
+  # suite from $CODENAME — a hardcoded one can wedge apt on another release.
   if ! grep -rq "${CODENAME}-backports" /etc/apt/sources.list* 2>/dev/null; then
     printf 'deb http://deb.debian.org/debian %s-backports main\n' "$CODENAME" |
       sudo tee /etc/apt/sources.list.d/backports.list >/dev/null
@@ -167,19 +148,11 @@ add_apt_repos() {
 }
 
 install_apt_packages() {
-  # One transaction for everything, Aptfile packages plus golang-go (pinned
-  # to backports via the pkg/release syntax), gh, and nodejs. Three separate
-  # apt-get install calls here previously let a later transaction silently
-  # remove a package an earlier one had just installed (observed: zsh and
-  # tealdeer vanished after gh/nodejs resolved) with no visible failure —
-  # resolving the whole dependency graph at once means apt either satisfies
-  # everything or reports the conflict loudly instead of quietly dropping it.
+  # One transaction for everything: separate apt-get calls let a later one
+  # silently remove a package an earlier one installed (zsh, tealdeer).
   local packages
   packages=$(grep -v '^\s*#' "$SCRIPT_DIR/Aptfile" | grep -v '^\s*$' | tr '\n' ' ')
-  # golang-go/<release> only pins that one package to backports — unlike
-  # `-t <release>` (which sets the preference for the whole resolution), the
-  # pkg/release suffix doesn't extend to golang-go's own deps, so its
-  # backports golang-src requirement has to be pinned the same way too.
+  # pkg/release pins only that package, not its deps — so golang-src too.
   # shellcheck disable=SC2086
   sudo apt-get install -y --no-install-recommends \
     $packages "golang-go/${CODENAME}-backports" "golang-src/${CODENAME}-backports" gh nodejs
@@ -188,10 +161,9 @@ install_apt_packages() {
 # +-------------------+
 # | GITHUB BINARIES   |
 # +-------------------+
-# Tools too old or missing in Debian's apt repos. Each is installed from a
-# GitHub release pinned in binaries.lock (version + sha256 per arch), so a
-# deploy is reproducible and the download is integrity-checked. Bump versions
-# with update-binaries.sh, which regenerates the lock.
+
+# Tools too old or missing in Debian's apt repos, pinned in binaries.lock
+# (version + sha256 per arch). Bump with update-binaries.sh.
 
 # fetch_verified <tool> — download this arch's pinned asset from binaries.lock,
 # verify its sha256 (fail-closed on mismatch), and echo the local file path.
@@ -206,13 +178,8 @@ fetch_verified() {
   sha="$(cut -f5 <<<"$row")"
   dest="$(mktemp)"
 
-  # Optional download cache, keyed by the pinned sha256 (used by CI to reuse
-  # tarballs across runs — see .github/workflows/e2e-linux.yml; off by default
-  # so a normal deploy leaves no cache behind). A bump in binaries.lock changes
-  # the sha, so a stale asset can never be served under a new pin. The sha is
-  # re-verified below on every path, so a cache hit is exactly as trustworthy
-  # as a fresh download, and this still returns a fresh temp file so the
-  # install logic (extract, symlink) runs unchanged.
+  # Optional CI download cache keyed by the pinned sha256, off by default. The
+  # sha is re-verified below, so a hit is as trustworthy as a fresh download.
   local cached=""
   [[ -n "${BINARIES_CACHE_DIR:-}" ]] && cached="$BINARIES_CACHE_DIR/$sha"
   if [[ -n "$cached" && -f "$cached" ]]; then
@@ -235,10 +202,8 @@ fetch_verified() {
   printf '%s' "$dest"
 }
 
-# install_tool <tool> <binary> — single-binary tools. Extracts the verified
-# asset if it's a gzip tarball or a zip (selene/stylua ship zip; everything
-# else pinned in binaries.lock ships tar.gz), otherwise treats it as a bare
-# binary.
+# install_tool <tool> <binary> — single-binary tools; handles a tar.gz, a zip
+# (selene/stylua), or a bare binary.
 install_tool() {
   local tool="$1" binary="$2" archive
   archive="$(fetch_verified "$tool")" || return 1
@@ -294,42 +259,26 @@ install_neovim() {
 link_configs() {
   ln -sf "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 
-  # Claude Code agent config → ~/.claude/rules. Claude Code doesn't fully honor
-  # CLAUDE_CONFIG_DIR (daemon/telemetry/auth subsystems hardcode ~/.claude
-  # regardless, #134) so config lives at its real default instead of a
-  # half-relocated XDG split. Claude Code auto-discovers and loads every *.md
-  # under rules/ recursively and unconditionally — no loader file or @import
-  # wiring needed. See claude/README.md.
-  # Symlinked as one directory so universal/tools/platform (and any gitignored
-  # private file dropped inside them) all come along with zero per-file wiring.
-  # One-time cleanup of prior layouts (claude/CLAUDE.md + claude/fragments/ from the
-  # old loader design; a real claude/rules/ dir of individual symlinks from the
-  # per-file-glob design) — safe since deploy fully owns all of these paths.
+  # Whole-dir symlink into ~/.claude — see claude/README.md and AGENTS.md's
+  # XDG exceptions (#134). The rm's clear prior layouts deploy still owns.
   rm -f "$HOME/.claude/CLAUDE.md"
   rm -rf "$HOME/.claude/fragments"
   rm -rf "$HOME/.claude/rules"
   ln -sfn "$DOTFILES_DIR/claude/rules" "$HOME/.claude/rules"
 
-  # Claude Code subagents → ~/.claude/agents. Same one-directory symlink as
-  # rules/ above — every *.md under agents/ is discovered recursively, no per-agent
-  # wiring. See claude/README.md § Subagents.
+  # Same whole-dir symlink as rules/ — see claude/README.md § Subagents.
   rm -rf "$HOME/.claude/agents"
   ln -sfn "$DOTFILES_DIR/claude/agents" "$HOME/.claude/agents"
 
-  # Claude Code skills → ~/.claude/skills. Same one-directory symlink as
-  # rules/ and agents/ above — every skill's SKILL.md under skills/<name>/ is
-  # discovered recursively, no per-skill wiring. See claude/README.md § Skills.
+  # Same whole-dir symlink as rules/ — see claude/README.md § Skills.
   rm -rf "$HOME/.claude/skills"
   ln -sfn "$DOTFILES_DIR/claude/skills" "$HOME/.claude/skills"
 
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   ln -sf "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
 
-  # macos/deploy.zsh deploys both flavours (THEME_MODE follows macOS
-  # appearance there); Linux hardcodes THEME_MODE=dark (zsh/.zshenv, #439's
-  # non-goal) so zsh/.zshrc's ZSH_PATINA_CONFIG_PATH and zsh/.zshenv's
-  # EZA_CONFIG_DIR only ever resolve to the mocha path here — deploying a
-  # latte variant that can never be selected would be dead weight.
+  # Mocha only: Linux hardcodes THEME_MODE=dark (zsh/.zshenv, #439), so a
+  # latte variant could never be selected. See ADR-0034.
   ln -sf "$DOTFILES_DIR/zsh-patinaconfig-mocha.toml" "$XDG_CONFIG_HOME/zsh-patina/config-mocha.toml"
   ln -sf "$DOTFILES_DIR/theme/eza/themes/mocha/catppuccin-mocha-mauve.yml" \
     "$XDG_CONFIG_HOME/eza/themes/mocha/theme.yml"
@@ -338,10 +287,8 @@ link_configs() {
   ln -sfn "$DOTFILES_DIR/nvim/lua" "$XDG_CONFIG_HOME/nvim/lua"
   ln -sf "$DOTFILES_DIR/nvim/lazy-lock.json" "$XDG_CONFIG_HOME/nvim/lazy-lock.json"
 
-  # Per-file, not the whole aichat/ dir — aichat writes runtime files into its
-  # config dir; a whole-dir symlink would land them inside the repo (#511).
-  # Config only on Linux: no aichat install and no Keychain credential path
-  # here, so Alt-a's launcher fails with a clean message instead.
+  # Per-file, not the whole dir — aichat writes runtime files into its config
+  # dir and a whole-dir symlink would land them inside the repo (#511).
   ln -sf "$DOTFILES_DIR/aichat/config.yaml" "$XDG_CONFIG_HOME/aichat/config.yaml"
   ln -sfn "$DOTFILES_DIR/aichat/roles" "$XDG_CONFIG_HOME/aichat/roles"
 
@@ -363,9 +310,8 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/theme/delta/catppuccin.gitconfig" \
     "$XDG_CONFIG_HOME/git/catppuccin.gitconfig"
 
-  # Backs the `pr`/`new`/`sync` git aliases (git/config) — must be on PATH
-  # as bare commands, not just reachable by relative path, since git/config
-  # is used from any repo.
+  # Backs the `pr`/`new`/`sync` aliases (git/config) — must be on PATH as bare
+  # commands, since git/config is used from any repo.
   ln -sf "$DOTFILES_DIR/scripts/aichat-pane.sh" "$LOCAL_BIN/aichat-pane"
   ln -sf "$DOTFILES_DIR/scripts/git-pr-link.sh" "$LOCAL_BIN/git-pr-link"
   ln -sf "$DOTFILES_DIR/scripts/git-new.sh" "$LOCAL_BIN/git-new"
@@ -377,10 +323,8 @@ link_configs() {
 
   ln -sf "$DOTFILES_DIR/ssh/config" "$XDG_CONFIG_HOME/ssh/config"
 
-  # Machine-specific SSH config (real hostnames/IPs, usernames) — deployed
-  # config.local's `Include` expects this to exist, but it's deliberately
-  # a plain local file, not something this repo tracks/symlinks, so it's
-  # created once here and never touched again on later deploy runs.
+  # config.local holds real hostnames — deliberately untracked. Created once
+  # here because the deployed config's `Include` expects it to exist.
   [[ -f "$XDG_CONFIG_HOME/ssh/config.local" ]] || touch "$XDG_CONFIG_HOME/ssh/config.local"
 
   if [[ ! -d "$HOME/.ssh" || -L "$HOME/.ssh" ]]; then
@@ -407,11 +351,9 @@ link_configs() {
 # +-------------+
 # | ZSH PLUGINS |
 # +-------------+
-# .zshrc sources these from $XDG_DATA_HOME/zsh/plugins/ on both platforms.
-# macOS points those paths at Homebrew's copies (deploy.zsh's link_zsh_plugins);
-# Linux points them at the vendored submodules under zsh/plugins/, so a deploy
-# uses the pinned in-repo copy instead of cloning fresh from the network.
-# sync_submodules (run earlier) guarantees the submodule content exists.
+
+# .zshrc sources these from $XDG_DATA_HOME/zsh/plugins/; Linux points them at
+# the vendored submodules, so sync_submodules must run first.
 
 install_zsh_plugins() {
   local plugin_dir="$XDG_DATA_HOME/zsh/plugins"
@@ -422,9 +364,8 @@ install_zsh_plugins() {
       printf '  Missing submodule %s at %s (run: git submodule update --init)\n' "$name" "$src" >&2
       return 1
     fi
-    # rm first: an earlier deploy may have left a real clone dir here, and
-    # `ln -sfn` into an existing directory would nest the link inside it.
-    # ${plugin_dir:?} guards against ever rm-ing / if the var were empty.
+    # rm first: `ln -sfn` into an existing real dir nests the link inside it.
+    # ${plugin_dir:?} guards against ever rm -rf'ing / if the var were empty.
     rm -rf "${plugin_dir:?}/$name"
     ln -sfn "$src" "$plugin_dir/$name"
   done
@@ -448,38 +389,20 @@ sync_submodules() {
   git -C "$DOTFILES_DIR" submodule update --init --recursive
 }
 
-# Registers this repo for git's background maintenance (systemd/cron on
-# Linux), which prefetches origin so remote-tracking refs stay current with
-# zero effort — `git new`'s fetch becomes an instant no-op. Scoped to this
-# repo; run `git maintenance start` by hand in any other repo that wants the
-# same background freshness.
+# Prefetches origin so `git new`'s fetch is a no-op. Scoped to this repo —
+# run `git maintenance start` by hand in any other one.
 enable_git_maintenance() {
   git -C "$DOTFILES_DIR" maintenance start
 }
 
 download_gitstatusd() {
-  # CI=1 skips .zshrc's zellij auto-attach block — without it, this
-  # non-tty interactive shell hits `exec zellij attach` and hangs forever
-  # instead of just running the p10k/gitstatusd bootstrap it's here for.
+  # CI=1 skips .zshrc's zellij auto-attach — without it this non-tty
+  # interactive shell hits `exec zellij attach` and hangs forever.
   CI=1 zsh -is <<<''
 }
 
-# Seed deja's suggestion database from existing zsh history. `deja import`
-# is *not* idempotent — re-running it double-counts every command already in
-# the db (verified: re-importing the same history doubled row count) — so
-# this must only ever run once. Guarding on the db file's existence doesn't
-# work: `download_gitstatusd` (just above) spawns an interactive shell that
-# sources .zshrc, whose `deja init zsh` auto-starts deja's daemon, which
-# creates that same db file (empty) on startup — before this step runs.
-# A file-existence check would then always see the file already there and
-# skip the import, forever, so this uses a marker file this function alone
-# controls instead.
-#
-# --file is required: this script never exports HISTFILE (.zshenv's job),
-# so deja import falls back to its default ~/.zsh_history, which doesn't
-# exist under this repo's own HISTFILE relocation — a silent failure,
-# since optional()'s `if $(...); then` suspends errexit, so the marker
-# below still gets written and permanently masks it as success.
+# `deja import` isn't idempotent (double-counts), so the marker file — not the
+# db's existence — gates it; --file is required, HISTFILE isn't exported here.
 import_deja_history() {
   local marker="$XDG_STATE_HOME/deja/.imported"
   [[ -f "$marker" ]] && return
@@ -492,22 +415,14 @@ refresh_tldr() {
   tldr -u
 }
 
-# bat only ships Catppuccin as a built-in theme in fairly recent releases;
-# BAT_THEME (zsh/.zshenv) requests "Catppuccin Mocha" unconditionally here
-# (Linux hardcodes THEME_MODE=dark), and Debian's apt
-# bat is old enough to have neither the built-in nor (until link_configs
-# symlinks it in) the vendored theme/bat submodule copy — compile it into
-# bat's cache regardless of version.
+# Debian's bat is old enough to lack the built-in Catppuccin theme BAT_THEME
+# requests (zsh/.zshenv), so build the cache regardless of version.
 build_bat_cache() {
   bat cache --build
 }
 
-# Pre-grant zjstatus its permissions: it lives in the 1-row status bar pane,
-# where permission prompts are known to not render/be usable
-# (zellij-org/zellij#4749), so it can't realistically get them interactively.
-# Without this, the layout's first-ever load can fail outright — including
-# when triggered from .zshrc's auto-attach right after this script's own
-# `exec zsh`, which then falls back to the outer shell with no visible error.
+# zjstatus can't be granted interactively — prompts don't render in the
+# status-bar pane (zellij-org/zellij#4749), so the first load fails outright.
 grant_zellij_permissions() {
   local perms_file="$XDG_CACHE_HOME/zellij/permissions.kdl"
   local zjstatus_url="https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm"
@@ -526,21 +441,8 @@ set_neovim() {
   nvim --headless -c "helptags ALL" -c "qall"
 }
 
-# Install Ghostty's xterm-ghostty terminfo from the vendored source. Debian
-# hosts are SSH'd into from a local Ghostty but don't have Ghostty installed,
-# so the entry $TERM points at has to be compiled in from the repo. macOS
-# compiles the same vendored file (macos/deploy.zsh), just to the XDG dir —
-# its shells are always zsh, which exports TERMINFO from .zshenv.
-#
-# Compiled to $HOME/.terminfo, not $XDG_DATA_HOME/terminfo: ncurses' default
-# search path covers ~/.terminfo plus the system dirs, not the XDG data dir —
-# this repo only makes the XDG location resolvable by exporting
-# TERMINFO=$XDG_DATA_HOME/terminfo in zsh/.zshenv. This script is bash and
-# doesn't source .zshenv, and neither does any other non-zsh context on the
-# box afterward (a bash login, sudo, cron, tooling that shells out), so
-# compiling there left xterm-ghostty unresolvable everywhere but an
-# interactive zsh. ~/.terminfo resolves with no environment variable needed,
-# in any shell — see AGENTS.md's XDG exceptions table.
+# ~/.terminfo, not $XDG_DATA_HOME: ncurses' default search path only covers
+# the former, and this is bash — see AGENTS.md's XDG exceptions.
 generate_ghostty_terminfo() {
   tic -x -o "$HOME/.terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
 }
@@ -568,29 +470,12 @@ required "Installing stylua" install_tool stylua stylua
 required "Installing selene" install_tool selene selene
 required "Installing deja" install_tool deja deja
 required "Installing zsh-patina" install_tool zsh-patina zsh-patina
-# Pinned rather than apt: Debian's fzf (0.38.0 on Bookworm) predates the
-# `--zsh` integration flag (needs 0.48+) that .zshrc's `eval "$(fzf --zsh)"`
-# relies on, and the `selected-bg` color name the vendored Catppuccin theme
-# uses — both silently no-op/warn on the apt version instead of erroring
-# loudly (see #442).
+# Pinned, not apt: Debian's fzf 0.38 lacks `--zsh` (.zshrc needs 0.48+) and
+# the `selected-bg` color — both silently no-op instead of erroring (#442).
 required "Installing fzf" install_tool fzf fzf
 
-# Dev tooling with no Debian apt package and no GitHub-release binary either
-# (gopls/goimports/gofumpt/gomodifytags/impl/delve are go-install-only;
-# pyright/bash-language-server are npm-only) — reproducible via each
-# ecosystem's own package manager instead: `go install <module>@<version>`
-# is checksum-verified through Go's module proxy/sumdb, `npm install
-# -g <pkg>@<version>` pins an exact registry version. Same integrity spirit
-# as binaries.lock's sha256 pins, just via each tool's native package
-# manager rather than a raw curl download. Bump versions here by hand;
-# there's no per-tool lock file the way binaries.lock covers GitHub
-# releases. Runs at top level, not inside required()/optional(): those
-# execute "$@" in a subshell (command substitution), so a PATH mutation
-# inside one can't propagate to set_neovim, a later, separate top-level
-# call — same reasoning as macos/deploy.zsh's fnm/impl block. The script's
-# own `set -euo pipefail` (top of file) covers error handling here, unlike
-# deploy.zsh's manual checks — bash's errexit isn't function-scoped the way
-# zsh's `setopt err_exit` is, so it's already in effect at top level.
+# Pinned go install/npm, checksum-verified like binaries.lock — see ADR-0030.
+# Top level: required()/optional() subshell, so the PATH mutation wouldn't survive.
 printf 'Installing go-installed dev tools...\n'
 export GOPATH="$XDG_DATA_HOME/go" # must match zsh/.zshenv's GOPATH
 PATH="$GOPATH/bin:$PATH"
@@ -602,10 +487,8 @@ go install github.com/josharian/impl@v1.5.0
 go install github.com/go-delve/delve/cmd/dlv@v1.27.0
 printf '  ...done\n'
 
-# npm's default global prefix needs sudo on Debian's apt-installed nodejs
-# (unlike macOS's fnm-managed Node, which is already user-owned) — an
-# explicit --prefix keeps these two installs sudo-free and XDG-scoped
-# without a permanent npm config change.
+# Explicit --prefix: npm's default global prefix needs sudo on Debian's apt
+# nodejs, and this keeps the install sudo-free and XDG-scoped.
 printf 'Installing npm-installed dev tools...\n'
 NPM_GLOBAL_PREFIX="$XDG_DATA_HOME/npm-global"
 npm install -g --prefix "$NPM_GLOBAL_PREFIX" pyright@1.1.411 bash-language-server@5.6.0
@@ -625,15 +508,11 @@ optional "Refreshing TLDR pages" refresh_tldr
 optional "Granting zellij plugin permissions" grant_zellij_permissions
 optional "Setting up Neovim plugins/LSPs" set_neovim
 
-# set_default_shell only takes effect on the next login; exec straight into
-# zsh so this session lands there too instead of staying on bash until then.
-# Skip if stdout isn't a real terminal (e.g. output is being piped/logged).
+# set_default_shell only applies at next login, so exec into zsh now. Skipped
+# when stdout isn't a tty (piped or logged).
 if [[ -t 1 ]]; then
-  # Clear the screen first — without it, zsh (then, on this VM's first-ever
-  # session, .zshrc's zellij auto-attach, then p10k's instant prompt) all
-  # initialize on top of this whole script's leftover scrollback instead of
-  # the blank terminal a real login gives them, which is what left the
-  # prompt looking broken until the next full VM restart.
+  # Clear first — zsh, zellij auto-attach, and p10k's instant prompt otherwise
+  # init on top of this script's scrollback and the prompt renders broken.
   clear
   exec zsh
 fi

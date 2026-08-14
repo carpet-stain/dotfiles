@@ -11,20 +11,14 @@ set -euo pipefail
 
 started_colima=0
 if ! colima status >/dev/null 2>&1; then
-  # act bind-mounts the daemon socket into every job container for
-  # docker-outside-of-docker; virtiofs (Colima's default mount type) can't
-  # satisfy that mount — the guest's dockerd gets ENOTSUP trying to mkdir
-  # the socket's path (abiosoft/colima#997, nektos/act#2486). sshfs doesn't
-  # hit this.
+  # sshfs, not virtiofs: act bind-mounts the daemon socket into every job
+  # container and virtiofs ENOTSUPs it (abiosoft/colima#997, nektos/act#2486).
   colima start --cpu 2 --memory 4 --disk 20 --mount-type sshfs
   started_colima=1
 fi
 
-# `colima start` switches the docker CLI's own context, but act reads
-# $DOCKER_HOST directly rather than resolving the active context, so it
-# can't find Colima's socket without this — confirmed by testing, act
-# otherwise falls back to the (nonexistent, on macOS) default
-# /var/run/docker.sock and fails outright.
+# act reads $DOCKER_HOST directly instead of resolving the docker context, so
+# without this it falls back to /var/run/docker.sock and fails on macOS.
 DOCKER_HOST=$(colima status --json | jaq -r .docker_socket)
 export DOCKER_HOST
 

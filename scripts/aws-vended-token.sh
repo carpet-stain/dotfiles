@@ -34,11 +34,8 @@ export AWS_ACCESS_KEY_ID=$key_id AWS_SECRET_ACCESS_KEY=$secret
 export AWS_REGION=us-east-1
 unset AWS_PROFILE AWS_SESSION_TOKEN 2>/dev/null || true
 
-# The parameter value is the {token, expires_at} JSON string vend-token.yml
-# publishes. The expiry check runs in jq (a hard dependency already) —
-# fromdateiso8601/now are portable, no GNU-vs-BSD date dependence. jq -e
-# turns error() or a missing field into a nonzero exit, which set -e
-# surfaces as a loud failure rather than a printed empty or expired token.
+# jq -e, not jq: a missing field or an expired token must exit nonzero, never
+# print an empty or stale token — fail-closed, see ADR-0041.
 aws ssm get-parameter --name /runtime/vended-token --with-decryption \
   --query Parameter.Value --output text | jq -er '
   if (.expires_at | fromdateiso8601) > now then .token

@@ -16,10 +16,8 @@ source $XDG_DATA_HOME/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme
   # Unset all configuration options.
   unset -m '(POWERLEVEL9K_*|DEFAULT_USER)~POWERLEVEL9K_GITSTATUS_DIR'
 
-  # ---[ Catppuccin Theme Palette — mode selected by THEME_MODE (.zshenv) ]---
-  # One-prompt stale-palette flash on the first new shell after a flip is
-  # accepted: instant-prompt's cache renders with the previous session's
-  # palette before this block re-runs (#441).
+  # ---[ Catppuccin palette, mode from THEME_MODE (ADR-0034) ]---
+  # One-prompt stale flash after a flip is accepted: instant-prompt renders from cache (#441).
   if [[ $THEME_MODE == light ]]; then
     local P9K_BG='#eff1f5'     # Base
     local P9K_FG='#4c4f69'     # Text

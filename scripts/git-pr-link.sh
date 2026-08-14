@@ -22,9 +22,8 @@ for arg in "$@"; do
   [[ "$arg" == "--draft" ]] && is_draft=true
 done
 
-# --web (or an aborted create) may leave no PR to look up yet; that's fine,
-# absence here just means "no PR for this branch", the same as if one was
-# never opened.
+# --web or an aborted create may leave no PR to look up; absence just means
+# "no PR for this branch".
 existing_pr=$(gh pr view --json number -q .number 2>/dev/null) || existing_pr=""
 
 if $is_draft; then
@@ -38,10 +37,8 @@ if $is_draft; then
     exit 1
   fi
 
-  # `gh pr create` only seeds the repo's PR template in its interactive
-  # editor flow — never non-interactively (#307). Default the body to the
-  # template ourselves so agent/CI-driven PRs still get it; any flag that
-  # already supplies or sources a body still overrides.
+  # `gh pr create` only seeds the PR template in its interactive editor flow
+  # (#307), so default the body here; body-supplying flags still override.
   has_body=false
   has_title=false
   for arg in "$@"; do
@@ -70,10 +67,8 @@ if [[ -z "$existing_pr" ]]; then
   exit 1
 fi
 
-# Finalize: a PR already exists for this branch. Fetch + rebase onto
-# origin/main here (not just at `git new` start) — finalize is where CI
-# actually reads the base, so this is the forcing function that keeps a
-# stale-started or since-moved branch from landing a stale-base PR (#172).
+# Rebase at finalize, not just at `git new`: finalize is where CI reads the
+# base, so this is what keeps a stale-base PR from landing (#172).
 git fetch origin main
 
 ahead=$(git rev-list --count origin/main..HEAD)
@@ -87,14 +82,7 @@ if ! git rebase origin/main; then
   exit 1
 fi
 
-# Ready before push, not after: `ready_for_review` and the push's own
-# `synchronize` event land on the same head SHA within moments of each
-# other, and GitHub only evaluates pr-guards.yml's draft-gated jobs once
-# per SHA — whichever event's payload it processes first wins. Push-then-
-# ready let that first evaluation see draft:true (still skipping) and
-# never re-ran for real once ready flipped, so a required check could
-# stay permanently "skipped" (which reads as passing) for the merged
-# commit. Flipping ready first means the push's synchronize event is the
-# one GitHub evaluates, with draft already false.
+# Ready before push: both events share a head SHA and pr-guards.yml's
+# draft-gated jobs evaluate once — push-first leaves them skipped (ADR-0015).
 gh pr ready
 git push --force-with-lease
