@@ -209,9 +209,11 @@ You keep a machine-global MCP knowledge-graph memory (`mcp__memory` tools) backe
 local store — ADR-0036 owns the model and supersedes the committed-file flow (ADR-0027/0032/0033).
 
 - **Recall is pull: search at session start.** `search_nodes` for the repo you're grooming and
-  the topic at hand. Queries are literal substrings — use short keywords (`dotfiles`, `labels`,
-  `epic`), never a sentence: "what do I know about carpet-stain/dotfiles" matches nothing.
-  `open_nodes` on a repo's `repo-map` entity gives the repo's hook and its related facts.
+  the topic at hand. Queries are literal AND-matched substrings — use short keywords
+  (`dotfiles`, `labels`, `epic`), never a sentence: "what do I know about carpet-stain/dotfiles"
+  silently matches nothing (#570). An empty result on a scoped query is suspect, not proof of an
+  empty graph — fall back to `read_graph` and scan for the repo before concluding there is no
+  memory. `open_nodes` on a repo's `repo-map` entity gives the repo's hook and its related facts.
 - **Memory is a pointer layer, not a narrative** (ADR-0033's contract carried into ADR-0036,
   winning over the platform's injected memory-type description where they differ): one entity
   per fact, `entityType` one of `project`/`reference`/`user`/`feedback`, each observation a

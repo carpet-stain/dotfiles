@@ -67,9 +67,13 @@ memory-pr`'s draft-PR checkpoint retires with the mechanism. The
   A single machine-global, queryable graph removes the asymmetry: repo
   scoping becomes `repo-map` entities plus relations from facts to their
   repo (POC-validated), and the `map_<repo>.md` files retire.
-- **Recall becomes pull, not push.** No `MEMORY.md` auto-load; the agent is
-  instructed to `search_nodes` at session start. Named trade: a session
-  that skips the query starts colder than auto-load ever let it.
+- **Recall becomes pull, not push.** No `MEMORY.md` auto-load; the agent
+  queries at session start: `search_nodes` with short keywords — the
+  reference server AND-matches literal substrings, so a natural-language
+  query silently returns empty even when matching data exists (#570) —
+  and falls back to `read_graph` when a scoped query returns empty.
+  Named trade: a session that skips the query starts colder than
+  auto-load ever let it.
 - **Transition is a parallel run.** The trial instructions sit alongside
   the committed-file flow, which stays authoritative until the build epic
   cuts over (rollout to the other memory-bearing surfaces, R2 backup
@@ -106,7 +110,8 @@ mechanism is superseded through this chain.
 Privacy holds by construction, not discipline — nothing memory-shaped
 touches a public repo. The worktree-isolation write failures and invisible
 sync timing disappear with `git memory-pr`. Memory becomes queryable at
-runtime ("what do I know about X"), and the store stays a single
+runtime (short-keyword `search_nodes`, not natural-language questions —
+those silently match nothing, #570), and the store stays a single
 human-readable file.
 
 The human review checkpoint is gone; content quality now rides on the
