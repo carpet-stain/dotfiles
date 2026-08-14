@@ -1,160 +1,42 @@
 # Claude Code Agent Configuration
 
-Reusable agent instructions for [Claude Code](https://claude.ai/code), designed so
-**abstract engineering philosophy is written once and inherited by every project**, while
-language-, platform-, and repo-specific detail stays scoped to where it actually applies.
+This repo **consumes** the shared, cross-repo Claude Code rules/agents/skills tree from the
+`claude/global/` submodule ([`carpet-stain/agents`](https://github.com/carpet-stain/agents)) —
+that repo's own [README](https://github.com/carpet-stain/agents/blob/main/README.md) is the
+source of truth for why the tree is organized the way it is, the GATE/LOCAL-WINS/COMPOSE model,
+and the skills/subagents it provides. This file covers only what's specific to consuming it
+here: what stays local to this repo, and how deploy layers the two together.
 
-## Why this exists
+Phase 1 of the extraction is dotfiles#567; `voice.md` and `backlog-manager.md` are Phase 2
+(dotfiles#569) — see that issue for why they haven't moved yet.
 
-A single monolithic `CLAUDE.md`/`AGENTS.md` per repo mixes three incompatible things:
+## What stays local to this repo
 
-1. **Universal philosophy** — how I want code designed, tested, and shipped. True everywhere.
-2. **Language/platform conventions** — Go idioms, a hosting platform's mechanics. True for _some_ repos.
-3. **Repo-specific facts** — commands, paths, branch names. True for _one_ repo.
+A handful of files aren't part of the shared tree, either because they're specific to this
+repo (`verify-nvim-config` checks _this_ repo's nvim config) or because they carry
+repo-specific identity/memory that shouldn't be shared across every consumer of
+`claude/global/` (`backlog-manager`'s MCP knowledge-graph memory, `voice.md`'s maintainer-voice
+corpus):
 
-Mixing them blocks reuse (you can't lift the philosophy into another repo without dragging repo
-facts along) and injects **wrong context** into the agent (Go rules in a Python repo, one
-platform's commands in an unrelated repo). This setup keeps them apart.
+| File                                | Why it stays local                                                      |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| `claude/rules/universal/voice.md`   | Seeded from this repo's own session transcripts (Phase 2, dotfiles#569) |
+| `claude/agents/backlog-manager.md`  | Repo-specific MCP memory/identity (Phase 2, dotfiles#569)               |
+| `claude/rules/platform/private/`    | Gitignored, machine-local platform files — never committed anywhere     |
+| `claude/skills/verify-nvim-config/` | Verifies _this_ repo's nvim config specifically                         |
 
-## Claude Code authors it; `AGENTS.md` is what any agent reads
+### Subagent memory: a private machine-global knowledge graph
 
-This machinery is **Claude Code-specific**: the `~/.claude/rules/` tree, `paths:` gating, the
-GATE/LOCAL-WINS/COMPOSE blocks the agent evaluates, the skills, the subagents. No other tool
-reads `~/.claude/rules/` or honors that structure — it's built on how Claude Code discovers and
-loads rules.
-
-What it _produces per repo_ is deliberately not. `compose-agents` instantiates these Claude Code
-rules into a repo's **`AGENTS.md`** — the emerging cross-tool convention other agents (Cursor,
-Codex, and the rest) read — as a self-contained doc with **zero dependency on `~/.claude` behind
-it**. That's the [self-containment](#compose-and-why-the-duplication-is-deliberate) COMPOSE
-already demands, pushed one step further: the local doc must be correct not just for a
-contributor without my global files, but for a _different model entirely_.
-
-The bridge is a symlink. Claude Code looks for `CLAUDE.md`; the vendor-neutral file is
-`AGENTS.md`. Each composed repo carries a gitignored **`CLAUDE.md → AGENTS.md`** symlink, so
-Claude Code reads the exact file every other agent reads as `AGENTS.md` — one source of truth,
-two names. `compose-agents` proposes this symlink (its Step 7); this repo's own root `CLAUDE.md`
-_is_ one (see the [Deployment gitignore note](#deployment-claude-a-documented-xdg-exception)).
-So: **Claude Code-specific authoring here → vendor-neutral consumption per repo.** The philosophy
-is written once against Claude Code and emitted in a form no model is locked out of.
-
-## How the files are organized
-
-`claude/rules/` groups files by how broadly they apply — the directory name is the scope, nothing
-to cross-reference:
-
-| Directory                   | File                          | Applies to                                   | Loading                                                             |
-| --------------------------- | ----------------------------- | -------------------------------------------- | ------------------------------------------------------------------- |
-| `rules/universal/`          | `design-principles.md`        | How code/tools are shaped                    | Always applies                                                      |
-|                             | `engineering-practices.md`    | How work gets done (testing, security)       | Always applies                                                      |
-|                             | `documentation.md`            | Documentation ownership & currency           | Always applies                                                      |
-|                             | `ai-collaboration.md`         | How the agent operates                       | Always applies                                                      |
-|                             | `communication.md`            | What gets said/written                       | Always applies                                                      |
-|                             | `voice.md`                    | Shipped work under the maintainer's identity | Always applies (content-scope test in its header)                   |
-| `rules/domain/`             | `architecture.md`             | Building a layered application               | Self-gates on being a layered app                                   |
-| `rules/tools/`              | `git.md`                      | Any git repo, any host                       | Always applies (trivial gate)                                       |
-|                             | `go.md`                       | Go repos only                                | Native `paths:` frontmatter — loads only on `go.mod`/`*.go`         |
-|                             | `python.md`                   | Python repos only                            | Native `paths:` frontmatter — loads only on `pyproject.toml`/`*.py` |
-| `rules/platform/`           | `github.md`                   | GitHub-hosted repos only                     | Self-gates on github.com origin                                     |
-| `rules/platform/` (private) | _(machine-local, gitignored)_ | Repos on a given hosting platform            | Self-gates on that platform's tooling                               |
-| _(in each repo)_            | `AGENTS.md` + `docs/`         | One repo only                                | Repo's own files                                                    |
-
-Roughly ordered by breadth: universal (every project) → domain (a class of codebase, e.g. a
-layered application) → tools (git/language) → platform (host) → repo (this one). A specificity
-gradient, not a numbered system: every file's gate is evaluated independently, so a file that
-documents itself as "assuming X" (`github.md` assumes `git.md`) is a trusted relationship, not a
-mechanically checked one.
-
-There is no loader file. The whole `rules/` tree deploys as a single symlink into Claude Code's own
-`~/.claude/rules/`, which it auto-discovers and loads recursively in every project. Drop a
-file into the right directory and it loads — nothing to wire. Private or work-internal platform
-files are deliberately **not committed** here — see [Private files](#private-files-workinternal-platform-files).
-
-**Why split at all, rather than one file?** Two reasons a monolith can't give. Topical files keep
-each one focused enough that the removal test (below) stays usable — easy to ask "does
-`design-principles.md` earn every line," hard to ask it of a file that's also about testing, AI
-conduct, and prose. And separating `git.md` (branching philosophy true on any host) from `github.md`
-(`gh`, Actions, squash-merge behavior specific to one host) lets a GitLab repo reuse the same
-`git.md` baseline with a `gitlab.md` beside it.
-
-## The model: load-all, then self-gate — except where a native gate exists
-
-Most files load in **every** project; scope is enforced _after_ loading, by named blocks at the top
-of each file the agent evaluates against the current repo — **GATE** (when the file applies),
-**LOCAL-WINS** (a repo's own doc beats it on overlap), and, for tools/platform files, **COMPOSE**
-(how to instantiate it). A file carries only the blocks it needs. The GATE conditions:
-
-- `universal/` → apply always (no gate).
-- `domain/architecture.md` → only when the repo builds a layered application; a soft prose GATE like
-  `github.md`, since there's no crisp path signal for "is this a layered app."
-- `git.md` → if this repo uses git (nearly always — a rare-exception gate, not a real filter).
-- `github.md` → only if the repo's origin is GitHub; otherwise ignored.
-- a private platform file → only if that platform's tooling is present; otherwise ignored
-  (emphatically — its commands are _wrong_ elsewhere, not merely unnecessary). Distinct platforms are
-  mutually exclusive per repo, each gating on its own tooling.
-
-The language files (`go.md`, `python.md`) are the exception: they use Claude Code's native `paths:`
-frontmatter instead of a prose guard, because "is this a `.go`/`go.mod` (or `.py`/`pyproject.toml`)
-file" is a crisp per-file signal a glob expresses directly — unlike GitHub-origin or
-platform-tooling checks, which have no path to hook into.
-
-This is a **blacklist** (load everything, exclude what doesn't fit), not a whitelist (opt-in per
-repo). Worth it because only a few broad files match most of my work, so loading them all is a
-small, fixed cost with **zero per-repo wiring**. If many niche files accumulate later, revisit —
-whitelist scales better then. Two honest caveats:
-
-- **Soft gating.** For prose-gated files, exclusion works because the model honors the GATE text, not
-  because the file is structurally absent — reliable for crisp guards ("not GitHub → ignore"), but
-  still soft, and the file's bytes load either way. `go.md`'s `paths:` gate is the sturdier kind:
-  structurally absent until Claude reads a Go file, then loaded for that session. Prefer a path gate
-  wherever one fits; not every gate can be one.
-- **Cost is in length, not count.** Loading a handful of files every session is cheap; a _long_ file
-  is not — verbosity itself reduces adherence, so the files stay few and short. See
-  [Why the rule files are terse](#why-the-rule-files-are-terse).
-
-## Local-wins precedence
-
-When an applied file overlaps a repo's own docs, **the repo wins**. Enforced redundantly so no
-single soft instruction is load-bearing:
-
-1. Each file's LOCAL-WINS block says "if the repo has its own doc, prefer it; treat this as baseline."
-2. The repo's committed `AGENTS.md` independently claims authority for its `docs/`.
-3. (For composed repos) the COMPOSE step writes that precedence line into the repo.
-4. Natively, Claude Code loads user-level rules _before_ a repo's own
-   `CLAUDE.md`/`.claude/rules/`, so the repo's files come later and carry higher
-   priority — load-order backing for local-wins. Still context, not hard
-   enforcement (only a hook enforces), but the one reinforcement that isn't soft prose.
-
-The `universal/` files are the exception: a repo never _overrides_ them — a repo's `DESIGN.md`
-_illustrates_ how the principles are realized there. Illustrate, don't replace.
-
-## COMPOSE, and why the duplication is deliberate
-
-`git.md` and a platform file are **templates** with literal `<placeholders>` (scopes, branch names);
-`go.md` has softer abstractions ("your linter"). When a repo _lacks_ a concrete doc for one, the
-file's COMPOSE block tells the agent how to distill a repo-specific doc (e.g. `docs/CODING.md`, an
-`AGENTS.md` section) by filling in the real nouns, then wire the precedence line. Default is
-**propose-don't-create** — the agent suggests and waits before writing committed files. `github.md`
-has no `<placeholders>` and no COMPOSE block (`git.md` owns everything composable); the `universal/`
-files have none either — a standard is applied, not instantiated.
-
-The result **duplicates**: a composed repo's `AGENTS.md` is a _full instantiation_ of the abstract —
-it restates the structure with the repo's nouns, so the abstract (always loaded) and the local
-restatement sit in context together. That's deliberate, for two reasons:
-
-- **Self-containment.** The local doc must be correct for a reader with none of these global files —
-  another contributor, CI, an agent on a different machine. A public repo's `AGENTS.md` can't assume
-  `~/.claude` is loaded behind it, so it restates the generic structure rather than pointing
-  at a file the reader may not have.
-- **Uncomposed repos.** The abstract earns its keep in repos that have _no_ `AGENTS.md` yet — there
-  it's the whole guidance. Composed repos tolerate the overlap; that's the price of the abstract being
-  universally present.
-
-Duplication's only real danger is divergence — two statements of the branch model drifting apart. The
-guard is _direction_: the abstract is the **source**, the local doc is **derived from it** by COMPOSE,
-and the abstract goes **inert** for that repo afterward (it was distilled _from_ that repo and must
-not be fed back). Change a convention in one place — the abstract — and re-compose; never hand-edit
-the instantiated structure expecting it to flow back. One source, one derived artifact.
+Backlog-manager's memory is an MCP knowledge graph (`@modelcontextprotocol/server-memory`, wired
+inline in its frontmatter) backed by one private local store at
+`~/.claude/agent-memory-mcp/backlog-manager.jsonl` — ADR-0036 owns the decision and supersedes
+the committed-file model (ADR-0027/0032/0033). Outside every repo, so private by construction;
+writes persist immediately with no sync step or review gate. The dividing line from the
+subagent's own definition (`claude/agents/backlog-manager.md`) is unchanged: a rule that would
+hold for this subagent in _any_ repo belongs in the definition; a fact specific to one repo lives
+in the graph, related to that repo's `repo-map` entity. Content follows the pointer-layer
+contract (one-line pointer-shaped facts, never restated issue status); the `audit-memory` skill
+(from `claude/global/`) is the detection backstop.
 
 ## Deployment (`~/.claude`, a documented XDG exception)
 
@@ -166,248 +48,41 @@ ever half-worked: CLI config under `$XDG_CONFIG_HOME/claude`, daemon/telemetry s
 `~/.claude` regardless. `~/.claude` is now the accepted, documented home for everything — see
 AGENTS.md's XDG-exceptions table.
 
-The deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) symlink the **whole `rules/` tree**,
-the **`agents/`** tree, and the **`skills/`** tree as units, plus the global `settings.json`:
+The deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) layer `claude/global/`'s shared tree
+with this repo's local-only files into `~/.claude/{rules,agents,skills}`:
 
 ```text
-claude/rules/                → ~/.claude/rules/
-claude/agents/               → ~/.claude/agents/
-claude/skills/               → ~/.claude/skills/
-claude/settings.json         → ~/.claude/settings.json
+claude/global/rules/{domain,tools}/  → ~/.claude/rules/{domain,tools}/   (whole-dir symlink — moved entirely)
+claude/global/rules/universal/*.md   ┐
+claude/rules/universal/voice.md      ┴→ ~/.claude/rules/universal/       (per-file symlinks — mixed source)
+claude/global/rules/platform/github.md ┐
+claude/rules/platform/private/         ┴→ ~/.claude/rules/platform/      (per-file symlinks — mixed source)
+claude/global/agents/plan-reviewer.md  ┐
+claude/agents/backlog-manager.md       ┴→ ~/.claude/agents/              (per-file symlinks — mixed source)
+claude/global/skills/*/                ┐
+claude/skills/verify-nvim-config/      ┴→ ~/.claude/skills/              (per-entry symlinks — mixed source)
+claude/settings.json                   → ~/.claude/settings.json
 ```
 
-Claude Code reads `~/.claude/rules/` recursively — every `*.md` under it loads at launch with
-no index file and nothing to keep in sync when a file is added, renamed, or moved. Edit a source file
-here → the symlink reflects it → every project inherits the change, with nothing copied. Adding a whole
-new directory (the `domain/` scope was added exactly this way) needs no deploy-script edit — it's
-already inside the symlinked tree.
+`domain/` and `tools/` moved to `claude/global/` entirely (nothing local left in them), so a
+single directory symlink still covers them — same zero-per-file-wiring property as before.
+`universal/`, `platform/`, `agents/`, and `skills/` each mix a submodule majority with a named
+local exception, so the destination is a real directory populated by one symlink per submodule
+entry (globbed at deploy time — a new file landing in `claude/global/`'s tree needs no
+deploy-script edit) plus the specific local files listed above.
 
 `claude/settings.json` is unrelated to the rule files — it's Claude Code's own top-level config
-(telemetry, error reporting, auto-update), kept here and symlinked so it's version-controlled instead
-of a manual one-off edit.
+(telemetry, error reporting, auto-update), kept here and symlinked so it's version-controlled
+instead of a manual one-off edit.
 
-> **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`, for the
-> dotfiles repo's _own_ agent guidance) which is gitignored.
-
-## Subagents (`claude/agents/`)
-
-Alongside the always-loaded `rules/`, `claude/agents/` holds Claude Code **subagents** — specialized
-assistants the main agent delegates to for a bounded job, each with its own context, system prompt,
-tools, and model. `agents/` deploys exactly like `rules/`: one directory symlink to
-`~/.claude/agents/`, discovered recursively, with no per-agent wiring. A subagent is **not**
-always-on context — it loads only when delegated to, so it costs nothing until used.
-
-- **`backlog-manager`** — a project-manager / ticket specialist that owns GitHub issue and backlog
-  work: writing, labeling, prioritizing, grooming, and driving issues. Repo-agnostic — it reads each
-  repo's labels and conventions at runtime rather than hardcoding them — and retains backlog knowledge
-  across sessions in an MCP knowledge-graph memory (see below). Delegate by mentioning issues/backlog,
-  by name, or run a dedicated session with `claude --agent backlog-manager`.
-- **`plan-reviewer`** — an adversarial, read-only design reviewer: a fresh isolated context critiques
-  a plan, design, or architecture _before_ it's built and returns a ranked critique (gaps, risks,
-  unstated assumptions, boundary problems, simpler alternatives). Repo-agnostic — reads the repo's
-  conventions at runtime — and read-only by structural guarantee (no Write/Edit in its tools, like
-  `audit-rules`). It's the taxonomy exception below: no persistent memory, justified by context
-  isolation alone. Delegate before committing to a non-trivial plan, or by name.
-
-### Subagent memory: a private machine-global knowledge graph
-
-Backlog-manager's memory is an MCP knowledge graph (`@modelcontextprotocol/server-memory`, wired
-inline in its frontmatter) backed by one private local store at
-`~/.claude/agent-memory-mcp/backlog-manager.jsonl` — ADR-0036 owns the decision and supersedes
-the committed-file model (ADR-0027/0032/0033). Outside every repo, so private by construction;
-writes persist immediately with no sync step or review gate. The dividing line from the
-subagent's own definition (`claude/agents/<name>.md`) is unchanged: a rule that would hold for
-this subagent in _any_ repo belongs in the definition — hand-reviewed, symlinked everywhere the
-agent runs; a fact specific to one repo lives in the graph, related to that repo's `repo-map`
-entity. Content follows the pointer-layer contract (one-line pointer-shaped facts, never
-restated issue status); the `audit-memory` skill is the detection backstop.
-
-## Skills (`claude/skills/`)
-
-A Skill is on-demand, not always-on: Claude Code invokes it by name (`/skill-name`) or
-auto-invokes it when its `description` matches the request, and it costs nothing outside that.
-That's the deciding difference from a subagent — a subagent earns its place only when
-persistent memory, repeated delegation, _and_ context isolation all apply together, with one
-exception: an adversarial reviewer (`plan-reviewer`) earns it on context isolation alone, because
-a skill runs in the same context that produced the thing and so can't bring fresh eyes to it. A
-one-shot analysis with neither persistent memory nor that isolation-is-the-point constraint is a
-skill, not a subagent. `skills/` deploys exactly like `rules/`
-and `agents/`: one directory symlink to `~/.claude/skills/`, with each skill's
-`SKILL.md` living at `skills/<name>/SKILL.md`, discovered recursively, no per-skill wiring.
-Skills are repo-agnostic and don't GATE the way rules do — a skill either fires on request or it
-doesn't, there's nothing to self-gate against a repo's shape.
-
-- **`audit-rules`** — reads `~/.claude/rules/` and reports contradictions (two
-  directives that disagree) and sprawl (files over ~200 lines or spanning more than one topic).
-  Propose-don't-apply, enforced structurally: it has no Write/Edit access, so it can only report
-  findings, never act on them.
-- **`compose-agents`** — the opposite direction: drafts or updates a repo's `AGENTS.md` by
-  instantiating each applicable rule file's COMPOSE block with facts detected from the repo
-  (branch model, version scheme, scopes, pre-commit tooling). Propose-don't-create: it presents
-  a full draft or diff in chat and waits for approval before anything is written.
-
-**Authoring convention — keep a `SKILL.md` lean.** Intent, triggers, and a map of what's
-available belong in the entry file; target one screen, with ~500 lines the ceiling, not a goal.
-Depth that only some runs need — long checklists, worked examples, per-case detail — lives in
-`resources/*.md` beside it, loaded on demand. A skill's cost is the length it pulls into context,
-not the count of skills, so a skill that outgrows a screen offloads depth to resource files
-instead of inlining it. The two skills above sit near 200 lines with nothing split out yet; reach
-for the pattern when a skill grows (likely #280's nvim skill or a future terraform one), not before.
-
-**When something earns being a skill — three gates, all present.** Shape aside, a lesson is
-skill-worthy only when: a check actually passed (a green test, a clean exit, a reproduced repro —
-"seemed to work" doesn't count); the specific failure it avoids or diagnoses is named; and at
-least one dead-end is recorded — an approach tried and ruled out, with the reason. Miss one and
-it's a memory note (for agents that keep memory) or nothing, not a skill. Origin: spike #387 — the
-promotion rule from `self-learning-skills`, machinery dropped, same mechanisms-yes/infra-no line as
-the #298 filter.
-
-**An MCP must earn its context tax.** Tool schemas load into every session, so a default MCP
-server taxes every session's context whether it's used or not. Default to a skill wrapping a CLI
-or REST call; reach for an MCP only when it needs what a CLI-in-a-skill can't give — interactive
-session state, streaming, an auth handshake, or structured browsing. Zero MCPs run here today;
-this is the bar the first one clears. Origin: spike #380.
-
-## Lifecycle: running the skills over a repo's life
-
-`compose-agents` and `audit-rules`, plus Claude Code's built-in `/init` and `/doctor`, all touch
-a repo's `AGENTS.md` — but they were built separately, so the order that works depends on where
-the repo starts.
-
-**Fresh repo (no `AGENTS.md`/`CLAUDE.md`).**
-
-1. **`compose-agents`** (Draft mode) — drafts `AGENTS.md`: instantiated rule sections (each with a
-   `> Concrete realization of …` lineage line) plus `<!-- TODO -->` skeletons for the
-   codebase-domain sections. Approve, it writes.
-2. **Fill the TODO sections** — have the main agent analyze the codebase into them. _Not_
-   `/init`: it writes `CLAUDE.md`, not `AGENTS.md` (see the friction note), so here it drafts the
-   wrong file.
-3. **`audit-rules`** — QA the result: `AGENTS.md`↔`README` replication, restated enforcement,
-   sprawl.
-4. **Add the gitignored `CLAUDE.md → AGENTS.md` symlink** last, as final wiring.
-
-**Repo whose doc contradicts a rule.** A contradiction is _allowed_ — under LOCAL-WINS the repo
-wins — so the job is to separate a deliberate override from accidental drift. `compose-agents`
-(Update mode, or Migrate mode for a real `CLAUDE.md`) reads the doc, and where a hand-authored
-section contradicts a rule it _surfaces the choice_ rather than overwriting: adopt the rule's
-semantics, or keep the override and record it with a marker —
-`> Overrides **<rule>.md** § … — reason: …`. `audit-rules` reads that same marker: a marked
-section is a settled departure it skips; an _unmarked_ contradiction is what it flags, proposing
-either adoption or the marker. Deliberate overrides go quiet once marked; only accidental drift
-keeps surfacing.
-
-**Repo with an `AGENTS.md` silent on the rules' topics.** `compose-agents` Update mode _augments_
-it: for every rule that gates on for the repo but has no section in the doc, it proposes adding
-the instantiation, leaving existing prose untouched. A doc that predates the rules gets offered
-exactly what it's missing instead of being left alone.
-
-**Two frictions with the built-ins:**
-
-- **`/init` targets `CLAUDE.md`.** This setup is `AGENTS.md`-canonical (`CLAUDE.md` is a symlink
-  to it), so running `/init` blind produces a second, competing file. Use it only if you redirect
-  its output into `AGENTS.md`, or skip it and let the main agent fill the TODO sections.
-- **`/doctor` trims files over 200 lines.** `AGENTS.md` has a deliberately higher threshold
-  (soft-warn ~250, firm-flag ~300 — see [Why the rule files are
-  terse](#why-the-rule-files-are-terse)), so don't let `/doctor` cut a legitimately long one.
-  It's install-health, not part of this lifecycle.
-
-## Private files (work/internal platform files)
-
-Some platform files describe **internal or employer-owned tooling** (hostnames, CLIs, build systems)
-that must **never** land in this public repo. They live in one gitignored directory —
-`claude/rules/platform/private/` — so a new one is safe **by default**: dropping a file in there is
-enough, with no per-file `.gitignore` edit to remember and get wrong.
-
-1. **Write the file** at `claude/rules/platform/private/<name>.md`, with its own GATE and LOCAL-WINS
-   blocks, exactly like a committed platform file.
-2. **Nothing else.** The directory is gitignored as a whole, so the file can't be committed by
-   accident. `rules/` is already symlinked as one tree and discovered recursively, so the file loads
-   into `~/.claude/rules/` with no deploy-script or gitignore wiring.
-
-**Why a whole ignored directory, not a per-file ignore line:** naming each private file in
-`.gitignore` means one forgotten line leaks internal tooling into a public repo — the exact disaster
-this mechanism prevents — and it spells the private file's name out in the public `.gitignore`
-besides. A directory ignored wholesale is safe the instant a file lands in it, and names nothing.
-
-**On a fresh clone** (or any machine lacking the files) `platform/private/` is simply empty — the
-symlink still resolves, the public files load normally, with zero internal leakage. On a machine that
-needs one, drop the file in `private/`; no re-deploy, the directory symlink is already there.
-
-## How it behaves per repo (worked examples)
-
-| Repo                                           | universal | domain(arch)                  | go                           | git                 | github                       | private platform                 | Net effect                                                           |
-| ---------------------------------------------- | --------- | ----------------------------- | ---------------------------- | ------------------- | ---------------------------- | -------------------------------- | -------------------------------------------------------------------- |
-| Go + internal platform, rich docs              | applies   | gates on; DESIGN.md shows how | gates on, but CODING.md wins | applies, baseline   | gates off (private platform) | gates on, but OPERATIONS.md wins | local docs authoritative; files baseline                             |
-| New Go µ-service on internal platform, no docs | applies   | gates on, fully used          | gates on, fully used         | applies, fully used | gates off                    | gates on, fully used             | files carry conventions from day one                                 |
-| Python service on GitHub                       | applies   | gates on (layered app)        | gates off (no go.mod)        | applies             | gates on                     | gates off                        | universal + arch + git + GitHub, no Go leakage                       |
-| GitHub OSS (Go)                                | applies   | gates on                      | gates on                     | applies             | gates on                     | gates off (emphatic)             | universal + arch + Go + git + GitHub, zero internal-platform leakage |
-| Dotfiles / config repo (this one)              | applies   | gates off (no layers)         | gates off (no go.mod)        | applies             | gates on                     | gates off                        | universal + git + GitHub; no architecture or Go doctrine loaded      |
-
-## Authoring rules for these files
-
-- **`universal/`, `domain/`, and `tools/` must contain no repo-specific nouns** — no paths, branch
-  names, service names. `domain/` is philosophy like `universal/` (illustrated, never overridden, no
-  COMPOSE); `tools/` may name Go/git tools and idioms; a `platform/` file may name that platform's
-  tools but keeps repo values as `<placeholders>`.
-- **References are one-directional**: a repo may point at a file here; a file
-  here must never point at a specific repo. A `platform/` file may point at
-  its `tools/` baseline (`github.md` → `git.md`).
-- **Never commit an internal/work platform file to a public repo** — keep it as a
-  [private file](#private-files-workinternal-platform-files).
-
-## Why the rule files are terse
-
-The `rules/` files are directives, not essays. They load into **every** session, and Claude Code's own
-guidance is blunt: files over ~200 lines cost context and _reduce_ adherence — the more concise the
-instruction, the more reliably it's followed. So the files hold themselves to `communication.md`'s own
-standard (terse, concrete, lead with the point) instead of exempting themselves from it.
-
-The split that keeps them lean:
-
-- **Directive vs. rationale.** The always-loaded file carries the _what_. The _why_ lives here in the
-  README (which loads _never_) when a reader would need it, or is cut entirely when it's generic
-  engineering knowledge the model already has ("write the minimum code" doesn't need three sentences
-  defending it). Non-obvious _why_ that changes behavior stays inline (e.g. force-push aborts if the
-  remote moved).
-- **No restatement.** A closing "Before Finishing" checklist that re-lists the
-  file's own principles is pure duplication; it's compressed to a handful of
-  cross-cutting checks in `ai-collaboration.md`, not repeated per file.
-
-A pass in this spirit took the always-loaded set (universal + `git.md`) from
-~390 to ~250 lines with no directive lost — proof that most of the length was
-justification, not instruction.
-
-**AGENTS.md gets a different, higher threshold.** It's not a rules file — it's the composed
-per-repo guide, legitimately carrying domain sections (what-this-is, structure, verification)
-none of the files above have, so the ~200 cap would false-positive constantly. Its own signal:
-soft-warn past ~250 lines, firmly flag past ~300. Past that point the usual cause is the same
-sprawl the rules files fight — restated enforcement or unpruned topic overlap — so `audit-rules`
-treats a long AGENTS.md as a symptom pointing at those checks, not a bare "too long."
-
-## Maintenance discipline (the removal test)
-
-These files should grow the same way any codebase should: additions earn their place, and nothing sits
-there just because it seemed like a good idea once.
-
-- **Add a rule only after it would have prevented an actual mistake** — not because it sounds reasonable
-  in the abstract.
-- **Remove a rule once it's being followed without being told** — a convention that's now just how
-  things are done doesn't need to keep paying rent in every session's context.
-- **Audit periodically for contradictions** across these files and against a repo's own docs; two rules
-  that disagree mean the model picks one arbitrarily. The `audit-rules` skill automates finding these
-  (and length/topic sprawl) — it doesn't replace the judgment calls below, only the sweep.
-- **Longer files weaken adherence** — if a file is growing, look for what it's earned the right to keep;
-  if it's growing because it covers more than one topic, split it, the way `philosophy.md` split into
-  the `universal/` files. The same test applies to this README: rationale lives here, but it earns
-  its place too.
+> **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`, for
+> the dotfiles repo's _own_ agent guidance) which is gitignored.
 
 ## Verifying it works
 
-Run `/memory` in a fresh session inside any repo — it lists every loaded
-`CLAUDE.md` and rules file, so you can confirm the `universal/` files and the
-applicable `tools/`/`platform/` files loaded from `~/.claude/rules/`.
-Then ask the agent whether each file's GATE fired correctly and whether
-local docs win on overlap. For a precise trace of which files loaded, when, and why — the definitive
-check that `go.md`'s `paths:` gate fires only on Go files — enable Claude Code's `InstructionsLoaded`
-hook, which logs exactly that. The decisive negative test is a repo on none of the gated
-platforms/languages — only the `universal/` files should apply.
+Run `/memory` in a fresh session inside any repo — it lists every loaded `CLAUDE.md` and rules
+file, so you can confirm the `universal/` files (both the submodule's and `voice.md`) and the
+applicable `tools/`/`platform/` files loaded from `~/.claude/rules/`. Then ask the agent whether
+each file's GATE fired correctly and whether local docs win on overlap. For a precise trace of
+which files loaded, when, and why, enable Claude Code's `InstructionsLoaded` hook, which logs
+exactly that.

@@ -259,20 +259,47 @@ install_neovim() {
 link_configs() {
   ln -sf "$DOTFILES_DIR/zsh/.zshenv" "$HOME/.zshenv"
 
-  # Whole-dir symlink into ~/.claude — see claude/README.md and AGENTS.md's
-  # XDG exceptions (#134). The rm's clear prior layouts deploy still owns.
+  # → ~/.claude/{rules,agents,skills}, layered from claude/global/ (submodule)
+  # plus repo-local exceptions — see claude/README.md § Deployment; ADR-0039.
+
+  # The rm's clear prior layouts deploy still owns.
   rm -f "$HOME/.claude/CLAUDE.md"
   rm -rf "$HOME/.claude/fragments"
   rm -rf "$HOME/.claude/rules"
-  ln -sfn "$DOTFILES_DIR/claude/rules" "$HOME/.claude/rules"
-
-  # Same whole-dir symlink as rules/ — see claude/README.md § Subagents.
   rm -rf "$HOME/.claude/agents"
-  ln -sfn "$DOTFILES_DIR/claude/agents" "$HOME/.claude/agents"
-
-  # Same whole-dir symlink as rules/ — see claude/README.md § Skills.
   rm -rf "$HOME/.claude/skills"
-  ln -sfn "$DOTFILES_DIR/claude/skills" "$HOME/.claude/skills"
+
+  mkdir -p "$HOME/.claude/rules"
+  ln -sfn "$DOTFILES_DIR/claude/global/rules/domain" "$HOME/.claude/rules/domain"
+  ln -sfn "$DOTFILES_DIR/claude/global/rules/tools" "$HOME/.claude/rules/tools"
+
+  mkdir -p "$HOME/.claude/rules/universal"
+  shopt -s nullglob
+  for f in "$DOTFILES_DIR"/claude/global/rules/universal/*.md; do
+    ln -sf "$f" "$HOME/.claude/rules/universal/$(basename "$f")"
+  done
+  shopt -u nullglob
+  ln -sf "$DOTFILES_DIR/claude/rules/universal/voice.md" "$HOME/.claude/rules/universal/voice.md"
+
+  mkdir -p "$HOME/.claude/rules/platform"
+  ln -sf "$DOTFILES_DIR/claude/global/rules/platform/github.md" "$HOME/.claude/rules/platform/github.md"
+  ln -sfn "$DOTFILES_DIR/claude/rules/platform/private" "$HOME/.claude/rules/platform/private"
+
+  # backlog-manager stays local: repo-specific MCP memory/identity, not
+  # something every consumer of claude/global/ should inherit.
+  mkdir -p "$HOME/.claude/agents"
+  ln -sf "$DOTFILES_DIR/claude/global/agents/plan-reviewer.md" "$HOME/.claude/agents/plan-reviewer.md"
+  ln -sf "$DOTFILES_DIR/claude/agents/backlog-manager.md" "$HOME/.claude/agents/backlog-manager.md"
+
+  # verify-nvim-config stays local: it verifies *this* repo's nvim config.
+  mkdir -p "$HOME/.claude/skills"
+  shopt -s nullglob
+  for d in "$DOTFILES_DIR"/claude/global/skills/*/; do
+    d=${d%/}
+    ln -sfn "$d" "$HOME/.claude/skills/$(basename "$d")"
+  done
+  shopt -u nullglob
+  ln -sfn "$DOTFILES_DIR/claude/skills/verify-nvim-config" "$HOME/.claude/skills/verify-nvim-config"
 
   # Claude Code global settings (telemetry/error-reporting/auto-update opt-outs).
   ln -sf "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
