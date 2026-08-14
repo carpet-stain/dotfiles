@@ -42,7 +42,9 @@ autoload -Uz \
   _ai-fill \
   _ai-fill-bounded \
   _ai-fill-bounded-descendants \
-  _ai-fill-bounded-terminate
+  _ai-fill-bounded-terminate \
+  _zellij-tab-precmd \
+  _zellij-tab-preexec
 
 zle -N _zsh-dot
 zle -N _expand-alias
@@ -56,6 +58,10 @@ autoload -Uz add-zsh-hook
 # +-------+
 
 add-zsh-hook chpwd _chpwd-eza
+
+# Live zellij tab name: cwd basename at the prompt, foreground command mid-run.
+add-zsh-hook precmd _zellij-tab-precmd
+add-zsh-hook preexec _zellij-tab-preexec
 
 # +-----+
 # | ZLE |
