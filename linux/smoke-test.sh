@@ -44,8 +44,13 @@ echo "Config symlinks:"
 check ".zshenv linked" bash -c '[[ -L $HOME/.zshenv && -e $HOME/.zshenv ]]'
 # shellcheck disable=SC2016
 check "nvim init.lua linked" bash -c '[[ -L $XDG_CONFIG_HOME/nvim/init.lua && -e $XDG_CONFIG_HOME/nvim/init.lua ]]'
+# claude/rules is a real dir, not a symlink — see claude/README.md § Deployment.
 # shellcheck disable=SC2016
-check "claude/rules linked" bash -c '[[ -L $HOME/.claude/rules && -e $HOME/.claude/rules ]]'
+check "claude/rules/universal (whole-dir submodule) linked" bash -c '[[ -L $HOME/.claude/rules/universal && -e $HOME/.claude/rules/universal ]]'
+# shellcheck disable=SC2016
+check "claude/rules/platform/github.md (mixed-dir submodule file) linked" bash -c '[[ -L $HOME/.claude/rules/platform/github.md && -e $HOME/.claude/rules/platform/github.md ]]'
+# shellcheck disable=SC2016
+check "claude/agents (whole-dir submodule) linked" bash -c '[[ -L $HOME/.claude/agents && -e $HOME/.claude/agents ]]'
 # shellcheck disable=SC2016
 check "zsh-patina config linked" bash -c '[[ -L $XDG_CONFIG_HOME/zsh-patina/config-mocha.toml && -e $XDG_CONFIG_HOME/zsh-patina/config-mocha.toml ]]'
 
