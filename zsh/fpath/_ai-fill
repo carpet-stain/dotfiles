@@ -1,0 +1,85 @@
+#!/usr/bin/env zsh
+
+# ZLE widget (Alt+I, #555): fills BUFFER from aichat's one-shot shell-fill
+# role — the bare loop only, no context probes (that's #556). BUFFER/CURSOR
+# change only on a clean, non-empty reply; any guard failure, timeout, or
+# Ctrl-C leaves the typed line exactly as it was (the abort contract).
+_ai-fill() {
+  emulate -L zsh
+  setopt local_options extended_glob localtraps
+
+  if [[ -z ${BUFFER//[[:space:]]/} ]]; then
+    zle -M 'ai-fill: nothing to fill'
+    zle beep
+    return 0
+  fi
+
+  if (( ! ${+commands[aichat]} )); then
+    zle -M 'ai-fill: aichat not installed'
+    zle beep
+    return 0
+  fi
+
+  # Same Keychain resolution as scripts/aichat-pane.sh — see AGENTS.md's
+  # OpenRouter section. This role file carries no key.
+  local api_key=${OPENROUTER_API_KEY:-$(security find-generic-password -s openrouter-api-key -a openrouter -w 2>/dev/null)}
+  if [[ -z $api_key ]]; then
+    zle -M 'ai-fill: no OpenRouter key — see AGENTS.md Credentials'
+    zle beep
+    return 0
+  fi
+
+  local prompt=$BUFFER reply rc
+  zle -M 'ai-fill: thinking…'
+
+  # Watchdog subshell, not `timeout`(1) — no new coreutils dependency
+  # (#555). TRAPINT kills both children on timeout or Ctrl-C.
+  reply=$(
+    TRAPINT() { kill -TERM $pid $watchdog 2>/dev/null; return 130 }
+    OPENROUTER_API_KEY=$api_key OPENAI_COMPATIBLE_API_KEY=$api_key \
+      aichat --role shell-fill --no-stream -- "$prompt" 2>/dev/null &
+    pid=$!
+    ( sleep 15; kill -TERM $pid ) 2>/dev/null &
+    watchdog=$!
+    wait $pid
+    local st=$?
+    kill $watchdog 2>/dev/null
+    exit $st
+  )
+  rc=$?
+
+  if (( rc != 0 )) || [[ -z ${reply//[[:space:]]/} ]]; then
+    zle -M 'ai-fill: no reply'
+    zle beep
+    zle reset-prompt
+    return 0
+  fi
+
+  # Sanitize: strip ANSI escapes, code-fence markers, leading `$`/prompt
+  # marks, and trailing prose — take the first command line only.
+  reply=${reply//$'\e'\[[0-9;]#[a-zA-Z]/}
+  local -a lines cmd_lines
+  lines=("${(@f)reply}")
+  local line
+  for line in $lines; do
+    [[ $line == '```'* ]] && continue
+    [[ -z ${line//[[:space:]]/} ]] && continue
+    cmd_lines+=("$line")
+  done
+
+  local cmd=${cmd_lines[1]}
+  cmd=${cmd##[[:space:]]#}
+  cmd=${cmd##\$[[:space:]]#}
+  cmd=${cmd%%[[:space:]]#}
+
+  if [[ -z $cmd ]]; then
+    zle -M 'ai-fill: no reply'
+    zle beep
+    zle reset-prompt
+    return 0
+  fi
+
+  BUFFER=$cmd
+  CURSOR=$#BUFFER
+  zle reset-prompt
+}
