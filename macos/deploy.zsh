@@ -107,22 +107,14 @@ link_configs() {
   zf_mkdir -p $HOME/.claude/rules
   zf_ln -sfn $DOTFILES_DIR/claude/global/rules/domain $HOME/.claude/rules/domain
   zf_ln -sfn $DOTFILES_DIR/claude/global/rules/tools $HOME/.claude/rules/tools
-
-  zf_mkdir -p $HOME/.claude/rules/universal
-  for f in $DOTFILES_DIR/claude/global/rules/universal/*.md(N); do
-    zf_ln -sf $f $HOME/.claude/rules/universal/$f:t
-  done
-  zf_ln -sf $DOTFILES_DIR/claude/rules/universal/voice.md $HOME/.claude/rules/universal/voice.md
+  zf_ln -sfn $DOTFILES_DIR/claude/global/rules/universal $HOME/.claude/rules/universal
 
   zf_mkdir -p $HOME/.claude/rules/platform
   zf_ln -sf $DOTFILES_DIR/claude/global/rules/platform/github.md $HOME/.claude/rules/platform/github.md
   zf_ln -sfn $DOTFILES_DIR/claude/rules/platform/private $HOME/.claude/rules/platform/private
 
-  # backlog-manager stays local: repo-specific MCP memory/identity, not
-  # something every consumer of claude/global/ should inherit.
-  zf_mkdir -p $HOME/.claude/agents
-  zf_ln -sf $DOTFILES_DIR/claude/global/agents/plan-reviewer.md $HOME/.claude/agents/plan-reviewer.md
-  zf_ln -sf $DOTFILES_DIR/claude/agents/backlog-manager.md $HOME/.claude/agents/backlog-manager.md
+  # agents/ moved to claude/global/ entirely (dotfiles#569) — whole-dir symlink.
+  zf_ln -sfn $DOTFILES_DIR/claude/global/agents $HOME/.claude/agents
 
   # verify-nvim-config stays local: it verifies *this* repo's nvim config.
   zf_mkdir -p $HOME/.claude/skills

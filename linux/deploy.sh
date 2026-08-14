@@ -272,24 +272,14 @@ link_configs() {
   mkdir -p "$HOME/.claude/rules"
   ln -sfn "$DOTFILES_DIR/claude/global/rules/domain" "$HOME/.claude/rules/domain"
   ln -sfn "$DOTFILES_DIR/claude/global/rules/tools" "$HOME/.claude/rules/tools"
-
-  mkdir -p "$HOME/.claude/rules/universal"
-  shopt -s nullglob
-  for f in "$DOTFILES_DIR"/claude/global/rules/universal/*.md; do
-    ln -sf "$f" "$HOME/.claude/rules/universal/$(basename "$f")"
-  done
-  shopt -u nullglob
-  ln -sf "$DOTFILES_DIR/claude/rules/universal/voice.md" "$HOME/.claude/rules/universal/voice.md"
+  ln -sfn "$DOTFILES_DIR/claude/global/rules/universal" "$HOME/.claude/rules/universal"
 
   mkdir -p "$HOME/.claude/rules/platform"
   ln -sf "$DOTFILES_DIR/claude/global/rules/platform/github.md" "$HOME/.claude/rules/platform/github.md"
   ln -sfn "$DOTFILES_DIR/claude/rules/platform/private" "$HOME/.claude/rules/platform/private"
 
-  # backlog-manager stays local: repo-specific MCP memory/identity, not
-  # something every consumer of claude/global/ should inherit.
-  mkdir -p "$HOME/.claude/agents"
-  ln -sf "$DOTFILES_DIR/claude/global/agents/plan-reviewer.md" "$HOME/.claude/agents/plan-reviewer.md"
-  ln -sf "$DOTFILES_DIR/claude/agents/backlog-manager.md" "$HOME/.claude/agents/backlog-manager.md"
+  # agents/ moved to claude/global/ entirely (dotfiles#569) — whole-dir symlink.
+  ln -sfn "$DOTFILES_DIR/claude/global/agents" "$HOME/.claude/agents"
 
   # verify-nvim-config stays local: it verifies *this* repo's nvim config.
   mkdir -p "$HOME/.claude/skills"

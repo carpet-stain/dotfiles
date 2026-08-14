@@ -7,36 +7,24 @@ source of truth for why the tree is organized the way it is, the GATE/LOCAL-WINS
 and the skills/subagents it provides. This file covers only what's specific to consuming it
 here: what stays local to this repo, and how deploy layers the two together.
 
-Phase 1 of the extraction is dotfiles#567; `voice.md` and `backlog-manager.md` are Phase 2
-(dotfiles#569) — see that issue for why they haven't moved yet.
+The extraction landed in two phases: dotfiles#567 moved the stable subset and proved the
+submodule + deploy mechanics; dotfiles#569 moved the two files held back for their churn
+(`backlog-manager.md`, `voice.md`) once their in-flight PRs settled. Both are done — everything
+that can live in `claude/global/` now does.
 
 ## What stays local to this repo
 
-A handful of files aren't part of the shared tree, either because they're specific to this
-repo (`verify-nvim-config` checks _this_ repo's nvim config) or because they carry
-repo-specific identity/memory that shouldn't be shared across every consumer of
-`claude/global/` (`backlog-manager`'s MCP knowledge-graph memory, `voice.md`'s maintainer-voice
-corpus):
+Two things aren't part of the shared tree, both specific to this repo rather than to how Claude
+Code agents work in general:
 
-| File                                | Why it stays local                                                      |
-| ----------------------------------- | ----------------------------------------------------------------------- |
-| `claude/rules/universal/voice.md`   | Seeded from this repo's own session transcripts (Phase 2, dotfiles#569) |
-| `claude/agents/backlog-manager.md`  | Repo-specific MCP memory/identity (Phase 2, dotfiles#569)               |
-| `claude/rules/platform/private/`    | Gitignored, machine-local platform files — never committed anywhere     |
-| `claude/skills/verify-nvim-config/` | Verifies _this_ repo's nvim config specifically                         |
+| File                                | Why it stays local                                                  |
+| ----------------------------------- | ------------------------------------------------------------------- |
+| `claude/rules/platform/private/`    | Gitignored, machine-local platform files — never committed anywhere |
+| `claude/skills/verify-nvim-config/` | Verifies _this_ repo's nvim config specifically                     |
 
-### Subagent memory: a private machine-global knowledge graph
-
-Backlog-manager's memory is an MCP knowledge graph (`@modelcontextprotocol/server-memory`, wired
-inline in its frontmatter) backed by one private local store at
-`~/.claude/agent-memory-mcp/backlog-manager.jsonl` — ADR-0036 owns the decision and supersedes
-the committed-file model (ADR-0027/0032/0033). Outside every repo, so private by construction;
-writes persist immediately with no sync step or review gate. The dividing line from the
-subagent's own definition (`claude/agents/backlog-manager.md`) is unchanged: a rule that would
-hold for this subagent in _any_ repo belongs in the definition; a fact specific to one repo lives
-in the graph, related to that repo's `repo-map` entity. Content follows the pointer-layer
-contract (one-line pointer-shaped facts, never restated issue status); the `audit-memory` skill
-(from `claude/global/`) is the detection backstop.
+`backlog-manager`'s private memory store (`~/.claude/agent-memory-mcp/backlog-manager.jsonl`) is
+machine-global, not repo-local — it's documented in `claude/global/`'s own README alongside the
+subagent definition now that both live there.
 
 ## Deployment (`~/.claude`, a documented XDG exception)
 
@@ -49,27 +37,24 @@ ever half-worked: CLI config under `$XDG_CONFIG_HOME/claude`, daemon/telemetry s
 AGENTS.md's XDG-exceptions table.
 
 The deploy scripts (`macos/deploy.zsh`, `linux/deploy.sh`) layer `claude/global/`'s shared tree
-with this repo's local-only files into `~/.claude/{rules,agents,skills}`:
+with this repo's two remaining local-only files into `~/.claude/{rules,agents,skills}`:
 
 ```text
-claude/global/rules/{domain,tools}/  → ~/.claude/rules/{domain,tools}/   (whole-dir symlink — moved entirely)
-claude/global/rules/universal/*.md   ┐
-claude/rules/universal/voice.md      ┴→ ~/.claude/rules/universal/       (per-file symlinks — mixed source)
+claude/global/rules/{domain,tools,universal}/ → ~/.claude/rules/{domain,tools,universal}/ (whole-dir symlink — moved entirely)
+claude/global/agents/                          → ~/.claude/agents/                        (whole-dir symlink — moved entirely)
 claude/global/rules/platform/github.md ┐
 claude/rules/platform/private/         ┴→ ~/.claude/rules/platform/      (per-file symlinks — mixed source)
-claude/global/agents/plan-reviewer.md  ┐
-claude/agents/backlog-manager.md       ┴→ ~/.claude/agents/              (per-file symlinks — mixed source)
 claude/global/skills/*/                ┐
 claude/skills/verify-nvim-config/      ┴→ ~/.claude/skills/              (per-entry symlinks — mixed source)
 claude/settings.json                   → ~/.claude/settings.json
 ```
 
-`domain/` and `tools/` moved to `claude/global/` entirely (nothing local left in them), so a
-single directory symlink still covers them — same zero-per-file-wiring property as before.
-`universal/`, `platform/`, `agents/`, and `skills/` each mix a submodule majority with a named
-local exception, so the destination is a real directory populated by one symlink per submodule
-entry (globbed at deploy time — a new file landing in `claude/global/`'s tree needs no
-deploy-script edit) plus the specific local files listed above.
+`domain/`, `tools/`, `universal/`, and `agents/` all moved to `claude/global/` entirely (nothing
+local left in any of them after dotfiles#569), so a single directory symlink covers each —
+zero-per-file-wiring. `platform/` and `skills/` still mix a submodule majority with a named
+local exception (a gitignored `private/`; `verify-nvim-config`), so those destinations stay real
+directories populated by one symlink per submodule entry (globbed at deploy time — a new file
+landing in `claude/global/`'s tree needs no deploy-script edit) plus the named local file.
 
 `claude/settings.json` is unrelated to the rule files — it's Claude Code's own top-level config
 (telemetry, error reporting, auto-update), kept here and symlinked so it's version-controlled
@@ -81,8 +66,8 @@ instead of a manual one-off edit.
 ## Verifying it works
 
 Run `/memory` in a fresh session inside any repo — it lists every loaded `CLAUDE.md` and rules
-file, so you can confirm the `universal/` files (both the submodule's and `voice.md`) and the
-applicable `tools/`/`platform/` files loaded from `~/.claude/rules/`. Then ask the agent whether
+file, so you can confirm the `universal/` files and the applicable `tools/`/`platform/` files
+loaded from `~/.claude/rules/`. Then ask the agent whether
 each file's GATE fired correctly and whether local docs win on overlap. For a precise trace of
 which files loaded, when, and why, enable Claude Code's `InstructionsLoaded` hook, which logs
 exactly that.
