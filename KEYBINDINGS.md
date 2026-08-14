@@ -62,9 +62,12 @@ repo's overrides merged) — the authoritative source when auditing a new key, n
 - **zsh** (`zsh/rc.d/keybindings.zsh` + `zsh/rc.d/widgets.zsh`): unclaimed by Zellij or Neovim, so
   an `Alt` binding here reaches the shell's line editor (zle) as-is once the key passes through
   the two layers above. `Alt e` (`^[e`) → builtin `edit-command-line` widget (opens the current
-  command buffer in `$EDITOR`, re-executes on save). This depends on Ghostty's
-  `macos-option-as-alt` setting from above — without it, `Option+E` is macOS's dead-key
-  composition for `é` and never reaches zsh as `Alt+E`.
+  command buffer in `$EDITOR`, re-executes on save). `Alt i` (`^[i`) → `_ai-fill` widget (#555):
+  turns the buffer — a partial command or a rough NL fragment — into a runnable command via one
+  `aichat` call (`shell-fill` role), replacing the buffer; leaves it untouched on an empty
+  buffer, a missing `aichat`/key, a timeout, or Ctrl-C. Both depend on Ghostty's
+  `macos-option-as-alt` setting from above — without it, `Option+E`/`Option+I` are macOS's
+  dead-key composition (`é`/`ı`) and never reach zsh as `Alt+E`/`Alt+I`.
 
 ## Design decisions
 

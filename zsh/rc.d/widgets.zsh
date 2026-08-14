@@ -37,11 +37,13 @@ zle -N edit-command-line
 autoload -Uz \
   _zsh-dot \
   _expand-alias \
-  _chpwd-eza
+  _chpwd-eza \
+  _ai-fill
 
 zle -N _zsh-dot
 zle -N _expand-alias
 zle -N _chpwd-eza
+zle -N _ai-fill
 
 autoload -Uz add-zsh-hook
 
