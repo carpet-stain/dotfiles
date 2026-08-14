@@ -4,7 +4,7 @@ Date: 2026-07-10
 
 ## Status
 
-Accepted
+Superceded by [41. Vended token as the routine gh credential with a fail-closed sentinel](0041-vended-token-as-the-routine-gh-credential-with-a-fail-closed-sentinel.md)
 
 ## Context
 

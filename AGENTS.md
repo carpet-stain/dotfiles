@@ -280,17 +280,17 @@ this repo never has admin rights to lose — and Security By Default's rule
 (`claude/rules/universal/engineering-practices.md`) that secrets live in
 an environment file, gitignored, never hardcoded.
 
-Routine `gh` auth is the vended token (#453, retiring #74's per-repo
-PATs): `.envrc` maps `GH_TOKEN` from `GH_VENDED_TOKEN` (fetched below), so
-day-to-day work rides a rotating ~1h credential with no Administration and
-a covered repo needs no hand-minted PAT. Resolution order in `.envrc`: a
-non-empty `GH_TOKEN` from `.envrc.local` wins (escape hatch); else the
-vended token; else the sentinel `vended-unavailable-see-453` —
-unconditional and last, so gh fails closed with a visible 401 instead of
-silently reaching gh's keyring credential (the #160 guarantee; the
-keyring's dev PAT covers infra, which the vended grant deliberately
-excludes). A 401 naming the sentinel means the vended path is down — see
-the fetch error at shell entry.
+Routine `gh` auth is the vended token (ADR-0041, superseding ADR-0007's
+per-repo PATs): `.envrc` maps `GH_TOKEN` from `GH_VENDED_TOKEN` (fetched
+below), so day-to-day work rides a rotating ~1h credential with no
+Administration and a covered repo needs no hand-minted PAT. Resolution
+order in `.envrc`: a non-empty `GH_TOKEN` from `.envrc.local` wins
+(escape hatch); else the vended token; else the sentinel
+`vended-unavailable-see-453` — unconditional and last, so gh fails
+closed with a visible 401 instead of silently reaching gh's keyring
+credential (the #160 guarantee; the keyring's dev PAT covers infra, which
+the vended grant deliberately excludes). A 401 naming the sentinel means
+the vended path is down — see the fetch error at shell entry.
 
 Escape hatch: `.envrc.local` (gitignored — never commit a real token)
 keeps an empty `export GH_TOKEN=` line; `.envrc.local.example` is the
@@ -311,9 +311,11 @@ credential — since infra#151 that's the fleet dev PAT (no Administration),
 not an admin session; admin operations ride infra's Keychain-gated
 `with-infra-secrets.sh --gh-admin` (infra ADR-0013). Both vars must drop:
 `.envrc` aliases `GITHUB_TOKEN` to the resolved `GH_TOKEN` (for
-`git-cliff`, below) and gh prefers `GITHUB_TOKEN`, so dropping `GH_TOKEN`
-alone is a no-op (#213). Don't "fix" this by dropping the alias — that
-just breaks `git-cliff`'s token.
+`git-cliff`, below), so dropping `GH_TOKEN` alone leaves the identical
+token behind in `GITHUB_TOKEN` — a no-op (#213, whose "gh prefers
+`GITHUB_TOKEN`" reasoning was wrong; gh takes `GH_TOKEN` first. The rule
+holds, the mechanism is value identity — ADR-0041). Don't "fix" this by
+dropping the alias — that just breaks `git-cliff`'s token.
 
 The fail-closed guarantee needs `GH_TOKEN` in env — direnv only fires for
 interactive shells, so non-interactive ones (scripts, cron, an agent's
