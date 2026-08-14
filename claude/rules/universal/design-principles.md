@@ -47,6 +47,14 @@ omission: it leverages provenance without dropping intent. The load-bearing, non
 ("removing this breaks X") still stays inline at the point of edit — a pointer supplements that,
 never replaces it.
 
+A comment block on one declaration is **≤2 lines** — the tripwire plus its pointer. Over that,
+relocate the why to its ADR/issue home and leave the pointer. The inline tripwire is the terse
+actionable warning (what breaks + the revisit condition), kept within the cap; where its supporting
+rationale or evidence won't fit, that relocates to the pointer's target and the inline keeps only
+the warning + pointer. When a block mixes restatement and tripwire, the tripwire wins and the block
+stays. File-header preambles are out of scope — they're standalone documentation, not a
+per-declaration comment.
+
 ## Small, Composable Tools
 
 One tool, one job, done well, composed through clean interfaces (stdin/stdout, exit codes, a small
