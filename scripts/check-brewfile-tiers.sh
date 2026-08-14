@@ -21,13 +21,8 @@ personal_file="macos/Brewfile.personal"
 aptfile="linux/Aptfile"
 deploy_sh="linux/deploy.sh"
 
-# Hand-maintained apt-name aliases for macOS-only tools whose apt package
-# name would differ from its Brewfile name — the one piece of
-# hand-maintenance this mechanism doesn't eliminate (small and explicit,
-# not hidden in a generator). Empty for now: go/gh/fnm(node) are
-# general-purpose dev tooling Linux keeps too (Brewfile.payload, provisioned
-# via apt under their own apt names), not macOS-only — the only set this
-# map needs to cover. Add an entry here if a macOS-only tool ever needs one.
+# apt-name aliases for macOS-only tools whose apt package name differs. Empty:
+# go/gh/fnm are payload tier (ADR-0006/ADR-0030), so nothing needs one yet.
 declare -A apt_aliases=()
 
 status=0
@@ -41,10 +36,8 @@ mapfile -t payload_names < <(names_in "$payload_file")
 mapfile -t dev_names < <(names_in "$dev_file")
 mapfile -t personal_names < <(names_in "$personal_file")
 
-# Fail-closed replacement for the old "missing # tier: tag" check: a name
-# declared in more than one file is exactly as ambiguous as an untagged
-# line was, just detected by cross-referencing files instead of parsing
-# comments.
+# A name declared in more than one Brewfile is ambiguous classification —
+# fail closed rather than pick one.
 all_names=("${payload_names[@]}" "${dev_names[@]}" "${personal_names[@]}")
 duplicates="$(printf '%s\n' "${all_names[@]}" | sort | uniq -d)"
 if [[ -n "$duplicates" ]]; then
@@ -54,24 +47,15 @@ if [[ -n "$duplicates" ]]; then
   status=1
 fi
 
-# Whole-word match: a tool name must be its own token (surrounded by
-# start/end-of-line or a non-identifier character), not a substring of an
-# unrelated word — e.g. "go" must not match inside "golang" or "going". Uses
-# grep (not bash's [[ =~ ]]) because $text is multi-line and grep anchors
-# ^/$ per line, not to the whole blob.
+# Whole-word so "go" doesn't match inside "golang". grep, not [[ =~ ]] —
+# $text is multi-line and grep anchors ^/$ per line, not to the whole blob.
 name_matches() {
   local tool="$1" text="$2"
   grep -qE "(^|[^A-Za-z0-9_-])${tool}([^A-Za-z0-9_-]|\$)" <<<"$text"
 }
 
-# deploy.sh is prose (comments, unrelated XDG paths, the claude/ config
-# symlinks, the Ghostty terminfo compile step) as much as it is code —
-# scanning the whole file by word makes "go"/"claude"/"ghostty" (legitimate
-# payload features, not necessarily the same as a macOS-only Brewfile entry
-# of the same name) false-positive. The only place a hardcoded macOS-only
-# package name could actually leak into deploy.sh is an `apt-get install`
-# invocation, so scope the scan to those — joining backslash-continued lines
-# first, since this script wraps long install commands across lines.
+# Scope to `apt-get install` lines only — word-scanning all of deploy.sh
+# false-positives on prose. Joins backslash continuations first.
 apt_install_lines() {
   awk '
     /\\$/ { sub(/\\$/, ""); buf = buf $0 " "; next }

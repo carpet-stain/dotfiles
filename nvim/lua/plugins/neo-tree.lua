@@ -11,9 +11,8 @@ return {
           hide_gitignored = false,
           hide_dotfiles = false,
         },
-        -- OS-level watcher instead of relying on nvim autocmd events, so the
-        -- tree reflects changes made outside this nvim instance (git, a
-        -- terminal, an agent editing files directly) without a manual refresh.
+        -- OS-level watcher, not nvim autocmds, so the tree picks up changes made
+        -- outside this instance (git, a terminal, an agent) without a manual refresh.
         use_libuv_file_watcher = true,
         follow_current_file = {
           enabled = true,

@@ -12,9 +12,7 @@ alias cp="cp -i --verbose"
 alias ln="ln -i"
 alias mv="mv -i"
 
-# Use '-I' (prompt once before removing more than three files) instead of '-i' (which prompts
-# for every file) for a safer, but less annoying, 'rm'.
-# '--preserve-root=all' prevents recursive removal of '/'.
+# '-I' prompts once past three files instead of per-file; '--preserve-root=all' blocks '/'.
 # https://github.com/sindresorhus/guides/blob/main/how-not-to-rm-yourself.md#safeguard-rm
 alias rm="rm -I --preserve-root=all"
 
@@ -86,15 +84,12 @@ alias zln="zmv -L"   # link-mode:  batch hard-link by pattern
 # |  GLOBAL ALIASES |
 # +-----------------+
 
-# Global aliases ('-g') expand anywhere on the line — that's what lets a
-# trailing ' --help' rewrite itself to pipe through bat. '2>&1' folds in
-# stderr, where many tools print their help.
+# Global ('-g') aliases expand anywhere on the line, so a trailing ' --help' rewrites
+# itself. '2>&1' folds in stderr, where many tools print their help.
 alias -g -- --help="--help 2>&1 | bat --language=help --style=plain"
 
 # Pipe/redirect shorthands. Uppercase to avoid clashing with real commands,
 # though as global aliases they still expand anywhere on the line.
-# 'J' pipes to 'jq', which itself re-expands to 'jaq' via the alias above.
-# 'C' uses the platform clipboard command resolved in .zshenv.
 alias -g -- J="| jq"
 alias -g -- C="| $CLIPBOARD_COPY"  # copy to clipboard (pbcopy/wl-copy/xclip)
 alias -g -- F="| fzf"              # fuzzy-filter

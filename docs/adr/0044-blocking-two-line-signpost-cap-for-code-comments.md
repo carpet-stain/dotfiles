@@ -95,3 +95,38 @@ long ones impossible and leaves the short ones to review.
 Revisit if the sweep turns up a class of comment the boundary clause can't place — that would mean
 the tripwire/evidence line is drawn wrong, not that the cap needs a hatch — or if a mirroring repo's
 language makes a 2-line cap structurally unworkable rather than merely uncomfortable.
+
+**Amendment, 2026-08-14 (scope clause; extends this model, not superseding it — ADR-0025's
+precedent for a same-ADR correction):** two corrections to what the cap governs, both forced by the
+sweep in #532.
+
+**One — ASCII section banners are out of scope, alongside file headers.** 58 of the 188 blocks
+flagged at the start of the sweep (the 191 above, less three already fixed) were the `# +------+`
+section headers AGENTS.md mandates:
+
+```text
+# +--------+
+# | ZELLIJ |
+# +--------+
+```
+
+Three comment lines above a declaration, so the cap flagged every one, and the "relocate the why"
+remedy is meaningless for them: a banner is a structural separator that carries no rationale to
+move. The only way to comply was to destroy a convention the repo requires elsewhere.
+
+A block is a banner when every one of its lines, with the comment prefix stripped, is either a rule
+(`+---+`) or a bare title (`| NAME |`). A block mixing banner lines with prose is not exempt — the
+prose is a real comment and the cap applies to the whole block. This is a scope definition, not the
+escape hatch the Decision refuses: the cap governs explanatory comments on a declaration, and a
+banner was never one.
+
+**Two — the file-header exemption widens** from the Decision's "block starting at line 1, or line 2
+after a shebang" to "the first comment block, with nothing above it but a shebang or blank lines."
+The original wording was drawn one line short of this repo's own style: every `zsh/**` file writes
+shebang, blank, header, putting the header at line 3 and making it structurally unexemptable. The
+narrow rule would have forced a real header trim in four files before the sweep caught it.
+
+The same gap likely exists for interface documentation — a godoc comment or a params/returns
+docstring is a consumption contract, not an explanatory comment, and `documentation.md` and
+`tools/go.md` both require it at lengths the cap forbids. Left open here rather than assumed;
+it needs the same scope treatment before a repo with Go or Python adopts the flip.

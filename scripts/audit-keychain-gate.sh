@@ -15,9 +15,8 @@ set -euo pipefail
 items="infra-aws-local-apply infra-aws-bootstrap"
 keychain="${HOME}/Library/Keychains/login.keychain-db"
 
-# For each target item, every ACL entry authorizing decrypt must require the
-# keychain password and hold an empty application allow-list. Anything the
-# dump doesn't yield in the expected shape fails closed.
+# Every decrypt ACL entry must require the keychain password and hold an empty
+# app allow-list; anything not in that shape fails closed (infra#167).
 verdicts="$(security dump-keychain -a "$keychain" | awk -v targets="$items" '
   BEGIN { n = split(targets, tl, " "); for (i = 1; i <= n; i++) want[tl[i]] = 1 }
   function flag(reason) { bad[svce] = bad[svce] "\n  " reason }

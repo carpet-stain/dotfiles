@@ -2,12 +2,8 @@
 
 source $ZDOTDIR/plugins/fzf-tab/fzf-tab.zsh
 
-# Registers preview zstyles for 200+ commands; not needed until the first Tab
-# press, so defer past the first prompt instead of blocking startup. Falls
-# back to an eager source when zsh-defer isn't loaded (no controlling
-# terminal — .zshrc skips it there, see #96): tab-completion previews are
-# meaningless without a real terminal anyway, so loading eagerly in that case
-# is harmless.
+# Deferred past the first prompt: its 200+ preview zstyles aren't needed until the
+# first Tab. Eager fallback when zsh-defer is absent (no tty — see #96).
 if (( $+functions[zsh-defer] )); then
   zsh-defer source $ZDOTDIR/plugins/fzf-tab-source/fzf-tab-source.plugin.zsh
 else

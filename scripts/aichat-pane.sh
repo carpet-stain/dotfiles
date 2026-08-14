@@ -14,9 +14,8 @@
 # swap of the Keychain read below.
 set -euo pipefail
 
-# The pane runs with close_on_exit (config.kdl), so a missing dependency
-# warns, waits for one keypress (Esc and Ctrl-c work too), and exits clean —
-# the pane closes and the user is back in the terminal, no held error pane.
+# The pane runs close_on_exit (config.kdl), so warn and exit 0 after a
+# keypress rather than leaving a held error pane.
 warn_and_close() {
   printf '%s\n' "$@" >&2
   printf '\npress any key to close\n' >&2
@@ -38,16 +37,12 @@ if [[ -z ${OPENROUTER_API_KEY:-} ]]; then
   export OPENROUTER_API_KEY
 fi
 
-# aichat 0.30 derives the key's env name from the client *type*, not its
-# name: field — OPENAI_COMPATIBLE_API_KEY sends the header, OPENROUTER_API_KEY
-# is never read (verified empirically against api.openrouter.ai; the wiki's
-# {client}_API_KEY doc doesn't hold for this client type). Export both so the
-# documented name keeps working if upstream fixes the derivation.
+# aichat 0.30 reads only OPENAI_COMPATIBLE_API_KEY (env name derives from client
+# type — verified vs api.openrouter.ai). Both exported in case upstream fixes it.
 export OPENAI_COMPATIBLE_API_KEY="$OPENROUTER_API_KEY"
 
-# ADR-0034: THEME_MODE is the single light/dark derivation; aichat only has a
-# light-theme boolean. Both branches export — an inherited stale
-# AICHAT_LIGHT_THEME must not survive a dark THEME_MODE.
+# Both branches export: a stale inherited AICHAT_LIGHT_THEME must not survive
+# a dark THEME_MODE. See ADR-0034.
 if [[ ${THEME_MODE:-dark} == light ]]; then
   export AICHAT_LIGHT_THEME=true
 else

@@ -5,19 +5,14 @@
 # | ZELLIJ |
 # +--------+
 
-# Skip on remote sessions and root — those should not auto-attach.
-# Three states: no active session → start one; a session exists but we're not
-# attached → pick one; already inside zellij → do nothing.
-# "Active" excludes exited-but-resurrectable sessions (list-sessions marks
-# those "EXITED" and still exits 0 for them; only a genuinely running session
-# should skip straight to attaching).
+# grep -v EXITED is load-bearing: list-sessions exits 0 for resurrectable dead
+# sessions too, and only a running one should skip straight to attaching.
 if [[ -z $CI && -z $SSH_TTY && $EUID != 0 ]]; then
   local _zellij_active=$(zellij list-sessions --no-formatting 2>/dev/null | grep -v 'EXITED')
   if [[ -z $_zellij_active ]]; then
     print "Zellij is not running, starting a new session..."
-    # attach --create both resurrects a dead "default" session and creates a
-    # fresh one if none exists yet — plain --session errors instead of
-    # resurrecting when a dead session of that name is already on record.
+    # attach --create resurrects a dead "default" session; plain --session
+    # errors instead when one is already on record.
     exec zellij attach --create default
   elif [[ -z $ZELLIJ ]]; then
     autoload -Uz _zellij-sessions
@@ -30,13 +25,11 @@ fi
 # | P10K INSTANT PROMPT |
 # +---------------------+
 
-# .zshenv already ran direnv export before this file was sourced — satisfies
-# p10k's own requirement that it run above the instant prompt block:
-# https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
+# Ordering requirement: .zshenv already ran direnv export, which p10k requires
+# above the instant prompt block (its README, "how do I initialize direnv").
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# Anything that may need console input (password prompts, [y/n] confirmations)
+# must go above this block.
 [[ -r $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh ]] && \
   source $XDG_CACHE_HOME/p10k-instant-prompt-${(%):-%n}.zsh
 
@@ -96,13 +89,8 @@ eval "$(fzf --zsh)"
 # | ZSH-DEFER |
 # +-----------+
 
-# Lets non-critical plugins load after the first prompt instead of blocking
-# startup. zsh-defer's whole job is deferring work until zle goes idle, so it
-# needs a real controlling terminal — without one (e.g. `zsh -is` in
-# linux/deploy.sh, or an SSH session without -tt) its `zle -N`/`zle -F` calls
-# print "can't change option: zle" to stderr (see #96). Load it only when
-# stdout is a tty; rc.d/fzf-tab.zsh falls back to an eager `source` when the
-# `zsh-defer` function isn't defined.
+# Needs a controlling terminal — without one its zle calls spam stderr (#96).
+# rc.d/fzf-tab.zsh falls back to an eager source when zsh-defer is undefined.
 [[ -t 1 ]] && source $ZDOTDIR/plugins/zsh-defer/zsh-defer.plugin.zsh
 
 # +---------+
@@ -123,22 +111,8 @@ source $XDG_DATA_HOME/zsh/plugins/zsh-autopair/autopair.zsh
 # | ZSH-PATINA  |
 # +-------------+
 
-# Syntax highlighting; replaced fast-syntax-highlighting — swap rationale
-# and fsh's retired fsh#27 `whatis` workaround: see #92. Theme comes from one
-# of two built-in-theme configs (catppuccin-mocha/-latte, no compile step),
-# selected below by THEME_MODE (zsh/.zshenv) via ZSH_PATINA_CONFIG_PATH — the
-# only lever the installed binary exposes for this (verified: no CLI flag on
-# `activate`/`start`, just this env var, checked before the default
-# $XDG_CONFIG_HOME/zsh-patina/config.toml path). Set here rather than
-# .zshenv: the daemon reads it at `activate` time, right below, and this is
-# the only consumer.
-#
-# Must come after compinit/bindkey (completions.zsh runs compinit above) or
-# the highlighter has no effect until a manual `source` — see zsh-patina's
-# own troubleshooting docs. $XDG_RUNTIME_DIR falls back to a writable dir
-# when unusable (see .zshenv) — the daemon's own directory creation happens
-# lazily via a hook after this line, not here, so the fallback has to be in
-# place shell-wide rather than scoped to just this eval (#443).
+# Must come after compinit/bindkey or the highlighter is inert (#92). Set here,
+# not .zshenv: the daemon reads it at `activate` below, its only consumer.
 if [[ $THEME_MODE == light ]]; then
   export ZSH_PATINA_CONFIG_PATH=$XDG_CONFIG_HOME/zsh-patina/config-latte.toml
 else
@@ -150,15 +124,7 @@ eval "$(zsh-patina activate)"
 # | DEJA |
 # +------+
 
-# Ghost-text suggestions (fuzzy/directory/sequence-aware); replaced
-# zsh-autosuggestions — swap rationale: see #92. Stands down on its own if
-# zsh-autosuggestions is also loaded, so both can coexist safely.
-#
-# Move deja's suggestion-cycle binding off Tab before the eval (it reads
-# this as a ${VAR=default} override, so no fork/patch needed) — deja's
-# default binds Tab to _deja_cycle, which shadows fzf-tab's picker whenever
-# a ghost is showing (#428). Shift-Tab (^[[Z; confirmed via this repo's
-# xterm-ghostty terminfo kcbt entry, and unbound in keybindings.zsh) hands
-# Tab back to fzf-tab and still lets deja cycle its alternatives.
+# Ghost-text suggestions, replaced zsh-autosuggestions (#92). Must be set
+# before the eval: deja's default Tab cycle shadows fzf-tab's picker (#428).
 export DEJA_CYCLE_KEY='^[[Z'
 eval "$(deja init zsh)"
