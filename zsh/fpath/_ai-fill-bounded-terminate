@@ -1,0 +1,30 @@
+#!/usr/bin/env zsh
+
+# SIGTERMs $_ai_fill_bounded_pid's whole process tree, snapshotted before
+# any signal (see _ai-fill-bounded-descendants), then polls the WHOLE
+# SET — not just the root, which could die and be reparented away from
+# a still-alive descendant — for a short grace period, escalating any
+# survivor to SIGKILL; then removes $_ai_fill_bounded_outfile, since a
+# killed/interrupted command's output is never used (#556).
+_ai-fill-bounded-terminate() {
+  local -a pids
+  pids=($_ai_fill_bounded_pid ${(f)"$(_ai-fill-bounded-descendants $_ai_fill_bounded_pid)"})
+  local pid
+  for pid in $pids; do
+    kill -TERM $pid 2>/dev/null
+  done
+  local g=0 alive=1
+  while (( g < 3 )) && (( alive )); do
+    sleep 0.1
+    (( g++ ))
+    alive=0
+    for pid in $pids; do
+      kill -0 $pid 2>/dev/null && alive=1
+    done
+  done
+  for pid in $pids; do
+    kill -0 $pid 2>/dev/null && kill -KILL $pid 2>/dev/null
+  done
+  wait $_ai_fill_bounded_pid 2>/dev/null
+  rm -f $_ai_fill_bounded_outfile 2>/dev/null
+}
