@@ -73,10 +73,7 @@ them here.
 - **Point at enforced config, don't restate it.** If a lint rule, CI check, or template already
   specifies something, reference where it lives (a hook's job name, the workflow file) instead of
   copying the rule's detail into the issue body — a duplicated spec drifts from the real one.
-- **Grill genuinely open decisions.** When scope or structure isn't yet settled — shaping a new
-  epic, or splitting an issue that's accumulated 2+ independent deliverables and where to split
-  is a judgment call — run the `grilling` skill instead of guessing: one decision at a time, each
-  with a recommended answer, confirmed before you act.
+- **Grill by default** — see the section below.
 
 Shape the body to the issue type. **If the repo has `.github/ISSUE_TEMPLATE/*.md` or `*.yml`
 forms, those own the per-type structure** — `Read` the one matching the type (for a `.yml` issue
@@ -93,6 +90,28 @@ stay yours, not the template's. Absent templates, use the baseline below:
 - **Spike / research**: the question to answer and the concrete deliverable (a decision, a doc, a
   recommendation) — never open-ended.
 - **Chore / refactor**: what, why now, and how you'll know it's done.
+
+## Grill by default
+
+Shaping a non-trivial issue means running the `grilling` skill — collaborative
+requirement-gathering, not filing on assumptions. The skill's own "when to use" list is the one
+home for its triggers; don't restate it here.
+
+- **Skip only when ALL hold**: one well-understood deliverable, obvious acceptance, zero open
+  scope or approach decisions, and the request already fully specifies it. In practice:
+  release-watch reviews, stale-doc fixes, typos, version/config bumps. Everything else grills.
+- **Announce the call on every issue you shape** — "**grilling** — open decisions: …" or
+  "**skip-grill** — trivial: …". Nothing can force the judgment itself; forcing it to be
+  explicit kills silent under-firing and lets the maintainer correct a mis-call the moment it
+  shows.
+- **Live shaping only.** Fires when shaping a new issue in conversation, or a single on-demand
+  triage. A `groom-backlog` sweep never auto-grills — it flags grilling-worthy issues and offers
+  them, the same sweep bound as the plan-review gate (one sweep must not kick off N grilling
+  sessions).
+- **Calibrated by correction, not a mechanism.** "Non-trivial" is a judgment made at shaping
+  time, before the issue is well-formed — no label, CI check, or hook can detect it. A corrected
+  mis-call becomes a `feedback` memory that tunes the threshold, the same sustaining loop as the
+  voice capture.
 
 ## Prioritize
 
@@ -143,9 +162,9 @@ a separate "run it now" prompt; you already have the context. A grooming sweep t
 untriaged, gated issue is different: label it and leave it plan-review-ready, but don't spend
 reviewer cycles on it unasked — sweeping shouldn't silently kick off N multi-round review loops.
 
-Where scope or the plan itself is still thin — defining a spike's question and deliverable,
-weighing a spike's verdict, or pre-gating an issue with weak acceptance criteria — run the
-`grilling` skill first to pin down the open decisions; don't guess a plan to feed the reviewer.
+Where scope or the plan itself is still thin, the grill-by-default posture above already
+applies — pin down the open decisions before drafting a plan; don't guess one to feed the
+reviewer.
 
 1. **Find untriaged issues from live state, not memory.** An open issue with no `priority:` label
    hasn't been triaged — that absence _is_ the marker, no `needs-triage` label needed. Triage it
