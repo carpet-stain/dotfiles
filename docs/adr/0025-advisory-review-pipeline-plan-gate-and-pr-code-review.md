@@ -6,6 +6,8 @@ Date: 2026-07-18
 
 Accepted
 
+Plan-drafting clause amended 2026-08-14 by [ADR-0042](0042-shared-agent-roster-and-operating-model-amending-the-adr-0025-plan-drafting-clause.md).
+
 ## Context
 
 Epic #302 wants advisory review help across the issue and PR stages. The

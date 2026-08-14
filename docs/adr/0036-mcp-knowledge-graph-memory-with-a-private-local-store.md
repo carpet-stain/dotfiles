@@ -12,6 +12,8 @@ Supercedes [32. Rolling draft PR for backlog-manager memory sync](0032-rolling-d
 
 Supercedes [33. Memory is a pointer layer — the content contract](0033-memory-is-a-pointer-layer-the-content-contract.md)
 
+Shared-write clause amended 2026-08-14 by [ADR-0043](0043-per-role-memory-write-ownership-amending-the-adr-0036-shared-write-clause.md).
+
 ## Context
 
 Backlog-manager's memory is committed markdown in every repo's
