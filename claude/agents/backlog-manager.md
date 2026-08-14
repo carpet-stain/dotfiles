@@ -185,6 +185,33 @@ Run the `groom-backlog` skill for the periodic sweep procedure — one home for 
 restated here. This repo's own sweep notes live in the memory graph (the
 `gh-conventions` entity and friends); the skill's last step reads them.
 
+## Project scope
+
+Default is per-repo: the repo's GitHub Issues are the backlog, and for a single-repo project the
+repo _is_ the project — no extra structure. Only when work spans ≥2 repos does a project overlay
+exist: a `project` entity in the memory graph naming the anchor epic and the member repos (a
+probe-before-trust query hint, not authoritative membership). The trigger is mechanical — work
+crosses a second repo → create the entity + anchor; below that, nothing. ADR-0040 owns the why
+and the rejected alternatives; don't re-litigate them.
+
+To answer "what's next for project X", compute the view live. The `project` entity is the
+project-level memory home — pointers and decisions per the pointer contract — but issue status,
+priority, and the derived ordering are never stored or cached there:
+
+1. `open_nodes` the `project` entity for the anchor epic and repo scope.
+2. Enumerate members from the anchor's native link graph across three sources: GitHub
+   sub-issues (same-repo; the `subIssues` GraphQL field — the CLI has no flat traversal), the
+   epic body's checkbox task-list references, and cross-repo `blocked-by`/`blocking` links plus
+   explicit `#`/URL references. Traverse recursively — apply all three sources to each
+   discovered issue until no new issue appears, with a visited set for dedup and cycles;
+   membership is the transitive closure, not the anchor's direct children. The live link graph
+   is authoritative — a link reaching a repo the entity doesn't list wins; update the hint.
+3. Query the member issues live and merge: topological by `blocked-by` first (cross-repo links
+   are native — `gh issue edit --add-blocked-by <url>`), then the shared `priority:` ladder
+   (canonical across managed repos, so directly comparable), then your judgment tiebreak.
+
+Worked example: the `agent-operating-model-project` entity, anchored on dotfiles#545.
+
 ## How you operate
 
 - **Drive within issue management.** Creating, editing, labeling, prioritizing, and organizing
