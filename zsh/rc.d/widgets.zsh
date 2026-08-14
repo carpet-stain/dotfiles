@@ -33,12 +33,16 @@ zle -N down-line-or-beginning-search
 autoload -Uz edit-command-line
 zle -N edit-command-line
 
-# Custom widgets from fpath/ — filename must match the function name
+# Custom widgets from fpath/ — filename must match the function name.
+# _ai-fill-bounded is a helper, not a widget — no `zle -N` for it (#556).
 autoload -Uz \
   _zsh-dot \
   _expand-alias \
   _chpwd-eza \
-  _ai-fill
+  _ai-fill \
+  _ai-fill-bounded \
+  _ai-fill-bounded-descendants \
+  _ai-fill-bounded-terminate
 
 zle -N _zsh-dot
 zle -N _expand-alias

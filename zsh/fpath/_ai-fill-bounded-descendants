@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+# Prints $1's descendant PIDs (recursive, one per line), enumerated via
+# `pgrep -P` before any signal is sent — a process's children become
+# unreachable via -P once it dies (reparented to init), so the whole
+# tree must be captured up front, not re-queried mid-escalation.
+_ai-fill-bounded-descendants() {
+  local pid=$1 child
+  for child in ${(f)"$(pgrep -P $pid 2>/dev/null)"}; do
+    print -r -- $child
+    _ai-fill-bounded-descendants $child
+  done
+}

@@ -1,0 +1,36 @@
+#!/usr/bin/env zsh
+
+# Runs "$@" bare-backgrounded, its stdout redirected to a private temp
+# file rather than inherited — so an orphaned descendant that outlives
+# the target (forked before we can react, or after a fast exit) can
+# never hold the caller's own capture pipe open (#556): reading a
+# regular file doesn't wait for every writer to close it the way pipe
+# EOF does. Bounded by $1 deciseconds. Sets $_ai_fill_bounded_pid so
+# the caller's TRAPINT can call _ai-fill-bounded-terminate on Ctrl-C,
+# and $_ai_fill_bounded_output to the captured text. Returns the
+# command's own exit status on natural completion (0 there means
+# "trust the output"; a nonzero real failure is distinct from a
+# timeout), or 124 (the `timeout`(1) convention) if it had to be
+# killed — the terminate helper discards the outfile in that case, so
+# $_ai_fill_bounded_output is only meaningful after a 0/nonzero return.
+_ai-fill-bounded() {
+  local budget=$1
+  shift
+  _ai_fill_bounded_outfile=$(mktemp)
+  "$@" >$_ai_fill_bounded_outfile 2>/dev/null &
+  _ai_fill_bounded_pid=$!
+  local w=0
+  while (( w < budget )) && kill -0 $_ai_fill_bounded_pid 2>/dev/null; do
+    sleep 0.1
+    (( w++ ))
+  done
+  if ! kill -0 $_ai_fill_bounded_pid 2>/dev/null; then
+    wait $_ai_fill_bounded_pid
+    local rc=$?
+    _ai_fill_bounded_output=$(<$_ai_fill_bounded_outfile)
+    rm -f $_ai_fill_bounded_outfile
+    return $rc
+  fi
+  _ai-fill-bounded-terminate
+  return 124
+}
