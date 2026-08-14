@@ -4,7 +4,7 @@ Date: 2026-07-19
 
 ## Status
 
-Accepted
+Superceded by [44. Blocking two-line signpost cap for code comments](0044-blocking-two-line-signpost-cap-for-code-comments.md)
 
 ## Context
 

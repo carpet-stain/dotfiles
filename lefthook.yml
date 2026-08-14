@@ -67,7 +67,9 @@ pre-commit:
         - "scripts/*.sh"
         - "nvim/*.lua"
         - "nvim/**/*.lua"
-      run: scripts/check-comment-concision.sh {staged_files}
+      # Script blocks (ADR-0044); `|| true` holds it advisory here until #532's
+      # sweep clears the 191 pre-existing blocks. #532 deletes this.
+      run: scripts/check-comment-concision.sh {staged_files} || true
 
     - name: context-budget
       glob:

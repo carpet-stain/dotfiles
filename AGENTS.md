@@ -218,11 +218,12 @@ rules on the files no dedicated formatter touches (zsh, `git/config`,
 `ssh/config`, plain rc files), with indent checks off (`--disable-indentation`)
 — those false-positive on prose, terminfo, `.gitmodules`, and required `<<-`
 heredoc tabs, so indentation stays each language formatter's job.
-`comment-concision` (`scripts/check-comment-concision.sh`,
-ADR-0031) is advisory only, unlike every other job here — it always exits 0
-and only nudges toward re-reading an outlier-length comment block, since a
-hard block on something this judgment-dependent gets `--no-verify`'d past
-immediately.
+`comment-concision` (`scripts/check-comment-concision.sh`, ADR-0044,
+superseding ADR-0031's advisory nudge) exits non-zero on a comment block
+over 2 lines attached to one declaration — the cap is the tripwire plus its
+pointer, and the durable why relocates to an ADR or issue. File headers stay
+exempt. The job is held advisory here with `|| true` until #532 sweeps this
+repo's 191 pre-existing blocks; that flip is #532's diff, not this rule's.
 
 Two more advisory checks run at **pre-push**, not pre-commit, so they see
 the whole branch rather than one commit at a time (`git diff --name-only

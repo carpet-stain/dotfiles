@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
-# Advisory nudge, never a hard failure (#375): flags a comment block that's an
-# outlier length for a single declaration, as a prompt to re-read it for
-# content already covered elsewhere (design-principles.md's pointer rule) —
-# it doesn't try to detect redundancy itself. THRESHOLD_LINES is calibrated
-# against this repo's own real blocks, not a guess: the densest legitimate
-# single-declaration comment found here is linux/deploy.sh's 15-line
-# generate_ghostty_terminfo block, so the threshold sits comfortably above it
-# to avoid crying wolf on this repo's normal (dense but non-redundant) style.
+# Blocking signpost cap, not a length nudge — see ADR-0044 (supersedes ADR-0031).
+# THRESHOLD_LINES is the max allowed, so the comparison is `>`, not `>=`.
 set -uo pipefail
 
-THRESHOLD_LINES=20
+THRESHOLD_LINES=2
 
 comment_prefix_for() {
   case "$1" in
     *.lua) echo '--' ;;
+    *.mjs | *.cjs | *.js) echo '//' ;;
+    *.py | *.tf | *.tfvars) echo '#' ;;
     *.zsh | *.sh | *.bash | *.zshenv | *.zshrc | *.envrc | *.envrc.local.example) echo '#' ;;
     *) echo '' ;;
   esac
 }
+
+status=0
 
 for file in "$@"; do
   [[ -f "$file" ]] || continue
@@ -30,8 +28,9 @@ for file in "$@"; do
       # file-header preamble, not a single-declaration comment — out of scope.
       if (start <= 1) return
       if (start == 2 && header_shebang) return
-      if (count >= threshold) {
-        printf "%s:%d: %d-line comment block on one declaration — re-read for content already covered elsewhere (design-principles.md pointer rule)\n", file, start, count
+      if (count > threshold) {
+        printf "%s:%d: %d-line comment block on one declaration — cap is %d (tripwire + pointer); relocate the why to its ADR/issue home (design-principles.md)\n", file, start, count, threshold
+        found = 1
       }
     }
     NR == 1 && $0 ~ /^#!/ { header_shebang = 1 }
@@ -41,8 +40,8 @@ for file in "$@"; do
       next
     }
     { report(); count = 0 }
-    END { report() }
-  ' "$file"
+    END { report(); exit found ? 1 : 0 }
+  ' "$file" || status=1
 done
 
-exit 0
+exit "$status"
