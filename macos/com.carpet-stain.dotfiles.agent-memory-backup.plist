@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.carpet-stain.dotfiles.agent-memory-backup</string>
+	<!--
+	 No absolute paths: launchd plists can't expand $HOME, and this file is
+	 symlinked as-is (deploy.zsh's link_configs), not templated per machine.
+	 zsh always sources .zshenv (even non-interactively), which puts
+	 $HOME/.local/bin on PATH -- backup-agent-memory (the symlinked script)
+	 resolves from there. See dotfiles#542.
+	-->
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/zsh</string>
+		<string>-c</string>
+		<string>backup-agent-memory</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>3</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+	<key>RunAtLoad</key>
+	<false/>
+</dict>
+</plist>

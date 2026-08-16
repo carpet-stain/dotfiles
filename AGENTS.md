@@ -418,6 +418,45 @@ Residency is pending infra#170's secrets-residency ADR; if it routes LLM
 keys through SSM, the migration is a swap of the Keychain read in the
 launcher. macOS-only — Linux gets neither aichat nor a Keychain.
 
+#### Agent-memory B2 backup (#542)
+
+`scripts/backup-agent-memory.sh` (launchd, daily — the plist below) ships
+`~/.claude/agent-memory-mcp/backlog-manager.jsonl` to the versioned B2 bucket
+infra provisions (ADR-0017/0018) as a well-known key, overwriting each run —
+B2 versions a same-name upload rather than destroying it, so no
+timestamped-key scheme is needed. Interim DR stopgap for the local store
+(#542, narrowed by #581's hosted-DB pivot): disposable, replaced once that
+store carries its own DR.
+
+Credentials: `B2_APPLICATION_KEY_ID`/`B2_APPLICATION_KEY` (the `b2` CLI's own
+env vars) come from SSM `/runtime/agent-memory-backup-key`, fetched fresh
+each run via the same `infra-aws-local-read` Keychain credential as the
+vended GitHub token above — no B2 key material at rest on this machine. The
+key itself is infra's job (infra#200 mints it as tofu-managed code,
+`writeFiles` + `listBuckets`, deliberately never `deleteFiles`, so a
+leaked/buggy key can add versions but never purge one).
+
+Liveness: a Healthchecks.io ping on every run (success and `/fail`) is a
+blocking part of #542's acceptance — the 365-day noncurrent-version floor
+means a silently-dead job eventually loses history. Optional until a check
+exists: the script skips the ping (not an error) if the Keychain item below
+is absent.
+
+```sh
+# one-time, once a Healthchecks.io check exists for this job:
+security add-generic-password -s healthchecks-agent-memory-backup -A -U -w
+# prompts for the value — paste the check's ping URL
+```
+
+Scheduling: `macos/com.carpet-stain.dotfiles.agent-memory-backup.plist`,
+symlinked to `~/Library/LaunchAgents` and loaded by `deploy.zsh`'s
+`enable_agent_memory_backup` step. The plist invokes `backup-agent-memory`
+by bare name (no absolute path baked in — launchd can't expand `$HOME`, and
+the plist is symlinked as-is, not templated per machine); it resolves via
+`$HOME/.local/bin` on `PATH`, which zsh always puts there via `.zshenv`
+(sourced on every invocation, not just interactive ones). macOS-only, same
+as everything else Keychain/launchd-shaped here.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model
