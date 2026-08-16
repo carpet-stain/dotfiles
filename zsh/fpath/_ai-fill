@@ -1,9 +1,10 @@
 #!/usr/bin/env zsh
 
-# ZLE widget (Alt+I, #555 + #556): fills BUFFER from aichat's shell-fill
-# role, grounded on a read-only probe when the buffer matches a known tool
-# (git checkout-family, git commit, docker). BUFFER/CURSOR change only on a
-# clean, non-empty reply. A probe timeout or failure drops just that probe
+# ZLE widget (Alt+I, #555 + #556 + #585): fills BUFFER from aichat's
+# shell-fill role, grounded on a read-only probe when the buffer matches a
+# known tool (git checkout-family, git commit, docker, kubectl, brew, gh) or,
+# for anything else, a bare ecosystem-marker sniff. BUFFER/CURSOR change only
+# on a clean, non-empty reply. A probe timeout or failure drops just that probe
 # and falls back to a plain, ungrounded fill — it never uses a killed
 # command's output. A guard failure, an aichat timeout, or Ctrl-C anywhere
 # leaves the typed line exactly as it was. Timeouts run through
@@ -100,6 +101,71 @@ _ai-fill() {
         exit 0
       )
       probe_rc=$?
+      ;;
+    'kubectl exec' | 'kubectl logs')
+      probe_out=$(
+        TRAPINT() { _ai-fill-bounded-terminate; exit 130 }
+        _ai-fill-bounded 20 kubectl get pods
+        (( $? == 0 )) && print -r -- "$_ai_fill_bounded_output"
+        exit 0
+      )
+      probe_rc=$?
+      ;;
+    'kubectl delete')
+      # $lead is only the first two words, so an unrestricted arm would
+      # ground a deployment/service/namespace deletion with pod names,
+      # which don't apply and could mislead (#585 plan review) — only
+      # probe when the third word actually names a pod.
+      if [[ ${words[3]} == pod || ${words[3]} == pods ]]; then
+        probe_out=$(
+          TRAPINT() { _ai-fill-bounded-terminate; exit 130 }
+          _ai-fill-bounded 20 kubectl get pods
+          (( $? == 0 )) && print -r -- "$_ai_fill_bounded_output"
+          exit 0
+        )
+        probe_rc=$?
+      fi
+      ;;
+    'brew '*)
+      probe_out=$(
+        TRAPINT() { _ai-fill-bounded-terminate; exit 130 }
+        _ai-fill-bounded 10 brew leaves
+        (( $? == 0 )) && print -r -- "$_ai_fill_bounded_output"
+        exit 0
+      )
+      probe_rc=$?
+      ;;
+    'gh pr')
+      probe_out=$(
+        TRAPINT() { _ai-fill-bounded-terminate; exit 130 }
+        _ai-fill-bounded 15 gh pr list --limit 10
+        (( $? == 0 )) && print -r -- "$_ai_fill_bounded_output"
+        exit 0
+      )
+      probe_rc=$?
+      ;;
+    'gh issue')
+      probe_out=$(
+        TRAPINT() { _ai-fill-bounded-terminate; exit 130 }
+        _ai-fill-bounded 15 gh issue list --limit 10
+        (( $? == 0 )) && print -r -- "$_ai_fill_bounded_output"
+        exit 0
+      )
+      probe_rc=$?
+      ;;
+    *)
+      # No subprocess, no watchdog needed — pure local file-existence
+      # checks can't hang. Deliberately just an enum (#585 plan review:
+      # a raw cwd listing is $PWD contents, which ADR-0045 forbids
+      # sending; a --help allowlist adds request bytes for
+      # machine-independent public docs, not specific grounding).
+      local -a markers
+      [[ -f package.json ]] && markers+=(node)
+      [[ -f pyproject.toml || -f requirements.txt ]] && markers+=(python)
+      [[ -f Cargo.toml ]] && markers+=(rust)
+      [[ -f go.mod ]] && markers+=(go)
+      [[ -f Gemfile ]] && markers+=(ruby)
+      (( $#markers )) && probe_out="ecosystem: ${(j:, :)markers}"
       ;;
   esac
 
