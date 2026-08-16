@@ -180,6 +180,12 @@ link_configs() {
   # everything Keychain-shaped here.
   zf_ln -sf $DOTFILES_DIR/scripts/audit-keychain-gate.sh $HOME/.local/bin/audit-keychain-gate
 
+  # Agent-memory B2 backup (#542) — on PATH so the plist below can invoke it
+  # by bare name, no absolute-path templating. macOS only.
+  zf_ln -sf $DOTFILES_DIR/scripts/backup-agent-memory.sh $HOME/.local/bin/backup-agent-memory
+  zf_mkdir -p $HOME/Library/LaunchAgents
+  zf_ln -sf $DOTFILES_DIR/macos/com.carpet-stain.dotfiles.agent-memory-backup.plist $HOME/Library/LaunchAgents/com.carpet-stain.dotfiles.agent-memory-backup.plist
+
   # direnv auto-sources ~/.config/direnv/lib/*.sh before a repo's .envrc
   # — use_github_token (the shared vended-token bridge, #195) lives here.
   zf_ln -sfn $DOTFILES_DIR/direnv/lib $XDG_CONFIG_HOME/direnv/lib
@@ -288,6 +294,14 @@ enable_git_maintenance() {
   git -C $DOTFILES_DIR maintenance start
 }
 
+# Reload, not just load: launchd errors on an already-loaded label, so
+# unload-then-load is what keeps a re-run of deploy.zsh idempotent.
+enable_agent_memory_backup() {
+  local plist=$HOME/Library/LaunchAgents/com.carpet-stain.dotfiles.agent-memory-backup.plist
+  launchctl unload $plist 2>/dev/null || true
+  launchctl load -w $plist
+}
+
 # Trigger zsh run to download gitstatusd
 download_gitstatusd() {
   # CI=1 skips .zshrc's zellij auto-attach — without it this non-tty
@@ -391,6 +405,7 @@ optional "Installing lefthook hooks"           install_lefthook_hooks
 required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
 optional "Enabling git maintenance"            enable_git_maintenance
+optional "Scheduling agent-memory backup"      enable_agent_memory_backup
 optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
 optional "Importing zsh history into deja"     import_deja_history

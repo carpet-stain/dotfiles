@@ -24,6 +24,7 @@ brew 'act' # Run GitHub Actions workflows locally
 brew 'actionlint' # Lint GitHub Actions workflow files [lint]
 brew 'adr-tools' # Create/manage Architecture Decision Records (docs/adr/)
 brew 'awscli' # aws-vended-token's SSM fetch (infra#125); infra's BOOTSTRAP §10
+brew 'b2-tools' # backup-agent-memory.sh's upload client (#542); no Linux path yet
 brew 'colima' # On-demand Docker runtime (Lima VM) for `act`
 brew 'docker' # Docker CLI — talks to Colima's socket, no Docker Desktop
 brew 'dysk' # Better df; no Linux port yet, not just CI toolchain
