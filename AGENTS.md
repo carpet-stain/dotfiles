@@ -475,6 +475,21 @@ symlinked to `~/Library/LaunchAgents` and loaded by `deploy.zsh`'s
 agent-memory backup plist above (`snapshot-token-usage` resolves via
 `$HOME/.local/bin`). macOS-only.
 
+#### Per-spike token accounting (#476)
+
+`#475` dropped time-boxed spikes; tokens are the effort currency that replaced
+the clock. When closing a spike or issue, run `just token-cost <issue-number>`
+to post #517's per-issue rollup (output + cache-read tokens) as a closing
+comment — the real-spend number that calibrates future effort estimates,
+instead of a guess. `scripts/record-token-cost.sh` reads local transcripts
+only, so it only sees sessions run on this machine; run it before the branch's
+worktree gets torn down.
+
+This is the repo-specific sweep note `groom-backlog`'s own procedure points
+grooming sessions at (its "read the repo's sweep notes" step): weigh a
+recorded token-cost comment on a closed issue the same way you'd weigh any
+other real-spend evidence when estimating effort on similar work.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model

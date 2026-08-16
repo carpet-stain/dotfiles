@@ -82,6 +82,11 @@ usage view="daily" *args:
 token-attribution *args:
     node scripts/token-attribution/cli.mjs {{ args }}
 
+# Records #517's per-issue token rollup as a closing comment (#476):
+# `just token-cost <issue-number>`.
+token-cost issue:
+    scripts/record-token-cost.sh {{ issue }}
+
 # +--------------------------------------------------------------------------+
 # | Linux VM (OrbStack) — exercise linux/deploy.sh                           |
 # +--------------------------------------------------------------------------+
