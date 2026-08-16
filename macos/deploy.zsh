@@ -186,6 +186,11 @@ link_configs() {
   zf_mkdir -p $HOME/Library/LaunchAgents
   zf_ln -sf $DOTFILES_DIR/macos/com.carpet-stain.dotfiles.agent-memory-backup.plist $HOME/Library/LaunchAgents/com.carpet-stain.dotfiles.agent-memory-backup.plist
 
+  # Weekly token-usage snapshot (#518) — same on-PATH-by-bare-name shape as
+  # the agent-memory backup above, so the plist needs no path templating.
+  zf_ln -sf $DOTFILES_DIR/scripts/snapshot-token-usage.sh $HOME/.local/bin/snapshot-token-usage
+  zf_ln -sf $DOTFILES_DIR/macos/com.carpet-stain.dotfiles.token-usage-snapshot.plist $HOME/Library/LaunchAgents/com.carpet-stain.dotfiles.token-usage-snapshot.plist
+
   # direnv auto-sources ~/.config/direnv/lib/*.sh before a repo's .envrc
   # — use_github_token (the shared vended-token bridge, #195) lives here.
   zf_ln -sfn $DOTFILES_DIR/direnv/lib $XDG_CONFIG_HOME/direnv/lib
@@ -302,6 +307,12 @@ enable_agent_memory_backup() {
   launchctl load -w $plist
 }
 
+enable_token_usage_snapshot() {
+  local plist=$HOME/Library/LaunchAgents/com.carpet-stain.dotfiles.token-usage-snapshot.plist
+  launchctl unload $plist 2>/dev/null || true
+  launchctl load -w $plist
+}
+
 # Trigger zsh run to download gitstatusd
 download_gitstatusd() {
   # CI=1 skips .zshrc's zellij auto-attach — without it this non-tty
@@ -406,6 +417,7 @@ required "Linking zsh plugins"                 link_zsh_plugins
 required "Syncing submodules"                  sync_submodules
 optional "Enabling git maintenance"            enable_git_maintenance
 optional "Scheduling agent-memory backup"      enable_agent_memory_backup
+optional "Scheduling token-usage snapshot"     enable_token_usage_snapshot
 optional "Building bat theme cache"            build_bat_cache
 optional "Downloading gitstatusd for p10k"     download_gitstatusd
 optional "Importing zsh history into deja"     import_deja_history
