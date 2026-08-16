@@ -9,6 +9,10 @@ References [ADR-0009](0009-backlog-manager-subagent-with-committed-file-based-me
 
 Superceded by [36. MCP knowledge-graph memory with a private local store](0036-mcp-knowledge-graph-memory-with-a-private-local-store.md)
 
+Content contract (as carried forward by ADR-0036) amended 2026-08-16 by
+[ADR-0046](0046-hosted-per-role-agent-memory-over-mcp-http.md): an episodic
+tier is added beside the semantic pointer layer this contract defines.
+
 ## Context
 
 Backlog-manager's committed memory (`.claude/agent-memory/backlog-manager/`)

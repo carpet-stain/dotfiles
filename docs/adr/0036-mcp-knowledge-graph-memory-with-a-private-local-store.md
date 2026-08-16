@@ -14,6 +14,11 @@ Supercedes [33. Memory is a pointer layer — the content contract](0033-memory-
 
 Shared-write clause amended 2026-08-14 by [ADR-0043](0043-per-role-memory-write-ownership-amending-the-adr-0036-shared-write-clause.md).
 
+Local-store model superceded 2026-08-16 by
+[46. Hosted per-role agent memory over MCP-over-HTTP](0046-hosted-per-role-agent-memory-over-mcp-http.md)
+— the MCP interface and content contract survive; the machine-local store, its
+stdio wiring, and the falsified `claude --agent` frontmatter clause reverse.
+
 ## Context
 
 Backlog-manager's memory is committed markdown in every repo's

@@ -9,6 +9,10 @@ Accepted
 Amends ADR-0025's issue-stage plan-drafting clause only; ADR-0025 stays Accepted — its
 PR-stage cross-model code reviewer is deliberately untouched.
 
+Roster table amended 2026-08-16 by
+[ADR-0046](0046-hosted-per-role-agent-memory-over-mcp-http.md): runtime homes
+per the #582 topology (cloud surfaces, hosted legs, memory reach).
+
 ## Context
 
 Epic #545 treats agents as managed team members rather than personal tools. Two shared agents
