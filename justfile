@@ -68,6 +68,15 @@ adr *args:
 work-queue:
     scripts/work-queue.sh
 
+# Pinned, not floating @latest — ccusage's transcript-format handling can drift across
+# releases (#516).
+CCUSAGE_VERSION := "20.0.20"
+
+# Coarse token-usage report via ccusage (#516): `just usage`, `just usage session`,
+# `just usage blocks --live`, `just usage daily --json`. Zero standing infra.
+usage view="daily" *args:
+    npx --yes ccusage@{{ CCUSAGE_VERSION }} {{ view }} {{ args }}
+
 # +--------------------------------------------------------------------------+
 # | Linux VM (OrbStack) — exercise linux/deploy.sh                           |
 # +--------------------------------------------------------------------------+
