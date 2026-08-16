@@ -77,6 +77,11 @@ CCUSAGE_VERSION := "20.0.20"
 usage view="daily" *args:
     npx --yes ccusage@{{ CCUSAGE_VERSION }} {{ view }} {{ args }}
 
+# Attribution layer ccusage can't reach (#517): per-activity split + per-issue
+# rollup from this repo's own transcripts. `just token-attribution [repo-path]`.
+token-attribution *args:
+    node scripts/token-attribution/cli.mjs {{ args }}
+
 # +--------------------------------------------------------------------------+
 # | Linux VM (OrbStack) — exercise linux/deploy.sh                           |
 # +--------------------------------------------------------------------------+
