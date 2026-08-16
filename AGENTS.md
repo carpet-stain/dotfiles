@@ -302,16 +302,23 @@ this repo never has admin rights to lose — and Security By Default's rule
 an environment file, gitignored, never hardcoded.
 
 Routine `gh` auth is the vended token (ADR-0041, superseding ADR-0007's
-per-repo PATs): `.envrc` maps `GH_TOKEN` from `GH_VENDED_TOKEN` (fetched
-below), so day-to-day work rides a rotating ~1h credential with no
-Administration and a covered repo needs no hand-minted PAT. Resolution
-order in `.envrc`: a non-empty `GH_TOKEN` from `.envrc.local` wins
-(escape hatch); else the vended token; else the sentinel
-`vended-unavailable-see-453` — unconditional and last, so gh fails
-closed with a visible 401 instead of silently reaching gh's keyring
-credential (the #160 guarantee; the keyring's dev PAT covers infra, which
-the vended grant deliberately excludes). A 401 naming the sentinel means
-the vended path is down — see the fetch error at shell entry.
+per-repo PATs): `.envrc` calls `use_github_token`, a direnv function this
+repo deploys to `~/.config/direnv/lib/` (`direnv/lib/use_github_token.sh`)
+so every vended-covered repo shares one copy instead of hand-rolling the
+same block (infra#195). It maps `GH_TOKEN` from `GH_VENDED_TOKEN`
+(fetched inside the function), so day-to-day work rides a rotating ~1h
+credential with no Administration and a covered repo needs no hand-minted
+PAT. Resolution order inside `use_github_token`: a non-empty `GH_TOKEN`
+from `.envrc.local` wins (escape hatch — `.envrc` sources it first); else
+the vended token; else the sentinel `vended-unavailable-see-453` —
+unconditional and last, so gh fails closed with a visible 401 instead of
+silently reaching gh's keyring credential (the #160 guarantee; the
+keyring's dev PAT covers infra, which the vended grant deliberately
+excludes). A 401 naming the sentinel means the vended path is down — see
+the fetch error at shell entry. `.envrc` itself guards the call: if
+`use_github_token` isn't defined (the lib isn't deployed — bootstrap
+hasn't run), it falls back to the same sentinel with a loud error rather
+than direnv's bare "command not found" leaving `GITHUB_TOKEN` untouched.
 
 Escape hatch: `.envrc.local` (gitignored — never commit a real token)
 keeps an empty `export GH_TOKEN=` line; `.envrc.local.example` is the

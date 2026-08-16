@@ -338,6 +338,10 @@ link_configs() {
   ln -sf "$DOTFILES_DIR/curlrc" "$XDG_CONFIG_HOME/curlrc"
   ln -sf "$DOTFILES_DIR/tealdeerconfig.toml" "$XDG_CONFIG_HOME/tealdeer/config.toml"
 
+  # direnv auto-sources ~/.config/direnv/lib/*.sh before a repo's .envrc
+  # — use_github_token (the shared vended-token bridge, #195) lives here.
+  ln -sfn "$DOTFILES_DIR/direnv/lib" "$XDG_CONFIG_HOME/direnv/lib"
+
   ln -sf "$DOTFILES_DIR/ssh/config" "$XDG_CONFIG_HOME/ssh/config"
 
   # config.local holds real hostnames — deliberately untracked. Created once

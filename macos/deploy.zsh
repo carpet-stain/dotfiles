@@ -180,6 +180,10 @@ link_configs() {
   # everything Keychain-shaped here.
   zf_ln -sf $DOTFILES_DIR/scripts/audit-keychain-gate.sh $HOME/.local/bin/audit-keychain-gate
 
+  # direnv auto-sources ~/.config/direnv/lib/*.sh before a repo's .envrc
+  # — use_github_token (the shared vended-token bridge, #195) lives here.
+  zf_ln -sfn $DOTFILES_DIR/direnv/lib $XDG_CONFIG_HOME/direnv/lib
+
   zf_ln -sf $DOTFILES_DIR/ripgreprc $XDG_CONFIG_HOME/ripgrep/config
   zf_ln -sf $DOTFILES_DIR/curlrc $XDG_CONFIG_HOME/curlrc
   zf_ln -sf $DOTFILES_DIR/tealdeerconfig.toml $XDG_CONFIG_HOME/tealdeer/config.toml
