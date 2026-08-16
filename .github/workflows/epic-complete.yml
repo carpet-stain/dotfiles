@@ -1,0 +1,114 @@
+name: Epic complete
+
+# Closes an epic the moment its last same-repo sub-issue closes, instead of
+# leaving it open until the next grooming sweep (#592). The close is
+# reversible and commented with its provenance; a deliberately-reopened epic
+# is never re-closed (marker check below) — reopening is the human overriding
+# this automation, and it stays overridden.
+#
+# Reach is same-repo-only behind a conservative cross-repo guard (ADR-0047):
+# subIssuesSummary can't see virtual cross-repo membership (blocked-by
+# links, body references — ADR-0040), so a multi-repo epic reads 100% while
+# cross-repo work is still open. Any cross-repo signal on the epic → skip;
+# over-skipping is safe (the grooming sweep still catches it), a false close
+# is the failure the guard exists to prevent.
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  epic-complete:
+    name: epic complete
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close the parent epic if its sub-issues are all closed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          # shellcheck disable=SC2016 # single-quoted: GraphQL's own variables.
+          parent=$(gh api graphql -f query='
+            query($owner: String!, $repo: String!, $number: Int!) {
+              repository(owner: $owner, name: $repo) {
+                issue(number: $number) {
+                  parent {
+                    number
+                    state
+                    body
+                    repository { nameWithOwner }
+                    labels(first: 100) { nodes { name } }
+                    subIssuesSummary { total percentCompleted }
+                    blockedBy(first: 100) { nodes { repository { nameWithOwner } } }
+                    blocking(first: 100) { nodes { repository { nameWithOwner } } }
+                    comments(last: 100) { nodes { body } }
+                  }
+                }
+              }
+            }' -f owner="$OWNER" -f repo="$REPO" -F number="$ISSUE" \
+            --jq '.data.repository.issue.parent')
+
+          if [ "$parent" = "null" ] || [ -z "$parent" ]; then
+            echo "closed issue has no parent — nothing to do."
+            exit 0
+          fi
+
+          number=$(jq -r '.number' <<<"$parent")
+          repo_nwo=$(jq -r '.repository.nameWithOwner' <<<"$parent")
+          total=$(jq -r '.subIssuesSummary.total' <<<"$parent")
+          percent=$(jq -r '.subIssuesSummary.percentCompleted' <<<"$parent")
+
+          # A cross-repo parent is out of reach by decision (ADR-0047) and by
+          # token scope (GITHUB_TOKEN can't write there) — the sweep owns it.
+          if [ "$repo_nwo" != "$OWNER/$REPO" ]; then
+            echo "parent $repo_nwo#$number is cross-repo — skipping (ADR-0047)."
+            exit 0
+          fi
+
+          if ! jq -e '.labels.nodes[] | select(.name == "epic")' <<<"$parent" >/dev/null; then
+            echo "parent #$number is not an epic — nothing to do."
+            exit 0
+          fi
+
+          if [ "$(jq -r '.state' <<<"$parent")" = "CLOSED" ]; then
+            echo "parent #$number is already closed — nothing to do."
+            exit 0
+          fi
+
+          if [ "$total" -eq 0 ] || [ "$percent" -ne 100 ]; then
+            echo "parent #$number at $percent% of $total sub-issues — not complete."
+            exit 0
+          fi
+
+          # Guard leg 1: any cross-repo blocked-by/blocking link → skip.
+          if jq -e --arg self "$OWNER/$REPO" '
+              [.blockedBy.nodes[], .blocking.nodes[]]
+              | any(.repository.nameWithOwner != $self)' <<<"$parent" >/dev/null; then
+            echo "parent #$number has a cross-repo blocked-by/blocking link — skipping (ADR-0047 guard)."
+            exit 0
+          fi
+
+          # Guard leg 2: any cross-repo issue/PR reference in the epic body —
+          # full URL, owner/repo#N, or this repo's bare repo#N shorthand
+          # (e.g. infra#174; GitHub doesn't autolink it, ADR-0040 counts it).
+          body=$(jq -r '.body' <<<"$parent")
+          cross_ref=$(grep -oE '([A-Za-z0-9._-]+/)?[A-Za-z0-9._-]+#[0-9]+|github\.com/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+/(issues|pull)/[0-9]+' <<<"$body" \
+            | grep -vE "^($REPO|$OWNER/$REPO)#|^github\.com/$OWNER/$REPO/" || true)
+          if [ -n "$cross_ref" ]; then
+            echo "parent #$number body references cross-repo work ($(head -1 <<<"$cross_ref")) — skipping (ADR-0047 guard)."
+            exit 0
+          fi
+
+          # A prior auto-close marker on an OPEN epic means a human reopened
+          # it — that override stands; never re-close on a later child event.
+          if jq -e '.comments.nodes[] | select(.body | contains("<!-- epic-complete -->"))' <<<"$parent" >/dev/null; then
+            echo "parent #$number was auto-closed before and reopened by a human — staying out."
+            exit 0
+          fi
+
+          gh issue close "$number" -R "$OWNER/$REPO" -r completed \
+            -c "$(printf 'All %s sub-issues are closed — closing (epic-complete workflow). Reopen if the epic'\''s definition of done goes beyond its linked children; a reopened epic is never re-closed by this automation.\n\n<!-- epic-complete -->' "$total")"
