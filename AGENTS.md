@@ -457,6 +457,24 @@ the plist is symlinked as-is, not templated per machine); it resolves via
 (sourced on every invocation, not just interactive ones). macOS-only, same
 as everything else Keychain/launchd-shaped here.
 
+#### Weekly token-usage snapshot (#518)
+
+`scripts/snapshot-token-usage.sh` (launchd, weekly — the plist below) writes
+`just usage weekly --json` (#516's ccusage wiring) and `just token-attribution`
+(#517's transcript parser) to `$XDG_STATE_HOME/token-usage/` — outside
+Claude Code's 30-day transcript prune window. Durability stopgap from spike #431's
+decision: a weekly snapshot buys history past the prune for ~20 lines and no
+standing infra, so no B2/cloud upload here (unlike the agent-memory backup
+above) — local, `$XDG_STATE_HOME`-durable is the whole ask. Each capture is
+independent (a ccusage failure doesn't block the attribution capture, or
+vice versa); the script exits nonzero only if both fail.
+
+Scheduling: `macos/com.carpet-stain.dotfiles.token-usage-snapshot.plist`,
+symlinked to `~/Library/LaunchAgents` and loaded by `deploy.zsh`'s
+`enable_token_usage_snapshot` step — same bare-name-on-`PATH` shape as the
+agent-memory backup plist above (`snapshot-token-usage` resolves via
+`$HOME/.local/bin`). macOS-only.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model
