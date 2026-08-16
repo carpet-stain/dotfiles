@@ -9,6 +9,11 @@ Accepted
 Amends ADR-0036's any-agent-writes clause only; ADR-0036 stays Accepted — the MCP
 knowledge-graph server and its private local store are untouched.
 
+Superceded 2026-08-16 by
+[46. Hosted per-role agent memory over MCP-over-HTTP](0046-hosted-per-role-agent-memory-over-mcp-http.md)
+— the "one store per role" rejection reverses; the shared-reference tier and the
+anti-smuggling rule dissolve with it.
+
 ## Context
 
 ADR-0036 put agent memory in one MCP knowledge graph backed by a private local JSONL store.
