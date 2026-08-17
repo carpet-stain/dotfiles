@@ -13,7 +13,7 @@
 # credential aws-vended-token.sh uses. No B2 key material at rest on disk.
 #
 # Healthchecks.io ping is optional here: a missing Keychain item degrades to
-# "no liveness alerting yet", not a failure — see AGENTS.md Credentials for
+# "no liveness alerting yet", not a failure — see docs/credentials.md for
 # the one-time setup once a check exists.
 set -euo pipefail
 

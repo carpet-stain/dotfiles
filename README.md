@@ -31,7 +31,7 @@ This configuration is built on five core principles:
    tools like Homebrew, `wget`, and `less` that don't support it natively. Only
    `.zshenv` lives in `$HOME` (zsh's fixed entry point). See the
    [XDG Base Directory Specification][xdg-spec]; documented exceptions live in
-   [AGENTS.md](AGENTS.md#xdg-exceptions).
+   [docs/xdg-exceptions.md](docs/xdg-exceptions.md).
 
 2. **Modern Replacements:** Legacy Unix utilities are replaced with modern,
    faster (often Rust-based) alternatives.

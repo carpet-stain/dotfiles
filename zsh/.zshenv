@@ -91,7 +91,7 @@ if [[ $OSTYPE == darwin* ]]; then
   export HOMEBREW_TEMP=$XDG_RUNTIME_DIR/Homebrew
 
   # Relocates Colima's whole tree at once, and no LIMA_HOME is needed —
-  # see AGENTS.md's `act` bullet for why both are deliberate.
+  # see scripts/act-run.sh's header for why both are deliberate.
   export COLIMA_HOME=$XDG_DATA_HOME/colima
 
   # Formula zsh completions reach compinit via this line's fpath prepend, not

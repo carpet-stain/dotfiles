@@ -463,7 +463,7 @@ set_neovim() {
 }
 
 # ~/.terminfo, not $XDG_DATA_HOME: ncurses' default search path only covers
-# the former, and this is bash — see AGENTS.md's XDG exceptions.
+# the former, and this is bash — see docs/xdg-exceptions.md.
 generate_ghostty_terminfo() {
   tic -x -o "$HOME/.terminfo" "$DOTFILES_DIR/ghostty/xterm-ghostty.terminfo"
 }
