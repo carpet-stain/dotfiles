@@ -67,4 +67,16 @@ Host *.orb.local
   IdentityFile ~/.orbstack/ssh/id_ed25519
   IdentitiesOnly yes
 
+# +---------+
+# | GITHUB  |
+# +---------+
+
+# GitHub's auth key lives in the Secure Enclave via Secretive
+# (Brewfile.personal), notify-only so background agent pushes sign
+# silently — #433 decision, #535 adoption. Match exec gates on the agent
+# socket: a machine without Secretive (the Linux target shares this
+# file) falls through to on-disk keys instead of failing.
+Match host github.com exec "test -S ~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh"
+  IdentityAgent ~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+
 Host *
