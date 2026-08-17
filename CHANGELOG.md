@@ -1,6 +1,95 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.9.0] - 2026-08-17
+
+### Features
+
+- *(claude)* Add grilling skill + backlog-manager trigger wiring ([#481](https://github.com/carpet-stain/dotfiles/pull/481))
+- *(claude)* Add groom-backlog skill, relocate sweep procedure ([#482](https://github.com/carpet-stain/dotfiles/pull/482))
+- *(claude)* Journal plan-reviewer critiques as condensed digests ([#483](https://github.com/carpet-stain/dotfiles/pull/483))
+- *(claude)* Add implement-issue skill ([#484](https://github.com/carpet-stain/dotfiles/pull/484))
+- *(claude)* Drop timebox from spike convention ([#488](https://github.com/carpet-stain/dotfiles/pull/488))
+- *(github)* Decouple pr-code-review's trigger from the architecture label ([#489](https://github.com/carpet-stain/dotfiles/pull/489))
+- *(ci)* Check the PR diff against the plan it closes ([#491](https://github.com/carpet-stain/dotfiles/pull/491))
+- *(github)* Require a closing issue reference or No-Issue marker ([#492](https://github.com/carpet-stain/dotfiles/pull/492))
+- *(ci)* Companion-file coupling guard ([#496](https://github.com/carpet-stain/dotfiles/pull/496))
+- *(claude)* Just work-queue — cross-repo dispatch digest ([#497](https://github.com/carpet-stain/dotfiles/pull/497))
+- *(claude)* Seed voice.md from session transcripts ([#499](https://github.com/carpet-stain/dotfiles/pull/499))
+- *(claude)* Deny-list generated and mirrored paths from agent reads ([#502](https://github.com/carpet-stain/dotfiles/pull/502))
+- *(theme)* Ghostty + nvim follow macOS appearance natively ([#504](https://github.com/carpet-stain/dotfiles/pull/504))
+- *(zsh)* THEME_MODE derivation drives all CLI theme surfaces ([#505](https://github.com/carpet-stain/dotfiles/pull/505))
+- *(zellij)* Follow macOS appearance natively via CSI 2031 ([#509](https://github.com/carpet-stain/dotfiles/pull/509))
+- *(credentials)* Fetch vended token from SSM, retire bws (infra#125) ([#525](https://github.com/carpet-stain/dotfiles/pull/525))
+- *(credentials)* Audit keychain prompt gate ([#534](https://github.com/carpet-stain/dotfiles/pull/534))
+- *(credentials)* Route routine GH_TOKEN through the vended token ([#537](https://github.com/carpet-stain/dotfiles/pull/537))
+- *(claude)* Trial MCP memory for backlog-manager ([#541](https://github.com/carpet-stain/dotfiles/pull/541))
+- *(zellij)* Floating aichat scratch pane for command generation ([#554](https://github.com/carpet-stain/dotfiles/pull/554))
+- *(claude)* Cut backlog-manager over to MCP graph memory ([#561](https://github.com/carpet-stain/dotfiles/pull/561))
+- *(claude)* Generalize audit-memory to the graph store ([#562](https://github.com/carpet-stain/dotfiles/pull/562))
+- *(claude)* Agents read as AI, not impersonated voices ([#564](https://github.com/carpet-stain/dotfiles/pull/564))
+- *(claude)* Author shipped work as the implementor identity ([#565](https://github.com/carpet-stain/dotfiles/pull/565))
+- *(claude)* Grill non-trivial issues by default ([#575](https://github.com/carpet-stain/dotfiles/pull/575))
+- *(ci)* Block comments over the 2-line cap ([#578](https://github.com/carpet-stain/dotfiles/pull/578))
+- *(zsh)* Add Alt+I inline command fill widget ([#584](https://github.com/carpet-stain/dotfiles/pull/584))
+- *(zsh)* Add git and docker probes to inline command fill ([#586](https://github.com/carpet-stain/dotfiles/pull/586))
+- *(zellij)* Live tab name from cwd and foreground command ([#589](https://github.com/carpet-stain/dotfiles/pull/589))
+- *(claude)* Back up agent-memory store to B2 ([#595](https://github.com/carpet-stain/dotfiles/pull/595))
+- *(zsh)* Add kubectl/brew/gh/base probes to inline command fill ([#599](https://github.com/carpet-stain/dotfiles/pull/599))
+- *(claude)* Wire ccusage as the coarse token-usage layer ([#601](https://github.com/carpet-stain/dotfiles/pull/601))
+- *(claude)* Transcript token-attribution parser — per-activity split + per-issue rollup ([#604](https://github.com/carpet-stain/dotfiles/pull/604))
+- *(claude)* Weekly usage snapshot before the 30-day transcript prune ([#606](https://github.com/carpet-stain/dotfiles/pull/606))
+- *(ci)* Close an epic when its last sub-issue closes ([#609](https://github.com/carpet-stain/dotfiles/pull/609))
+- *(claude)* Per-spike token accounting — effort in tokens, calibrated from real spend ([#611](https://github.com/carpet-stain/dotfiles/pull/611))
+
+### Bug Fixes
+
+- *(claude)* Rebuild memory-pr via a temp index ([#500](https://github.com/carpet-stain/dotfiles/pull/500))
+- *(ci)* Bump pr-review model to gpt-5.6-sol ([#501](https://github.com/carpet-stain/dotfiles/pull/501))
+- *(ci)* Exempt chore/sync-backlog-memory PRs from the issue-link guard ([#551](https://github.com/carpet-stain/dotfiles/pull/551))
+- *(claude)* Shell-expand MCP memory store path ([#558](https://github.com/carpet-stain/dotfiles/pull/558))
+- *(claude)* Harden MCP memory wiring found at rollout ([#559](https://github.com/carpet-stain/dotfiles/pull/559))
+- *(claude)* Keyword recall + read_graph fallback ([#571](https://github.com/carpet-stain/dotfiles/pull/571))
+
+### Refactor
+
+- *(ci)* Install lint tools from Brewfile.dev/payload in ci.yml ([#503](https://github.com/carpet-stain/dotfiles/pull/503))
+- *(claude)* Extract stable subset to carpet-stain/agents (Phase 1) ([#588](https://github.com/carpet-stain/dotfiles/pull/588))
+- *(claude)* Extract backlog-manager.md + voice.md (Phase 2) ([#590](https://github.com/carpet-stain/dotfiles/pull/590))
+- *(direnv)* Share the vended-token GITHUB_TOKEN bridge ([#593](https://github.com/carpet-stain/dotfiles/pull/593))
+
+### Documentation
+
+- *(git)* Add PR handoff discipline — self-sufficient top post ([#480](https://github.com/carpet-stain/dotfiles/pull/480))
+- *(adr)* Amend ADR-0034 with spike #506's Zellij theme findings ([#507](https://github.com/carpet-stain/dotfiles/pull/507))
+- *(claude)* Add reuse-search ladder to Simplicity First ([#512](https://github.com/carpet-stain/dotfiles/pull/512))
+- *(claude)* Record the MCP context-tax bar ([#513](https://github.com/carpet-stain/dotfiles/pull/513))
+- *(claude)* Add a skill-worthy bar to the authoring convention ([#514](https://github.com/carpet-stain/dotfiles/pull/514))
+- *(credentials)* Swap retired infra-bws contrast for infra-aws-local-apply ([#526](https://github.com/carpet-stain/dotfiles/pull/526))
+- *(adr)* Deliberation as named agent identities ([#539](https://github.com/carpet-stain/dotfiles/pull/539))
+- *(adr)* Record agent-repo extraction residency ([#572](https://github.com/carpet-stain/dotfiles/pull/572))
+- *(claude)* Per-repo backlog with virtual multi-repo overlay ([#573](https://github.com/carpet-stain/dotfiles/pull/573))
+- *(adr)* Supersede ADR-0007 with the vended-token model ([#574](https://github.com/carpet-stain/dotfiles/pull/574))
+- *(adr)* Record the shared-agent roster and operating model ([#577](https://github.com/carpet-stain/dotfiles/pull/577))
+- *(adr)* Record the hosted per-role agent-memory architecture ([#600](https://github.com/carpet-stain/dotfiles/pull/600))
+- *(adr)* Record the epic-completion reach and guard decision ([#605](https://github.com/carpet-stain/dotfiles/pull/605))
+- *(claude)* Relocate AGENTS.md restated facts to their in-repo homes ([#614](https://github.com/carpet-stain/dotfiles/pull/614))
+
+### Chore
+
+- Update repo-watch state ([#466](https://github.com/carpet-stain/dotfiles/pull/466))
+- *(claude)* Sync backlog-manager memory ([#467](https://github.com/carpet-stain/dotfiles/pull/467))
+- *(claude)* Sync backlog-manager memory ([#468](https://github.com/carpet-stain/dotfiles/pull/468))
+- *(claude)* Sync backlog-manager memory ([#469](https://github.com/carpet-stain/dotfiles/pull/469))
+- *(macos)* Drop the zsh-patina tap — formula moved into homebrew-core ([#485](https://github.com/carpet-stain/dotfiles/pull/485))
+- *(theme)* Bump catppuccin/bat pin — manpage colors, JSON key highlight ([#486](https://github.com/carpet-stain/dotfiles/pull/486))
+- *(zsh)* Bump fzf-tab pin, add active-group-style zstyle ([#487](https://github.com/carpet-stain/dotfiles/pull/487))
+- *(claude)* Sync backlog-manager memory ([#495](https://github.com/carpet-stain/dotfiles/pull/495))
+- *(zsh)* Drop redundant --no-separator on darwin ([#515](https://github.com/carpet-stain/dotfiles/pull/515))
+- Update repo-watch state ([#524](https://github.com/carpet-stain/dotfiles/pull/524))
+- *(claude)* Stop committing agent-memory ([#553](https://github.com/carpet-stain/dotfiles/pull/553))
+- *(ci)* Sweep comments to the 2-line cap ([#580](https://github.com/carpet-stain/dotfiles/pull/580))
+
 ## [1.8.0] - 2026-07-27
 
 ### Features
