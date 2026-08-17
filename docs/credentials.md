@@ -35,6 +35,10 @@ fetches it fresh at shell entry, failing loud if stale or missing — its
 header owns the mechanism (Keychain-read IAM credential, process-only
 export, no ambient `AWS_*`).
 
+When the vending schedule stalls and the token lapses (the recurring ~1h
+dead window — infra#191 owns the durable fix), `just revend` dispatches a
+re-mint by hand and reloads direnv once the fresh token lands.
+
 One-time setup — create an access key for `infra-local-read` (AWS console,
 as root: IAM → Users → infra-local-read → Security credentials → Create
 access key, use case CLI), then store it (`-A` allows silent reads, since

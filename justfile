@@ -68,6 +68,29 @@ adr *args:
 work-queue:
     scripts/work-queue.sh
 
+# Dispatches infra's vend-token.yml by hand, polls SSM until the fresh token
+# lands, then direnv-reloads so hooked shells refresh at their next prompt.
+# Drops both token vars so gh falls back to the keyring dev PAT — the expired
+# vended token can't dispatch its own re-mint. Sanctioned manual interim; the
+# durable fix (EventBridge Scheduler, infra#191) closes the window for good.
+# One-shot recovery of the vended token's dead window (#619).
+revend:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    env -u GH_TOKEN -u GITHUB_TOKEN gh workflow run vend-token.yml -R carpet-stain/infra
+    echo "dispatched vend-token.yml; polling SSM for a fresh token..."
+    for _ in $(seq 1 40); do
+      if aws-vended-token >/dev/null 2>&1; then
+        direnv reload
+        echo "fresh token vended — direnv reloaded; shells refresh at their next prompt"
+        exit 0
+      fi
+      sleep 3
+    done
+    echo "revend: no fresh token after ~2 min — check the run:" >&2
+    echo "  env -u GH_TOKEN -u GITHUB_TOKEN gh run list -R carpet-stain/infra --workflow=vend-token.yml" >&2
+    exit 1
+
 # Pinned, not floating @latest — ccusage's transcript-format handling can drift across
 # releases (#516).
 CCUSAGE_VERSION := "20.0.20"
