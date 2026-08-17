@@ -70,12 +70,21 @@ jobs:
   issue-link:
     name: issue link
     runs-on: ubuntu-latest
-    # release-prepare.yml's release/* PRs close no issue by design — exempted
-    # here in-guard rather than having that writer inject a No-Issue body
-    # marker, so the whole contract stays in this one file (#449, #550).
+    # release-prepare.yml's release/* PRs and agents-sync.yml's agents-sync/*
+    # PRs close no issue by design — exempted here in-guard rather than
+    # having those writers inject a No-Issue body marker, so the whole
+    # contract stays in this one file (#449, #550, #597). agents-sync/* is
+    # additionally scoped to same-repo github-actions[bot] PRs — a branch
+    # name alone isn't proof of origin.
     if: >-
       github.event.pull_request.draft == false
       && !startsWith(github.event.pull_request.head.ref, 'release/')
+      && !(
+        startsWith(github.event.pull_request.head.ref, 'agents-sync/')
+        && github.event.pull_request.user.login == 'github-actions[bot]'
+        && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+      )
+      && !startsWith(github.event.pull_request.head.ref, 'agents-sync/')
     steps:
       # closingIssuesReferences is GitHub's own computed field (#449) — not a
       # body-text regex — so it reflects the link however it was made (a

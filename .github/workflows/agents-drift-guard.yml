@@ -1,0 +1,88 @@
+name: Agents drift guard
+
+# Enforces "one source, not two that drift" for the vendored cloud-channel
+# carve-out (carpet-stain/dotfiles#597, carpet-stain/agents ADR-0002): checks
+# out carpet-stain/agents at the SHA pinned in .claude/.agents-ref and
+# confirms the renderer's output still matches what's committed. Step-level
+# (not job-level) no-op when .agents-ref is absent, so a virgin checkout
+# reports success rather than sitting pending forever as a required check —
+# same shape as adr-guard.yml's label gate.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agents-drift-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift-guard:
+    name: drift guard
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    steps:
+      - name: Checkout dotfiles
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Checks base-branch presence too (a PR deleting .agents-ref must fail,
+      # not skip) and validates the content as one 40-hex SHA (unvalidated,
+      # a PR-controlled file could inject $GITHUB_OUTPUT lines or pin the
+      # checkout below to a mutable ref) — see #625's review thread.
+      - name: Check whether anything is vendored yet
+        id: ref
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          base_had_ref=false
+          if [[ -n "$BASE_SHA" ]]; then
+            # Fail closed: an unfetchable base must not be treated as "no
+            # ref on base" — that would let a PR that deletes .agents-ref
+            # pass whenever this fetch happens to fail.
+            if ! git fetch --depth=1 origin "$BASE_SHA" >/dev/null 2>&1; then
+              echo "::error::couldn't fetch base commit $BASE_SHA to check for a prior .agents-ref."
+              exit 1
+            fi
+            # if, not `cmd && var=true`: under Actions' default `set -e`,
+            # the latter aborts the whole script on the expected-absent case.
+            if git cat-file -e "${BASE_SHA}:.claude/.agents-ref" 2>/dev/null; then
+              base_had_ref=true
+            fi
+          fi
+
+          if [[ ! -f .claude/.agents-ref ]]; then
+            if [[ "$base_had_ref" == "true" ]]; then
+              echo "::error::.claude/.agents-ref existed on the base branch but is missing here — that's drift, not a virgin repo."
+              exit 1
+            fi
+            echo "present=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          sha="$(tr -d '[:space:]' <.claude/.agents-ref)"
+          if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::.claude/.agents-ref must contain exactly one 40-hex-character commit SHA."
+            exit 1
+          fi
+
+          echo "present=true" >>"$GITHUB_OUTPUT"
+          echo "sha=$sha" >>"$GITHUB_OUTPUT"
+
+      - name: Checkout carpet-stain/agents at the pinned ref
+        if: steps.ref.outputs.present == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: carpet-stain/agents
+          ref: ${{ steps.ref.outputs.sha }}
+          path: .agents-src
+          persist-credentials: false
+
+      - name: Check the vendored carve-out for drift
+        if: steps.ref.outputs.present == 'true'
+        run: .agents-src/scripts/render-agent.sh --check --agents-repo .agents-src --consumer-dir .claude
