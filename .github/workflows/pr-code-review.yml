@@ -26,10 +26,12 @@ name: PR code review (advisory)
 # lint-adjacent nits, so it's matched to a model that can actually compare a
 # diff against an approved plan. To move to the OpenAI API directly, drop
 # those two env lines (run.mjs defaults to gpt-4o-mini on api.openai.com) and
-# put an OpenAI key in the secret instead. Either way the key lives in the
-# `OPENAI_API_KEY` repo secret — provision it with the elevated session, same
-# pattern as RELEASE_PAT. Without it the job skips cleanly (green), it
-# doesn't fail.
+# point the guard/fetch steps below at an OpenAI key instead. The key comes
+# from AWS SSM (`/runtime/openrouter-api-key`) via the OIDC-assumed role in
+# `vars.AWS_OPENROUTER_ROLE_ARN` (infra#220) — no repo secret to rotate by
+# hand, since carpet-stain is a User account with no shared org secret
+# store. A role-assume or SSM fetch failure skips the review cleanly
+# (green), it doesn't fail the job — advisory, never merge-blocking.
 #
 # DIY step (scripts/pr-review/), not a third-party Action: #330's upgrade
 # over the anc95/ChatGPT-CodeReview action this replaced. That action
@@ -51,20 +53,40 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  id-token: write
 
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for the review API key
+      # continue-on-error: this is the advisory reviewer's credential path,
+      # never merge-blocking — a role-assume failure falls through to the
+      # guard step below, which skips the review instead of failing the job.
+      - name: Assume the OpenRouter key read role via OIDC
+        id: aws-creds
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_OPENROUTER_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Fetch the review API key from SSM
         id: guard
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          if [ -z "$OPENAI_API_KEY" ]; then
-            echo "OPENAI_API_KEY not set — advisory review skipped." >&2
+          if [ "${{ steps.aws-creds.outcome }}" != "success" ]; then
+            echo "::warning::OIDC role assume failed — advisory review skipped."
+            echo "enabled=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+          set +e
+          key="$(aws ssm get-parameter --name /runtime/openrouter-api-key --with-decryption --query Parameter.Value --output text 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ] || [ -z "$key" ]; then
+            echo "::warning::openrouter-api-key SSM fetch failed — advisory review skipped."
             echo "enabled=false" >>"$GITHUB_OUTPUT"
           else
+            echo "::add-mask::$key"
+            echo "OPENAI_API_KEY=$key" >>"$GITHUB_ENV"
             echo "enabled=true" >>"$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@v4
@@ -77,7 +99,8 @@ jobs:
         if: steps.guard.outputs.enabled == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # OPENAI_API_KEY itself rides $GITHUB_ENV from the guard step above
+          # (fetched from SSM), not a secrets.* reference.
           # OpenRouter (see header note to switch to the OpenAI API directly).
           # gpt-5.6-sol is the flagship of OpenAI's GPT-5.6 series as of #490
           # (verified live against openrouter.ai/api/v1/models, not recalled
