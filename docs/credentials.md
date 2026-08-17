@@ -53,6 +53,28 @@ deploy) verifies infra's elevated items still prompt on every read — its
 header owns the why; when to run it is infra's periodic audit (its
 `docs/BOOTSTRAP.md`).
 
+## Agent-account PATs: `agent-gh`
+
+The deliberation agents (backlog-manager, plan-reviewer) post under their own
+GitHub machine accounts — ADR-0035 owns the identity split, #540 the
+implementation. `agent-gh <name> -- <cmd>` (`scripts/agent-gh.sh`, on PATH
+from the deploy) runs one command as `carpet-stain-<name>`: it fetches the
+account's PAT from SSM `/runtime/<name>-pat` with the same
+`infra-local-read` Keychain credential as the vended token (no extra one-time
+setup), sets **both** `GH_TOKEN` and `GITHUB_TOKEN` for that command only, and
+asserts `gh api user.login` matches before running anything — the script
+header owns the mechanics. The maintainer's vended token stays the ambient
+default; an agent PAT is never live outside the wrapper's process.
+
+Two credentials, two purposes (infra#207's role decision): attributed
+commenting/reviewing rides the named-account PAT via `agent-gh`; label/assign
+and other issue management stays on the ambient vended App token — a `read`
+collaborator can't label. Each PAT is a **classic** PAT scoped to
+`public_repo` — fine-grained PATs can't write to another user's repos as a
+collaborator (verified on #540), and effective rights stay bounded by the
+`read` role either way. The PATs are hand-populated and rotate ~annually by
+hand; infra's `docs/BOOTSTRAP.md` §13 owns that runbook.
+
 ## OpenRouter API key (aichat)
 
 The Alt-a floating aichat pane (#511) reads the login Keychain item
