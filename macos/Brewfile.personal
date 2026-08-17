@@ -5,6 +5,7 @@
 
 cask 'bitwarden'
 cask 'mullvad-vpn'
+cask 'secretive'
 cask 'steam'
 cask 'transmission'
 cask 'vscodium'
