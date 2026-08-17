@@ -10,6 +10,8 @@ Voices clause amended 2026-08-13 by [ADR-0037](0037-agents-read-as-ai-amending-t
 
 Shipped-work clause amended 2026-08-13 by [ADR-0038](0038-agent-authors-maintainer-ships-amending-the-adr-0035-shipped-work-clause.md).
 
+Local-runtime clause amended 2026-08-17 by [ADR-0048](0048-hosted-github-actions-runtimes-for-plan-reviewer-and-the-self-driving-implementor.md).
+
 ## Context
 
 Agents author two kinds of GitHub-facing content here. Shipped work —
