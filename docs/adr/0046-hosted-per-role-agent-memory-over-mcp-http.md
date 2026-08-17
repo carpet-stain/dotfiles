@@ -6,6 +6,10 @@ Date: 2026-08-16
 
 Accepted
 
+Roster runtime-homes block extended 2026-08-17 by
+[ADR-0048](0048-hosted-github-actions-runtimes-for-plan-reviewer-and-the-self-driving-implementor.md):
+plan-reviewer gains a hosted home.
+
 Supercedes the local-store model of
 [36. MCP knowledge-graph memory with a private local store](0036-mcp-knowledge-graph-memory-with-a-private-local-store.md)
 — the MCP knowledge-graph interface, the pull-recall model, and the translated
