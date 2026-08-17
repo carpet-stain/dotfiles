@@ -18,7 +18,7 @@ set -euo pipefail
 
 item=infra-aws-local-read
 if ! secret=$(security find-generic-password -s "$item" -w 2>/dev/null); then
-  echo "aws-vended-token: Keychain item '$item' missing or unreadable — see AGENTS.md Credentials for the one-time setup" >&2
+  echo "aws-vended-token: Keychain item '$item' missing or unreadable — see docs/credentials.md for the one-time setup" >&2
   exit 1
 fi
 key_id=$(security find-generic-password -s "$item" 2>/dev/null |

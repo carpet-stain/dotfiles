@@ -7,6 +7,13 @@
 # is 100GiB disk) since this VM only needs to run act's containers.
 #
 # For "I'm done, tear it down": `colima stop` directly.
+#
+# COLIMA_HOME (zsh/.zshenv) relocates Colima's whole tree at once — config,
+# VM disk, sockets, logs: Lima's maintainers deliberately don't split those,
+# so XDG_CONFIG_HOME's narrower support is the wrong lever. No LIMA_HOME —
+# Colima nests Lima's home at $COLIMA_HOME/_lima itself. actrc (repo root,
+# symlinked to $XDG_CONFIG_HOME/act/actrc by deploy.zsh) pins the runner
+# image so act doesn't pull its own multi-GB default.
 set -euo pipefail
 
 started_colima=0
