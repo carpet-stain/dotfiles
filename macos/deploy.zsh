@@ -180,6 +180,10 @@ link_configs() {
   # everything Keychain-shaped here.
   zf_ln -sf $DOTFILES_DIR/scripts/audit-keychain-gate.sh $HOME/.local/bin/audit-keychain-gate
 
+  # Runs one command as a deliberation agent's machine account (#540) — on
+  # PATH so any repo's agent session can call it. macOS only (Keychain).
+  zf_ln -sf $DOTFILES_DIR/scripts/agent-gh.sh $HOME/.local/bin/agent-gh
+
   # Agent-memory B2 backup (#542) — on PATH so the plist below can invoke it
   # by bare name, no absolute-path templating. macOS only.
   zf_ln -sf $DOTFILES_DIR/scripts/backup-agent-memory.sh $HOME/.local/bin/backup-agent-memory
