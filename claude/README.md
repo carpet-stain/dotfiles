@@ -63,6 +63,21 @@ instead of a manual one-off edit.
 > **Gitignore note:** the repo root has a `/CLAUDE.md` (a symlink to the dotfiles `AGENTS.md`, for
 > the dotfiles repo's _own_ agent guidance) which is gitignored.
 
+## Cloud channel (repo-root `.claude/`, distinct from this `claude/` tree)
+
+A claude.ai/code cloud session (web, iOS) only ever reads a checked-out repo's own
+`.claude/agents/*.md` — never `~/.claude/`, so the submodule/symlink deployment above doesn't
+reach it. `.claude/agents/`, `.claude/skills/`, and `.claude/.agents-ref` at the repo root are a
+second, additive channel: a pinned, vendored copy synced from `carpet-stain/agents` by
+`agents-sync.yml` and enforced against drift by `agents-drift-guard.yml` (`carpet-stain/dotfiles`
+ADR-0039 amend-marker; `carpet-stain/agents` ADR-0002 records the channel).
+
+Because this machine is both source and consumer, its deployed `~/.claude/agents` symlink
+(this `claude/` tree's submodule head, pull-latest) and the committed `.claude/agents` vendored
+copy (pinned to a lagging SHA) are **two load paths that can legitimately disagree** — that's the
+pin lag, not drift. Edit `claude/global/` (the submodule) to change agent behavior; the vendored
+`.claude/` copy is cloud-only and inert locally, updated by `agents-sync.yml`, never by hand.
+
 ## Verifying it works
 
 Run `/memory` in a fresh session inside any repo — it lists every loaded `CLAUDE.md` and rules

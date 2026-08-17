@@ -1,0 +1,156 @@
+name: Sync vendored agents
+
+# Pull-based cloud channel (carpet-stain/dotfiles#597, carpet-stain/agents
+# ADR-0002, amends this repo's ADR-0039): checks out the public
+# carpet-stain/agents repo, renders the owned carve-out under .claude/, and
+# opens a drift PR with this repo's own GITHUB_TOKEN when it changes. Never
+# pushes main. Hosted agent set is derived from .claude/agents/*.md already
+# present — nothing to render on a virgin checkout with none seeded yet.
+#
+# Two jobs, deliberately: `render` executes a script from the untrusted
+# carpet-stain/agents checkout and never sees a write-capable credential
+# (contents: read only, GITHUB_TOKEN never referenced) — a compromised
+# renderer can't plant a git hook or config to exfiltrate a token that's
+# simply never present in its job. Only the rendered *data* (the owned
+# carve-out, uploaded as an artifact) crosses into `open-pr`, which holds
+# the credential but never executes anything from carpet-stain/agents.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: agents-sync
+  cancel-in-progress: false
+
+jobs:
+  render:
+    name: render carve-out
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - name: Checkout dotfiles
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout carpet-stain/agents
+        uses: actions/checkout@v4
+        with:
+          repository: carpet-stain/agents
+          path: .agents-src
+          persist-credentials: false
+
+      - name: Render the owned carve-out
+        run: .agents-src/scripts/render-agent.sh --agents-repo .agents-src --consumer-dir .claude
+
+      - name: Check for changes
+        id: diff
+        run: |
+          paths=()
+          for p in .claude/agents .claude/skills .claude/.agents-ref; do
+            # if, not `[ ] && paths+=`: under Actions' default `set -e`, the
+            # latter aborts the loop the first time a path is absent.
+            if [ -e "$p" ]; then
+              paths+=("$p")
+            fi
+          done
+          # An empty pathspec to `git add -A --` means "everything" —
+          # guard against that; nothing on disk means nothing rendered.
+          if [ "${#paths[@]}" -eq 0 ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+          else
+            git add -A -- "${paths[@]}"
+            if git diff --cached --quiet -- "${paths[@]}"; then
+              echo "changed=false" >>"$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >>"$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Upload the rendered carve-out
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agents-carve-out
+          path: |
+            .claude/agents
+            .claude/skills
+            .claude/.agents-ref
+          if-no-files-found: ignore
+
+  open-pr:
+    name: open drift PR
+    needs: render
+    if: needs.render.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout dotfiles
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Cleared first: download-artifact only adds/overwrites, so a skill
+      # dropped from the closure (absent from the artifact) must not survive
+      # from this fresh checkout's committed state, or its removal is lost.
+      - name: Clear the previous carve-out
+        run: rm -rf .claude/agents .claude/skills .claude/.agents-ref
+
+      - name: Download the rendered carve-out
+        uses: actions/download-artifact@v4
+        with:
+          name: agents-carve-out
+          path: .claude
+
+      # Idempotent: a still-open drift PR for this exact SHA is a no-op; a
+      # closed one (branch left undeleted) is reused via -B + a forced push.
+      - name: Open drift PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sha="$(cat .claude/.agents-ref)"
+          branch="agents-sync/${sha:0:12}"
+
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')" ]; then
+            echo "drift PR for ${sha:0:12} is already open — nothing to do."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+
+          paths=()
+          for p in .claude/agents .claude/skills .claude/.agents-ref; do
+            # if, not `[ ] && paths+=`: under Actions' default `set -e`, the
+            # latter aborts the loop the first time a path is absent.
+            if [ -e "$p" ]; then
+              paths+=("$p")
+            fi
+          done
+          # Guard against `git add -A --` (empty pathspec = everything) if the
+          # artifact download somehow produced nothing despite render's gate.
+          if [ "${#paths[@]}" -eq 0 ]; then
+            echo "::error::nothing to commit — the downloaded carve-out artifact is empty."
+            exit 1
+          fi
+          git add -A -- "${paths[@]}"
+          git commit -m "chore(claude): sync vendored agents to ${sha:0:12}"
+
+          # --force not --force-with-lease (no fetched tracking ref to lease
+          # against — the open-PR check above is what makes this safe).
+          # Credential scoped to this one push via -c, never persisted to disk.
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+            push --force origin "$branch"
+
+          gh pr create --base main --head "$branch" \
+            --title "chore(claude): sync vendored agents to ${sha:0:12}" \
+            --body "Automated sync of the cloud-channel carve-out (\`.claude/agents\`, \`.claude/skills\`) from carpet-stain/agents@${sha}. See #597 / docs/adr/0039.
+
+          Required checks won't auto-run: a GITHUB_TOKEN-authored PR doesn't trigger pull_request workflows (GitHub's anti-recursion behavior). Close and reopen this PR (or push an empty commit) to trigger them before merging."

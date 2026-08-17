@@ -4,7 +4,9 @@ Date: 2026-08-13
 
 ## Status
 
-Accepted
+Accepted. Amended by `carpet-stain/agents` ADR-0002 (vendored agent cloud channel, #597): this
+ADR's SHA-pinning deferral is resolved for that second, cloud-only channel — the decision below
+(pull-latest `main` via submodule) is unchanged for this, the local-CLI channel.
 
 ## Context
 
