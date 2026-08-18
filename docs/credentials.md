@@ -100,6 +100,22 @@ cross-repo dependency edit (#643). Arbitrary/admin `infra-gh` use (repo
 settings, labels-as-config, anything outside those three verbs) stays
 unscoped and gated.
 
+## Admin escalation: `admin-gh`
+
+`admin-gh <cmd...>` (`scripts/admin-gh.sh`, on PATH from the deploy) runs
+one command — typically `gh`, but any command that reads `GITHUB_TOKEN` —
+with GitHub's admin fine-grained PAT (Administration/Issues/Variables, all
+repositories — infra ADR-0013) exported for that command only, no infra
+checkout required. It fetches `/infra/gh-admin-token` from SSM behind the
+same prompt-gated `infra-aws-local-apply` Keychain item infra's
+`with-infra-secrets.sh --gh-admin` uses locally, so the crown-jewel gate
+stays intact: a human clicks Allow on the Keychain prompt, a
+non-interactive/agent shell fails closed. `GH_TOKEN` is dropped (gh prefers
+it over `GITHUB_TOKEN`, same `.envrc` alias gotcha as `agent-gh`/`infra-gh`
+above, #213) so the admin token actually wins over the ambient vended
+token. Unlike `infra-gh`, there's no `GH_REPO` default — admin operations
+are cross-repo, so the caller passes `-R` explicitly (#648).
+
 ## OpenRouter API key (aichat)
 
 The Alt-a floating aichat pane (#511) reads the login Keychain item
