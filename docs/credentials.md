@@ -79,6 +79,19 @@ collaborator (verified on #540), and effective rights stay bounded by the
 `read` role either way. The PATs are hand-populated and rotate ~annually by
 hand; infra's `docs/BOOTSTRAP.md` §13 owns that runbook.
 
+## Infra writes: `infra-gh`
+
+`carpet-stain/infra` deliberately excludes itself from the vended token's
+repo allowlist (infra's `vend-token.yml` — the #51/infra ADR-0010
+containment boundary: a routine agent-reachable credential must never
+rewrite the governance that constrains it), so infra writes under the
+ambient vended token 403 with `Resource not accessible by integration`.
+`infra-gh <args...>` (`scripts/infra-gh.sh`, on PATH from the deploy) execs
+`gh` with both `GH_TOKEN` and `GITHUB_TOKEN` unset, falling back to gh's
+keyring dev PAT, which does cover infra. Both vars must drop together, same
+`.envrc` alias gotcha as `agent-gh` above (#213). Ergonomics only — the
+vended token and its scope are untouched (#613).
+
 ## OpenRouter API key (aichat)
 
 The Alt-a floating aichat pane (#511) reads the login Keychain item

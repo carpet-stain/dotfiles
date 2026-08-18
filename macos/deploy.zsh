@@ -184,6 +184,10 @@ link_configs() {
   # PATH so any repo's agent session can call it. macOS only (Keychain).
   zf_ln -sf $DOTFILES_DIR/scripts/agent-gh.sh $HOME/.local/bin/agent-gh
 
+  # Drops the vended GH_TOKEN/GITHUB_TOKEN for infra writes (#613) — on PATH,
+  # macOS only like every other GH_TOKEN wrapper here.
+  zf_ln -sf $DOTFILES_DIR/scripts/infra-gh.sh $HOME/.local/bin/infra-gh
+
   # Agent-memory B2 backup (#542) — on PATH so the plist below can invoke it
   # by bare name, no absolute-path templating. macOS only.
   zf_ln -sf $DOTFILES_DIR/scripts/backup-agent-memory.sh $HOME/.local/bin/backup-agent-memory
