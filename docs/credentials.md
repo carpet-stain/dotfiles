@@ -102,10 +102,9 @@ unscoped and gated.
 
 ## Admin escalation: `admin-gh`
 
-`admin-gh <cmd...>` (`scripts/admin-gh.sh`, on PATH from the deploy) runs
-one command — typically `gh`, but any command that reads `GITHUB_TOKEN` —
-with GitHub's admin fine-grained PAT (Administration/Issues/Variables, all
-repositories — infra ADR-0013) exported for that command only, no infra
+`admin-gh <args...>` (`scripts/admin-gh.sh`, on PATH from the deploy) execs
+`gh` with GitHub's admin fine-grained PAT (Administration/Issues/Variables,
+all repositories — infra ADR-0013) exported for that command only, no infra
 checkout required. It fetches `/infra/gh-admin-token` from SSM behind the
 same prompt-gated `infra-aws-local-apply` Keychain item infra's
 `with-infra-secrets.sh --gh-admin` uses locally, so the crown-jewel gate

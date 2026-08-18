@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# admin-gh <cmd...> — run one command with GitHub's admin fine-grained PAT
+# admin-gh <args...> — run gh with GitHub's admin fine-grained PAT
 # (Administration/Issues/Variables, all repos — infra ADR-0013) exported as
 # GITHUB_TOKEN, no infra checkout required. Fetches /infra/gh-admin-token
 # from SSM behind the same prompt-gated infra-aws-local-apply Keychain item
@@ -13,11 +13,6 @@
 # wins. No GH_REPO default — admin is cross-repo; pass -R explicitly
 # (unlike infra-gh #647).
 set -euo pipefail
-
-(($#)) || {
-  echo "usage: admin-gh <cmd> [args...]" >&2
-  exit 2
-}
 
 # Account attribute doesn't prompt; the secret (-w) does — the one gated
 # read per item, same order as infra's with-infra-secrets.sh.
@@ -46,4 +41,4 @@ if [[ -z $token || $token == PLACEHOLDER ]]; then
   exit 1
 fi
 
-exec env -u GH_TOKEN GITHUB_TOKEN="$token" "$@"
+exec env -u GH_TOKEN GITHUB_TOKEN="$token" gh "$@"
