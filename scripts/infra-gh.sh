@@ -7,6 +7,9 @@
 # token. Both vars must drop together: .envrc aliases GITHUB_TOKEN=$GH_TOKEN,
 # so unsetting only one leaves the vended token live in the other (#213).
 # Ergonomics only — the vended token and its scope are untouched (#613).
+# GH_REPO pins the target repo: with no -R, gh resolves from the cwd git
+# remote, so a bare call from a non-infra checkout silently clobbered a
+# same-numbered issue/PR there (#647). -R/--repo still overrides GH_REPO.
 set -euo pipefail
 
-exec env -u GH_TOKEN -u GITHUB_TOKEN gh "$@"
+exec env -u GH_TOKEN -u GITHUB_TOKEN GH_REPO=carpet-stain/infra gh "$@"
