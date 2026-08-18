@@ -92,6 +92,14 @@ keyring dev PAT, which does cover infra. Both vars must drop together, same
 `.envrc` alias gotcha as `agent-gh` above (#213). Ergonomics only — the
 vended token and its scope are untouched (#613).
 
+`claude/settings.json`'s `permissions.allow` scopes `infra-gh` to
+issue-management verbs only (`issue edit`, `issue comment`, `issue view`) —
+the auto-mode classifier can't treat a conversational "yes" as consent for
+this elevated cross-repo credential, so a per-action prompt stalled every
+cross-repo dependency edit (#643). Arbitrary/admin `infra-gh` use (repo
+settings, labels-as-config, anything outside those three verbs) stays
+unscoped and gated.
+
 ## OpenRouter API key (aichat)
 
 The Alt-a floating aichat pane (#511) reads the login Keychain item
