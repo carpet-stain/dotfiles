@@ -24,6 +24,11 @@
   "theme": "auto",
   "disableDeepLinkRegistration": "disable",
   "permissions": {
+    "allow": [
+      "Bash(infra-gh issue edit *)",
+      "Bash(infra-gh issue comment *)",
+      "Bash(infra-gh issue view *)"
+    ],
     "deny": [
       "Read(./CHANGELOG.md)",
       "Read(./nvim/lazy-lock.json)",
