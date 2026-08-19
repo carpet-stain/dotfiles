@@ -1,7 +1,7 @@
 name: ADR guard
 
 # Thin caller — the guard body lives in the template source repo's
-# reusable-adr-guard.yml (its ADR-0004); Dependabot bumps the SHA pin.
+# reusable-adr-guard.yml (its ADR-0004) — pinned to its moving major tag (its #110).
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -18,4 +18,4 @@ jobs:
   # Job id `guards` is ruleset contract: the required context is
   # `guards / adr guard` — renaming this id breaks the ruleset.
   guards:
-    uses: carpet-stain/project-starter-template/.github/workflows/reusable-adr-guard.yml@c970349d6020f06e0769e901879c3ba70b3243f4 # main
+    uses: carpet-stain/project-starter-template/.github/workflows/reusable-adr-guard.yml@v1

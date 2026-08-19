@@ -1,7 +1,7 @@
 name: Epic complete
 
 # Thin caller — the body lives in the template source repo's
-# reusable-epic-complete.yml (its ADR-0004); Dependabot bumps the SHA pin.
+# reusable-epic-complete.yml (its ADR-0004) — pinned to its moving major tag (its #110).
 on:
   issues:
     types: [closed]
@@ -11,4 +11,4 @@ permissions:
 
 jobs:
   epic:
-    uses: carpet-stain/project-starter-template/.github/workflows/reusable-epic-complete.yml@504d81a0dca5b0e67d7756610cf22b49b2be7ddf # main
+    uses: carpet-stain/project-starter-template/.github/workflows/reusable-epic-complete.yml@v1
