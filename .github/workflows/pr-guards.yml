@@ -1,15 +1,11 @@
 name: PR guards
 
-# Enforces PR-shape requirements the rebase-merge workflow (AGENTS.md) depends
-# on: a PR must be exactly one Conventional-Commit-subject commit, so
-# rebase-merge lands a single clean, author-written commit on main (replaces
-# pr-title.yml — under rebase-merge the PR title no longer becomes main's
-# commit message, so the commit itself must be valid, not the title); and it
-# must close an issue or declare why not (#449 — see that job's own comment).
+# Thin caller — the guard bodies live in the template source repo's
+# reusable-pr-guards.yml (its ADR-0004); Dependabot bumps the SHA pin.
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: [main]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -20,107 +16,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  single-commit:
-    name: single commit
-    runs-on: ubuntu-latest
-    # Draft PRs open early and take WIP pushes; a skipped-via-if job reads as
-    # passing to required-status-check branch protection, not failing, so
-    # this stays quiet until ready_for_review re-triggers it for real.
-    if: github.event.pull_request.draft == false
-    steps:
-      - name: Assert the PR is exactly one commit
-        env:
-          COMMITS: ${{ github.event.pull_request.commits }}
-        run: |
-          if [ "$COMMITS" -ne 1 ]; then
-            echo "::error::PR has $COMMITS commits; squash to exactly one before merge (git squash)."
-            exit 1
-          fi
-          echo "PR is a single commit."
-
-  conventional-commit:
-    name: conventional commit
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      # The commit that rebase-merges onto main is what git-cliff reads for the
-      # changelog, so its subject must be a Conventional Commit. Same type set
-      # as the retired pr-title.yml; scope stays optional/unrestricted.
-      - name: Validate Conventional Commit subject
-        env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-        run: |
-          rc=0
-          for sha in $(git rev-list "$BASE"..HEAD); do
-            subject=$(git log -1 --format=%s "$sha")
-            if echo "$subject" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\([a-z0-9._-]+\))?!?: .+'; then
-              echo "ok: $subject"
-            else
-              echo "::error::not a Conventional Commit: $subject"
-              rc=1
-            fi
-          done
-          exit $rc
-
-  issue-link:
-    name: issue link
-    runs-on: ubuntu-latest
-    # release-prepare.yml's release/* PRs and agents-sync.yml's agents-sync/*
-    # PRs close no issue by design — exempted here in-guard rather than
-    # having those writers inject a No-Issue body marker, so the whole
-    # contract stays in this one file (#449, #550, #597). agents-sync/* is
-    # additionally scoped to same-repo github-actions[bot] PRs — a branch
-    # name alone isn't proof of origin.
-    if: >-
-      github.event.pull_request.draft == false
-      && !startsWith(github.event.pull_request.head.ref, 'release/')
-      && !(
-        startsWith(github.event.pull_request.head.ref, 'agents-sync/')
-        && github.event.pull_request.user.login == 'github-actions[bot]'
-        && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-      )
-      && !startsWith(github.event.pull_request.head.ref, 'agents-sync/')
-    steps:
-      # closingIssuesReferences is GitHub's own computed field (#449) — not a
-      # body-text regex — so it reflects the link however it was made (a
-      # closing keyword or a manual Development-panel link), and a typo'd
-      # keyword that failed to actually link fails this check instead of
-      # passing it.
-      - name: Require a closing issue reference or a No-Issue marker
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          # shellcheck disable=SC2016 # single-quoted: these are GraphQL's own
-          # $owner/$repo/$number variables, passed via -f/-F below — must not
-          # expand as bash variables.
-          count=$(gh api graphql -f query='
-            query($owner: String!, $repo: String!, $number: Int!) {
-              repository(owner: $owner, name: $repo) {
-                pullRequest(number: $number) {
-                  closingIssuesReferences { totalCount }
-                }
-              }
-            }' -f owner="$OWNER" -f repo="$REPO" -F number="$PR_NUMBER" \
-            --jq '.data.repository.pullRequest.closingIssuesReferences.totalCount')
-
-          if [ "$count" -gt 0 ]; then
-            echo "closes $count issue(s) — ok."
-            exit 0
-          fi
-
-          if echo "$PR_BODY" | grep -qE '^No-Issue:[[:space:]]*[^[:space:]]'; then
-            echo "No-Issue marker present — ok."
-            exit 0
-          fi
-
-          echo "::error::PR closes no issue and has no No-Issue: marker. Add \`Closes #N\` to the body, or a \`No-Issue: <reason>\` line."
-          exit 1
+  # Job id `guards` is ruleset contract: required contexts are
+  # `guards / single commit` etc. — renaming this id breaks the ruleset.
+  guards:
+    uses: carpet-stain/project-starter-template/.github/workflows/reusable-pr-guards.yml@c970349d6020f06e0769e901879c3ba70b3243f4 # main
+    with:
+      # release-prepare's release/* and agents-sync.yml's agents-sync/* PRs
+      # close no issue by design (#449, #550, #597).
+      issue_link_exempt_head_prefixes: "release/ agents-sync/"

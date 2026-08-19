@@ -1,24 +1,11 @@
 name: ADR guard
 
-# Requires an ADR when a PR is labeled `architecture`: an architecturally
-# significant change must ship a distilled decision record (docs/adr/) instead
-# of merging and leaving the "why" to be excavated from closed issues/PRs later.
-# Presence, not significance — a human applies the label; this only checks that a
-# labeled PR touches docs/adr/. See docs/adr/README.md for what an ADR is.
-# `architecture` means ONLY this ADR obligation — the advisory PR reviewer
-# (pr-code-review.yml) has its own separate `needs-review` opt-in (#456), so
-# requesting one no longer implies the other.
-#
-# Ported verbatim (static, protected branch = main) from the git-flow template's
-# adr-guard.yml.jinja so this repo — where the template originated, now hosted
-# at carpet-stain/project-starter-template (ADR-0028) — holds itself to the
-# label→ADR standard it ships (#266).
+# Thin caller — the guard body lives in the template source repo's
+# reusable-adr-guard.yml (its ADR-0004); Dependabot bumps the SHA pin.
 on:
   pull_request:
-    # Same types as pr-guards.yml. No labeled/unlabeled: they re-ran this on
-    # every label change; the label-a-green-PR-then-merge gap is accepted (carpet-stain/project-starter-template#95).
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: [main]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -28,35 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  adr-guard:
-    name: adr guard
-    runs-on: ubuntu-latest
-    # Per-job draft gate, never workflow-level: a job skipped via a job-level
-    # `if:` reads as passing to required-status-check branch protection, so this
-    # stays quiet on draft WIP and re-triggers for real at ready_for_review.
-    if: github.event.pull_request.draft == false
-    steps:
-      # The label gate is a STEP condition, not a job-level `if:`. As a required
-      # status check, adr-guard must always run and report a conclusion: an
-      # unlabeled PR reports success (not skipped — a skipped required check sits
-      # pending forever and blocks the merge). Only a labeled PR missing an ADR
-      # fails, so the check is safe to require on every PR.
-      - uses: actions/checkout@v4
-        if: contains(github.event.pull_request.labels.*.name, 'architecture')
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      - name: Require a docs/adr/ touch on architecture-labeled PRs
-        if: contains(github.event.pull_request.labels.*.name, 'architecture')
-        env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-        run: |
-          # Three-dot: diff from the merge-base, so only files this PR changed
-          # count — not files the base branch changed after the PR forked.
-          if git diff --name-only "$BASE"...HEAD | grep -q '^docs/adr/'; then
-            echo "architecture-labeled PR touches docs/adr/ — ok."
-          else
-            echo "::error::PR is labeled 'architecture' but adds/modifies no docs/adr/ file. Record the decision as an ADR (see docs/adr/README.md) before merge."
-            exit 1
-          fi
+  # Job id `guards` is ruleset contract: the required context is
+  # `guards / adr guard` — renaming this id breaks the ruleset.
+  guards:
+    uses: carpet-stain/project-starter-template/.github/workflows/reusable-adr-guard.yml@c970349d6020f06e0769e901879c3ba70b3243f4 # main
