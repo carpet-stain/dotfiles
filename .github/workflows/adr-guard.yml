@@ -15,9 +15,9 @@ name: ADR guard
 # label→ADR standard it ships (#266).
 on:
   pull_request:
-    # labeled/unlabeled so applying or removing the label re-evaluates the gate;
-    # the rest match pr-guards.yml.
-    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled]
+    # Same types as pr-guards.yml. No labeled/unlabeled: they re-ran this on
+    # every label change; the label-a-green-PR-then-merge gap is accepted (carpet-stain/project-starter-template#95).
+    types: [opened, reopened, synchronize, ready_for_review]
     branches: [main]
 
 permissions:
