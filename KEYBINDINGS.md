@@ -42,6 +42,9 @@ repo's overrides merged) — the authoritative source when auditing a new key, n
     otherwise moves Zellij focus directly. Replaces Zellij's own default `Ctrl h` (enter Move
     mode) — `j`/`k`/`l` were unbound in normal mode by default.
   - `Alt ,`/`Alt .` → prefix-less tab switching (`GoToPreviousTab`/`GoToNextTab`).
+  - `Alt i` → unbound. Zellij's default (`MoveTab "Left"`) shadowed zsh's `_ai-fill` widget below
+    before it could reach the shell — see #632. Tab reordering stays reachable via Tab mode
+    (`Ctrl t`); `Alt o` (`MoveTab "Right"`) is untouched, still Zellij's default.
   - `Alt a` → launch the floating aichat command scratchpad (#511): runs `aichat-pane`
     (`scripts/aichat-pane.sh`, resolves the API key) as the pane's own process — no zsh in the
     loop, so nothing touches `~/.zsh_history`. Zellij's default `Alt f` (`ToggleFloatingPanes`)
