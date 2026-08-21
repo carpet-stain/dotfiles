@@ -8,6 +8,11 @@ Accepted. Amended by `carpet-stain/agents` ADR-0002 (vendored agent cloud channe
 ADR's SHA-pinning deferral is resolved for that second, cloud-only channel — the decision below
 (pull-latest `main` via submodule) is unchanged for this, the local-CLI channel.
 
+Residency scope amended 2026-08-20 by [ADR-0050](0050-philosophy-layer-exported-ahead-of-the-substrate-gate-amending-the-adr-0039-residency-scope-clause.md):
+the decided philosophy layer (framework doc, `docs/operating-model.md`, agents#22) exported to
+`carpet-stain/agents` ahead of the substrate gate; the operating-model machinery export
+(roster/ceremonies/telemetry) remains gated on #576, unchanged.
+
 ## Context
 
 The agent definitions — personas (`claude/agents/**`), the rules tree
