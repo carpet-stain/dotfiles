@@ -33,6 +33,10 @@ support_kitty_keyboard_protocol false
 
 keybinds {
     normal {
+        // Zellij's default Alt-i (MoveTab Left) shadows the shell's ai-fill
+        // widget (zsh/rc.d/keybindings.zsh) — see #632.
+        unbind "Alt i"
+
         // Vim-aware pane navigation: forwards the keystroke to Neovim (via
         // smart-splits.nvim) if it's running in the focused pane, otherwise
         // moves focus. Pinned to a specific release for reproducibility.
