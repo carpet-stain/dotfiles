@@ -8,10 +8,18 @@ repo_root=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 issue=${1:?usage: record-token-cost.sh <issue-number>}
 
 cd "$repo_root"
-entry=$(just token-attribution | jq --argjson n "$issue" '.by_issue[] | select(.issue == $n)')
+report=$(just token-attribution)
+entry=$(jq --argjson n "$issue" '.by_issue[] | select(.issue == $n)' <<<"$report")
+
+# Non-issue-N/fix-N branches still get tokens recorded, keyed by raw branch
+# name instead — fall back to that before giving up. See #650.
+if [[ -z $entry ]]; then
+  current_branch=$(git branch --show-current)
+  entry=$(jq --arg b "$current_branch" '.by_issue[] | select(.branch == $b)' <<<"$report")
+fi
 
 if [[ -z $entry ]]; then
-  echo "record-token-cost: no local transcripts attribute output tokens to issue #$issue (branch never ran here, or no issue-$issue/fix-$issue branch was used)" >&2
+  echo "record-token-cost: no local transcripts attribute output tokens to issue #$issue (branch '${current_branch:-unknown}' never ran here)" >&2
   exit 1
 fi
 
