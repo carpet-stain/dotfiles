@@ -65,7 +65,15 @@ jobs:
             --title "${{ steps.version.outputs.version }}" \
             --notes-file RELEASE_NOTES.md
 
+      # GitHub's branch auto-delete (on rebase-merge) can beat this step to
+      # the ref, so "remote ref does not exist" is a race, not a failure —
+      # tolerate it; any other failure still fails the run.
       - name: Delete the ephemeral release branch
         env:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: git push origin --delete "$HEAD_REF"
+        run: |
+          if ! git push origin --delete "$HEAD_REF" 2>err.log; then
+            cat err.log
+            grep -q "remote ref does not exist" err.log || exit 1
+            echo "Branch already gone (GitHub auto-delete) — treating as success."
+          fi
