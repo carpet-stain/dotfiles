@@ -1,6 +1,41 @@
 # Changelog
 
 All notable changes to this project, generated from Conventional Commits.
+## [1.10.0] - 2026-08-21
+
+### Features
+
+- *(ssh)* Route github through secretive agent ([#615](https://github.com/carpet-stain/dotfiles/pull/615))
+- *(claude)* Agent-gh wrapper — run gh as a deliberation agent ([#618](https://github.com/carpet-stain/dotfiles/pull/618))
+- *(github)* Just revend — one-shot recovery of the vended token's dead window ([#622](https://github.com/carpet-stain/dotfiles/pull/622))
+- *(claude)* Vendored agent cloud channel for plan-reviewer ([#625](https://github.com/carpet-stain/dotfiles/pull/625))
+- *(github)* Infra-gh — thin gh wrapper that drops the vended token ([#641](https://github.com/carpet-stain/dotfiles/pull/641))
+- *(claude)* Scope infra-gh issue-management verbs into permissions.allow ([#644](https://github.com/carpet-stain/dotfiles/pull/644))
+- *(github)* Pin GH_REPO=carpet-stain/infra in infra-gh ([#649](https://github.com/carpet-stain/dotfiles/pull/649))
+- *(github)* Admin-gh — one-command local admin-PAT escalation ([#651](https://github.com/carpet-stain/dotfiles/pull/651))
+
+### Bug Fixes
+
+- *(github)* Admin-gh execs gh directly, no literal gh in the call ([#653](https://github.com/carpet-stain/dotfiles/pull/653))
+- *(release)* Tolerate already-deleted branch in release-publish delete step ([#660](https://github.com/carpet-stain/dotfiles/pull/660))
+
+### Documentation
+
+- *(adr)* ADR-0048 — hosted GitHub Actions runtimes for plan-reviewer and the implementor ([#624](https://github.com/carpet-stain/dotfiles/pull/624))
+- *(adr)* ADR-0049 — go with the DIY act-poller for Actions-outage resilience ([#633](https://github.com/carpet-stain/dotfiles/pull/633))
+
+### CI
+
+- *(review)* Fetch the OpenRouter key from SSM via OIDC, drop the repo secret ([#631](https://github.com/carpet-stain/dotfiles/pull/631))
+- *(adr-guard)* Drop the labeled/unlabeled trigger ([#654](https://github.com/carpet-stain/dotfiles/pull/654))
+- *(reusable)* Switch guards to thin reusable-workflow callers ([#655](https://github.com/carpet-stain/dotfiles/pull/655))
+- *(reusable)* Adopt the shared adr-guard and pr-guards callers ([#656](https://github.com/carpet-stain/dotfiles/pull/656))
+- *(reusable)* Pin the shared-guard callers to the moving v1 tag ([#657](https://github.com/carpet-stain/dotfiles/pull/657))
+
+### Chore
+
+- *(claude)* Bump claude/global — backlog-manager attribution ([#620](https://github.com/carpet-stain/dotfiles/pull/620))
+
 ## [1.9.0] - 2026-08-17
 
 ### Features
