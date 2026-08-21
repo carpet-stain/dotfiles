@@ -260,9 +260,17 @@ credentials. What an agent needs session to session:
 ### Per-spike token accounting (#476)
 
 Tokens are the spike effort currency (#475 dropped time-boxing). When
-closing a spike or issue, run `just token-cost <issue-number>` before the
-branch's worktree is torn down — it posts the per-issue rollup as a closing
-comment from this machine's transcripts (`scripts/record-token-cost.sh`).
+closing a spike or issue, run `just token-cost <issue-number>` **before the
+branch's worktree is torn down** — it posts the per-issue rollup as a closing
+comment from this machine's transcripts (`scripts/record-token-cost.sh`). "Before
+the worktree is torn down" is load-bearing, not just tidy timing: a
+branch named `issue-NNN`/`fix-NNN` gets attributed by that convention
+(`scripts/token-attribution/parse.mjs`'s `ISSUE_BRANCH_RE`); any other branch
+name still gets its tokens recorded, just keyed by the raw branch string —
+`record-token-cost.sh` falls back to looking up the _current_ branch when the
+issue-number lookup misses (#650). That fallback only works from the issue's
+own worktree, before it's gone. Run it and don't ignore a non-zero exit — a
+miss there means the rollup is gone for good, not just delayed.
 This is also `groom-backlog`'s repo-specific sweep note: weigh recorded
 token-cost comments as real-spend evidence when estimating similar work.
 
@@ -280,7 +288,10 @@ rewrite it. The `git new`/`git squash`/`git pr` scripts
 headers.
 
 1. `git new <name>` — branch off a freshly-fetched `origin/main`
-   (`git-new.sh`). Once the first commit exists, open a **draft PR right
+   (`git-new.sh`). No required naming convention — a descriptive `<name>` is
+   fine; `issue-NNN`/`fix-NNN` only buys cleaner keying in token-accounting's
+   report, not a requirement (see "Per-spike token accounting" below).
+   Once the first commit exists, open a **draft PR right
    away** with `git pr --draft`; journal decisions, gotchas, and
    retractions as PR comments as work proceeds — the PR is the real-time
    record.
