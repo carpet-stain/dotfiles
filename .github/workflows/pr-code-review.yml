@@ -62,8 +62,11 @@ jobs:
       # continue-on-error: this is the advisory reviewer's credential path,
       # never merge-blocking — a role-assume failure falls through to the
       # guard step below, which skips the review instead of failing the job.
+      # Skipped entirely (not attempted) when the var is unset, so an unconfigured
+      # repo doesn't burn the assume-role retry loop for a skip it already expects.
       - name: Assume the OpenRouter key read role via OIDC
         id: aws-creds
+        if: vars.AWS_OPENROUTER_ROLE_ARN != ''
         continue-on-error: true
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -72,6 +75,13 @@ jobs:
       - name: Fetch the review API key from SSM
         id: guard
         run: |
+          # Unset var: no key configured, skip by design — quiet. Var set but
+          # the assume/fetch below failed: a genuine credential gap — shout.
+          if [ -z "${{ vars.AWS_OPENROUTER_ROLE_ARN }}" ]; then
+            echo "AWS_OPENROUTER_ROLE_ARN not set — advisory review skipped by design."
+            echo "enabled=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "${{ steps.aws-creds.outcome }}" != "success" ]; then
             echo "::warning::OIDC role assume failed — advisory review skipped."
             echo "enabled=false" >>"$GITHUB_OUTPUT"
