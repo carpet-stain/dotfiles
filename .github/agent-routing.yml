@@ -1,0 +1,32 @@
+# Deterministic event+label -> role map for agent-runner.yml (#576). The
+# runner reads this file; no model decides routing (#545 principle 9).
+#
+# turn_signal_label is runner-owned: agent-runner.yml applies/removes it with
+# its own GITHUB_TOKEN, never a machine-user PAT, right after a spawn
+# completes. That's what makes its labeled/unlabeled events exempt-by-
+# construction from the self-spawn recursion filter (F1/F2 in #576's
+# converged plan) — their actor is never a machine-user login, so the filter
+# (actor == the role this event would spawn) can't match them.
+#
+# round_cap is ADR-0042's three-round loop-safety constant, reused here, not
+# redefined — see #545's invocation-gating block.
+turn_signal_label: awaiting-plan-critique
+round_cap: 3
+
+routes:
+  # Fresh gate: someone applied the plan-gate label -> drafter's turn.
+  - event: issues
+    action: labeled
+    label: needs-plan-review
+    role: backlog-manager
+  # Drafter posted -> the runner flips the turn signal on -> reviewer's turn.
+  - event: issues
+    action: labeled
+    label: awaiting-plan-critique
+    role: plan-reviewer
+  # Reviewer posted -> the runner flips the turn signal off -> next round,
+  # drafter's turn again. Bounded by round_cap, never open-ended.
+  - event: issues
+    action: unlabeled
+    label: awaiting-plan-critique
+    role: backlog-manager
