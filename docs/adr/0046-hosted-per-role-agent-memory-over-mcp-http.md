@@ -124,11 +124,17 @@ credentials. backlog-manager migrates first.
   cross-role escalation surface. Accepted deliberately as the price of
   multi-surface memory, not folded into "low blast radius."
 - **Cost/latency kill-switch (named thresholds):** (a) usage sustainably
-  exceeding Neon's free tier — any recurring bill — or (b) p95
-  session-start retrieval above 2 s sustained over a week, forces an
-  explicit keep-or-migrate decision; either trips → fall back to local
-  JSONL (source of truth until the hosted store verifies, so rollback is
-  one line). The fallback reverts multi-surface support — an accepted
+  exceeding Neon's free tier — a meaningful recurring compute bill, not a
+  baseline storage floor (Cloud Run's scale-to-zero Artifact Registry image
+  storage isn't free-tier-covered and isn't itself a trigger; see
+  infra#240) — or (b) p95 session-start retrieval above 2 s sustained over
+  a week, forces an explicit keep-or-migrate decision; either trips →
+  fall back to local JSONL. Pre-cutover, JSONL is still the live shadow
+  and rollback is one line; post-cutover — the only case either threshold
+  can actually fire, both being sustained-over-a-week conditions — JSONL
+  is frozen and stale by every write since cutover, so rollback instead
+  needs the Postgres→JSONL reverse dump (#634 build item), not a wiring
+  flip. The fallback reverts multi-surface support — an accepted
   capability regression, not a free infra swap.
 - **Cloud surface prerequisites:** project-level agent-definition
   distribution (#597 — cloud loads only repo-level `.claude/agents/`), the
