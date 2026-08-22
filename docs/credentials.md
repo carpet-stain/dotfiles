@@ -119,14 +119,26 @@ are cross-repo, so the caller passes `-R` explicitly (#648).
 
 The Alt-a floating aichat pane (#511) reads the login Keychain item
 `openrouter-api-key` at launch — `scripts/aichat-pane.sh`'s header owns the
-resolution order, the routine-tier `-A` call, and the pending infra#170
-residency question. Without the item the pane warns and closes. One-time
-setup (mint the key at openrouter.ai/settings/keys):
+resolution order and the routine-tier `-A` call. Without the item the pane
+warns and closes. One-time setup (mint the key at openrouter.ai/settings/keys):
 
 ```sh
 security add-generic-password -s openrouter-api-key -a openrouter -A -U -w
 # prompts for the value — paste the API key, keeping it out of shell history
 ```
+
+**Two copies, rotate both (#627).** infra#170's SSM-residency trigger fired
+(infra#220): the CI advisory reviewer (dotfiles#626) now reads the same key
+from SSM's `/runtime/openrouter-api-key`. Collapsing to that one source was
+considered and measured — SSM's `get-parameter` adds ~0.33s versus this
+Keychain read's near-instant local lookup, perceptible on this pane's
+cold-launch path — so the local launcher stays on Keychain for latency,
+per infra#170's own carve-out. Rotating the key means updating **both**:
+this Keychain item (above) and SSM (`aws ssm put-parameter --name
+/runtime/openrouter-api-key --type SecureString --key-id
+alias/runtime-secrets --value <new-key> --overwrite`, same runtime-tier
+write path as infra#220's other `/runtime/*` entries). Forgetting one half
+silently reintroduces the drift this split was meant to avoid.
 
 ## Scheduled jobs (launchd)
 

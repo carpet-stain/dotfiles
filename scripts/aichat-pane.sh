@@ -10,8 +10,12 @@
 # The item is added with -A — silent reads are intentional: the key is
 # routine-tier on a personal machine, the same trust class as
 # `infra-aws-local-read` (aws-vended-token.sh), unlike infra's prompt-gated
-# crown-jewel items. Residency is pending infra#170; moving to SSM later is a
-# swap of the Keychain read below.
+# crown-jewel items. Residency stays Keychain, not SSM (#627, decided against
+# infra#170's revisit trigger): measured SSM's `get-parameter` at ~0.33s vs
+# Keychain's near-instant local read — perceptible added latency on this
+# pane's cold-launch path, which is meant to feel instant. The key now has
+# two copies (Keychain here, SSM for the CI reviewer, infra#220/dotfiles#626)
+# — rotate both; see docs/credentials.md.
 set -euo pipefail
 
 # The pane runs close_on_exit (config.kdl), so warn and exit 0 after a
