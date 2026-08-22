@@ -1,0 +1,238 @@
+name: Agent runner (hosted plan-review loop, PoC)
+
+# Hosted, event-driven agent-invocation substrate (#576) — drives the
+# label-driven plan-review loop (needs-plan-review -> backlog-manager drafts
+# -> plan-reviewer critiques -> converge or block) on GitHub Actions.
+# ADR-0048 fixed the runtime (Actions-first), credential model (OIDC->SSM),
+# and spend-guardrail shapes this workflow builds against; docs/adr/0051
+# records the mechanics this PoC actually exercises.
+#
+# Four deterministic pieces, LLM strictly the judgment layer on top (#545
+# principle 9): the trigger below (invitation events, never polling), the
+# routing table (.github/agent-routing.yml, no model decides routing),
+# the loop-safety pre-step (scripts/agent-loop-guard.mjs, reconstructed from
+# GitHub on every wake since every run here is a fresh stateless process),
+# and the spawn (one `claude -p --agent <role>` session per invitation,
+# posting under that role's own machine identity — never a nested subagent,
+# #545 principle 10 / Decision 3, #582).
+#
+# The runner posts comments and flips the turn-signal label; it never
+# pushes or merges (ADR-0038 stays intact). Fail-closed throughout: an
+# unset/failed credential or a missing round_cap aborts the run loud, never
+# a quiet skip — unlike pr-code-review.yml's advisory reviewer, this
+# workflow's entire purpose depends on the credential, so there is no
+# legitimate "not configured yet" quiet path (#227's lesson).
+
+on:
+  issues:
+    types: [labeled, unlabeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: read
+  id-token: write
+
+concurrency:
+  group: issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  route:
+    name: route and spawn
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # T_START anchors the added-overhead measurement (#576's proof 1):
+      # everything before the spawn step below is dispatch, not model time.
+      - name: Mark dispatch start
+        run: echo "T_START=$(date +%s%3N)" >>"$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Deterministic, no-LLM: resolves the event to a role (or no route),
+      # applies the self-spawn recursion filter, and trips the round cap
+      # pre-spawn. Reconstructed from the issue's GitHub state every run —
+      # never from process memory (#545 invocation-gating block).
+      - name: Evaluate loop-safety guard
+        id: guard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          EVENT_TYPE: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_LABEL: ${{ github.event.label.name }}
+          ACTOR_LOGIN: ${{ github.event.sender.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: node scripts/agent-loop-guard.mjs
+
+      - name: No spawn — log and stop
+        if: steps.guard.outputs.spawn != 'true'
+        run: echo "::notice::${{ steps.guard.outputs.reason }}"
+
+      # --- everything below only runs when the guard says spawn ------------
+
+      - name: Assume the hosted-runtime role via OIDC
+        if: steps.guard.outputs.spawn == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_HOSTED_RUNTIME_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # Fails loud on an empty ARN or a failed assume — per #227's lesson,
+      # never let a missing credential fall through to an empty chain. This
+      # workflow (unlike pr-code-review.yml) has no legitimate unconfigured
+      # state: without the credential there's nothing useful left to do.
+      - name: Assert the assumed role is real
+        if: steps.guard.outputs.spawn == 'true'
+        run: |
+          if [ -z "${{ vars.AWS_HOSTED_RUNTIME_ROLE_ARN }}" ]; then
+            echo "::error::AWS_HOSTED_RUNTIME_ROLE_ARN is unset — see docs/credentials.md / infra BOOTSTRAP.md §14."
+            exit 1
+          fi
+          aws sts get-caller-identity >/dev/null
+
+      - name: Fetch the ${{ steps.guard.outputs.role }} Anthropic key and PAT from SSM
+        id: creds
+        if: steps.guard.outputs.spawn == 'true'
+        run: |
+          role="${{ steps.guard.outputs.role }}"
+          anthropic_key="$(aws ssm get-parameter --name "/runtime/${role}-anthropic-key" --with-decryption --query Parameter.Value --output text)"
+          pat="$(aws ssm get-parameter --name "/runtime/${role}-pat" --with-decryption --query Parameter.Value --output text)"
+          # A separate credential from the PAT above: this workflow's own
+          # write identity for the turn-signal flip below, not an agent's
+          # posting identity. See that step for why GITHUB_TOKEN can't do it.
+          # NOTE (#576): dotfiles_hosted_runtime_read grants this read as of
+          # infra#304, but NOT vended-token below (infra#305, still open) —
+          # this fetch 403s until it lands. Left wired (not stubbed) because
+          # it's the architecturally correct shape ADR-0048 calls for.
+          runner_token="$(aws ssm get-parameter --name /runtime/vended-token --with-decryption --query Parameter.Value --output text)"
+          echo "::add-mask::$anthropic_key"
+          echo "::add-mask::$pat"
+          echo "::add-mask::$runner_token"
+          {
+            echo "ANTHROPIC_API_KEY=$anthropic_key"
+            echo "AGENT_PAT=$pat"
+            echo "RUNNER_TOKEN=$runner_token"
+          } >>"$GITHUB_ENV"
+
+      # Mirrors agent-gh.sh's own safety check (scripts/agent-gh.sh): a
+      # wrong or rotated-out PAT fails loud here, never mis-attributes a
+      # posted comment (ADR-0038).
+      - name: Verify the fetched PAT authenticates as the expected machine user
+        if: steps.guard.outputs.spawn == 'true'
+        run: |
+          expected="carpet-stain-${{ steps.guard.outputs.role }}"
+          login="$(GH_TOKEN=$AGENT_PAT gh api user --jq .login)"
+          if [ "$login" != "$expected" ]; then
+            echo "::error::/runtime/${{ steps.guard.outputs.role }}-pat authenticates as '$login', expected '$expected' — refusing to post."
+            exit 1
+          fi
+
+      # backlog-manager.md is submodule-only (ADR-0039); plan-reviewer.md
+      # already lives at .claude/agents/ in this repo, so this step is a
+      # no-op for the plan-reviewer's turn.
+      - name: Check out the agents submodule for backlog-manager
+        if: steps.guard.outputs.spawn == 'true' && steps.guard.outputs.role == 'backlog-manager'
+        run: |
+          git submodule update --init claude/global
+          ln -sf "$PWD/claude/global/agents/backlog-manager.md" .claude/agents/backlog-manager.md
+
+      - name: Install Claude Code
+        if: steps.guard.outputs.spawn == 'true'
+        # Pinned per ADR-0030 (dev-tier CI tooling is pinned npm installs).
+        # Track macos/Brewfile.dev's `claude-code` cask pin by hand — no
+        # automation ties the two together yet.
+        run: npm install -g @anthropic-ai/claude-code@2.1.220
+
+      # plan-reviewer's tool surface is Read/Grep/Glob only — it never reads
+      # GitHub itself. The runner supplies the issue thread as prompt
+      # context instead: "thread = journey" per #576's converged plan, fed
+      # in rather than fetched, since read-only critics carry no `gh` tool.
+      - name: Build the invitation prompt from the issue thread
+        if: steps.guard.outputs.spawn == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "You are invited to your turn on issue #${{ github.event.issue.number }} of ${{ github.repository }}."
+            echo "Read the full thread below and respond as your role's own artifact (a plan draft, or a critique)."
+            echo "---"
+            gh issue view "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --json title,body,comments \
+              --jq '"# " + .title + "\n\n" + .body + "\n\n" + (.comments | map("---\n**" + .author.login + "**:\n" + .body) | join("\n\n"))'
+          } > "$RUNNER_TEMP/prompt.txt"
+
+      # --permission-mode / --max-turns are the fail-closed spend ceiling
+      # (ADR-0048); values unverified against a live run — gate-0's own
+      # smoke test is what proves these out, not this diff.
+      #
+      # backlog-manager's frontmatter still carries Agent(plan-reviewer)
+      # (submodule-owned, out of this repo's write scope) — --disallowedTools
+      # is an attempted structural mitigation against it reproducing the
+      # retired nested-subagent interim (#545 principle 10 / Decision 3),
+      # not a verified one: whether a CLI-level deny overrides an --agent's
+      # own frontmatter tools list is undocumented upstream as of this
+      # writing. Gate-0 never spawns backlog-manager, so this is untested;
+      # docs/adr/0051 tracks it as a named, unresolved risk either way.
+      - name: Spawn ${{ steps.guard.outputs.role }}
+        if: steps.guard.outputs.spawn == 'true'
+        run: |
+          echo "T_PRE_SPAWN=$(date +%s%3N)" >>"$GITHUB_ENV"
+          extra_args=()
+          if [ "${{ steps.guard.outputs.role }}" = "backlog-manager" ]; then
+            extra_args+=(--disallowedTools "Agent")
+          fi
+          claude -p --agent "${{ steps.guard.outputs.role }}" \
+            --max-turns 8 \
+            --permission-mode bypassPermissions \
+            "${extra_args[@]}" \
+            < "$RUNNER_TEMP/prompt.txt" > "$RUNNER_TEMP/output.txt"
+          echo "T_POST_SPAWN=$(date +%s%3N)" >>"$GITHUB_ENV"
+
+      # Posted via the fetched PAT, not GITHUB_TOKEN — attribution to the
+      # machine user's own account is the whole point (ADR-0038/#540).
+      - name: Post the response as ${{ steps.guard.outputs.role }}
+        if: steps.guard.outputs.spawn == 'true'
+        env:
+          GH_TOKEN: ${{ env.AGENT_PAT }}
+        run: gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body-file "$RUNNER_TEMP/output.txt"
+
+      # Runner-owned, via the vended token (RUNNER_TOKEN) — never GITHUB_TOKEN
+      # and never an agent's PAT. GITHUB_TOKEN-authored mutations are
+      # documented to never trigger a new workflow run, which would silently
+      # stop the loop after one turn; a role's own PAT can't label at all
+      # (both machine users are `read` collaborators, ADR-0021 — labeling
+      # needs triage+). The vended token is a GitHub App installation token
+      # (infra's vend-token.yml), which both triggers downstream runs and
+      # authenticates as neither role's login — exempting this flip from the
+      # recursion filter by construction, the same property GITHUB_TOKEN was
+      # meant to give it (F2, #576), just via a credential that actually works.
+      - name: Advance the turn signal
+        if: steps.guard.outputs.spawn == 'true'
+        env:
+          GH_TOKEN: ${{ env.RUNNER_TOKEN }}
+        run: |
+          label="${{ steps.guard.outputs.turn_signal_label }}"
+          if [ "${{ steps.guard.outputs.role }}" = "backlog-manager" ]; then
+            gh issue edit "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --add-label "$label"
+          else
+            gh issue edit "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --remove-label "$label"
+          fi
+
+      # Proof 1 (#576): total dispatch overhead, isolated from model
+      # inference time (T_POST_SPAWN - T_PRE_SPAWN, excluded on purpose).
+      - name: Report dispatch overhead
+        if: steps.guard.outputs.spawn == 'true'
+        run: |
+          t_end=$(date +%s%3N)
+          setup_ms=$((T_PRE_SPAWN - T_START))
+          post_ms=$((t_end - T_POST_SPAWN))
+          echo "::notice::dispatch overhead: ${setup_ms}ms setup + ${post_ms}ms post-processing = $((setup_ms + post_ms))ms (model inference excluded: $((T_POST_SPAWN - T_PRE_SPAWN))ms)"
