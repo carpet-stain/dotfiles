@@ -15,9 +15,20 @@ import {
   buildReviewComments,
   buildContext,
   isEligibleForReview,
+  classifyPriorThreads,
+  suppressAlreadyRaised,
+  buildPriorFindingsSection,
   MAX_PROMPT_CHARS,
   MAX_ISSUE_BODY_CHARS,
+  MAX_PRIOR_FINDINGS,
+  MAX_PRIOR_CONTEXT_CHARS,
 } from "./build-review.mjs";
+
+const BOT_LOGIN = "github-actions[bot]";
+
+function thread({ path = "a.ts", line = 11, isResolved = false, isOutdated = false, comments }) {
+  return { path, line, originalLine: line, isResolved, isOutdated, comments: { nodes: comments } };
+}
 
 const SAMPLE_PATCH = [
   "@@ -10,3 +10,4 @@ function greet() {",
@@ -173,4 +184,131 @@ test("isEligibleForReview triggers when a closed issue carries plan-approved", (
 test("isEligibleForReview is false when neither the label nor a closed issue qualifies", () => {
   assert.equal(isEligibleForReview([], []), false);
   assert.equal(isEligibleForReview(["bug"], [{ labels: ["enhancement"] }]), false);
+});
+
+test("classifyPriorThreads marks a resolved bot thread resolved", () => {
+  const threads = [
+    thread({
+      isResolved: true,
+      comments: [{ author: { login: BOT_LOGIN }, body: "**blocking**: null check missing" }],
+    }),
+  ];
+  const [finding] = classifyPriorThreads(threads, BOT_LOGIN);
+  assert.equal(finding.status, "resolved");
+  assert.equal(finding.path, "a.ts");
+  assert.equal(finding.line, 11);
+  assert.equal(finding.comment, "null check missing");
+});
+
+test("classifyPriorThreads marks an unresolved thread with an author reply declined", () => {
+  const threads = [
+    thread({
+      isResolved: false,
+      comments: [
+        { author: { login: BOT_LOGIN }, body: "**nit**: prefer const here" },
+        { author: { login: "the-author" }, body: "disagree, leaving as-is" },
+      ],
+    }),
+  ];
+  const [finding] = classifyPriorThreads(threads, BOT_LOGIN);
+  assert.equal(finding.status, "declined");
+});
+
+test("classifyPriorThreads marks an unresolved thread with no reply open", () => {
+  const threads = [
+    thread({
+      isResolved: false,
+      comments: [{ author: { login: BOT_LOGIN }, body: "**recommended**: add a test" }],
+    }),
+  ];
+  const [finding] = classifyPriorThreads(threads, BOT_LOGIN);
+  assert.equal(finding.status, "open");
+});
+
+test("classifyPriorThreads ignores a reply from the bot itself when checking for author pushback", () => {
+  const threads = [
+    thread({
+      isResolved: false,
+      comments: [
+        { author: { login: BOT_LOGIN }, body: "**nit**: prefer const here" },
+        { author: { login: BOT_LOGIN }, body: "still applies" },
+      ],
+    }),
+  ];
+  const [finding] = classifyPriorThreads(threads, BOT_LOGIN);
+  assert.equal(finding.status, "open");
+});
+
+test("classifyPriorThreads drops a thread this reviewer didn't open", () => {
+  const threads = [
+    thread({ comments: [{ author: { login: "someone-else" }, body: "manual review comment" }] }),
+  ];
+  assert.deepEqual(classifyPriorThreads(threads, BOT_LOGIN), []);
+});
+
+test("classifyPriorThreads drops an outdated thread — its finding is eligible again", () => {
+  const threads = [
+    thread({
+      isResolved: true,
+      isOutdated: true,
+      comments: [{ author: { login: BOT_LOGIN }, body: "**blocking**: null check missing" }],
+    }),
+  ];
+  assert.deepEqual(classifyPriorThreads(threads, BOT_LOGIN), []);
+});
+
+test("suppressAlreadyRaised drops a finding matching a prior one on path + similar comment", () => {
+  const prior = [{ path: "a.ts", comment: "missing a null check before dereferencing user" }];
+  const findings = [
+    { file: "a.ts", line: 40, severity: "blocking", comment: "add a null check before dereferencing the user object", suggestion: null },
+  ];
+  const { findings: kept, suppressed } = suppressAlreadyRaised(findings, prior);
+  assert.equal(kept.length, 0);
+  assert.equal(suppressed, 1);
+});
+
+test("suppressAlreadyRaised keeps a finding on a different file even with the same comment", () => {
+  const prior = [{ path: "a.ts", comment: "missing a null check before dereferencing user" }];
+  const findings = [
+    { file: "b.ts", line: 40, severity: "blocking", comment: "missing a null check before dereferencing user", suggestion: null },
+  ];
+  const { findings: kept, suppressed } = suppressAlreadyRaised(findings, prior);
+  assert.equal(kept.length, 1);
+  assert.equal(suppressed, 0);
+});
+
+test("suppressAlreadyRaised keeps a genuinely different finding on the same file", () => {
+  const prior = [{ path: "a.ts", comment: "missing a null check before dereferencing user" }];
+  const findings = [{ file: "a.ts", line: 40, severity: "nit", comment: "prefer a template literal here", suggestion: null }];
+  const { findings: kept, suppressed } = suppressAlreadyRaised(findings, prior);
+  assert.equal(kept.length, 1);
+  assert.equal(suppressed, 0);
+});
+
+test("buildPriorFindingsSection is empty with no prior findings", () => {
+  assert.equal(buildPriorFindingsSection([]), "");
+});
+
+test("buildPriorFindingsSection labels each status and includes path:line", () => {
+  const section = buildPriorFindingsSection([
+    { path: "a.ts", line: 11, comment: "null check", status: "resolved" },
+    { path: "b.ts", line: 5, comment: "prefer const", status: "declined" },
+    { path: "c.ts", line: 9, comment: "add a test", status: "open" },
+  ]);
+  assert.match(section, /## Findings already raised in earlier reviews/);
+  assert.match(section, /a\.ts:11 \[resolved\] null check/);
+  assert.match(section, /b\.ts:5 \[declined by the author\] prefer const/);
+  assert.match(section, /c\.ts:9 \[still open, already visible in an existing review thread\] add a test/);
+});
+
+test("buildPriorFindingsSection caps output at MAX_PRIOR_FINDINGS / MAX_PRIOR_CONTEXT_CHARS", () => {
+  const many = Array.from({ length: MAX_PRIOR_FINDINGS + 20 }, (_, i) => ({
+    path: `f${i}.ts`,
+    line: 1,
+    comment: "x".repeat(200),
+    status: "open",
+  }));
+  const section = buildPriorFindingsSection(many);
+  assert.ok(section.length <= MAX_PRIOR_CONTEXT_CHARS + 200, "section must stay near the char cap");
+  assert.ok(!section.includes(`f${MAX_PRIOR_FINDINGS + 19}.ts`), "must not include entries far past the cap");
 });
