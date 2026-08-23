@@ -115,19 +115,13 @@ jobs:
           # against an already-funded account, instead of the two per-role
           # Anthropic keys (infra#311) — see docs/adr/0051.
           openrouter_key="$(aws ssm get-parameter --name /runtime/openrouter-api-key --with-decryption --query Parameter.Value --output text)"
-          # A separate credential from the PAT above: this workflow's own
-          # write identity for the turn-signal flip below, not an agent's
-          # posting identity. See that step for why GITHUB_TOKEN can't do it.
-          runner_token="$(aws ssm get-parameter --name /runtime/vended-token --with-decryption --query Parameter.Value --output text)"
           echo "::add-mask::$pat"
           echo "::add-mask::$openrouter_key"
-          echo "::add-mask::$runner_token"
           {
             echo "ANTHROPIC_BASE_URL=https://openrouter.ai/api"
             echo "ANTHROPIC_AUTH_TOKEN=$openrouter_key"
             echo "ANTHROPIC_API_KEY="
             echo "AGENT_PAT=$pat"
-            echo "RUNNER_TOKEN=$runner_token"
           } >>"$GITHUB_ENV"
 
       # Mirrors agent-gh.sh's own safety check (scripts/agent-gh.sh): a
@@ -222,6 +216,20 @@ jobs:
         env:
           GH_TOKEN: ${{ env.AGENT_PAT }}
         run: gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body-file "$RUNNER_TEMP/output.txt"
+
+      # Fetched here, not with the earlier SSM batch: infra's vend-token.yml
+      # rotates this token every 5 minutes, and the spawn step above can run
+      # for minutes on its own — a token fetched before spawn came back
+      # "401 Bad credentials" by the time this step ran (#576's own journal,
+      # confirmed live: T_PRE_SPAWN to this step spanned 2m18s on gate-0's
+      # first successful spawn). Fetching immediately before use keeps the
+      # fetch-to-use gap to a single step.
+      - name: Fetch the runner's own write identity from SSM
+        if: steps.guard.outputs.spawn == 'true'
+        run: |
+          runner_token="$(aws ssm get-parameter --name /runtime/vended-token --with-decryption --query Parameter.Value --output text)"
+          echo "::add-mask::$runner_token"
+          echo "RUNNER_TOKEN=$runner_token" >>"$GITHUB_ENV"
 
       # Runner-owned, via the vended token (RUNNER_TOKEN) — never GITHUB_TOKEN
       # and never an agent's PAT. GITHUB_TOKEN-authored mutations are
