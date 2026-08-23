@@ -106,7 +106,9 @@ token-attribution *args:
     node scripts/token-attribution/cli.mjs {{ args }}
 
 # Records #517's per-issue token rollup as a closing comment (#476):
-# `just token-cost <issue-number>`.
+# `just token-cost <issue-number>`. record-token-cost.sh is repo-agnostic
+# (#673) and deploys onto PATH — this recipe is dotfiles' own convenience
+# wrapper, not the only way to invoke it.
 token-cost issue:
     scripts/record-token-cost.sh {{ issue }}
 

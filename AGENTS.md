@@ -274,6 +274,15 @@ miss there means the rollup is gone for good, not just delayed.
 This is also `groom-backlog`'s repo-specific sweep note: weigh recorded
 token-cost comments as real-spend evidence when estimating similar work.
 
+`record-token-cost.sh` is repo-agnostic (#673): dotfiles owns the one
+implementation and deploys it onto PATH (`record-token-cost`, `agent-gh`'s
+shape), so any checkout invokes it directly —
+`record-token-cost <issue-number> [owner/repo]`, defaulting to the invoking
+repo — and it comments there (`gh issue comment -R`), not on dotfiles. `just
+token-cost` above is dotfiles' own convenience wrapper over the same script,
+nothing more. Another repo's justfile should call the PATH tool directly
+rather than copying this recipe.
+
 ## Git workflow
 
 > Concrete realization of **git.md**'s Branch & PR model
