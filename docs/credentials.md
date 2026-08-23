@@ -79,6 +79,40 @@ collaborator (verified on #540), and effective rights stay bounded by the
 `read` role either way. The PATs are hand-populated and rotate ~annually by
 hand; infra's `docs/BOOTSTRAP.md` §13 owns that runbook.
 
+## Agent-memory bearer: `agent-memory-vend`
+
+Realizes ADR-0046's "local sessions vend theirs" auth clause (#671):
+`agent-memory-vend <role> -- <cmd>` (`scripts/agent-memory-vend.sh`, on PATH
+from the deploy) runs one command with `AGENT_MEMORY_BEARER` set to the
+current bearer for the hosted per-role memory store — fetched fresh from SSM
+`/runtime/agent-memory/<role>/bearer-tokens` (agent-memory-server's own
+`terraform/ssm.tf`) with the same `infra-local-read` Keychain credential as
+`agent-gh`/the vended token, no extra one-time setup. Only `backlog-manager`
+is a valid role today (ADR-0046: it migrates first; plan-reviewer is
+memoryless by design). The bearer is process-only — set for the wrapped
+command alone, never exported into `.envrc` or any ambient shell — because
+unlike the narrowly-scoped vended `GH_TOKEN`, this credential grants full
+read+write of the role's entire private memory store (ADR-0046's privacy
+guarantee, downgraded from structural to operational).
+
+**Failure mode:** a missing Keychain item, an empty/missing SSM parameter,
+or a failed AWS call all fail loud (nonzero exit, stderr) — never a silent
+empty bearer, since a memory write that can't authenticate must never
+silently no-op. **Recovery:** confirm agent-memory-server's `terraform/ssm.tf`
+has applied (`bearer-tokens` populated) and that the `infra-aws-local-read`
+Keychain item exists (same one-time setup as the vended token, above); if
+both hold and the fetch still fails, the credential itself needs
+re-provisioning, which is agent-memory-server's side, not this script's.
+
+Every call re-reads SSM — nothing is cached — so a caller that re-vends
+after a `401` always gets a live token; the SSM value is a JSON array
+(`bearer-tokens`, plural) that holds two concurrently-valid tokens during a
+rotation overlap (agent-memory-server#32), and the server validates against
+that whole set, so the first array element is always correct with no
+current-vs-stale ordering to track. This script only gets the bearer into a
+process; wiring it into an actual MCP-over-HTTP session is dotfiles#634's
+client-wiring step, held until that issue's JSONL→Postgres migration lands.
+
 ## Infra writes: `infra-gh`
 
 `carpet-stain/infra` deliberately excludes itself from the vended token's

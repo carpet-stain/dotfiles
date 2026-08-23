@@ -196,6 +196,10 @@ link_configs() {
   # PATH, macOS only like every other GH_TOKEN wrapper here.
   zf_ln -sf $DOTFILES_DIR/scripts/admin-gh.sh $HOME/.local/bin/admin-gh
 
+  # Vends the agent-memory bearer at MCP spawn, process-only (#671) — on
+  # PATH, macOS only like every other GH_TOKEN/Keychain wrapper here.
+  zf_ln -sf $DOTFILES_DIR/scripts/agent-memory-vend.sh $HOME/.local/bin/agent-memory-vend
+
   # Agent-memory B2 backup (#542) — on PATH so the plist below can invoke it
   # by bare name, no absolute-path templating. macOS only.
   zf_ln -sf $DOTFILES_DIR/scripts/backup-agent-memory.sh $HOME/.local/bin/backup-agent-memory
