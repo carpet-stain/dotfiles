@@ -37,13 +37,23 @@ routes:
     label: awaiting-plan-critique
     role: backlog-manager
     max_turns: 12
+  - event: issues
+    action: labeled
+    label: retry-backlog-manager
+    role: backlog-manager
+    max_turns: 12
+  - event: issues
+    action: labeled
+    label: retry-plan-reviewer
+    role: plan-reviewer
+    max_turns: 24
 `;
 
 test("parseRoutingConfig reads top-level scalars and the routes list", () => {
   const routing = parseRoutingConfig(ROUTING_YAML);
   assert.equal(routing.turn_signal_label, "awaiting-plan-critique");
   assert.equal(routing.round_cap, 3);
-  assert.equal(routing.routes.length, 3);
+  assert.equal(routing.routes.length, 5);
   assert.deepEqual(routing.routes[0], {
     event: "issues",
     action: "labeled",
@@ -195,6 +205,31 @@ test("evaluateGuard allows exactly round_cap rounds through", () => {
     roundCount: 3, // round_cap is 3 — the third round still runs
   });
   assert.equal(decision.spawn, true);
+});
+
+test("evaluateGuard retries a role via its own retry-<role> label, decoupled from the turn signal (#687)", () => {
+  const routing = parseRoutingConfig(ROUTING_YAML);
+  const decision = evaluateGuard({
+    routing,
+    event: {
+      eventType: "issues",
+      eventAction: "labeled",
+      label: "retry-plan-reviewer",
+      actorLogin: "carpet-stain",
+    },
+    roundCount: 1,
+  });
+  assert.equal(decision.spawn, true);
+  assert.equal(decision.role, "plan-reviewer");
+  assert.equal(decision.maxTurns, 24);
+});
+
+test("countTurnSignalRounds does not count a retry-<role> label add as a round (#687)", () => {
+  const timeline = [
+    { event: "labeled", label: { name: "awaiting-plan-critique" } },
+    { event: "labeled", label: { name: "retry-plan-reviewer" } },
+  ];
+  assert.equal(countTurnSignalRounds(timeline, "awaiting-plan-critique"), 1);
 });
 
 test("evaluateGuard returns no spawn for an event with no route", () => {
