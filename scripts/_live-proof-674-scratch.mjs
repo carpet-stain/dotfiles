@@ -8,3 +8,7 @@ export function listUserFiles(userDir, callback) {
     callback(err, stdout);
   });
 }
+
+// unrelated no-op append, to trigger a synchronize run without touching
+// the lines above (keeps both prior threads' diff anchors unshifted)
+export const LIVE_PROOF_MARKER = true;
