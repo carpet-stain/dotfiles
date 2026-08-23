@@ -170,6 +170,15 @@ function extractFindingText(body) {
     .trim();
 }
 
+// GraphQL renders the same Actions bot identity's login inconsistently by
+// field: `viewer.login` on the token run.mjs posts with returns
+// "github-actions[bot]", but that same bot's `author.login` on a comment it
+// posted returns "github-actions" (no suffix) — confirmed live, not assumed
+// (#674's live-proof run). Strip the suffix on both sides before comparing.
+function normalizeLogin(login) {
+  return login?.replace(/\[bot\]$/, "");
+}
+
 function tokenize(text) {
   return text
     .toLowerCase()
@@ -215,15 +224,16 @@ function commentSimilarity(a, b) {
  * @returns {{path: string, line: number, comment: string, status: 'resolved'|'declined'|'open'}[]}
  */
 export function classifyPriorThreads(threads, botLogin) {
+  const normalizedBotLogin = normalizeLogin(botLogin);
   const result = [];
   for (const thread of threads) {
     if (thread.isOutdated) continue;
     const comments = thread.comments?.nodes ?? [];
     const [first, ...replies] = comments;
-    if (!first || first.author?.login !== botLogin) continue;
+    if (!first || normalizeLogin(first.author?.login) !== normalizedBotLogin) continue;
     const line = thread.line ?? thread.originalLine;
     if (!thread.path || line == null) continue;
-    const hasAuthorReply = replies.some((c) => c.author?.login !== botLogin);
+    const hasAuthorReply = replies.some((c) => normalizeLogin(c.author?.login) !== normalizedBotLogin);
     result.push({
       path: thread.path,
       line,
