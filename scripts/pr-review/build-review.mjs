@@ -26,6 +26,23 @@ export const MAX_ISSUES = 3;
 export const MAX_PR_BODY_CHARS = 2000;
 export const MAX_ISSUE_BODY_CHARS = 3000;
 
+// Bound the prior-findings fetch (#674) and the slice of it injected into
+// the prompt. The fetch cap (MAX_PRIOR_THREADS/MAX_THREAD_COMMENTS) feeds
+// the deterministic suppression filter, which is cheap regex/token work and
+// runs over the full list; MAX_PRIOR_FINDINGS/MAX_PRIOR_CONTEXT_CHARS
+// separately bound what's worth spending prompt tokens on.
+export const MAX_PRIOR_THREADS = 100;
+export const MAX_THREAD_COMMENTS = 20;
+export const MAX_PRIOR_FINDINGS = 40;
+export const MAX_PRIOR_CONTEXT_CHARS = 4000;
+
+// Below this word-overlap ratio, two comments count as different findings
+// rather than a reworded duplicate. Deliberately coarse (token-set Jaccard,
+// no embeddings/deps) — the prompt-level "do not repeat, including
+// reworded" instruction is what catches genuine paraphrase; this layer only
+// needs to catch the model re-emitting a near-identical comment.
+const DUPLICATE_SIMILARITY_THRESHOLD = 0.6;
+
 /**
  * Decides whether a PR should get the advisory review (#458): auto-triggers
  * when it closes an issue carrying `plan-approved` — this repo's plan-review
@@ -141,4 +158,126 @@ export function buildReviewComments(parsedFiles, findings) {
   });
 
   return { comments, dropped };
+}
+
+// Strips this reviewer's own comment formatting (buildReviewComments' "**severity**: "
+// prefix and a trailing ```suggestion``` block) back to the finding text, so a prior
+// comment fetched from GitHub compares against a fresh model finding on the same terms.
+function extractFindingText(body) {
+  return body
+    .replace(/^\*\*[\w-]+\*\*:\s*/, "")
+    .replace(/\n\n```suggestion\n[\s\S]*```\s*$/, "")
+    .trim();
+}
+
+function tokenize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+// Word-set Jaccard similarity — good enough to catch a reworded repost
+// without an embedding model; see DUPLICATE_SIMILARITY_THRESHOLD.
+function commentSimilarity(a, b) {
+  const tokensA = new Set(tokenize(a));
+  const tokensB = new Set(tokenize(b));
+  if (tokensA.size === 0 || tokensB.size === 0) return 0;
+  let overlap = 0;
+  for (const t of tokensA) if (tokensB.has(t)) overlap++;
+  const union = new Set([...tokensA, ...tokensB]).size;
+  return overlap / union;
+}
+
+/**
+ * Classifies this reviewer's own prior review threads on the PR (#674) into
+ * the three outcomes that matter for suppression, and drops the rest:
+ * - "resolved": the author acted or explicitly dismissed the thread.
+ * - "declined": unresolved, but the author replied — pushback counts as
+ *   engagement regardless of what the reply says (errs toward silence,
+ *   the right direction for an advisory tool).
+ * - "open": unresolved, no reply — genuinely still pending, not reworded,
+ *   just not worth reposting as a duplicate of the visible thread.
+ *
+ * A thread GitHub marks `isOutdated` (the surrounding diff hunk changed
+ * since the comment was posted) is dropped entirely rather than classified:
+ * if the author rewrote the code and reintroduced the same defect, that's a
+ * new finding, not a repeat.
+ *
+ * @param {{path: string, line: number|null, originalLine: number|null,
+ *   isResolved: boolean, isOutdated: boolean,
+ *   comments: {nodes: {author: {login: string}|null, body: string}[]}}[]} threads
+ *   - GraphQL `reviewThreads.nodes`.
+ * @param {string} botLogin - this reviewer's own login (GraphQL `viewer.login`
+ *   for the token run.mjs posts reviews with), so a thread someone else opened
+ *   is never mistaken for a prior finding of ours.
+ * @returns {{path: string, line: number, comment: string, status: 'resolved'|'declined'|'open'}[]}
+ */
+export function classifyPriorThreads(threads, botLogin) {
+  const result = [];
+  for (const thread of threads) {
+    if (thread.isOutdated) continue;
+    const comments = thread.comments?.nodes ?? [];
+    const [first, ...replies] = comments;
+    if (!first || first.author?.login !== botLogin) continue;
+    const line = thread.line ?? thread.originalLine;
+    if (!thread.path || line == null) continue;
+    const hasAuthorReply = replies.some((c) => c.author?.login !== botLogin);
+    result.push({
+      path: thread.path,
+      line,
+      comment: extractFindingText(first.body),
+      status: thread.isResolved ? "resolved" : hasAuthorReply ? "declined" : "open",
+    });
+  }
+  return result;
+}
+
+/**
+ * Deterministic half of #674's two-layer suppression: drops a fresh finding
+ * that matches an already-classified prior one on the same file and a
+ * near-identical comment. Line number is deliberately not part of the match
+ * — it shifts between pushes, so anchoring on it alone would miss a
+ * finding the model re-raised, reworded, at a slightly different line.
+ *
+ * @param {{file: string, line: number, severity: string, comment: string, suggestion?: string|null}[]} findings
+ * @param {{path: string, comment: string}[]} priorFindings - from classifyPriorThreads
+ * @returns {{findings: typeof findings, suppressed: number}}
+ */
+export function suppressAlreadyRaised(findings, priorFindings) {
+  let suppressed = 0;
+  const kept = findings.filter((f) => {
+    const isDuplicate = priorFindings.some(
+      (p) => p.path === f.file && commentSimilarity(p.comment, f.comment) >= DUPLICATE_SIMILARITY_THRESHOLD,
+    );
+    if (isDuplicate) suppressed++;
+    return !isDuplicate;
+  });
+  return { findings: kept, suppressed };
+}
+
+const STATUS_LABEL = {
+  resolved: "resolved",
+  declined: "declined by the author",
+  open: "still open, already visible in an existing review thread",
+};
+
+/**
+ * Renders the prior-findings context block (#674's in-prompt suppression
+ * layer): each classified prior finding, capped the same way `buildContext`
+ * caps issue bodies, so a long-running PR's accumulated history can't crowd
+ * the diff out of the prompt. Returns "" when there's nothing prior.
+ * @param {{path: string, line: number, comment: string, status: string}[]} priorFindings
+ * @returns {string}
+ */
+export function buildPriorFindingsSection(priorFindings) {
+  if (priorFindings.length === 0) return "";
+  let out = "## Findings already raised in earlier reviews — do not repeat these, including in reworded form\n";
+  for (const f of priorFindings.slice(0, MAX_PRIOR_FINDINGS)) {
+    const line = `- ${f.path}:${f.line} [${STATUS_LABEL[f.status]}] ${f.comment}\n`;
+    if (out.length + line.length > MAX_PRIOR_CONTEXT_CHARS) break;
+    out += line;
+  }
+  return out.trim();
 }

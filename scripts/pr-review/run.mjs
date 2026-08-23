@@ -13,13 +13,28 @@
 // OPENAI_API_URL / OPENAI_MODEL) directly with the platform `fetch` (no
 // octokit/openai SDK, no third-party Action in the request path — the whole
 // point of #330 over the prior action). GraphQL (fetchPrContext) resolves
-// the PR's plan-conformance trigger + context (#458); REST handles the diff
+// the PR's plan-conformance trigger + context (#458); a second GraphQL call
+// (fetchPriorFindings) resolves this reviewer's own prior review threads so
+// a finding the author already acted on, declined, or that's simply still
+// visible from an earlier push isn't reposted (#674); REST handles the diff
 // and posting the review. All I/O lives here; the parsing/formatting logic
 // in diff.mjs and build-review.mjs is pure and unit-tested in isolation
 // (build-review.test.mjs) since this workflow can't be exercised end-to-end
 // outside a real PR run.
 
-import { parseFiles, buildPrompt, buildReviewComments, buildContext, isEligibleForReview, MAX_ISSUES } from "./build-review.mjs";
+import {
+  parseFiles,
+  buildPrompt,
+  buildReviewComments,
+  buildContext,
+  isEligibleForReview,
+  classifyPriorThreads,
+  suppressAlreadyRaised,
+  buildPriorFindingsSection,
+  MAX_ISSUES,
+  MAX_PRIOR_THREADS,
+  MAX_THREAD_COMMENTS,
+} from "./build-review.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -140,6 +155,61 @@ async function fetchPrContext() {
   return { pr: { title: pr.title, body: pr.body }, issues, eligible: isEligibleForReview(labels, issues) };
 }
 
+const PRIOR_THREADS_QUERY = `
+  query($owner: String!, $repo: String!, $number: Int!, $maxThreads: Int!, $maxComments: Int!) {
+    viewer { login }
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $number) {
+        reviewThreads(first: $maxThreads) {
+          nodes {
+            path
+            line
+            originalLine
+            isResolved
+            isOutdated
+            comments(first: $maxComments) {
+              nodes {
+                author { login }
+                body
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+// #674: reads this reviewer's own prior review threads so a long-running PR
+// doesn't get the same finding re-raised on every push. `viewer.login`
+// resolves to this workflow's own posting identity (github-actions[bot] for
+// the default GITHUB_TOKEN run.mjs's postReview uses) — comparing against
+// it, not a hardcoded string, is what lets classifyPriorThreads tell "our
+// prior comment" from anyone else's on the thread.
+//
+// A separate GraphQL call from fetchPrContext, with its own try/catch: that
+// call's failure means skip the review entirely (it also gates the OpenAI
+// spend), but this one only supplies suppression context — its failure
+// should degrade to today's no-suppression behavior, never block the review
+// that's already been decided eligible.
+async function fetchPriorFindings() {
+  try {
+    const data = await githubGraphQL(PRIOR_THREADS_QUERY, {
+      owner,
+      repo,
+      number: Number(PR_NUMBER),
+      maxThreads: MAX_PRIOR_THREADS,
+      maxComments: MAX_THREAD_COMMENTS,
+    });
+    const botLogin = data.viewer.login;
+    const threads = data.repository.pullRequest.reviewThreads.nodes;
+    return classifyPriorThreads(threads, botLogin);
+  } catch (err) {
+    console.log(`::warning title=PR advisory review::prior-findings fetch failed, reviewing without suppression: ${err.message}`);
+    return [];
+  }
+}
+
 // Structured Outputs schema: forces the model to return exactly this
 // shape instead of free text to re-parse (the acceptance criterion #330
 // leads with). `strict: true` makes the API itself reject a malformed
@@ -224,6 +294,12 @@ Rules that keep the review signal high:
   it prevents or the principle it serves.
 - If the same issue recurs, emit ONE finding, note it "applies throughout",
   and do not repeat it per occurrence.
+- When a "## Findings already raised in earlier reviews" section is present,
+  it lists comments a prior run of this same review already posted, each
+  marked resolved / declined by the author / still open. Never re-raise any
+  of them, in any wording — that section already excludes a finding whose
+  surrounding code changed since it was posted, so a genuinely reintroduced
+  defect is fair game, but a reworded restatement of a listed one is not.
 - Keep nits few; never let them crowd out a blocking or recommended finding.
 - Only when the fix is a mechanical, single-line replacement, put the exact
   replacement text for that one line (no line-number prefix) in
@@ -266,13 +342,14 @@ async function callOpenAI(prompt) {
   return JSON.parse(content).findings ?? [];
 }
 
-async function postReview(comments, dropped) {
+async function postReview(comments, dropped, suppressed) {
   const clean = comments.length === 0 && dropped === 0;
   const summary = clean
     ? `Advisory review (non-Anthropic model, see docs/adr/0025) — no issues found. LGTM. Advisory only — a human approves the merge.`
     : `Advisory review (non-Anthropic model, see docs/adr/0025) — ${comments.length} finding` +
       `${comments.length === 1 ? "" : "s"}` +
       (dropped ? `, ${dropped} dropped (referenced a file/line outside the diff)` : "") +
+      (suppressed ? `, ${suppressed} suppressed (already raised in an earlier review, see #674)` : "") +
       `. Advisory only — a human approves the merge.`;
 
   // Always a COMMENT-event review, even with zero findings — never
@@ -308,17 +385,23 @@ async function main() {
     return;
   }
 
+  const priorFindings = await fetchPriorFindings();
+
   const context = buildContext(pr, issues);
+  const priorSection = buildPriorFindingsSection(priorFindings);
   const diff = buildPrompt(parsedFiles);
-  const prompt = context ? `${context}\n\n---\n\n## Changed lines to review\n\n${diff}` : diff;
-  const findings = await callOpenAI(prompt);
+  const preamble = [context, priorSection].filter(Boolean).join("\n\n---\n\n");
+  const prompt = preamble ? `${preamble}\n\n---\n\n## Changed lines to review\n\n${diff}` : diff;
+
+  const rawFindings = await callOpenAI(prompt);
+  const { findings, suppressed } = suppressAlreadyRaised(rawFindings, priorFindings);
   const { comments, dropped } = buildReviewComments(parsedFiles, findings);
 
-  await postReview(comments, dropped);
+  await postReview(comments, dropped, suppressed);
   console.log(
     comments.length === 0 && dropped === 0
-      ? "pr-review: no findings — posted LGTM."
-      : `pr-review: posted ${comments.length} comment(s), ${dropped} dropped.`,
+      ? `pr-review: no findings — posted LGTM (${suppressed} suppressed as already-raised).`
+      : `pr-review: posted ${comments.length} comment(s), ${dropped} dropped, ${suppressed} suppressed as already-raised.`,
   );
 }
 
