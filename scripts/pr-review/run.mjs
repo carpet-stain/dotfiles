@@ -21,6 +21,16 @@
 // in diff.mjs and build-review.mjs is pure and unit-tested in isolation
 // (build-review.test.mjs) since this workflow can't be exercised end-to-end
 // outside a real PR run.
+//
+// #675: also replies inside a thread it opened, on
+// pull_request_review_comment:created. main() dispatches on GITHUB_EVENT_NAME
+// (a default Actions env var, no explicit wiring needed) — reviewDiff() is
+// the original pulls.createReview path above; replyToThread() fetches the
+// thread via REST (in_reply_to_id, which GraphQL's reviewThreads doesn't
+// expose), runs it through evaluateReplyGuard (self-spawn + own-thread +
+// reply-cap, all pure and tested in build-review.test.mjs), and posts a
+// single in-thread reply via POST .../comments with in_reply_to — never a
+// new review, and never a thread-resolution call (that stays the human's).
 
 import {
   parseFiles,
@@ -31,6 +41,9 @@ import {
   classifyPriorThreads,
   suppressAlreadyRaised,
   buildPriorFindingsSection,
+  evaluateReplyGuard,
+  buildThreadHistorySection,
+  buildCodeContextSection,
   MAX_ISSUES,
   MAX_PRIOR_THREADS,
   MAX_THREAD_COMMENTS,
@@ -42,6 +55,8 @@ const {
   OPENAI_MODEL = "gpt-4o-mini",
   GITHUB_REPOSITORY,
   PR_NUMBER,
+  COMMENT_ID,
+  GITHUB_EVENT_NAME,
   GITHUB_API_URL = "https://api.github.com",
   GITHUB_GRAPHQL_URL = "https://api.github.com/graphql",
   OPENAI_API_URL = "https://api.openai.com/v1/chat/completions",
@@ -309,14 +324,17 @@ Say nothing about lines that are fine — return an empty findings array if the
 diff has no real issues. Do not invent a file or line number that wasn't
 shown to you.`;
 
-async function callOpenAI(prompt) {
+// Shared HTTP mechanics for both the diff review (findings array) and the
+// thread-reply (#675, a single string) chat completions — same endpoint,
+// same structured-output enforcement, different system prompt + schema.
+async function callChatCompletion(systemPrompt, userPrompt, schema) {
   const payload = {
     model: OPENAI_MODEL,
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: prompt },
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
     ],
-    response_format: { type: "json_schema", json_schema: FINDINGS_SCHEMA },
+    response_format: { type: "json_schema", json_schema: schema },
   };
   // OpenRouter serves a model across several provider endpoints, not all of
   // which enforce a json_schema; require_parameters makes it route only to one
@@ -339,7 +357,53 @@ async function callOpenAI(prompt) {
   const body = await res.json();
   const content = body.choices?.[0]?.message?.content;
   if (!content) throw new Error("OpenAI response had no message content");
-  return JSON.parse(content).findings ?? [];
+  return JSON.parse(content);
+}
+
+async function callOpenAI(prompt) {
+  const result = await callChatCompletion(SYSTEM_PROMPT, prompt, FINDINGS_SCHEMA);
+  return result.findings ?? [];
+}
+
+// #675: the reviewer replying in a thread it opened, not restating the
+// original finding — it already has the finding's own words in the thread
+// history, so it's asked to answer the reply, not re-review from scratch.
+const REPLY_SYSTEM_PROMPT = `You are an independent code reviewer replying to a thread you opened on a
+pull request (docs/adr/0025). You already raised the finding at the top of
+this thread; someone has now replied — pushing back, asking what it means,
+or saying they've fixed it and want another look.
+
+Answer the reply directly, grounded in the "Current code" section below —
+the file as it stands right now, not the original diff, since the code may
+have changed since you raised the finding. If they say they've fixed it,
+check the current code at that location and say honestly whether it's
+resolved or what's still wrong. Confirming a fix is a complete, legitimate
+answer — you don't need to find something new to say.
+
+Rules:
+- 1-4 sentences. No greeting, no "thanks for the reply" filler.
+- Ground every claim in the current code or the thread's own history shown
+  to you — never invent a line, file, or claim about code you weren't shown.
+- Never say you are resolving, closing, or marking this thread — that stays
+  a human decision, never yours to make.
+- If the current code doesn't map cleanly onto the original finding (e.g.
+  the surrounding lines changed for an unrelated reason), say so plainly
+  rather than guessing.`;
+
+const REPLY_SCHEMA = {
+  name: "review_reply",
+  strict: true,
+  schema: {
+    type: "object",
+    properties: { reply: { type: "string" } },
+    required: ["reply"],
+    additionalProperties: false,
+  },
+};
+
+async function callReplyModel(prompt) {
+  const result = await callChatCompletion(REPLY_SYSTEM_PROMPT, prompt, REPLY_SCHEMA);
+  return result.reply;
 }
 
 async function postReview(comments, dropped, suppressed) {
@@ -365,7 +429,7 @@ async function postReview(comments, dropped, suppressed) {
   });
 }
 
-async function main() {
+async function reviewDiff() {
   let pr, issues, eligible;
   try {
     ({ pr, issues, eligible } = await fetchPrContext());
@@ -403,6 +467,107 @@ async function main() {
       ? `pr-review: no findings — posted LGTM (${suppressed} suppressed as already-raised).`
       : `pr-review: posted ${comments.length} comment(s), ${dropped} dropped, ${suppressed} suppressed as already-raised.`,
   );
+}
+
+// #675: every review comment on the PR, all threads flattened — the shape
+// evaluateReplyGuard groups into threads itself. A separate call from
+// fetchPriorFindings' GraphQL reviewThreads query: that one needs
+// isResolved/isOutdated (REST doesn't expose thread resolution), this one
+// needs in_reply_to_id (GraphQL's reviewThreads nests replies without it),
+// so neither call can stand in for the other.
+async function fetchAllReviewComments() {
+  const comments = [];
+  for (let page = 1; ; page++) {
+    const batch = await githubRequest(`/repos/${owner}/${repo}/pulls/${PR_NUMBER}/comments?per_page=100&page=${page}`);
+    comments.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return comments.map((c) => ({
+    id: c.id,
+    inReplyToId: c.in_reply_to_id ?? null,
+    authorLogin: c.user?.login ?? "",
+    body: c.body,
+    path: c.path,
+    line: c.line ?? c.original_line,
+    createdAt: c.created_at,
+  }));
+}
+
+async function fetchViewerLogin() {
+  const data = await githubGraphQL(`query { viewer { login } }`, {});
+  return data.viewer.login;
+}
+
+// The file as it stands at the PR's current HEAD, not the diff hunk
+// originally reviewed — buildCodeContextSection's whole point (#675). Null
+// on any failure (deleted, renamed, private-fork edge case): the reply
+// prompt degrades to thread-history-only rather than the job failing, same
+// posture as fetchPriorFindings' degrade-on-failure.
+async function fetchFileAtHead(path) {
+  try {
+    const prData = await githubRequest(`/repos/${owner}/${repo}/pulls/${PR_NUMBER}`);
+    const sha = prData.head.sha;
+    const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+    const fileData = await githubRequest(`/repos/${owner}/${repo}/contents/${encodedPath}?ref=${sha}`);
+    if (fileData.encoding !== "base64") return null;
+    return Buffer.from(fileData.content, "base64").toString("utf8");
+  } catch (err) {
+    console.log(`::warning title=PR advisory review::could not read ${path} at HEAD, replying without it: ${err.message}`);
+    return null;
+  }
+}
+
+async function postReply(rootCommentId, body) {
+  await githubRequest(`/repos/${owner}/${repo}/pulls/${PR_NUMBER}/comments`, {
+    method: "POST",
+    body: JSON.stringify({ body, in_reply_to: rootCommentId }),
+  });
+}
+
+async function replyToThread() {
+  if (!COMMENT_ID) {
+    console.error("pr-review: missing required env var COMMENT_ID");
+    process.exit(1);
+  }
+
+  const botLogin = await fetchViewerLogin();
+  const comments = await fetchAllReviewComments();
+  const decision = evaluateReplyGuard(comments, COMMENT_ID, botLogin);
+  if (!decision.reply) {
+    console.log(`pr-review-reply: skipped — ${decision.reason}`);
+    return;
+  }
+
+  const root = decision.thread[0];
+  const fileContent = await fetchFileAtHead(root.path);
+  const codeSection = buildCodeContextSection(root.path, root.line, fileContent);
+  const threadSection = buildThreadHistorySection(decision.thread, botLogin);
+
+  // Best-effort PR/issue intent, same as the diff review — but a reply
+  // never depends on it (unlike reviewDiff, where a fetch failure gates the
+  // whole review): the thread + current code are enough to answer, so this
+  // degrades rather than skips.
+  let intent = "";
+  try {
+    const { pr, issues } = await fetchPrContext();
+    intent = buildContext(pr, issues);
+  } catch (err) {
+    console.log(`::warning title=PR advisory review::PR/issue context fetch failed, replying without it: ${err.message}`);
+  }
+
+  const prompt = [intent, threadSection, codeSection].filter(Boolean).join("\n\n---\n\n");
+  const replyText = await callReplyModel(prompt);
+
+  await postReply(root.id, replyText);
+  console.log(`pr-review-reply: posted a reply on ${root.path}:${root.line}`);
+}
+
+async function main() {
+  if (GITHUB_EVENT_NAME === "pull_request_review_comment") {
+    await replyToThread();
+    return;
+  }
+  await reviewDiff();
 }
 
 main().catch((err) => {

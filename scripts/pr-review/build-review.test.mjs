@@ -18,10 +18,15 @@ import {
   classifyPriorThreads,
   suppressAlreadyRaised,
   buildPriorFindingsSection,
+  evaluateReplyGuard,
+  buildThreadHistorySection,
+  buildCodeContextSection,
   MAX_PROMPT_CHARS,
   MAX_ISSUE_BODY_CHARS,
   MAX_PRIOR_FINDINGS,
   MAX_PRIOR_CONTEXT_CHARS,
+  REPLY_CODE_CONTEXT_LINES,
+  MAX_CODE_CONTEXT_CHARS,
 } from "./build-review.mjs";
 
 const BOT_LOGIN = "github-actions[bot]";
@@ -327,4 +332,140 @@ test("buildPriorFindingsSection caps output at MAX_PRIOR_FINDINGS / MAX_PRIOR_CO
   const section = buildPriorFindingsSection(many);
   assert.ok(section.length <= MAX_PRIOR_CONTEXT_CHARS + 200, "section must stay near the char cap");
   assert.ok(!section.includes(`f${MAX_PRIOR_FINDINGS + 19}.ts`), "must not include entries far past the cap");
+});
+
+// --- #675: thread-reply guard + prompt rendering ---------------------------
+
+const BOT_VIEWER_LOGIN = "github-actions[bot]"; // GraphQL viewer.login shape
+const BOT_AUTHOR_LOGIN = "github-actions"; // that same identity's comment author.login (#674)
+
+// Builds a flat, chronologically-ordered comment list for one thread: the
+// first row opens it (inReplyToId: null), every later row replies to it.
+// Real ids/timestamps don't matter to evaluateReplyGuard beyond ordering and
+// identity, so both are synthesized here.
+function mkThread(rows) {
+  const rootId = 100;
+  return rows.map((r, i) => ({
+    id: rootId + i,
+    inReplyToId: i === 0 ? null : rootId,
+    authorLogin: r.author,
+    body: r.body ?? `comment ${i}`,
+    path: r.path ?? "a.ts",
+    line: r.line ?? 11,
+    createdAt: `2026-01-01T00:${String(i).padStart(2, "0")}:00Z`,
+  }));
+}
+
+test("evaluateReplyGuard allows the first reply on a thread the reviewer opened", () => {
+  const comments = mkThread([{ author: BOT_AUTHOR_LOGIN }, { author: "the-author" }]);
+  const decision = evaluateReplyGuard(comments, comments[1].id, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, true);
+  assert.deepEqual(decision.thread, comments);
+});
+
+test("evaluateReplyGuard refuses a comment that isn't a reply to any thread", () => {
+  const comments = [
+    { id: 1, inReplyToId: null, authorLogin: "someone", body: "x", path: "a.ts", line: 1, createdAt: "2026-01-01T00:00:00Z" },
+  ];
+  const decision = evaluateReplyGuard(comments, 1, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, false);
+  assert.match(decision.reason, /not a reply/);
+});
+
+test("evaluateReplyGuard refuses a thread the reviewer didn't open", () => {
+  const comments = mkThread([{ author: "someone-else" }, { author: "the-author" }]);
+  const decision = evaluateReplyGuard(comments, comments[1].id, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, false);
+  assert.match(decision.reason, /not opened by this reviewer/);
+});
+
+test("evaluateReplyGuard self-spawn guard refuses when the triggering comment is the reviewer's own", () => {
+  const comments = mkThread([{ author: BOT_AUTHOR_LOGIN }, { author: BOT_AUTHOR_LOGIN }]);
+  const decision = evaluateReplyGuard(comments, comments[1].id, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, false);
+  assert.match(decision.reason, /self-spawn/);
+});
+
+test("evaluateReplyGuard lets an implementor's reply through — not a blanket machine-account filter", () => {
+  const comments = mkThread([{ author: BOT_AUTHOR_LOGIN }, { author: "carpet-stain-implementor" }]);
+  const decision = evaluateReplyGuard(comments, comments[1].id, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, true);
+});
+
+test("evaluateReplyGuard reply cap refuses a second reply with no intervening human comment", () => {
+  const comments = mkThread([
+    { author: BOT_AUTHOR_LOGIN }, // root finding
+    { author: "carpet-stain-implementor" }, // reply 1
+    { author: BOT_AUTHOR_LOGIN }, // reviewer's answer
+    { author: "carpet-stain-implementor" }, // reply 2 (trigger) — no human in between
+  ]);
+  const decision = evaluateReplyGuard(comments, comments[3].id, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, false);
+  assert.match(decision.reason, /reply cap/);
+});
+
+test("evaluateReplyGuard reply cap resets after a human comment", () => {
+  const comments = mkThread([
+    { author: BOT_AUTHOR_LOGIN }, // root finding
+    { author: "carpet-stain-implementor" }, // reply 1
+    { author: BOT_AUTHOR_LOGIN }, // reviewer's answer
+    { author: "carpet-stain" }, // a human weighs in
+    { author: "carpet-stain-implementor" }, // reply 2 (trigger) — allowed again
+  ]);
+  const decision = evaluateReplyGuard(comments, comments[4].id, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, true);
+});
+
+test("evaluateReplyGuard fails closed when the triggering comment isn't present in the fetched list", () => {
+  const comments = mkThread([{ author: BOT_AUTHOR_LOGIN }, { author: "the-author" }]);
+  const decision = evaluateReplyGuard(comments, 99999, BOT_VIEWER_LOGIN);
+  assert.equal(decision.reply, false);
+  assert.match(decision.reason, /not found/);
+});
+
+test("buildThreadHistorySection renders the reviewer's own message via extractFindingText, others verbatim", () => {
+  const thread = mkThread([
+    { author: BOT_AUTHOR_LOGIN, body: "**blocking**: null check missing" },
+    { author: "the-author", body: "already fixed, please check" },
+  ]);
+  const section = buildThreadHistorySection(thread, BOT_VIEWER_LOGIN);
+  assert.match(section, /## Thread history/);
+  assert.match(section, /\*\*Reviewer \(you\)\*\*: null check missing/);
+  assert.match(section, /\*\*the-author\*\*: already fixed, please check/);
+});
+
+test("buildThreadHistorySection caps an over-long comment", () => {
+  const huge = "y".repeat(3000);
+  const thread = mkThread([{ author: BOT_AUTHOR_LOGIN, body: "finding" }, { author: "the-author", body: huge }]);
+  const section = buildThreadHistorySection(thread, BOT_VIEWER_LOGIN);
+  assert.ok(!section.includes(huge), "full oversized comment must not appear verbatim");
+});
+
+test("buildCodeContextSection renders a window of lines around the target line", () => {
+  const total = 50;
+  const content = Array.from({ length: total }, (_, i) => `line ${i + 1}`).join("\n");
+  const targetLine = 25;
+  const section = buildCodeContextSection("a.ts", targetLine, content);
+  const expectedStart = Math.max(1, targetLine - REPLY_CODE_CONTEXT_LINES);
+  const expectedEnd = Math.min(total, targetLine + REPLY_CODE_CONTEXT_LINES);
+  assert.match(section, new RegExp(`lines ${expectedStart}-${expectedEnd}`));
+  assert.match(section, /^25: line 25$/m);
+  assert.ok(!new RegExp(`^${expectedStart - 1}: `, "m").test(section), "must not include a line outside the window");
+});
+
+test("buildCodeContextSection clamps the window to file bounds near the start of a short file", () => {
+  const content = Array.from({ length: 5 }, (_, i) => `line ${i + 1}`).join("\n");
+  const section = buildCodeContextSection("a.ts", 2, content);
+  assert.match(section, /lines 1-5/);
+});
+
+test("buildCodeContextSection reports an unreadable file without crashing", () => {
+  const section = buildCodeContextSection("a.ts", 10, null);
+  assert.match(section, /could not be read/);
+});
+
+test("buildCodeContextSection stays within MAX_CODE_CONTEXT_CHARS for a huge window", () => {
+  const content = Array.from({ length: 5000 }, (_, i) => `line ${i + 1} `.repeat(20)).join("\n");
+  const section = buildCodeContextSection("a.ts", 2500, content);
+  assert.ok(section.length <= MAX_CODE_CONTEXT_CHARS, "section must stay within the char cap");
 });
