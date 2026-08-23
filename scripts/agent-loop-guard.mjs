@@ -35,7 +35,9 @@ export function parseRoutingConfig(text) {
 
     const routeField = line.match(/^ {4}(\w+):\s*(.+)$/);
     if (routeField && current) {
-      current[routeField[1]] = routeField[2].trim();
+      const [, key, rawValue] = routeField;
+      const value = rawValue.trim();
+      current[key] = /^\d+$/.test(value) ? Number(value) : value;
       continue;
     }
 
@@ -60,19 +62,23 @@ export function machineLogin(role) {
   return `carpet-stain-${role}`;
 }
 
-// Which role, if any, this event maps to. First matching route wins; an
-// event nothing maps to (e.g. a human's plain comment) returns null.
+// The full matching route (role + its own max_turns), or null if nothing
+// maps. First matching route wins.
+export function findRoute(routing, event) {
+  return (
+    routing.routes.find(
+      (route) =>
+        route.event === event.eventType &&
+        route.action === event.eventAction &&
+        route.label === event.label,
+    ) ?? null
+  );
+}
+
+// Which role, if any, this event maps to. Thin wrapper over findRoute kept
+// for callers (and existing tests) that only need the role.
 export function resolveRoute(routing, event) {
-  for (const route of routing.routes) {
-    if (
-      route.event === event.eventType &&
-      route.action === event.eventAction &&
-      route.label === event.label
-    ) {
-      return route.role;
-    }
-  }
-  return null;
+  return findRoute(routing, event)?.role ?? null;
 }
 
 // A completed round is one reviewer turn: one time the turn-signal label
@@ -89,15 +95,17 @@ export function countTurnSignalRounds(timelineEvents, turnSignalLabel) {
 // equals the role THIS event would spawn" (never a blanket machine-user
 // drop — see #576's F1/F2), then the round cap, evaluated pre-spawn.
 export function evaluateGuard({ routing, event, roundCount }) {
-  const role = resolveRoute(routing, event);
+  const route = findRoute(routing, event);
+  const role = route?.role ?? null;
   if (!role) {
-    return { spawn: false, role: null, reason: "no route for this event" };
+    return { spawn: false, role: null, maxTurns: null, reason: "no route for this event" };
   }
 
   if (event.actorLogin === machineLogin(role)) {
     return {
       spawn: false,
       role,
+      maxTurns: null,
       reason: `filtered: actor ${event.actorLogin} is the role this event would spawn (self-spawn recursion)`,
     };
   }
@@ -106,6 +114,7 @@ export function evaluateGuard({ routing, event, roundCount }) {
     return {
       spawn: false,
       role,
+      maxTurns: null,
       reason: `round cap tripped: round ${roundCount} exceeds round_cap ${routing.round_cap} — halting for a human decision (ADR-0042)`,
     };
   }
@@ -113,6 +122,7 @@ export function evaluateGuard({ routing, event, roundCount }) {
   return {
     spawn: true,
     role,
+    maxTurns: route.max_turns,
     reason: `${role}'s turn, round ${roundCount || 1}/${routing.round_cap}`,
   };
 }
@@ -171,6 +181,13 @@ async function main() {
     // Fail-closed default (ADR-0048): no cap configured means don't run.
     throw new Error("agent-loop-guard: agent-routing.yml has no round_cap — refusing to run");
   }
+  for (const route of routing.routes) {
+    if (!route.max_turns) {
+      throw new Error(
+        `agent-loop-guard: agent-routing.yml route for role '${route.role}' has no max_turns — refusing to run`,
+      );
+    }
+  }
 
   const timeline = await fetchTimeline({
     apiUrl: GITHUB_API_URL,
@@ -194,7 +211,7 @@ async function main() {
   console.log(`agent-loop-guard: ${decision.reason}`);
   fs.appendFileSync(
     GITHUB_OUTPUT,
-    `spawn=${decision.spawn}\nrole=${decision.role ?? ""}\nreason=${decision.reason}\nturn_signal_label=${routing.turn_signal_label}\n`,
+    `spawn=${decision.spawn}\nrole=${decision.role ?? ""}\nreason=${decision.reason}\nturn_signal_label=${routing.turn_signal_label}\nmax_turns=${decision.maxTurns ?? ""}\n`,
   );
 }
 

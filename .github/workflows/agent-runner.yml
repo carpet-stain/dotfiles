@@ -157,22 +157,37 @@ jobs:
       # GitHub itself. The runner supplies the issue thread as prompt
       # context instead: "thread = journey" per #576's converged plan, fed
       # in rather than fetched, since read-only critics carry no `gh` tool.
+      #
+      # The prompt states the resolved role's one artifact, not a menu of
+      # both (#691): offering "a plan draft, or a critique" let a spawned
+      # backlog-manager read the thread, see "round 2 requested," and produce
+      # plan-reviewer's artifact instead of its own — routing already knows
+      # whose turn it is (steps.guard.outputs.role), so the prompt should too.
       - name: Build the invitation prompt from the issue thread
         if: steps.guard.outputs.spawn == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ROLE: ${{ steps.guard.outputs.role }}
         run: |
+          if [ "$ROLE" = "backlog-manager" ]; then
+            artifact="a plan draft"
+          else
+            artifact="a critique"
+          fi
           {
             echo "You are invited to your turn on issue #${{ github.event.issue.number }} of ${{ github.repository }}."
-            echo "Read the full thread below and respond as your role's own artifact (a plan draft, or a critique)."
+            echo "You are $ROLE. Read the full thread below and respond with $artifact — that is your role's one artifact for this turn, never the other role's."
             echo "---"
             gh issue view "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --json title,body,comments \
               --jq '"# " + .title + "\n\n" + .body + "\n\n" + (.comments | map("---\n**" + .author.login + "**:\n" + .body) | join("\n\n"))'
           } > "$RUNNER_TEMP/prompt.txt"
 
       # --permission-mode / --max-turns are the fail-closed spend ceiling
-      # (ADR-0048); values unverified against a live run — gate-0's own
-      # smoke test is what proves these out, not this diff.
+      # (ADR-0048). --max-turns is per-role (#686, agent-routing.yml's
+      # routes[].max_turns via steps.guard.outputs.max_turns) — the critic
+      # reads files for ground truth and needs more headroom than the
+      # drafter; a flat ceiling priced the cheap role at the expensive
+      # role's limit and the expensive role still aborted (#669).
       #
       # backlog-manager's frontmatter still carries Agent(plan-reviewer)
       # (submodule-owned, out of this repo's write scope) — --disallowedTools
@@ -195,7 +210,7 @@ jobs:
           # silent otherwise, with nothing to debug from (#576's own journal).
           set +e
           output=$(claude -p --agent "${{ steps.guard.outputs.role }}" \
-            --max-turns 8 \
+            --max-turns "${{ steps.guard.outputs.max_turns }}" \
             --permission-mode bypassPermissions \
             "${extra_args[@]}" \
             < "$RUNNER_TEMP/prompt.txt" 2>&1)
@@ -208,6 +223,17 @@ jobs:
             echo "$output"
             exit "$exit_code"
           fi
+
+      # Mechanical backstop for the prompt-wording fix above (#691): a
+      # backlog-manager response carrying plan-reviewer's own "Verdict:"
+      # output shape means the drafter free-ran into the critic's artifact.
+      # Fails loud before posting rather than publishing a critique that
+      # reads as independent review but isn't (scripts/agent-artifact-guard.mjs).
+      - name: Verify the response matches ${{ steps.guard.outputs.role }}'s own artifact
+        if: steps.guard.outputs.spawn == 'true'
+        env:
+          ROLE: ${{ steps.guard.outputs.role }}
+        run: RESPONSE_FILE="$RUNNER_TEMP/output.txt" node scripts/agent-artifact-guard.mjs
 
       # Posted via the fetched PAT, not GITHUB_TOKEN — attribution to the
       # machine user's own account is the whole point (ADR-0038/#540).

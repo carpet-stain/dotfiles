@@ -10,6 +10,14 @@
 #
 # round_cap is ADR-0042's three-round loop-safety constant, reused here, not
 # redefined — see #545's invocation-gating block.
+#
+# max_turns is per-role, not one flat value (#686): plan-reviewer reads files
+# for ground truth and is the role that blew the old flat ceiling of 8 on
+# #669; backlog-manager's turns completed comfortably under 8. Values are
+# headroom multiples over that measured baseline, not fitted to the one
+# observed failure (the abort was intermittent, not a clean function of
+# thread length) — see #686 for the $5.74/8-spawn cost baseline this trades
+# against.
 turn_signal_label: awaiting-plan-critique
 round_cap: 3
 
@@ -19,14 +27,17 @@ routes:
     action: labeled
     label: needs-plan-review
     role: backlog-manager
+    max_turns: 12
   # Drafter posted -> the runner flips the turn signal on -> reviewer's turn.
   - event: issues
     action: labeled
     label: awaiting-plan-critique
     role: plan-reviewer
+    max_turns: 24
   # Reviewer posted -> the runner flips the turn signal off -> next round,
   # drafter's turn again. Bounded by round_cap, never open-ended.
   - event: issues
     action: unlabeled
     label: awaiting-plan-critique
     role: backlog-manager
+    max_turns: 12

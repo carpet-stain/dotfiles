@@ -12,6 +12,7 @@ import {
   parseRoutingConfig,
   machineLogin,
   resolveRoute,
+  findRoute,
   countTurnSignalRounds,
   evaluateGuard,
 } from "./agent-loop-guard.mjs";
@@ -25,14 +26,17 @@ routes:
     action: labeled
     label: needs-plan-review
     role: backlog-manager
+    max_turns: 12
   - event: issues
     action: labeled
     label: awaiting-plan-critique
     role: plan-reviewer
+    max_turns: 24
   - event: issues
     action: unlabeled
     label: awaiting-plan-critique
     role: backlog-manager
+    max_turns: 12
 `;
 
 test("parseRoutingConfig reads top-level scalars and the routes list", () => {
@@ -45,7 +49,26 @@ test("parseRoutingConfig reads top-level scalars and the routes list", () => {
     action: "labeled",
     label: "needs-plan-review",
     role: "backlog-manager",
+    max_turns: 12,
   });
+});
+
+test("findRoute returns the full matching route, including its own max_turns", () => {
+  const routing = parseRoutingConfig(ROUTING_YAML);
+  assert.deepEqual(
+    findRoute(routing, { eventType: "issues", eventAction: "labeled", label: "awaiting-plan-critique" }),
+    {
+      event: "issues",
+      action: "labeled",
+      label: "awaiting-plan-critique",
+      role: "plan-reviewer",
+      max_turns: 24,
+    },
+  );
+  assert.equal(
+    findRoute(routing, { eventType: "issue_comment", eventAction: "created", label: "" }),
+    null,
+  );
 });
 
 test("machineLogin derives the machine-user login from the role name", () => {
@@ -93,6 +116,19 @@ test("evaluateGuard spawns the routed role on a fresh gate-open event", () => {
   });
   assert.equal(decision.spawn, true);
   assert.equal(decision.role, "backlog-manager");
+  assert.equal(decision.maxTurns, 12);
+});
+
+test("evaluateGuard surfaces the spawned role's own max_turns, not a flat value", () => {
+  const routing = parseRoutingConfig(ROUTING_YAML);
+  const decision = evaluateGuard({
+    routing,
+    event: { eventType: "issues", eventAction: "labeled", label: "awaiting-plan-critique", actorLogin: "carpet-stain-backlog-manager" },
+    roundCount: 1,
+  });
+  assert.equal(decision.spawn, true);
+  assert.equal(decision.role, "plan-reviewer");
+  assert.equal(decision.maxTurns, 24);
 });
 
 test("evaluateGuard filters an event authored by the role it would spawn (self-spawn recursion)", () => {
