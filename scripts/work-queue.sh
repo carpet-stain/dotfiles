@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Cross-repo dispatch digest (#457): what's pickable right now across the
 # repos in REPOS, without three ad-hoc `gh issue list` queries per session.
-# Pickable = open, carries a priority label, not `blocked`, and — for
+# Pickable = open, carries a priority label, not blocked (union of the
+# `blocked` label and an open native `blocked-by` link), and — for
 # `architecture`/`epic`-gated issues — carries `plan-approved` too.
 # `agent-ready` (needs zero human judgment) floats to its own section.
 # Read-only; uses only the read scopes the routine `GH_TOKEN` already has.
@@ -13,6 +14,8 @@ REPOS=(
   "dotfiles:dotfiles"
   "template:project-starter-template"
   "infra:infra"
+  "memory:agent-memory-server"
+  "agents:agents"
 )
 
 # Line budget: keeps the whole digest under 25 lines even with a large
@@ -25,7 +28,7 @@ combined="$(
     repo="${entry#*:}"
     short="${entry%%:*}"
     gh issue list --repo "$OWNER/$repo" --state open \
-      --json number,title,labels --limit 200 |
+      --json number,title,labels,blockedBy --limit 200 |
       jq --arg repo "$short" 'map(. + {repo: $repo})'
   done | jq -s 'add // []'
 )"
@@ -47,7 +50,10 @@ jq -r --argjson agent_max "$MAX_AGENT_READY" --argjson ready_max "$MAX_READY" '
     elif has_label("priority: low") then "low"
     else "none" end;
   def gated: has_label("architecture") or has_label("epic");
-  def is_blocked: has_label("blocked");
+  # Union, not swap (infra#309): the `blocked` label is a first-class signal for
+  # blockers with no native representation, alongside open `blocked-by` links.
+  def has_open_native_blocker: (.blockedBy.nodes // []) | any(.state == "OPEN");
+  def is_blocked: has_label("blocked") or has_open_native_blocker;
   def pickable: (priority_rank != 99) and (is_blocked | not)
     and ((gated | not) or has_label("plan-approved"));
   def clip: if (.title | length) > 72 then .title[0:71] + "…" else .title end;
