@@ -203,9 +203,9 @@ async function fetchPriorFindings() {
     });
     const botLogin = data.viewer.login;
     const threads = data.repository.pullRequest.reviewThreads.nodes;
-    console.log(`::debug::live-proof botLogin=${JSON.stringify(botLogin)} threads=${JSON.stringify(threads)}`);
+    console.log(`LIVE-PROOF botLogin=${JSON.stringify(botLogin)} threads=${JSON.stringify(threads)}`);
     const classified = classifyPriorThreads(threads, botLogin);
-    console.log(`::debug::live-proof classified=${JSON.stringify(classified)}`);
+    console.log(`LIVE-PROOF classified=${JSON.stringify(classified)}`);
     return classified;
   } catch (err) {
     console.log(`::warning title=PR advisory review::prior-findings fetch failed, reviewing without suppression: ${err.message}`);
