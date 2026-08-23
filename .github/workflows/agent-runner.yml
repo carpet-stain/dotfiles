@@ -104,26 +104,28 @@ jobs:
           fi
           aws sts get-caller-identity >/dev/null
 
-      - name: Fetch the ${{ steps.guard.outputs.role }} Anthropic key and PAT from SSM
+      - name: Fetch the ${{ steps.guard.outputs.role }} PAT and shared credentials from SSM
         id: creds
         if: steps.guard.outputs.spawn == 'true'
         run: |
           role="${{ steps.guard.outputs.role }}"
-          anthropic_key="$(aws ssm get-parameter --name "/runtime/${role}-anthropic-key" --with-decryption --query Parameter.Value --output text)"
           pat="$(aws ssm get-parameter --name "/runtime/${role}-pat" --with-decryption --query Parameter.Value --output text)"
+          # Shared across both roles, not per-role: routes model inference
+          # through OpenRouter's Anthropic-Messages-API-compatible endpoint
+          # against an already-funded account, instead of the two per-role
+          # Anthropic keys (infra#311) — see docs/adr/0051.
+          openrouter_key="$(aws ssm get-parameter --name /runtime/openrouter-api-key --with-decryption --query Parameter.Value --output text)"
           # A separate credential from the PAT above: this workflow's own
           # write identity for the turn-signal flip below, not an agent's
           # posting identity. See that step for why GITHUB_TOKEN can't do it.
-          # NOTE (#576): dotfiles_hosted_runtime_read grants this read as of
-          # infra#304, but NOT vended-token below (infra#305, still open) —
-          # this fetch 403s until it lands. Left wired (not stubbed) because
-          # it's the architecturally correct shape ADR-0048 calls for.
           runner_token="$(aws ssm get-parameter --name /runtime/vended-token --with-decryption --query Parameter.Value --output text)"
-          echo "::add-mask::$anthropic_key"
           echo "::add-mask::$pat"
+          echo "::add-mask::$openrouter_key"
           echo "::add-mask::$runner_token"
           {
-            echo "ANTHROPIC_API_KEY=$anthropic_key"
+            echo "ANTHROPIC_BASE_URL=https://openrouter.ai/api"
+            echo "ANTHROPIC_AUTH_TOKEN=$openrouter_key"
+            echo "ANTHROPIC_API_KEY="
             echo "AGENT_PAT=$pat"
             echo "RUNNER_TOKEN=$runner_token"
           } >>"$GITHUB_ENV"

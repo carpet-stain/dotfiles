@@ -37,18 +37,20 @@ Two gaps surfaced while implementing, neither visible from the plan text alone:
   literal reading of "posts directly."
 - **The OIDC-assumed role built for this (`dotfiles_hosted_runtime_read`, infra#217) only granted
   `ssm:GetParameter` on the two `*-anthropic-key` parameters, not the two `*-pat` parameters or
-  `vended-token` (below).** infra#217 was scoped to "read the Anthropic keys" specifically (its own
-  title); the PAT read path the converged plan assumes ("the runner delivers the machine-user PAT +
+  `vended-token`.** infra#217 was scoped to "read the Anthropic keys" specifically (its own title);
+  the PAT read path the converged plan assumes ("the runner delivers the machine-user PAT +
   Anthropic key via Actions OIDC->SSM") was never built. Confirmed by reading `iam/main.tf` and
   BOOTSTRAP.md §14 directly, not inferred from the issue text. Filed as
-  [infra#303](https://github.com/carpet-stain/infra/issues/303) (both PATs + vended-token).
-  **infra#304 (merged, closing #303) landed only the two PATs** — re-verified live against
-  `iam/main.tf` on `main` after the issue closed, not assumed from the closed state: the
-  `vended-token` third of the ask wasn't in that PR. Re-filed narrowly as
-  [infra#305](https://github.com/carpet-stain/infra/issues/305). Gate-0's own smoke test (one
-  spawn, one post, the recursion filter on the next event) no longer needs infra#305 — the label
-  flip only fires after a successful spawn — but any live run through the flip still 403s until it
-  lands. See Consequences.
+  [infra#303](https://github.com/carpet-stain/infra/issues/303) (both PATs + vended-token);
+  [infra#304](https://github.com/carpet-stain/infra/pull/304) landed the PATs, and a re-filed
+  [infra#305](https://github.com/carpet-stain/infra/pull/305) landed the vended-token grant.
+- **The two per-role Anthropic keys infra#217 provisioned had no credit balance.** Discovered live,
+  on gate-0's first real spawn attempts (both `backlog-manager` and `plan-reviewer` failed with
+  "Credit balance is too low") — not a design flaw, an unfunded-key gap. Rather than fund those two
+  keys directly, the maintainer already has a funded OpenRouter account and chose to route through
+  that instead: OpenRouter exposes an Anthropic-Messages-API-compatible endpoint (its "Anthropic
+  Skin", `https://openrouter.ai/api`) that Claude Code's `ANTHROPIC_BASE_URL`/`ANTHROPIC_AUTH_TOKEN`
+  can point at directly, verified live against OpenRouter's own docs, not assumed. See Decision.
 - **`GITHUB_TOKEN`-authored mutations never trigger a new workflow run.** Caught by PR review, not
   the initial build: GitHub documents that events produced by the default `secrets.GITHUB_TOKEN`
   are excluded from triggering further `pull_request`/`issues`/etc. workflow runs (the built-in
@@ -83,10 +85,12 @@ Two gaps surfaced while implementing, neither visible from the plan text alone:
    failing quiet. `round_cap` absent in the config is a hard error, not a default (ADR-0048's
    fail-closed rule).
 4. **Spawn.** `claude -p --agent <role> --max-turns 8 --permission-mode bypassPermissions`, one
-   session per invitation, each its own workflow run. Credentials: the role's Anthropic key
-   (`ANTHROPIC_API_KEY`) and PAT, both OIDC->SSM (`vars.AWS_HOSTED_RUNTIME_ROLE_ARN`), the PAT
-   verified against the expected `carpet-stain-<role>` login before use (mirrors `scripts/agent-gh.sh`'s
-   own check, ADR-0038). backlog-manager's definition is submodule-only (ADR-0039), so its turn
+   session per invitation, each its own workflow run. Credentials: a shared OpenRouter key
+   (`ANTHROPIC_BASE_URL=https://openrouter.ai/api` + `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_API_KEY`
+   cleared — not the two per-role Anthropic keys infra#217 provisioned, see Context) and the role's
+   PAT, both OIDC->SSM (`vars.AWS_HOSTED_RUNTIME_ROLE_ARN`), the PAT verified against the expected
+   `carpet-stain-<role>` login before use (mirrors `scripts/agent-gh.sh`'s own check, ADR-0038).
+   backlog-manager's definition is submodule-only (ADR-0039), so its turn
    additionally checks out `claude/global` and symlinks `backlog-manager.md` into `.claude/agents/`;
    plan-reviewer's already lives there, so its turn is a plain checkout. The session's own stdout is
    posted as the issue comment under the fetched PAT — never `GITHUB_TOKEN`, since attribution to the
@@ -104,9 +108,11 @@ neither machine-user PAT can label at all (`read` collaborators, ADR-0021, label
 The vended token triggers downstream runs the way a PAT does and authenticates as neither role's
 login, giving the exemption-by-construction property the design always wanted, on a credential that
 actually has it. Precedented: `aws_iam_role.pst_e2e_read` already grants an OIDC role read on this
-same parameter for a different consuming repo. Needs its own OIDC grant — asked for alongside the
-PAT grant in infra#303, landed in a narrower follow-up ([infra#305](https://github.com/carpet-stain/infra/issues/305))
-once infra#304 shipped the PAT half only.
+same parameter for a different consuming repo. Needed its own OIDC grant — asked for alongside the
+PAT grant in infra#303, landed in [infra#305](https://github.com/carpet-stain/infra/pull/305) once
+infra#304 shipped the PAT half only. The OpenRouter key (Decision point 4) rides a third grant on
+the same role, [infra#311](https://github.com/carpet-stain/infra/pull/311), which also removed the
+now-unused grants on the two per-role Anthropic-key parameters rather than leaving them orphaned.
 
 **One-writer** is `concurrency: {group: issue-<number>, cancel-in-progress: false}` — GitHub-native,
 no custom bookkeeping. **Spend ceiling** is `--max-turns 8` plus a 15-minute job `timeout-minutes`,
@@ -147,6 +153,11 @@ write property is untouched.
 - **Ship gate-0's live smoke test as part of this ADR's evidence** — not possible: the credential
   gap in Context blocks any run. Named as a real limitation (Consequences), not worked around by,
   e.g., a standing PAT in Actions secrets, which is precisely ADR-0035's rejected residual.
+- **Fund the two per-role Anthropic keys directly instead of switching to OpenRouter** — the
+  originally-designed path (infra#217), and still viable. Not taken because the maintainer already
+  has a funded OpenRouter account and explicitly chose to reuse it (see Context) — a credential-
+  source preference, not a defect in the direct-funding design. Revisit if OpenRouter's Anthropic
+  Skin proves unreliable for Claude Code's agentic tool-use/thinking features in practice.
 
 ## Consequences
 
@@ -156,18 +167,17 @@ the round cap's boundary) against the actual, live-verified state of `iam/main.t
 `.claude/agents/`, and this repo's label taxonomy — not a re-statement of the issue's own plan text.
 
 **What this does not prove yet:** neither of #576's two required proofs (added-overhead measurement,
-dead-man's-switch-survives-restarts) has a live data point. **Gate-0's own smoke test's credential
-gap is closed** (infra#304 landed both PATs), leaving one open dependency for that specific proof:
-seeding `vars.AWS_HOSTED_RUNTIME_ROLE_ARN` in this repo, outside this repo's own credential scope.
-**The full multi-turn loop's credential gap is not closed** —
-[infra#305](https://github.com/carpet-stain/infra/issues/305) (the vended-token grant this ADR's
-Decision needs for the turn-signal flip) is still open; every live run through that step 403s until
-it lands, which will surface as an overall failed workflow run even on a run whose spawn+post+filter
-succeeded. Overhead measurement is instrumented (four timestamps around the spawn step, Decision)
-and will produce a real number the first time a spawn actually runs; it just hasn't yet.
-`--permission-mode bypassPermissions` and the exact `claude -p` flag surface are correspondingly
-unverified against a real headless run — the ADR-0025 permission-mode landmine this spike's own
-investigation order names as gate 0's job to retire.
+dead-man's-switch-survives-restarts) has a live data point. All three credential grants this ADR
+needs are landed (infra#304 the PATs, infra#305 the vended-token, infra#311 the OpenRouter key) or
+in review with `tofu plan` verified clean (infra#311, pending the maintainer's `tofu apply` and
+`vars.AWS_HOSTED_RUNTIME_ROLE_ARN` seeding — both outside this repo's own credential scope, per
+BOOTSTRAP.md §14). Overhead measurement is instrumented (four timestamps around the spawn step,
+Decision) and will produce a real number the first time a spawn actually runs; it just hasn't yet.
+`--permission-mode bypassPermissions`, the exact `claude -p` flag surface, and OpenRouter's
+Anthropic-Messages-API compatibility for a headless `--agent` invocation specifically (verified for
+interactive Claude Code, not for this exact spawn shape) are correspondingly unverified against a
+real headless run — the ADR-0025 permission-mode landmine this spike's own investigation order
+names as gate 0's job to retire.
 
 **Named as future, not designed:** the architect role (unbuilt, ADR-0042 roster) and any pairing
 other than backlog-manager/plan-reviewer; hosted per-role memory over MCP from this runner
@@ -186,8 +196,8 @@ upstream, and gate-0 never spawns backlog-manager, so this is unverified either 
 [carpet-stain/agents#28](https://github.com/carpet-stain/agents/issues/28); revisit before
 backlog-manager's turn is ever spawned for real.
 
-**Revisit if:** infra#305 lands and a live run through the turn-signal flip either confirms or
-breaks an assumption named above (the `claude -p` flags, the `--disallowedTools` override
-behavior, the prompt-injection approach, the label FSM); the round cap or spend ceiling values
-prove wrong in practice; or the backlog-manager nested-subagent mitigation above is observed not to
-hold.
+**Revisit if:** infra#311 lands and applies, and a live run either confirms or breaks an assumption
+named above (the `claude -p` flags, OpenRouter's Anthropic-Skin compatibility with headless
+`--agent` spawns, the `--disallowedTools` override behavior, the prompt-injection approach, the
+label FSM); the round cap or spend ceiling values prove wrong in practice; or the backlog-manager
+nested-subagent mitigation above is observed not to hold.
