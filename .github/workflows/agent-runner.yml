@@ -227,8 +227,19 @@ jobs:
       - name: Fetch the runner's own write identity from SSM
         if: steps.guard.outputs.spawn == 'true'
         run: |
-          runner_token="$(aws ssm get-parameter --name /runtime/vended-token --with-decryption --query Parameter.Value --output text)"
+          # The parameter value is a {token, expires_at} JSON envelope, not a
+          # bare token string (infra's vend-token.yml) — passing the raw
+          # envelope as GH_TOKEN 401s with no useful error. Assert freshness
+          # too: this is a rotating credential, so an expired read should
+          # fail loud, not silently 401 downstream.
+          envelope="$(aws ssm get-parameter --name /runtime/vended-token --with-decryption --query Parameter.Value --output text)"
+          runner_token="$(echo "$envelope" | jq -r '.token')"
+          expires_at="$(echo "$envelope" | jq -r '.expires_at')"
           echo "::add-mask::$runner_token"
+          if [[ $(date -u -d "$expires_at" +%s) -le $(date -u +%s) ]]; then
+            echo "::error::/runtime/vended-token expired at $expires_at — vend-token.yml's 5-minute cron may be lagging."
+            exit 1
+          fi
           echo "RUNNER_TOKEN=$runner_token" >>"$GITHUB_ENV"
 
       # Runner-owned, via the vended token (RUNNER_TOKEN) — never GITHUB_TOKEN
