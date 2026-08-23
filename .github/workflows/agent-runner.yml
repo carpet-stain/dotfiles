@@ -54,9 +54,13 @@ jobs:
       - name: Mark dispatch start
         run: echo "T_START=$(date +%s%3N)" >>"$GITHUB_ENV"
 
+      # 22, not 20: @anthropic-ai/claude-code's own engines field requires
+      # >=22 — caught live during gate-0's first run (npm's EBADENGINE
+      # warning), not assumed; 20 was copied from pr-code-review.yml, which
+      # never installs that package.
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       # Deterministic, no-LLM: resolves the event to a role (or no route),
       # applies the self-spawn recursion filter, and trips the round cap
@@ -190,12 +194,24 @@ jobs:
           if [ "${{ steps.guard.outputs.role }}" = "backlog-manager" ]; then
             extra_args+=(--disallowedTools "Agent")
           fi
-          claude -p --agent "${{ steps.guard.outputs.role }}" \
+          # Captured (not redirected straight to a file) so a failure prints
+          # to the job log for diagnosis — gate-0's first live run failed
+          # silent otherwise, with nothing to debug from (#576's own journal).
+          set +e
+          output=$(claude -p --agent "${{ steps.guard.outputs.role }}" \
             --max-turns 8 \
             --permission-mode bypassPermissions \
             "${extra_args[@]}" \
-            < "$RUNNER_TEMP/prompt.txt" > "$RUNNER_TEMP/output.txt"
+            < "$RUNNER_TEMP/prompt.txt" 2>&1)
+          exit_code=$?
+          set -e
+          printf '%s\n' "$output" > "$RUNNER_TEMP/output.txt"
           echo "T_POST_SPAWN=$(date +%s%3N)" >>"$GITHUB_ENV"
+          if [ "$exit_code" -ne 0 ]; then
+            echo "::error::claude exited $exit_code"
+            echo "$output"
+            exit "$exit_code"
+          fi
 
       # Posted via the fetched PAT, not GITHUB_TOKEN — attribution to the
       # machine user's own account is the whole point (ADR-0038/#540).
