@@ -60,6 +60,14 @@ Two gaps surfaced while implementing, neither visible from the plan text alone:
   while missing that the flip would never re-fire the workflow at all — silently stopping the loop
   after one turn. Neither role's own PAT is a fix either: both machine users are `read` collaborators
   (ADR-0021), and GitHub label mutations need triage+ regardless of token type. See Decision.
+- **`/runtime/vended-token` holds a `{token, expires_at}` JSON envelope, not a bare token.** The
+  vended-token fix above still 401'd live. First hypothesis — the token was fetched too early and
+  went stale before use (infra's `vend-token.yml` rotates it every 5 minutes) — was plausible and
+  fixed first, but a same-second fetch-then-use retest still 401'd, disproving it. Reading
+  `vend-token.yml`'s own publish step (not guessing further) showed the real cause: it writes
+  `{token, expires_at} | tostring` to SSM. The runner was passing that whole JSON string as
+  `GH_TOKEN`, never a valid credential in any form regardless of freshness. Fixed by parsing the
+  envelope with `jq` and asserting `expires_at` hasn't passed before use.
 
 ## Decision
 
@@ -158,46 +166,73 @@ write property is untouched.
   has a funded OpenRouter account and explicitly chose to reuse it (see Context) — a credential-
   source preference, not a defect in the direct-funding design. Revisit if OpenRouter's Anthropic
   Skin proves unreliable for Claude Code's agentic tool-use/thinking features in practice.
+- **Assume the vended-token fetch-timing fix (above) was sufficient** — it wasn't, and shipping it
+  as the only fix would have been guessing from a plausible-looking correlation (a 2m18s gap on the
+  first failure) rather than reading the actual credential-minting source. A same-second retest
+  still failing is what forced the real diagnosis (the JSON-envelope bug) instead of declaring
+  victory on a fix that happened to be reasonable on its own merits but wasn't the cause.
 
 ## Consequences
 
-**What this proves:** the routing/loop-safety/spawn mechanics are designed and unit-tested
-(`scripts/agent-loop-guard.test.mjs` covers routing resolution, the recursion filter's scoping, and
-the round cap's boundary) against the actual, live-verified state of `iam/main.tf`,
-`.claude/agents/`, and this repo's label taxonomy — not a re-statement of the issue's own plan text.
+**Both of #576's required proofs are delivered, with real live data — not simulated, not
+extrapolated.** Test issues [#676](https://github.com/carpet-stain/dotfiles/issues/676) and
+[#682](https://github.com/carpet-stain/dotfiles/issues/682) ran the full loop end to end multiple
+times through real `claude -p --agent <role>` spawns over OpenRouter.
 
-**What this does not prove yet:** neither of #576's two required proofs (added-overhead measurement,
-dead-man's-switch-survives-restarts) has a live data point. All three credential grants this ADR
-needs are landed (infra#304 the PATs, infra#305 the vended-token, infra#311 the OpenRouter key) or
-in review with `tofu plan` verified clean (infra#311, pending the maintainer's `tofu apply` and
-`vars.AWS_HOSTED_RUNTIME_ROLE_ARN` seeding — both outside this repo's own credential scope, per
-BOOTSTRAP.md §14). Overhead measurement is instrumented (four timestamps around the spawn step,
-Decision) and will produce a real number the first time a spawn actually runs; it just hasn't yet.
-`--permission-mode bypassPermissions`, the exact `claude -p` flag surface, and OpenRouter's
-Anthropic-Messages-API compatibility for a headless `--agent` invocation specifically (verified for
-interactive Claude Code, not for this exact spawn shape) are correspondingly unverified against a
-real headless run — the ADR-0025 permission-mode landmine this spike's own investigation order
-names as gate 0's job to retire.
+- **Proof 1 — added overhead, isolated from model time.** Three measured turns:
+
+  | Turn | Setup | Post-processing | Dispatch overhead | Model inference (excluded) |
+  | ---- | ----- | --------------- | ----------------- | -------------------------- |
+  | 1    | 16.1s | 3.7s            | 19.8s             | 77.6s                      |
+  | 2    | 17.5s | 2.8s            | 20.3s             | 57.9s                      |
+  | 3    | 14.6s | 3.1s            | 17.6s             | 53.8s                      |
+
+  Dispatch overhead holds steady around 18-20 seconds regardless of how long the model itself
+  takes — consistently a fraction of the model-inference time manual orchestration also pays,
+  exactly the shape the proof required.
+
+- **Proof 2 — the dead-man's switch survives fresh processes.** It tripped twice, live, on two
+  separate issues, each time recomputed by a brand-new stateless Actions run reading nothing but
+  GitHub's own Timeline API — no in-memory state carried between runs, because there is none to
+  carry. `agent-loop-guard: round cap tripped: round 4 exceeds round_cap 3` fired deterministically
+  both times, correctly counting manual test re-triggers alongside real completed rounds (the
+  counter has no notion of "test" vs "real" — by design, per Decision point 3).
+
+**What this proves beyond the two required measurements:** the full drafter/reviewer loop actually
+cascades — `plan-reviewer`'s label removal auto-invited `backlog-manager`'s next round, and vice
+versa, for three real rounds on #682, entirely event-driven with no manual re-triggering after the
+first. The recursion filter held throughout: every self-authored `issue_comment` event was
+correctly filtered (shows as `cancelled`/no-op in the run history), never re-spawning the poster.
+Attribution held: every comment posted under the correct machine-user login, verified against the
+fetched PAT before posting. Both roles produced substantive, on-topic dialogue — `plan-reviewer`'s
+adversarial critique and `backlog-manager`'s point-by-point revision were coherent, grounded in the
+actual repo file under discussion, not generic filler.
+
+**What remains genuinely unverified:** whether `--disallowedTools "Agent"` actually overrides
+`backlog-manager`'s frontmatter `Agent(plan-reviewer)` tool (see the risk below) — backlog-manager's
+live spawns showed no observed nested-subagent event, but that's weak evidence at best, since
+nothing in the test prompts specifically invited delegation. `--permission-mode bypassPermissions`
+and the rest of the `claude -p` flag surface are now confirmed to work as used, since every live
+spawn completed cleanly.
 
 **Named as future, not designed:** the architect role (unbuilt, ADR-0042 roster) and any pairing
 other than backlog-manager/plan-reviewer; hosted per-role memory over MCP from this runner
-(ADR-0046 names it unbuilt; both roles run memoryless here, faithfully for plan-reviewer, as a
+(ADR-0046 names it unbuilt; both roles ran memoryless here, faithfully for plan-reviewer, as a
 stand-in for backlog-manager); an invocation-chain-marker cycle guard beyond the round cap (moot at
 two roles in strict ping-pong — relevant once a third role can be invited mid-loop); FaaS as an
 Actions alternative (ADR-0048's own deferred trigger, unchanged here).
 
 **A risk mitigated, not verified:** backlog-manager's frontmatter (submodule-owned, out of this
 repo's write scope) still carries `Agent(plan-reviewer)` for its local grooming-session use. The
-runner now passes `--disallowedTools "Agent"` on backlog-manager's spawn (Decision) as an attempted
+runner passes `--disallowedTools "Agent"` on backlog-manager's spawn (Decision) as an attempted
 structural guard against a headless `claude -p --agent backlog-manager` invoking that nested
 subagent mid-turn, which would reproduce the digest-relay interim Decision 3 retired — but whether
-a CLI-level deny actually overrides an `--agent`'s own frontmatter tools list is undocumented
-upstream, and gate-0 never spawns backlog-manager, so this is unverified either way. Tracked as
-[carpet-stain/agents#28](https://github.com/carpet-stain/agents/issues/28); revisit before
-backlog-manager's turn is ever spawned for real.
+a CLI-level deny actually overrides an `--agent`'s own frontmatter tools list remains undocumented
+upstream, and no live run so far has specifically exercised delegation pressure. Tracked as
+[carpet-stain/agents#28](https://github.com/carpet-stain/agents/issues/28); revisit with a prompt
+that actually invites delegation before trusting this fully.
 
-**Revisit if:** infra#311 lands and applies, and a live run either confirms or breaks an assumption
-named above (the `claude -p` flags, OpenRouter's Anthropic-Skin compatibility with headless
-`--agent` spawns, the `--disallowedTools` override behavior, the prompt-injection approach, the
-label FSM); the round cap or spend ceiling values prove wrong in practice; or the backlog-manager
-nested-subagent mitigation above is observed not to hold.
+**Revisit if:** a future run exercises backlog-manager's delegation pressure and the
+`--disallowedTools` mitigation is observed not to hold; the round cap or spend ceiling values prove
+wrong in practice at higher volume; or the full surface-agnostic runner (beyond this PoC's two-role
+scope) gets scheduled.
