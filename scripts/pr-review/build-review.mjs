@@ -160,6 +160,14 @@ export function buildReviewComments(parsedFiles, findings) {
   return { comments, dropped };
 }
 
+// Bound the reply prompt (#675): how much surrounding code to show around the
+// finding's line when re-reading it at HEAD, how much of one thread comment
+// to inject, and a hard char cap on the rendered code section so a giant
+// file can't blow out the prompt.
+export const REPLY_CODE_CONTEXT_LINES = 15;
+export const MAX_CODE_CONTEXT_CHARS = 4000;
+export const MAX_REPLY_COMMENT_CHARS = 1500;
+
 // Strips this reviewer's own comment formatting (buildReviewComments' "**severity**: "
 // prefix and a trailing ```suggestion``` block) back to the finding text, so a prior
 // comment fetched from GitHub compares against a fresh model finding on the same terms.
@@ -290,4 +298,123 @@ export function buildPriorFindingsSection(priorFindings) {
     out += line;
   }
   return out.trim();
+}
+
+// A carpet-stain-<role> login is one of this repo's own machine identities
+// (agent-loop-guard.mjs's `machineLogin`) — distinct from this reviewer's own
+// GITHUB_TOKEN login, which normalizeLogin/botLogin already excludes. Used
+// only to decide whether a comment resets the reply cap below, never to
+// filter who may trigger a reply at all (#675 — a blanket machine-account
+// filter would also block the implementor, defeating the point).
+const MACHINE_LOGIN_PATTERN = /^carpet-stain-/;
+
+function isHumanLogin(login, botLogin) {
+  const normalized = normalizeLogin(login);
+  return normalized !== normalizeLogin(botLogin) && !MACHINE_LOGIN_PATTERN.test(normalized ?? "");
+}
+
+/**
+ * Decides whether the reviewer should reply to a just-posted PR review
+ * comment (#675). Three independent guards, all fail-closed (unmatched or
+ * ambiguous input means don't reply):
+ * - Only replies on a thread it opened itself — never one it didn't start.
+ * - Self-spawn: never replies to its own comment (defense in depth; a
+ *   GITHUB_TOKEN-posted comment doesn't retrigger the workflow in the first
+ *   place, but the check stays cheap and explicit rather than assumed).
+ * - Reply cap: never replies twice in a row without an intervening HUMAN
+ *   comment — a rule, not a hard count, so a genuine back-and-forth with a
+ *   human never gets capped, but two machine identities (this reviewer and
+ *   an implementor agent) can't ping-pong with nobody watching.
+ *
+ * @param {{id: number|string, inReplyToId: number|string|null, authorLogin: string, body: string, path: string, line: number, createdAt: string}[]} comments
+ *   - every review comment on the PR (all threads flattened together).
+ * @param {number|string} triggeringCommentId - the comment that just fired
+ *   the `pull_request_review_comment: created` event.
+ * @param {string} botLogin - this reviewer's own posting identity (GraphQL
+ *   `viewer.login` for the token this run posts with).
+ * @returns {{reply: boolean, reason: string, thread?: typeof comments}}
+ */
+export function evaluateReplyGuard(comments, triggeringCommentId, botLogin) {
+  const triggering = comments.find((c) => String(c.id) === String(triggeringCommentId));
+  if (!triggering) {
+    return { reply: false, reason: "triggering comment not found" };
+  }
+  if (!triggering.inReplyToId) {
+    return { reply: false, reason: "not a reply to an existing review thread" };
+  }
+
+  const rootId = String(triggering.inReplyToId);
+  const thread = comments
+    .filter((c) => String(c.id) === rootId || String(c.inReplyToId) === rootId)
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+  const root = thread[0];
+  if (!root || normalizeLogin(root.authorLogin) !== normalizeLogin(botLogin)) {
+    return { reply: false, reason: "thread was not opened by this reviewer", thread };
+  }
+
+  const idx = thread.findIndex((c) => String(c.id) === String(triggeringCommentId));
+  if (idx <= 0) {
+    return { reply: false, reason: "triggering comment not found in its own thread", thread };
+  }
+  if (normalizeLogin(triggering.authorLogin) === normalizeLogin(botLogin)) {
+    return { reply: false, reason: "self-spawn: triggering comment is the reviewer's own", thread };
+  }
+
+  let botRepliedSinceHuman = false;
+  for (let i = 1; i < idx; i++) {
+    if (isHumanLogin(thread[i].authorLogin, botLogin)) botRepliedSinceHuman = false;
+    else if (normalizeLogin(thread[i].authorLogin) === normalizeLogin(botLogin)) botRepliedSinceHuman = true;
+  }
+  if (botRepliedSinceHuman) {
+    return { reply: false, reason: "reply cap: already replied once since the last human comment on this thread", thread };
+  }
+
+  return { reply: true, reason: "eligible: human/agent reply on a thread this reviewer opened", thread };
+}
+
+/**
+ * Renders the thread's full comment history for the reply prompt (#675) —
+ * the finding this reviewer raised, plus every reply since, in order. This
+ * reviewer's own prior messages go through the same extractFindingText used
+ * for suppression, so its comment-formatting markup doesn't leak into what
+ * looks like a quote of its own words.
+ * @param {{authorLogin: string, body: string}[]} thread - evaluateReplyGuard's `thread`.
+ * @param {string} botLogin
+ * @returns {string}
+ */
+export function buildThreadHistorySection(thread, botLogin) {
+  let out = "## Thread history — the finding you raised, and every reply since\n\n";
+  for (const c of thread) {
+    const isBot = normalizeLogin(c.authorLogin) === normalizeLogin(botLogin);
+    const role = isBot ? "Reviewer (you)" : c.authorLogin;
+    const body = isBot ? extractFindingText(c.body) : c.body;
+    out += `**${role}**: ${body.trim().slice(0, MAX_REPLY_COMMENT_CHARS)}\n\n`;
+  }
+  return out.trim();
+}
+
+/**
+ * Renders the "current code" section of the reply prompt (#675): a window
+ * around the finding's line in the file as it stands at the PR's current
+ * HEAD, not the (possibly stale) diff hunk originally reviewed — what makes
+ * "I've fixed this, look again" a question the model can actually answer.
+ * @param {string} path
+ * @param {number} line
+ * @param {string|null} fileContent - full file text at HEAD, or null when it
+ *   couldn't be fetched (deleted, renamed, or a transient API error).
+ * @returns {string}
+ */
+export function buildCodeContextSection(path, line, fileContent) {
+  if (fileContent == null) {
+    return `## Current code at ${path}:${line}\n\n(could not be read at the current HEAD — it may have been deleted or renamed since the finding was posted; answer from the thread history alone)`;
+  }
+  const lines = fileContent.split("\n");
+  const start = Math.max(1, line - REPLY_CODE_CONTEXT_LINES);
+  const end = Math.min(lines.length, line + REPLY_CODE_CONTEXT_LINES);
+  let out = `## Current code at ${path}, lines ${start}-${end} (current HEAD — may differ from the diff originally reviewed)\n\n`;
+  for (let n = start; n <= end; n++) {
+    out += `${n}: ${lines[n - 1]}\n`;
+  }
+  return out.slice(0, MAX_CODE_CONTEXT_CHARS).trim();
 }
