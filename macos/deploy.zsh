@@ -172,6 +172,10 @@ link_configs() {
   zf_ln -sf $DOTFILES_DIR/scripts/git-sync.sh $HOME/.local/bin/git-sync
   zf_ln -sf $DOTFILES_DIR/scripts/git-squash.sh $HOME/.local/bin/git-squash
 
+  # Repo-agnostic per-issue token accounting (#673) — on PATH so any repo's
+  # justfile can invoke it by bare name; dotfiles owns the one implementation.
+  zf_ln -sf $DOTFILES_DIR/scripts/record-token-cost.sh $HOME/.local/bin/record-token-cost
+
   # On PATH as a bare command so any repo's .envrc can fetch it (#377, ADR-0041).
   # macOS only — the Keychain read it relies on is.
   zf_ln -sf $DOTFILES_DIR/scripts/aws-vended-token.sh $HOME/.local/bin/aws-vended-token
