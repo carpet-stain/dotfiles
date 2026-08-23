@@ -41,3 +41,16 @@ routes:
     label: awaiting-plan-critique
     role: backlog-manager
     max_turns: 12
+  # Retry routes (#687): re-invite a role after a failed spawn without
+  # touching the turn signal — toggling that would misroute through the
+  # unlabeled route above instead of retrying this role. See #687.
+  - event: issues
+    action: labeled
+    label: retry-backlog-manager
+    role: backlog-manager
+    max_turns: 12
+  - event: issues
+    action: labeled
+    label: retry-plan-reviewer
+    role: plan-reviewer
+    max_turns: 24

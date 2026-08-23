@@ -238,6 +238,7 @@ jobs:
       # Posted via the fetched PAT, not GITHUB_TOKEN — attribution to the
       # machine user's own account is the whole point (ADR-0038/#540).
       - name: Post the response as ${{ steps.guard.outputs.role }}
+        id: post_response
         if: steps.guard.outputs.spawn == 'true'
         env:
           GH_TOKEN: ${{ env.AGENT_PAT }}
@@ -250,8 +251,11 @@ jobs:
       # confirmed live: T_PRE_SPAWN to this step spanned 2m18s on gate-0's
       # first successful spawn). Fetching immediately before use keeps the
       # fetch-to-use gap to a single step.
+      #
+      # !cancelled(), not the default implicit success(): a failed spawn
+      # still needs this token below to post the failure loud (#687).
       - name: Fetch the runner's own write identity from SSM
-        if: steps.guard.outputs.spawn == 'true'
+        if: steps.guard.outputs.spawn == 'true' && !cancelled()
         run: |
           # The parameter value is a {token, expires_at} JSON envelope, not a
           # bare token string (infra's vend-token.yml) — passing the raw
@@ -267,6 +271,21 @@ jobs:
             exit 1
           fi
           echo "RUNNER_TOKEN=$runner_token" >>"$GITHUB_ENV"
+
+      # Loud recovery path for #687/#669. Gated on post_response itself, not
+      # a bare failure(): a later step failing after the response already
+      # posted must not tell a human to retry a turn that already succeeded.
+      - name: Post the failed turn loud
+        if: failure() && steps.guard.outputs.spawn == 'true' && steps.post_response.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ env.RUNNER_TOKEN }}
+        run: |
+          role="${{ steps.guard.outputs.role }}"
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          body="Spawn for **$role** failed: $run_url
+
+          No response was posted, and this run's labels are untouched — that includes \`${{ steps.guard.outputs.turn_signal_label }}\` if it was already set, so this is not itself a second problem. To retry $role's turn without redrafting anything, apply the \`retry-$role\` label."
+          gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "$body"
 
       # Runner-owned, via the vended token (RUNNER_TOKEN) — never GITHUB_TOKEN
       # and never an agent's PAT. GITHUB_TOKEN-authored mutations are
@@ -289,6 +308,14 @@ jobs:
           else
             gh issue edit "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --remove-label "$label"
           fi
+
+      # Clears whichever retry-<role> label invited this run (#687), success
+      # or failure, so it's reusable — GitHub only fires `labeled` on add.
+      - name: Clear the retry label that invited this turn
+        if: steps.guard.outputs.spawn == 'true' && !cancelled() && startsWith(github.event.label.name, 'retry-')
+        env:
+          GH_TOKEN: ${{ env.RUNNER_TOKEN }}
+        run: gh issue edit "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --remove-label "${{ github.event.label.name }}"
 
       # Proof 1 (#576): total dispatch overhead, isolated from model
       # inference time (T_POST_SPAWN - T_PRE_SPAWN, excluded on purpose).
