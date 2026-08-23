@@ -246,6 +246,22 @@ test("classifyPriorThreads drops a thread this reviewer didn't open", () => {
   assert.deepEqual(classifyPriorThreads(threads, BOT_LOGIN), []);
 });
 
+test("classifyPriorThreads matches despite a [bot]-suffix mismatch between viewer.login and comment author.login", () => {
+  // Confirmed live (#674's live-proof run): GraphQL's viewer.login for the
+  // Actions token returns "github-actions[bot]", but that same identity's
+  // author.login on a comment it posted returns "github-actions" — no
+  // suffix. Passing the viewer-shaped login in as botLogin must still match
+  // the un-suffixed author login on the thread's own comments.
+  const threads = [
+    thread({
+      isResolved: true,
+      comments: [{ author: { login: "github-actions" }, body: "**blocking**: null check missing" }],
+    }),
+  ];
+  const [finding] = classifyPriorThreads(threads, "github-actions[bot]");
+  assert.equal(finding.status, "resolved");
+});
+
 test("classifyPriorThreads drops an outdated thread — its finding is eligible again", () => {
   const threads = [
     thread({
