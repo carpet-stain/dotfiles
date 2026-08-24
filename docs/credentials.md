@@ -149,6 +149,27 @@ above, #213) so the admin token actually wins over the ambient vended
 token. Unlike `infra-gh`, there's no `GH_REPO` default — admin operations
 are cross-repo, so the caller passes `-R` explicitly (#648).
 
+## Projects v2 board-sync PAT
+
+Provisioned by `carpet-stain/infra#301`: the ambient App installation
+token can't reach GitHub Projects v2 at all (`Resource not accessible by
+integration`, verified live) — unconditional regardless of whether the
+board is user- or org-owned (infra#301/#669's D1 finding), so the
+materialized project board (#669) needs its own credential. A classic
+PAT, `project` scope only, minted under the board-owning account and
+hand-populated into AWS SSM's `/runtime/board-sync-pat` — infra's
+`docs/BOOTSTRAP.md` §21 owns the mint/publish/rotation runbook.
+
+No local wrapper yet: the board-sync workflow (#669 Phase 3, not yet
+built) will read this credential in CI via infra's dedicated
+`dotfiles-board-sync-read` OIDC role (`iam/main.tf`), the same
+OIDC→SSM shape `pr-code-review.yml` uses for its OpenRouter key, not
+through a script on this repo's `PATH`.
+
+**Failure mode:** a missing or expired PAT fails the sync workflow's SSM
+fetch, or the subsequent Projects v2 API calls, loud — never a silent
+partial sync. Recovery is infra's side (§21's runbook), not this repo's.
+
 ## OpenRouter API key (aichat)
 
 The Alt-a floating aichat pane (#511) reads the login Keychain item
