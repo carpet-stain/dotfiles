@@ -208,10 +208,8 @@ fetched PAT before posting. Both roles produced substantive, on-topic dialogue �
 adversarial critique and `backlog-manager`'s point-by-point revision were coherent, grounded in the
 actual repo file under discussion, not generic filler.
 
-**What remains genuinely unverified:** whether `--disallowedTools "Agent"` actually overrides
-`backlog-manager`'s frontmatter `Agent(plan-reviewer)` tool (see the risk below) — backlog-manager's
-live spawns showed no observed nested-subagent event, but that's weak evidence at best, since
-nothing in the test prompts specifically invited delegation. `--permission-mode bypassPermissions`
+**What remains genuinely unverified:** nothing from this list — the `--disallowedTools "Agent"`
+question (see the risk below) is now closed by dotfiles#700. `--permission-mode bypassPermissions`
 and the rest of the `claude -p` flag surface are now confirmed to work as used, since every live
 spawn completed cleanly.
 
@@ -230,7 +228,11 @@ subagent mid-turn, which would reproduce the digest-relay interim Decision 3 ret
 a CLI-level deny actually overrides an `--agent`'s own frontmatter tools list remains undocumented
 upstream, and no live run so far has specifically exercised delegation pressure. Tracked as
 [carpet-stain/agents#28](https://github.com/carpet-stain/agents/issues/28); revisit with a prompt
-that actually invites delegation before trusting this fully.
+that actually invites delegation before trusting this fully. **Verified in
+[dotfiles#700](https://github.com/carpet-stain/dotfiles/issues/700):** a local `claude -p --agent
+backlog-manager --disallowedTools "Agent"` spawn's `init` event lists only `Read, Grep, Glob` as
+available tools — `Agent` is absent from the model's tool set entirely, not merely refused when
+called — confirming the CLI-level deny does override the frontmatter grant.
 
 **Revisit if:** a future run exercises backlog-manager's delegation pressure and the
 `--disallowedTools` mitigation is observed not to hold; the round cap or spend ceiling values prove
