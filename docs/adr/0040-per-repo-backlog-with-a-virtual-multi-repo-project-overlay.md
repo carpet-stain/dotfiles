@@ -18,6 +18,17 @@ Membership-enumeration, index-home, and probe-before-trust clauses amended 2026-
 — dedicated member repos join a project wholesale, with the dedicated-repo list moving to a
 committed manifest; the rest of this ADR is unchanged.
 
+Ordering clause amended 2026-08-24 by
+[53. Fully mechanical order and native-link-only membership](0053-fully-mechanical-order-and-native-link-only-membership-amending-the-adr-0040-ordering-and-enumeration-clauses.md)
+— the priority-ladder tiebreak is fully mechanical (stable (repo, number)), retiring the
+backlog-manager's judgment tiebreak; the rest of this ADR is unchanged.
+
+Membership-enumeration clause further narrowed and corrected 2026-08-24 by
+[53. Fully mechanical order and native-link-only membership](0053-fully-mechanical-order-and-native-link-only-membership-amending-the-adr-0040-ordering-and-enumeration-clauses.md)
+— source (b) is checkbox-leading-token-only, source (c) is native-link-graph-only (no free-text
+body scraping), and source (a)'s "same-repo" framing (below) is dropped — GitHub's sub-issues
+feature is cross-repo and cross-org; the rest of this ADR is unchanged.
+
 ## Context
 
 The backlog-manager operates per repo — GitHub Issues next to the code —
