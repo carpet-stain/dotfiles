@@ -13,6 +13,11 @@ reversed) and carries forward the content contract from
 (pointer layer, never-cache-status — the clause ADR-0036 kept; 0033's
 per-repo residency model is retired and not cited here).
 
+Membership-enumeration, index-home, and probe-before-trust clauses amended 2026-08-23 by
+[52. Dedicated member repos join a project wholesale](0052-dedicated-member-repos-join-a-project-wholesale-amending-the-adr-0040-membership-clause.md)
+— dedicated member repos join a project wholesale, with the dedicated-repo list moving to a
+committed manifest; the rest of this ADR is unchanged.
+
 ## Context
 
 The backlog-manager operates per repo — GitHub Issues next to the code —

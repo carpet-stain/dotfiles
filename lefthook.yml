@@ -149,6 +149,11 @@ pre-commit:
     - name: envrc-local-example-sync
       run: scripts/check-envrc-local-example.sh
 
+    - name: project-manifest
+      glob:
+        - "project-manifest.yaml"
+      run: scripts/check-project-manifest.sh
+
 pre-push:
   jobs:
     - name: envrc-local-example-sync

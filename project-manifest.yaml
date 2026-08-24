@@ -1,0 +1,14 @@
+# Anchor-keyed dedicated-member-repo manifest (ADR-0052, amending ADR-0040).
+#
+# A dedicated repo exists solely to serve one project — every one of its
+# issues is a project member by default, no upward link to the anchor
+# required. This list is authoritative for that union (ADR-0040's
+# probe-before-trust rule does not apply here — the link graph structurally
+# cannot express "all of this repo"). Editing this file wholesale-imports a
+# repo's entire backlog into a project's view: human or backlog-manager
+# sign-off, not a schema check alone. Validated by
+# scripts/check-project-manifest.sh.
+projects:
+  - anchor: dotfiles#545
+    dedicated_repos:
+      - agent-memory-server
