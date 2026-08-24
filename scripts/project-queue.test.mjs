@@ -11,6 +11,9 @@ import {
   resolveStatus,
   orderQueue,
   buildReport,
+  parseProjectManifest,
+  computeDedicatedMembers,
+  buildProjectReport,
 } from "./project-queue.mjs";
 
 // --- priorityFromLabels ------------------------------------------------
@@ -469,4 +472,118 @@ test("buildReport ranks the 2026-08-22 traversal's blocking chains in dependency
   const highRanks = [rankOf("agent-memory-server", 17), rankOf("dotfiles", 634)];
   const restRanks = queue.filter((n) => n.priority !== "high").map((n) => n.rank);
   assert.ok(Math.max(...highRanks) < Math.min(...restRanks));
+});
+
+// --- parseProjectManifest ---------------------------------------------------
+//
+// The real project-manifest.yaml content (ADR-0052) as a fixture — the most
+// realistic input this parser will ever see.
+const REAL_MANIFEST = `# Anchor-keyed dedicated-member-repo manifest (ADR-0052, amending ADR-0040).
+#
+# A dedicated repo exists solely to serve one project — every one of its
+# issues is a project member by default, no upward link to the anchor
+# required. This list is authoritative for that union (ADR-0040's
+# probe-before-trust rule does not apply here — the link graph structurally
+# cannot express "all of this repo"). Editing this file wholesale-imports a
+# repo's entire backlog into a project's view: human or backlog-manager
+# sign-off, not a schema check alone. Validated by
+# scripts/check-project-manifest.sh.
+projects:
+  - anchor: dotfiles#545
+    dedicated_repos:
+      - agent-memory-server
+`;
+
+test("parseProjectManifest parses the real project-manifest.yaml content", () => {
+  const projects = parseProjectManifest(REAL_MANIFEST);
+  assert.deepEqual(projects, [{ anchor: "dotfiles#545", dedicatedRepos: ["agent-memory-server"] }]);
+});
+
+test("parseProjectManifest handles multiple anchors and multiple dedicated repos each, ignoring comments/blank lines", () => {
+  const body = `# a leading comment
+
+projects:
+  - anchor: dotfiles#545
+    dedicated_repos:
+      - agent-memory-server
+      - some-other-repo
+  - anchor: infra#1
+    dedicated_repos:
+      - infra-only-repo
+`;
+  const projects = parseProjectManifest(body);
+  assert.deepEqual(projects, [
+    { anchor: "dotfiles#545", dedicatedRepos: ["agent-memory-server", "some-other-repo"] },
+    { anchor: "infra#1", dedicatedRepos: ["infra-only-repo"] },
+  ]);
+});
+
+test("parseProjectManifest returns an empty list for missing/empty input", () => {
+  assert.deepEqual(parseProjectManifest(undefined), []);
+  assert.deepEqual(parseProjectManifest(""), []);
+  assert.deepEqual(parseProjectManifest("projects:\n"), []);
+});
+
+// --- computeDedicatedMembers -------------------------------------------------
+
+test("computeDedicatedMembers unions every open issue from each dedicated repo", async () => {
+  const repoIssues = {
+    "agent-memory-server": [
+      { repo: "agent-memory-server", number: 1 },
+      { repo: "agent-memory-server", number: 2 },
+    ],
+  };
+  const issues = {
+    "agent-memory-server#1": { repo: "agent-memory-server", number: 1, state: "OPEN", labels: [], blockedBy: [] },
+    "agent-memory-server#2": { repo: "agent-memory-server", number: 2, state: "OPEN", labels: [], blockedBy: [] },
+  };
+  const listOpenIssues = (repo) => Promise.resolve(repoIssues[repo] ?? []);
+  const fetchIssue = (repo, number) => Promise.resolve(issues[`${repo}#${number}`]);
+  const { members, errored } = await computeDedicatedMembers(["agent-memory-server"], listOpenIssues, fetchIssue);
+  assert.deepEqual([...members.keys()].sort(), ["agent-memory-server#1", "agent-memory-server#2"]);
+  assert.equal(errored.size, 0);
+});
+
+test("computeDedicatedMembers marks a repo whose issue list fails to fetch as errored, without aborting other repos", async () => {
+  const listOpenIssues = (repo) => (repo === "broken-repo" ? Promise.reject(new Error("404")) : Promise.resolve([{ repo, number: 1 }]));
+  const fetchIssue = (repo, number) => Promise.resolve({ repo, number, state: "OPEN", labels: [], blockedBy: [] });
+  const { members, errored } = await computeDedicatedMembers(["broken-repo", "working-repo"], listOpenIssues, fetchIssue);
+  assert.equal(members.size, 1);
+  assert.ok(members.has("working-repo#1"));
+  assert.ok(errored.has("dedicated:broken-repo"));
+});
+
+// --- buildProjectReport ------------------------------------------------------
+
+test("buildProjectReport unions the ADR-0040 closure with the dedicated-repo members", async () => {
+  const graph = {
+    "dotfiles#545": { repo: "dotfiles", number: 545, state: "OPEN", body: "", labels: [], blockedBy: [], blocking: [], subIssues: [] },
+  };
+  const repoIssues = {
+    "agent-memory-server": [{ repo: "agent-memory-server", number: 17 }],
+  };
+  const dedicatedIssues = {
+    "agent-memory-server#17": { repo: "agent-memory-server", number: 17, state: "OPEN", labels: [{ name: "priority: high" }], blockedBy: [] },
+  };
+  const fetchIssue = (repo, number) => Promise.resolve(graph[`${repo}#${number}`] ?? dedicatedIssues[`${repo}#${number}`]);
+  const listOpenIssues = (repo) => Promise.resolve(repoIssues[repo] ?? []);
+
+  const { queue } = await buildProjectReport({ repo: "dotfiles", number: 545 }, fetchIssue, "carpet-stain", {
+    dedicatedRepos: ["agent-memory-server"],
+    listOpenIssues,
+  });
+  assert.deepEqual(
+    queue.map((n) => `${n.repo}#${n.number}`).sort(),
+    ["agent-memory-server#17", "dotfiles#545"],
+  );
+});
+
+test("buildProjectReport with no dedicatedRepos behaves exactly like buildReport", async () => {
+  const graph = {
+    "dotfiles#1": { repo: "dotfiles", number: 1, state: "OPEN", body: "", labels: [], blockedBy: [], blocking: [], subIssues: [] },
+  };
+  const fetchIssue = (repo, number) => Promise.resolve(graph[`${repo}#${number}`]);
+  const viaProjectReport = await buildProjectReport({ repo: "dotfiles", number: 1 }, fetchIssue);
+  const viaBuildReport = await buildReport({ repo: "dotfiles", number: 1 }, fetchIssue);
+  assert.deepEqual(viaProjectReport.queue, viaBuildReport.queue);
 });

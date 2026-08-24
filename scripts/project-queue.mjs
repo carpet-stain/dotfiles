@@ -12,8 +12,8 @@
 // scraping outside (b)'s checkbox lines (ADR-0040, narrowed by #669's
 // round-4/round-8 plan review: body-wide scraping would pull in every issue
 // an epic's prose merely mentions). The ADR-0052 dedicated-repo manifest
-// union is a second membership source behind the same interface — wired by
-// #668, out of scope here; Phase 1 builds only the ADR-0040 closure.
+// union (#669 Phase 3) is a second membership source behind the same
+// interface — buildProjectReport wires it in via project-manifest.yaml.
 
 const PRIORITY_LABELS = ["priority: high", "priority: medium", "priority: low"];
 const PRIORITY_RANK = { high: 0, medium: 1, low: 2, none: 3 };
@@ -215,6 +215,22 @@ export function orderQueue(nodes) {
   return { queue, warnings };
 }
 
+function finalizeReport(members, errored) {
+  const nodes = [...members.values()].map((node) => ({
+    id: node.id,
+    repo: node.repo,
+    number: node.number,
+    title: node.title,
+    state: node.state,
+    priority: priorityFromLabels(node.labels),
+    blockedBy: node.blockedBy ?? [],
+  }));
+  const byKey = new Map(nodes.map((node) => [refKey(node), node]));
+  for (const node of nodes) node.status = resolveStatus(node, byKey, errored);
+  const { queue, warnings } = orderQueue(nodes);
+  return { queue, warnings, errored: [...errored] };
+}
+
 /**
  * Full pipeline: traverse membership, resolve status, order the result. The
  * anchor itself failing to fetch throws — a report about nothing isn't a
@@ -230,18 +246,114 @@ export async function buildReport(anchor, fetchIssue, ownerScope) {
   if (!members.has(refKey(anchor))) {
     throw new Error(`project-queue: couldn't fetch anchor ${refKey(anchor)}`);
   }
-  const nodes = [...members.values()].map((node) => ({
-    repo: node.repo,
-    number: node.number,
-    title: node.title,
-    state: node.state,
-    priority: priorityFromLabels(node.labels),
-    blockedBy: node.blockedBy ?? [],
-  }));
-  const byKey = new Map(nodes.map((node) => [refKey(node), node]));
-  for (const node of nodes) node.status = resolveStatus(node, byKey, errored);
-  const { queue, warnings } = orderQueue(nodes);
-  return { queue, warnings, errored: [...errored] };
+  return finalizeReport(members, errored);
+}
+
+// --- ADR-0052 dedicated-repo union (#669 Phase 3) --------------------------
+//
+// A dedicated repo exists solely to serve one project: every one of its
+// open issues joins membership by default, no upward link to the anchor
+// required. The manifest (project-manifest.yaml) is the authoritative,
+// committed source for which repos are dedicated to which anchor — never
+// the memory graph (ADR-0046 forbids a CI workflow reading the
+// backlog-manager's private store).
+
+const MANIFEST_ANCHOR_RE = /^\s*-\s*anchor:\s*(\S+)\s*$/;
+const MANIFEST_DEDICATED_REPOS_HEADER_RE = /^\s*dedicated_repos:\s*$/;
+const MANIFEST_REPO_ITEM_RE = /^\s*-\s*(\S+)\s*$/;
+
+/**
+ * Parses project-manifest.yaml's fixed, committed shape (ADR-0052):
+ * `projects: [{anchor: "<repo>#<number>", dedicated_repos: [...]}]`. Not a
+ * general YAML parser — the schema is small and fixed on purpose, and this
+ * repo carries no YAML dependency (see check-project-manifest.sh, which
+ * validates the same shape in bash for the same reason).
+ * @param {string|undefined} yamlText
+ * @returns {{anchor: string, dedicatedRepos: string[]}[]}
+ */
+export function parseProjectManifest(yamlText) {
+  const projects = [];
+  let current = null;
+  let inRepos = false;
+  for (const line of (yamlText ?? "").split("\n")) {
+    if (/^\s*#/.test(line) || line.trim() === "") continue;
+    const anchorMatch = line.match(MANIFEST_ANCHOR_RE);
+    if (anchorMatch) {
+      current = { anchor: anchorMatch[1], dedicatedRepos: [] };
+      projects.push(current);
+      inRepos = false;
+      continue;
+    }
+    if (MANIFEST_DEDICATED_REPOS_HEADER_RE.test(line)) {
+      inRepos = true;
+      continue;
+    }
+    if (inRepos && current) {
+      const repoMatch = line.match(MANIFEST_REPO_ITEM_RE);
+      if (repoMatch) {
+        current.dedicatedRepos.push(repoMatch[1]);
+        continue;
+      }
+      inRepos = false;
+    }
+  }
+  return projects;
+}
+
+/**
+ * Wholesale membership from every open issue in each dedicated repo.
+ * `listOpenIssues(repo)` failing marks that repo `errored` (as
+ * `dedicated:<repo>`) rather than aborting the whole run — same
+ * never-silently-complete contract as computeMembership's per-ref errors.
+ * @param {string[]} dedicatedRepos
+ * @param {(repo: string) => Promise<{repo: string, number: number}[]>} listOpenIssues
+ * @param {(repo: string, number: number) => Promise<object>} fetchIssue
+ */
+export async function computeDedicatedMembers(dedicatedRepos, listOpenIssues, fetchIssue) {
+  const members = new Map();
+  const errored = new Set();
+  for (const repo of dedicatedRepos) {
+    let refs;
+    try {
+      refs = await listOpenIssues(repo);
+    } catch {
+      errored.add(`dedicated:${repo.toLowerCase()}`);
+      continue;
+    }
+    for (const ref of refs) {
+      const key = refKey(ref);
+      if (members.has(key)) continue;
+      try {
+        members.set(key, await fetchIssue(ref.repo, ref.number));
+      } catch {
+        errored.add(key);
+      }
+    }
+  }
+  return { members, errored };
+}
+
+/**
+ * buildReport's ADR-0040 closure, unioned with ADR-0052's dedicated-repo
+ * members. Omit `dedicatedRepos` (or pass an empty array) to get exactly
+ * buildReport's behavior — this is additive, not a replacement.
+ * @param {{repo: string, number: number}} anchor
+ * @param {(repo: string, number: number) => Promise<object>} fetchIssue
+ * @param {string} [ownerScope]
+ * @param {{dedicatedRepos?: string[], listOpenIssues?: (repo: string) => Promise<{repo: string, number: number}[]>}} [options]
+ */
+export async function buildProjectReport(anchor, fetchIssue, ownerScope, { dedicatedRepos = [], listOpenIssues } = {}) {
+  const { members, errored } = await computeMembership(anchor, fetchIssue, ownerScope);
+  if (!members.has(refKey(anchor))) {
+    throw new Error(`project-queue: couldn't fetch anchor ${refKey(anchor)}`);
+  }
+  if (dedicatedRepos.length > 0) {
+    if (!listOpenIssues) throw new Error("project-queue: dedicatedRepos given without a listOpenIssues fetcher");
+    const dedicated = await computeDedicatedMembers(dedicatedRepos, listOpenIssues, fetchIssue);
+    for (const [key, node] of dedicated.members) if (!members.has(key)) members.set(key, node);
+    for (const key of dedicated.errored) errored.add(key);
+  }
+  return finalizeReport(members, errored);
 }
 
 // --- CLI shell (I/O) -------------------------------------------------------
@@ -280,7 +392,7 @@ async function ghFetchIssue(execFileAsync, owner, repo, number) {
     "view",
     `https://github.com/${owner}/${repo}/issues/${number}`,
     "--json",
-    "number,title,state,body,labels,blockedBy,blocking,subIssues",
+    "id,number,title,state,body,labels,blockedBy,blocking,subIssues",
   ]);
   const raw = JSON.parse(stdout);
   // A ref outside `owner` is dropped, never silently fetched as if it were
@@ -295,6 +407,10 @@ async function ghFetchIssue(execFileAsync, owner, repo, number) {
       })
       .map(({ repo, number }) => ({ repo, number }));
   return {
+    // GraphQL node id — carried through to the final report so #669 Phase
+    // 3's sync can add a board item (addProjectV2ItemById) without a
+    // second per-issue lookup.
+    id: raw.id,
     repo,
     number: raw.number,
     title: raw.title,
@@ -307,6 +423,24 @@ async function ghFetchIssue(execFileAsync, owner, repo, number) {
   };
 }
 
+async function ghListOpenIssues(execFileAsync, owner, repo) {
+  const { stdout } = await execFileAsync("gh", ["issue", "list", "--repo", `${owner}/${repo}`, "--state", "open", "--json", "number", "--limit", "500"]);
+  return JSON.parse(stdout).map((issue) => ({ repo, number: issue.number }));
+}
+
+// Relative to CWD, matching check-project-manifest.sh's own convention —
+// both assume they run from the repo root. Missing file (most repos have
+// none) is not an error: no dedicated-repo union for this anchor, same as
+// buildReport's plain closure.
+async function readProjectManifest() {
+  const fs = await import("node:fs/promises");
+  try {
+    return parseProjectManifest(await fs.readFile("project-manifest.yaml", "utf8"));
+  } catch {
+    return [];
+  }
+}
+
 async function main() {
   const arg = process.argv[2];
   if (!arg) throw new Error("usage: project-queue.mjs <owner>/<repo>#<number> | <issue-url>");
@@ -317,7 +451,14 @@ async function main() {
 
   const { owner, repo, number } = parseAnchorArg(arg);
   const fetchIssue = (r, n) => ghFetchIssue(execFileAsync, owner, r, n);
-  const { queue, warnings, errored } = await buildReport({ repo, number }, fetchIssue, owner);
+  const manifest = await readProjectManifest();
+  const dedicatedRepos = manifest.find((p) => p.anchor === `${repo}#${number}`)?.dedicatedRepos ?? [];
+  const listOpenIssues = (r) => ghListOpenIssues(execFileAsync, owner, r);
+
+  const { queue, warnings, errored } =
+    dedicatedRepos.length > 0
+      ? await buildProjectReport({ repo, number }, fetchIssue, owner, { dedicatedRepos, listOpenIssues })
+      : await buildReport({ repo, number }, fetchIssue, owner);
 
   for (const warning of warnings) {
     console.error(`project-queue: cycle detected, broke deterministically at ${warning.forced.repo}#${warning.forced.number}`);
