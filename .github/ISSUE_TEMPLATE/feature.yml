@@ -15,7 +15,7 @@ body:
     id: proposal
     attributes:
       label: Proposal
-      description: What you'd build or change, and the alternatives you weighed.
+      description: What you'd build or change, and the alternatives you weighed. No file paths or code — they stale fast; a snippet that itself encodes a decision is the exception.
     validations:
       required: true
   - type: textarea
@@ -23,5 +23,12 @@ body:
     attributes:
       label: Acceptance
       description: What "done" looks like — concrete, checkable criteria.
+    validations:
+      required: false
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Non-goals
+      description: What this deliberately won't do.
     validations:
       required: false
