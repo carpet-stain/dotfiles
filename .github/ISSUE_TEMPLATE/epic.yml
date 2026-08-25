@@ -1,0 +1,34 @@
+name: Epic
+description: A body of work with one finish line
+title: "epic(<scope>): "
+labels: ["epic"]
+body:
+  # <scope> = this repo's scope table (AGENTS.md): zsh, zellij, git, nvim, macos, theme, python.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: The one finish line the children complete together. No file paths or code — they stale fast; a snippet that itself encodes a decision is the exception.
+    validations:
+      required: true
+  - type: textarea
+    id: children
+    attributes:
+      label: Children
+      description: Checkbox task-list — each child a vertical slice, shippable alone, sized to one session; an undecided question becomes a spike, not a guessed feature. May start empty while shaping.
+    validations:
+      required: false
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Non-goals
+      description: What this epic deliberately won't absorb.
+    validations:
+      required: false
+  - type: textarea
+    id: sequencing
+    attributes:
+      label: Blocked by / sequencing
+      description: Prefer native blocked-by links; text only for ordering they can't express.
+    validations:
+      required: false
