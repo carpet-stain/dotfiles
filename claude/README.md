@@ -12,6 +12,13 @@ submodule + deploy mechanics; dotfiles#569 moved the two files held back for the
 (`backlog-manager.md`, `voice.md`) once their in-flight PRs settled. Both are done — everything
 that can live in `claude/global/` now does.
 
+## Where new agent-config work happens
+
+New rules, skills, personas, or behavior changes are issues/PRs against
+[`carpet-stain/agents`](https://github.com/carpet-stain/agents), not here — this repo only
+consumes that tree (deploy symlinks) plus the two named local exceptions below
+(`carpet-stain/agents#96`).
+
 ## What stays local to this repo
 
 Two things aren't part of the shared tree, both specific to this repo rather than to how Claude
