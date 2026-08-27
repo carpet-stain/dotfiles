@@ -45,6 +45,15 @@ amends, and the old ADR gets a dated one-line marker under its Status linking to
 (no adr-tools support; edit both by hand). First instance: ADR-0037 amending ADR-0035's voices
 clause.
 
+## Agent-config decisions
+
+Agent-config ADRs (rules, agents, skills — anything under `claude/`) are born in
+[`carpet-stain/agents`](https://github.com/carpet-stain/agents) going forward, not here
+(ADR-0039). ADRs already recorded here stay put as historical provenance — never edited to match
+a later agents-repo decision. When one supersedes or amends a clause here, the affected ADR gets
+the same dated Status-marker pointer as "Amending a clause" above, naming the agents ADR instead
+of a local one (the pattern proposed for ADR-0025 ← agents ADR-0004, dotfiles#731).
+
 ## Template
 
 [`templates/template.md`](templates/template.md) is the adr-tools template:
