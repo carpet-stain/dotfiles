@@ -250,6 +250,12 @@ sentinel floor. **ADR-0041 owns the model**;
 setup, the OpenRouter key, and the launchd jobs riding the same
 credentials. What an agent needs session to session:
 
+- Attributed GitHub writes (a comment or review posted as the agent's own
+  identity) ride `agent-gh <role> -- gh ...` (`docs/credentials.md` §
+  Agent-account PATs: `agent-gh`) — fetches the role's PAT from SSM and
+  asserts the login before running. The ambient `GH_TOKEN` above is the
+  repo-scoped vended App token: CI/routine plumbing, never an agent's
+  identity.
 - A `gh` (or git-cliff) 401 naming `vended-unavailable-see-453` means the
   vended path is down — see the fetch error at shell entry. An expired
   token (~1h life) in a long-lived shell: a new shell, or `direnv reload`.
