@@ -153,10 +153,13 @@ jobs:
         # automation ties the two together yet.
         run: npm install -g @anthropic-ai/claude-code@2.1.220
 
-      # plan-reviewer's tool surface is Read/Grep/Glob only — it never reads
-      # GitHub itself. The runner supplies the issue thread as prompt
-      # context instead: "thread = journey" per #576's converged plan, fed
-      # in rather than fetched, since read-only critics carry no `gh` tool.
+      # plan-reviewer's frontmatter now also declares mcp__github (agents#27),
+      # a scoped read-only GitHub tool — Read/Grep/Glob are no longer its only
+      # surface (see the Spawn step below for the credential wiring, #710).
+      # This step's fed-context prompt stays as-is regardless: "thread =
+      # journey" per #576's converged plan still holds, and the new tool is
+      # additive, not a replacement — removing a working mechanism isn't
+      # warranted by adding an optional one.
       #
       # The prompt states the resolved role's one artifact, not a menu of
       # both (#691): offering "a plan draft, or a critique" let a spawned
@@ -199,6 +202,11 @@ jobs:
       # docs/adr/0051 tracks it as a named, unresolved risk either way.
       - name: Spawn ${{ steps.guard.outputs.role }}
         if: steps.guard.outputs.spawn == 'true'
+        env:
+          # plan-reviewer's mcp__github tool (agents#27) authenticates with
+          # this var; harmless for backlog-manager too, whose frontmatter
+          # declares no such server (#710).
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ env.AGENT_PAT }}
         run: |
           echo "T_PRE_SPAWN=$(date +%s%3N)" >>"$GITHUB_ENV"
           extra_args=()
