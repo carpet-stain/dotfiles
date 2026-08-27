@@ -148,7 +148,10 @@ write property is untouched.
   guarantee") the role's own definition states as load-bearing. Feeding the thread into the prompt
   keeps that guarantee intact while still satisfying "thread = journey." Whether that guarantee
   should eventually loosen is tracked separately, not decided here:
-  [carpet-stain/agents#27](https://github.com/carpet-stain/agents/issues/27).
+  [carpet-stain/agents#27](https://github.com/carpet-stain/agents/issues/27). **Resolved:**
+  agents#27 gave plan-reviewer a scoped, read-only `mcp__github` tool; dotfiles#710 wires this
+  runner's existing PAT into it. The fed-context contract above is unchanged — additive, not a
+  replacement.
 - **`secrets.GITHUB_TOKEN` for the turn-signal flip** — the original design (see Context): correct
   about the recursion filter, wrong about GitHub's own anti-recursion behavior on the token itself.
   Rejected once caught in PR review; replaced by the vended token (Decision).
