@@ -134,6 +134,17 @@ rejected, and why. A small, easily-reversed choice is a PR description or a
 code comment, not an ADR. See [`docs/adr/README.md`](docs/adr/README.md)
 for how to create one (adr-tools, template, numbering, superseding).
 
+### Cross-repo "what's next" (dotfiles#669)
+
+A materialized GitHub Projects v2 board ("Agent operating model — what's
+next", user-owned) mirrors the agent operating model's cross-repo backlog
+(ADR-0040, amended by ADR-0052 / ADR-0053) — `scripts/project-queue.mjs`
+computes it, `scripts/board-sync-reconcile.mjs` +
+`.github/workflows/board-sync.yml` keep it synced. **Every field on the
+board regenerates on each sync; a hand-edit vanishes on the next run** —
+the board's own description is that contract's actual home, this is only
+the pointer.
+
 ## Verifying changes
 
 No test suite or architectural layers here — Testing By Layer's idea
