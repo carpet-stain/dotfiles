@@ -1,0 +1,138 @@
+name: Board sync
+
+# Scheduled (not event-driven — instant reaction is infra#310's separate
+# fight) reconcile of the materialized project board (#669 Phase 3) against
+# project-queue.mjs's live computation. Two jobs, deliberately isolated
+# (mirrors agents-sync.yml's render/open-pr split): `compute` reads across
+# every member repo with a read-only credential and never sees the
+# write-capable board-sync PAT; `sync` holds that PAT and only ever touches
+# Projects v2, never re-derives membership itself. A `compute` failure
+# (including an incomplete traversal — project-queue.mjs exits nonzero when
+# any reference failed to resolve, #669 Phase 1's fail-closed contract)
+# means `sync` is skipped by GitHub's default `needs:` behavior — last-good
+# board state stands, satisfying #669's "an incomplete traversal skips the
+# run rather than deleting board items" acceptance criterion with no extra
+# guard logic here.
+#
+# CREDENTIAL GAP, NOT YET PROVISIONED (flagged 2026-08-24, PR #<fill in>):
+# `compute` needs read access to every member repo, including infra.
+# docs/credentials.md's only CI-available cross-repo credential — the
+# vended App installation token — deliberately excludes infra from its
+# allowlist (infra's own containment boundary: "a routine agent-reachable
+# credential must never rewrite the governance that constrains it"). No
+# existing CI credential covers infra's issues; `infra-gh`'s escalation
+# falls back to the maintainer's local keyring PAT, unavailable here. This
+# workflow is written against a placeholder credential
+# (AWS_BOARD_SYNC_READ_ROLE_ARN / SSM /runtime/board-sync-read-token) that
+# does not exist yet. Provisioning it — a new infra-side credential? a
+# widened vended-token allowlist? something else? — is a decision for the
+# maintainer, not made here. Until it lands, `compute`'s guard step fails
+# loud rather than silently skipping, so the gap stays visible in the
+# Actions tab instead of a workflow that quietly never runs.
+on:
+  schedule:
+    - cron: "43 8 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: board-sync
+  cancel-in-progress: false
+
+env:
+  BOARD_ANCHOR: carpet-stain/dotfiles#545
+
+jobs:
+  compute:
+    name: compute membership
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout dotfiles
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # See this file's header: this role/parameter pair is a placeholder,
+      # not yet provisioned.
+      - name: Assume the board-sync read role via OIDC
+        id: aws-creds
+        continue-on-error: true
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_BOARD_SYNC_READ_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Fetch the cross-repo read token from SSM
+        run: |
+          if [ -z "${{ vars.AWS_BOARD_SYNC_READ_ROLE_ARN }}" ]; then
+            echo "::error::AWS_BOARD_SYNC_READ_ROLE_ARN is unset — see this file's header: the cross-repo read credential (including infra) isn't provisioned yet."
+            exit 1
+          fi
+          if [ "${{ steps.aws-creds.outcome }}" != "success" ]; then
+            echo "::error::OIDC role assume failed for the board-sync read role."
+            exit 1
+          fi
+          set +e
+          token="$(aws ssm get-parameter --name /runtime/board-sync-read-token --with-decryption --query Parameter.Value --output text 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ] || [ -z "$token" ]; then
+            echo "::error::board-sync-read-token SSM fetch failed."
+            exit 1
+          fi
+          echo "::add-mask::$token"
+          echo "GH_TOKEN=$token" >>"$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Compute the queue report
+        run: node scripts/project-queue.mjs "$BOARD_ANCHOR" >report.json
+
+      - name: Upload the report
+        uses: actions/upload-artifact@v4
+        with:
+          name: board-report
+          path: report.json
+
+  sync:
+    name: reconcile board
+    needs: compute
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout dotfiles
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download the report
+        uses: actions/download-artifact@v4
+        with:
+          name: board-report
+
+      - name: Assume the board-sync PAT read role via OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_BOARD_SYNC_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # docs/credentials.md's "Projects v2 board-sync PAT" — infra#301,
+      # dedicated-repo-read role `dotfiles-board-sync-read`.
+      - name: Fetch the board-sync PAT from SSM
+        run: |
+          token="$(aws ssm get-parameter --name /runtime/board-sync-pat --with-decryption --query Parameter.Value --output text)"
+          echo "::add-mask::$token"
+          echo "BOARD_SYNC_TOKEN=$token" >>"$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Reconcile the board
+        run: node scripts/board-sync-reconcile.mjs report.json
